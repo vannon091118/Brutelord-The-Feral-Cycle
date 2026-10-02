@@ -1,0 +1,350 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(120% 90% at 50% 12%, #1c150e 0%, #120d09 45%, #0a0806 100%);
+  color: #d9c7ad;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ---------------------------------------------------------------- world fx */
+
+@keyframes dl-hive-breathe {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.022) rotate(-0.5deg);
+  }
+}
+
+@keyframes dl-hive-mutate {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  22% {
+    transform: scale(1.1) rotate(1.6deg);
+  }
+  45% {
+    transform: scale(1.02) rotate(-1.2deg);
+  }
+  70% {
+    transform: scale(1.07) rotate(0.8deg);
+  }
+  100% {
+    transform: scale(1.03) rotate(0deg);
+  }
+}
+
+@keyframes dl-core-open {
+  0% {
+    transform: scale(0.82);
+    opacity: 0.75;
+  }
+  45% {
+    transform: scale(1.55);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.12);
+    opacity: 0.95;
+  }
+}
+
+@keyframes dl-core-idle {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes dl-tile-hint {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes dl-earth-tremor {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-0.5px, 0.4px);
+  }
+  50% {
+    transform: translate(0.5px, -0.4px);
+  }
+  75% {
+    transform: translate(-0.3px, -0.3px);
+  }
+}
+
+@keyframes dl-tile-collapse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(0.88) rotate(-3deg);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(0.2) rotate(6deg);
+    opacity: 0;
+  }
+}
+
+@keyframes dl-floor-reveal {
+  0% {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dl-floor-ring {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------- dungling fx */
+
+@keyframes dl-dungling-bob {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-1.6px) scaleY(1.035);
+  }
+}
+
+@keyframes dl-dungling-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.045, 0.965);
+  }
+}
+
+@keyframes dl-dungling-walk {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2.5deg);
+  }
+  50% {
+    transform: translateY(-3.4px) rotate(2.5deg);
+  }
+}
+
+@keyframes dl-dungling-work {
+  0%,
+  100% {
+    transform: rotate(-9deg) translateY(0);
+  }
+  50% {
+    transform: rotate(11deg) translateY(-1.5px);
+  }
+}
+
+@keyframes dl-dungling-arm-work {
+  0%,
+  100% {
+    transform: rotate(24deg);
+  }
+  50% {
+    transform: rotate(-58deg);
+  }
+}
+
+@keyframes dl-dungling-lean-work {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  50% {
+    transform: rotate(6deg) translateY(1.4px);
+  }
+}
+
+@keyframes dl-particle {
+  0% {
+    transform: translate(0, 0) scale(0.4);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.75);
+    opacity: 0;
+  }
+}
+
+@keyframes dl-debris {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) rotate(120deg);
+    opacity: 0;
+  }
+}
+
+@keyframes dl-dust {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
+}
+
+@keyframes dl-spore-rise {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(-22px) scale(1);
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------- overlay ui  */
+
+@keyframes dl-overlay-in {
+  0% {
+    transform: translate(-50%, calc(-100% - 6px)) scale(0.92);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -100%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dl-overlay-in-below {
+  0% {
+    transform: translate(-50%, 6px) scale(0.92);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dl-panel-in {
+  0% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dl-hint-in {
+  0% {
+    transform: translate(-50%, 10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.dl-world-surface {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* SVG transforms on <g> elements work relative to the element's own box. */
+.dl-origin-center {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.dl-origin-bottom {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.dl-origin-left {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+}
+
+.dl-origin-right {
+  transform-box: fill-box;
+  transform-origin: 100% 50%;
+}
+
+.dl-cursor-action {
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dl-reduce-motion {
+    animation: none !important;
+  }
+}
