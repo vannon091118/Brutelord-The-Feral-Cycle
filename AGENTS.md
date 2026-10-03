@@ -324,13 +324,19 @@ Commit → Push.
   über alle 4.096 Kacheln (~41 k Zugriffe/s), und die Uhr schweigt nur, wenn
   nichts wächst oder ruht — bei 64 × 64 nie. Ein Index über die aktiven Felder
   wäre der nächste Schritt, falls es ruckelt.
-- Sichtprüfungen im Preview sind zerbrechlich. Änderungen an Domänen-Modulen
-  lösen einen vollen Reload aus (Spielstand weg), und der Tab ist mit dem
-  Menschen geteilt — Klicks brechen mit „interrupted by human input" ab, dann
-  erst einen frischen Snapshot lesen. Für stabile Bilder eine temporäre
-  `lab.html` im Repo-Root bauen, die echte Komponenten per `import '/src/…'`
-  rendert, und sie danach löschen. Ohne `import '/src/styles/globals.css'`
-  fehlen die `--color-*`-Tokens und das Bild bleibt schwarz.
+- Sichtprüfungen laufen über `tools/preview/`, nicht über eine temporäre
+  `lab.html`. `node tools/preview/preview.mjs` startet ein sichtbares Chrome
+  mit `--remote-debugging-port=9222` und eigenem Profil unter
+  `.preview-profile/`, `node tools/preview/daemon.mjs` hängt sich per CDP an
+  und injiziert `marker.js` dauerhaft. Im Fenster markiert `m` ein Element,
+  `Esc` beendet; jeder Klick vergibt eine ID `m1`, `m2`, … und ein `node
+  tools/preview/marks.mjs` liefert genau diese Elemente als JSON mit Selector
+  und Rechteck — damit lässt sich im Chat „m2 ist zu blau" sagen und es ist
+  eindeutig. Zwei Fallstricke: `Page.addScriptToEvaluateOnNewDocument` gilt nur
+  für die offene CDP-Session, ein Kurzskript verliert die Registrierung beim
+  Schließen (deshalb der Daemon), und der Marker darf bei `document-start` kein
+  DOM anfassen — `document.body` ist dann noch `null`, der Mount hängt am
+  `readyState`.
 - `dist/` ist Build-Ausgabe und nicht versioniert (`git ls-files dist` ist
   leer) — nicht von Hand editieren. Dasselbe gilt für `dogfood-output/`:
   nicht tracked, aber auch **nicht** in `.gitignore`. `.freebuff/` und

@@ -21,6 +21,12 @@ Grund, ihn zu haben.
       ein Drittel des Ablaufs ungetestet — der Abbau-Takt im echten Browser ist
       derselbe Code wie im Test, aber nur der Test wird geprüft. Ein Browserlauf
       wäre Playwright oder etwas Gleichwertiges; Playwright ist installiert.
+      — [x] halb: sichtbares Chrome-Fenster mit Element-Marker unter
+      `tools/preview/` steht. Es ist noch kein Urteil, nur ein Werkzeug: es
+      startet den Dev-Server-Tab, hält den Marker über Reloads am Leben,
+      liefert Selector und Rechteck für markierte Elemente und schreibt
+      Screenshots. Was fehlt, ist die eigentliche Abnahme — eine Liste von
+      Erwartungen, die der Durchlauf einhält oder nicht.
 - [ ] **Speichern.** Aktuell stirbt dein Hive beim Reload. Absicht für den
       Slice, unbrauchbar für alles darüber. Mit Essenz und Bauten im Zustand ist
       das jetzt mehr als eine Bequemlichkeit: wer zehn Minuten in einen Brutlord
