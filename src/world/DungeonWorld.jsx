@@ -3,7 +3,7 @@ import { worldView } from './world-view.js';
 import { WorldContext, WorldVignette } from './WorldContext.jsx';
 import { TileLayer } from './TileLayer.jsx';
 import { HiveNode } from './HiveNode.jsx';
-import { WorkerNode } from './WorkerNode.jsx';
+import { WorkerLayer } from './WorkerLayer.jsx';
 import { EntranceLadder } from './entrance/EntranceLadder.jsx';
 
 /**
@@ -19,7 +19,7 @@ export const DungeonWorld = memo(function DungeonWorld({ game, actions, tileSize
       <TileLayer {...tileLayerProps({ game, view, tileSize, actions })} />
       <EntranceLadder entrance={game.world.entrance} camera={view.camera} tileSize={tileSize} />
       <HiveNode {...hiveProps(game, tileSize, actions)} />
-      <WorkerNode {...workerProps(game, view, tileSize)} />
+      <WorkerLayer workers={view.workers} popups={view.popups} tileSize={tileSize} />
       <WorldVignette camera={view.camera} />
     </svg>
   );
@@ -43,6 +43,8 @@ function tileLayerProps({ game, view, tileSize, actions }) {
     selectedTileId: game.selectedTileId,
     highlightedTileId: game.highlightedTileId,
     onSelect: actions.clickTile,
+    onPlace: actions.placeBuild,
+    onSelectBuilding: actions.selectBuilding,
   };
 }
 
@@ -52,15 +54,5 @@ function hiveProps(game, tileSize, actions) {
     tileSize,
     onboardingState: game.onboarding.state,
     onClick: actions.clickHive,
-  };
-}
-
-function workerProps(game, view, tileSize) {
-  return {
-    dungling: game.dungling,
-    position: view.dunglingPx,
-    tileSize,
-    mining: game.mining,
-    working: view.workingTileId !== null,
   };
 }

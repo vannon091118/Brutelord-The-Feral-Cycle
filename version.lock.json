@@ -1,4 +1,5 @@
 {
-  "version": "0.1.0",
-  "revision": 1
+  "version": "0.0.1",
+  "revision": 2,
+  "amends": "0.1.0"
 }

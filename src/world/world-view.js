@@ -1,14 +1,14 @@
 /**
  * Ableitung für die Darstellung: was ist gerade zu sehen, was ist anklickbar,
- * wo steht der Dungling. Reine Leseoperation auf dem Spielzustand.
+ * wo steht der Schwarm. Reine Leseoperation auf dem Spielzustand.
  *
  * Die Welt ist groß, das Bild ist klein: die Kamera folgt dem gebauten Raum,
  * und sie zeigt nur, was die Verwurzelung freigelegt hat.
  */
 import { TILE_KIND, isVisible } from '../domain/world/tile.js';
 import { allTiles } from '../domain/world/grid.js';
-import { mineableFrontierIds } from '../domain/actions/mining.js';
-import { dunglingPositionPx } from '../domain/entities/dungling.js';
+import { MINING_PHASE, mineableFrontierIds } from '../domain/actions/mining.js';
+import { tilePositionPx, workerPositionPx } from '../domain/entities/dungling.js';
 import {
   TILE_SIZE,
   clamp,
@@ -54,6 +54,24 @@ function tilesInView(world, camera, tileSize) {
   });
 }
 
+/** Der Schwarm: wer gerade wo steht und ob er Erde bricht. */
+function workerViews(game, tileSize) {
+  return game.dunglings.map((worker) => ({
+    id: worker.id,
+    dungling: worker,
+    position: workerPositionPx(worker, tileSize),
+    step: game.mining && game.mining.workerId === worker.id ? game.mining.tick : 0,
+    mining:
+      Boolean(game.mining) &&
+      game.mining.workerId === worker.id &&
+      game.mining.phase === MINING_PHASE.WORKING,
+  }));
+}
+
+function popupViews(game, tileSize) {
+  return game.popups.map((popup) => ({ id: popup.id, position: tilePositionPx(popup, tileSize) }));
+}
+
 export function worldView({ game, tileSize = TILE_SIZE }) {
   const viewport = viewportPixelSize(tileSize);
   const camera = cameraBox({ world: game.world, tileSize, viewport });
@@ -66,7 +84,12 @@ export function worldView({ game, tileSize = TILE_SIZE }) {
     canSelect: selectMaySelectTiles(game),
     softHint: selectSoftHintVisible(game),
     workingTileId: selectWorkingTileId(game),
-    dunglingPx: game.dungling ? dunglingPositionPx(game.dungling, tileSize) : null,
+    workers: workerViews(game, tileSize),
+    popups: popupViews(game, tileSize),
+    world: game.world,
+    buildings: game.buildings,
+    buildChoice: game.buildChoice,
+    selectedBuildingId: game.selectedBuildingId,
     newFloorTileId: game.expansion?.tileId ?? null,
     showArrival: game.expansion !== null && ARRIVAL_STATES.includes(game.onboarding.state),
   };

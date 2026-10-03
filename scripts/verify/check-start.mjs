@@ -20,7 +20,7 @@ export function checkStart() {
   check('Dungling-Start ist freier Hive-Eingang', initial.world.tiles[SPAWN_ID].kind === TILE_KIND.DUNGEON_FLOOR);
   check('Erde sichtbar, aber nicht nutzbar', firstEarth.visibility === 'VISIBLE' && firstEarth.usability === TILE_USABILITY.UNUSABLE);
   check('Ein nutzbares Feld, noch kein Baumenü', initial.usableTileCount === 1 && !initial.buildMenuVisible);
-  check('Dungling existiert vor dem Spawn nicht', initial.dungling === null);
+  check('Der Schwarm ist vor dem Spawn leer', initial.dunglings.length === 0);
 
   section('Unzulässige Befehle bleiben wirkungslos');
   const afterFarClick = gameReducer(initial, { type: ACTION.TILE_SELECTED, tileId: '0,0' });

@@ -20,7 +20,7 @@ export function App() {
         }}
       />
       <GameStage game={state} actions={actions} />
-      <GameHud game={state} />
+      <GameHud game={state} actions={actions} />
     </main>
   );
 }

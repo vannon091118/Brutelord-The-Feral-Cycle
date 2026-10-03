@@ -11,9 +11,19 @@ das in CI genauso läuft wie lokal.
 ## Dev-Umgebung
 
 ```sh
-npm ci          # Node 22 in CI, keine .env, keine externen Dienste
+npm ci          # CI pinnt Node 22 (ci.yml), lokal läuft Node 26 — keine .env, keine externen Dienste
 npm run dev     # Vite auf 127.0.0.1
 ```
+
+Der Dev-Server muss von der Shell losgelöst starten: `nohup … &` in einem
+normalen Befehl wird mit der Shell wieder abgeräumt. Bewährt hat sich
+`python3 -c "subprocess.Popen([…], start_new_session=True)"` mit Log in
+`/tmp/vite-dev.log`.
+
+Der Log ist dabei keine Verlässlichkeit: Vite meldet `ready in ~1000 ms`,
+der Port antwortet aber erst nach etwa 4 s. Ein `curl` dazwischen liefert
+`000` — das ist kein Absturz, sondern die Lücke zwischen „gebunden" und
+„liefert". Erst ab HTTP 200 ist der Server wirklich da.
 
 ## Build & Test
 
@@ -22,7 +32,7 @@ npm run gate            # alle drei Wächter: Hard Caps, Version, Commits
 npm run gate -- --tree  # nur Hard Caps (300 LOC/Modul, 30 LOC/Funktion, 3 Parameter, 7 Imports)
 npm run gate -- --commits=<base>..<head>  # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>    # Version gegen eine Basisrevision
-npm run verify          # Slice-Simulation in node: Onboarding, Abbau, Verwurzelung, Architekturgrenzen
+npm run verify          # Slice-Simulation in node: Onboarding, Abbau, Verwurzelung, Bauen, Architekturgrenzen
 npm run verify:commits  # Regressionstests des Commit-Gates selbst
 npm run build           # Production-Build (vite build)
 npm run version:check   # Lock vs. VERSION, package.json, package-lock.json
@@ -32,14 +42,20 @@ npm run version:sync    # package.json und package-lock aus dem Lock spiegeln
 Es gibt kein `npm test` und kein Linting-Tool — Gate und `verify` sind die
 Qualitätswächter. `npm run verify` ist die eigentliche Abnahmesimulation: sie
 spielt den Slice deterministisch mit einer virtuellen Uhr durch und prüft
-Onboarding-Zeiten, Abbau-Ergebnis, Verwurzelungs-Phasen und Grid-Ausbau. Sie
-importiert die echten Module aus `src/` — neue Domänenlogik ist erst geprüft,
-wenn ein `check-*.mjs` unter `scripts/verify/` sie aufruft; Einstiegspunkt ist
+Onboarding-Zeiten, Abbau-Ergebnis, Verwurzelungs-Phasen und Grid-Ausbau. Seit
+dem Bau-System gehört ein vollständiger Durchlauf dazu: `check-colony.mjs` lässt
+Extraktor, Schwarmhort und Brutlord bauen, bezahlen und brüten. Sie importiert
+die echten Module aus `src/` — neue Domänenlogik ist erst geprüft, wenn ein
+`check-*.mjs` unter `scripts/verify/` sie aufruft; Einstiegspunkt ist
 `scripts/verify-slice.mjs`.
 
 `.github/workflows/ci.yml` fährt genau diese Befehle in dieser Reihenfolge:
 `gate --version`, `gate --tree`, `gate --commits`, `verify:commits`, `verify`,
-`build` — mit `fetch-depth: 0`, sonst fehlen dem Commit-Wächter die Shas.
+`build`. Die Basisrevision ermittelt der Workflow selbst in einem
+Vorschritt („Basisrevision ermitteln") aus `pull_request.base.sha`, sonst
+`github.event.before`, sonst `HEAD^` — lokal musst du `--base=` bzw. die
+Range selbst mitgeben. `fetch-depth: 0` ist Pflicht, sonst fehlen dem
+Commit-Wächter die Shas.
 
 ## Hard Caps (blockieren CI)
 
@@ -53,8 +69,39 @@ nicht als Funktionen. Gemessen werden nur `.js`, `.jsx` und `.mjs` —
 
 Konsequenz: neue Logik gehört in eine eigene Datei, nicht in eine bestehende
 Komponente. Ein Verstoß wird erst sichtbar, wenn das Gate läuft — `npm run gate`
-vor dem Commit. Mehrere Dateien in `src/ui/` und `src/world/` stehen bereits bei
-genau 7 Imports; ein weiterer Import dort fällt sofort durch.
+vor dem Commit.
+
+Aktueller Stand, gemessen mit derselben Regex wie das Gate (Grenze 7 Imports /
+300 LOC / 30 LOC pro Funktion):
+
+- Genau 7 Imports, also am Anschlag: `src/state/game-reducer.js`,
+  `src/state/reducers/colony-reducer.js`, `src/state/use-game-engine.js`,
+  `src/ui/GameStage.jsx`, `src/world/DungeonWorld.jsx`,
+  `src/world/Dungling.svg.jsx`, `src/world/Hive.svg.jsx`,
+  `src/world/world-view.js`, `scripts/verify-slice.mjs`,
+  `scripts/verify/check-next-mine.mjs`, `scripts/verify/check-start.mjs`.
+  Ein achter Import fällt dort sofort durch — `game-reducer.js` ist deshalb
+  bei sieben geblieben: Bau-Befehle und Arbeitstakt teilen sich den
+  `colony-reducer.js`, statt die Kette um einen achten Import zu erweitern.
+- Bei 6 Imports: zwölf weitere Dateien, darunter alle übrigen Reducer in
+  `src/state/reducers/`, `scripts/verify/run-slice.mjs` und
+  `scripts/verify/build-run.mjs`.
+- Größtes Modul: `scripts/verify/build-run.mjs` mit 183 von 300 LOC, knapp vor
+  `src/world/tile-shapes.js` (178). Kein Modul ist in Gefahr, aber das Gate
+  zählt die Datei über `split('\n').length` — Kommentarzeilen und Leerzeilen
+  zählen mit. Der Bau-Durchlauf liegt bewusst in viele kleine Phasen zerlegt;
+  die längste davon (`buildRun`) hat 12 Zeilen.
+- Längste Funktion: `OnboardingHint()` in `src/ui/OnboardingHint.jsx` und
+  `HiveRoots()` in `src/world/hive/HiveRoots.jsx` mit je 29 von 30 LOC. Beide
+  können keinen ganzen Absatz mehr aufnehmen; `CharacterGradients()` liegt bei
+  28, `chipBlob()` und `main()` bei 27. Der JSX-Block einer Komponente zählt
+  vollständig mit — bei langen Panels hilft nur ein Aufteilen in Unterkomponenten
+  (`GameHud.jsx` und `BuildingPanel.jsx` sind genau dafür entstanden).
+
+Die Parameter-Grenze zählt Kommas auf **oberster Ebene**: `function f(a, b, c, d)`
+fällt durch, `function f({ a, b, c, d })` nicht. Der Ausweg aus der
+Drei-Parameter-Grenze ist deshalb ein Objekt-Parameter, kein zusätzlicher
+Helfer.
 
 ## Versionierung
 
@@ -67,7 +114,16 @@ npm run version:check
 ```
 
 Direkte Edits an Lock oder Spiegeln fallen im Gate durch. Die `revision` steigt
-pro Versionserhöhung um genau 1.
+pro Versionserhöhung um genau 1. `npm run version:sync` spiegelt den Lock in
+`VERSION`, `package.json` und `package-lock.json`, ohne weitere Felder des
+Locks zu verlieren — der Lock darf also mehr wissen als Version und Revision.
+
+Genau eine Ausnahme von der Monotonie gibt es: eine ausdrückliche Rücknahme
+einer Fehlbenennung. Sie steht als `amends` im Lock und nennt die Version, die
+damit korrigiert wird (Beispiel: `{ "version": "0.0.1", "revision": 2,
+"amends": "0.1.0" }`). `versionTransitionViolations` lässt einen Rückschritt nur
+dann durch, wenn `amends` exakt der Basisstand ist; jede andere Abwärtsbewegung
+bleibt ein Gate-Fehler.
 
 ## Commit-Policy (hart, per Gate erzwungen)
 
@@ -77,6 +133,17 @@ pro Versionserhöhung um genau 1.
 - Letzte nichtleere Body-Zeile: exakt einmal `Vannon-(vannon091118)`.
 - Verboten: `Co-Authored-By`, `Signed-off-by`, `Reviewed-by`, `Generated with …`,
   Footer-Trenner (`---`) und generische `Key: value`-Trailer.
+- Die Trailer-Erkennung ist ein Zeilenanfang-Muster: jede Body-Zeile, die mit
+  `Wort:` plus Text beginnt, fällt durch — auch `Dateien: …` oder
+  `src/x.js: Beschreibung`. Dateien also in Prosa nennen, selbst wenn das den
+  Body länger macht.
+- Zeilen, die auf `codebuff`, `copilot`, `claude` oder `cursor` enden, gelten als
+  Bot-Signatur. Der hier verlangte Footer ist allein das Vannon-Label.
+- Vorprüfung ohne Commit: `commitViolations({ sha, message, paths })` aus
+  `scripts/lib/commit-rules.mjs` mit `git diff --cached --name-only` als `paths`
+  aufrufen. Damit lassen sich Wortzahl, Label und Dateiabdeckung prüfen, bevor
+  der Commit existiert — billiger als ein Commit, der am Gate scheitert. `sha`
+  wird nur als `scope` durchgereicht, inhaltlich uninteressant.
 
 Commit-Nachrichten und Code-Kommentare auf Deutsch, Code-Bezeichner englisch.
 
@@ -85,19 +152,62 @@ Commit-Nachrichten und Code-Kommentare auf Deutsch, Code-Bezeichner englisch.
 - 2 Leerzeichen, kein Semikolon am Zeilenende, einfache Quotes — folgt dem
   bestehenden Stil; kein Formatter ist konfiguriert.
 - Layout: `src/domain/` (Spielwahrheit) → `src/state/` (Reducer, Actions,
-  Selektoren) → `src/ui/` (HUD, Menüs) → `src/world/` (SVG-Ebenen). Nur
-  `src/domain/` importiert nach außen nichts — das ist die einzige erzwingte
-  Grenze (`scripts/verify/check-architecture.mjs`). Im übrigen gilt: `state`,
-  `ui` und `world` lesen aus `domain`; `ui/GameStage.jsx` importiert `world`,
-  und `world/world-view.js` importiert `state/selectors.js`.
+  Selektoren) → `src/ui/` (HUD, Menüs) → `src/world/` (SVG-Ebenen). Die
+  Schichtkette stimmt, ist aber **Konvention, nicht Gate**:
+  `scripts/verify/check-architecture.mjs` prüft genau drei Dinge und keine
+  Importrichtung — (1) `src/domain/` zieht weder `react` noch `document`/
+  `window`, (2) in ganz `src/` gibt es kein `Math.random(` und kein
+  `Date.now(` (Kommente vorher entfernt), (3) `src/domain/` enthält kein
+  `<svg>`/`<path>`-Markup. Wer `src/domain/` etwas aus `src/world/` importieren
+  lässt, fällt durch keine dieser drei Zeilen.
+- Die reale Importmatrix, gemessen über alle Specifier: `domain` importiert
+  ausschließlich sich selbst (22 Kanten, 0 aus dem Ordner heraus). `state` und
+  `ui` lesen aus `domain`, `world` ebenfalls. Zwei Kanten zeigen entgegen der
+  Kette und sind so gewollt: `src/ui/GameStage.jsx:3-4` importiert `world`
+  (es rendert die Szene), und `src/world/world-view.js:23` importiert
+  `state/selectors.js` (die Kamera liest den Zustand). Es gibt keine einzige
+  Kante `world → ui` oder `state → ui`.
+- React steht in `src/`: 17 Dateien importieren `react`/`react-dom` — vier
+  Hooks in `src/state/` (`use-game-engine`, `use-game-actions`,
+  `use-rooting-runner`, `use-schedule-runner`), drei in `src/ui/`
+  (`use-stage-scale.js`, `BuildMenu.jsx`, `TileActionMenu.jsx`) und zehn in
+  `src/world/`. `src/domain/` und `src/app/` sind frei.
 - Ein Reducer pro Verantwortung in `src/state/reducers/`, verbunden in
   `src/state/game-reducer.js` — dort iteriert eine Liste über `DOMAIN_REDUCERS`,
   der erste Reducer, der den Zustand verändert, gewinnt.
-- Fakten liegen als eingefrorene Konstanten-Objekte (`TILE_KIND`, `DUNGLING_STATE`,
-  `HARD_CAPS`) in `*-config.js` bzw. beim Entity — nie als Magic Strings.
+- Fakten liegen als eingefrorene Konstanten-Objekte (`TILE_KIND`, `TILE_VISIBILITY`,
+  `TILE_USABILITY`, `EARTH_HEALTH`, `DUNGLING_STATE`, `ROOTING_PHASE`, `HARD_CAPS`)
+  in `*-config.js` bzw. beim Entity — nie als Magic Strings. `src/` hält sich
+  daran; `scripts/verify/` reißt es zweimal: `check-start.mjs:21` und
+  `check-rooting.mjs:42` vergleichen gegen das Literal `'VISIBLE'`. Wer
+  `TILE_VISIBILITY` umbenennt, lässt diese zwei Prüfungen still grün werden.
 - Kommentare und Doc-Blöcke sind auf Deutsch und erklären das *Warum*.
-- Deterministisch: sichtbare Geometrie leitet sich aus Koordinaten und Seeds ab
-  (`makeRng`, `seed`), nie aus `Math.random()`.
+- Deterministisch: sichtbare Geometrie leitet sich aus Koordinaten und Seeds ab,
+  nie aus `Math.random()`. Die Seed-Funktion heißt `tileSeed(x, y)` und lebt in
+  `src/world/tile-shapes.js` — daneben `makeRng(seed)` als Zufallsstrom darauf.
+  Ein exportiertes `seed` gibt es nirgends; wer eines sucht, findet nur den
+  Parameter.
+- Dauerprozesse gehören in einen eigenen Runner, nicht in den Onboarding-Plan:
+  `src/state/use-rooting-runner.js` tickt unabhängig, weil die Timer aus
+  `onboarding-schedule.js` bei jedem Phasenwechsel verfallen.
+- Deterministische Streuung darf die Domäne nicht aus `src/world/tile-shapes.js`
+  holen. Wo sie gebraucht wird (`wobbleAt` in `reveal.js`), steht bewusst eine
+  eigene kleine Hash-Funktion — die Schichtgrenze ist wichtiger als
+  Wiederverwendung.
+
+## Gestalterische Vorgaben
+
+Vom Auftraggeber gesetzt und nicht verhandelbar:
+
+- Nichts darf als Kachel erkennbar sein. Erde und Boden sind eine
+  zusammenhängende Masse; Auswahlringe, Effekte und Einladungen folgen der
+  Fläche, nie dem Rechteck.
+- Der Untergrund bleibt vorerst bei einer Art: heller Stein. Obsidian und Sand
+  wurden verworfen; `src/world/floor/substrate.js` hält nur noch Stein-Spuren.
+- Die Welt ist bei rund 64 × 64 Feldern gedeckelt, sichtbar bleibt ein
+  13 × 13-Fenster, das dem gebauten Raum folgt. Der Rest ist Dunkelheit.
+- Die Leiter steht außerhalb des Sichtfelds und wird erst gezeichnet, wenn die
+  Kamera sie erreicht.
 
 ## Task-Abschluss (hart, nicht verhandelbar)
 
@@ -132,13 +242,54 @@ Commit → Push.
   `readVersionState(process.cwd())`, `collect('src/domain')`) — immer aus dem
   Repo-Wurzelverzeichnis starten.
 - Der Sektions-Wächter in `scripts/verify/expect.mjs` ist global zustandsbehaftet
-  (`lines`, `failures`); Prüfungen zählen über den ganzen `verify`-Lauf.
+  (`lines`, `failures`) auf Modulebene — alles zählt über den ganzen
+  `verify`-Lauf, und `summary()` ist nur einmal aufrufbar. Deshalb liegt die
+  Reihenfolge fest in `scripts/verify-slice.mjs`: `checkStart()` läuft vor
+  `makeOnboardingRun()`, weil der Start-Zustand der Run-Erzeugung zugrunde liegt.
 - `scripts/verify/run-slice.mjs` leitet sein Zielfeld aus
   `ONBOARDING_CONFIG.firstEarthBlock` über `tileId()` ab, es ist kein festes
   Raster verdrahtet. Verschiebt sich der Hive, wandert das Ziel mit — die
-  abgeleiteten Erwartungen in den `check-*.mjs` aber nicht automatisch.
-- `dist/` ist Build-Ausgabe und nicht versioniert — nicht von Hand editieren.
-- Kein Lint- oder Format-Automat: Einrückungsfehler bleiben unentdeckt, bis
+  abgeleiteten Erwartungen in den `check-*.mjs` aber nicht automatisch. Genau
+  da liegen die harten Zahlen: `check-mining-progress.mjs:12` prüft
+  `totalMiningTicks() === 35`, `check-start.mjs:19` prüft „exakt vier
+  Hive-Tiles" als Literal statt `HIVE_SIZE`. Wer `miningDurationMs`,
+  `earthStateThresholds` oder `HIVE_SIZE` ändert, muss diese Zahlen
+  mitziehen — sonst wird `verify` rot und der Grund ist nicht dort zu sehen.
+- Hive-Position und Startkoordinaten liegen in zwei Dateien: `HIVE_ORIGIN` in
+  `src/domain/world/world-config.js` und `dunglingSpawnTile`/`firstEarthBlock`
+  in `src/domain/onboarding/onboarding-config.js`. Wer den Hive verschiebt,
+  muss beide mitziehen.
+- `soilBlob` zieht mit positivem `jitter` immer nach innen. Überlappung
+  zwischen Feldern entsteht nur über `outward`, und ohne die festen Eckpunkte
+  schneidet `smoothClosedPath` die Ecken ab: je vier Nachbarn lassen dann ein
+  rautenförmiges Loch. Symptom sind dunkle Rauten im regelmäßigen Raster — das
+  sieht nach Abstand aus, ist aber fehlende Ecke.
+- Die Verwurzelungs-Uhr läuft praktisch immer: `tickRooting` geht alle 100 ms
+  über alle 4.096 Kacheln (~41 k Zugriffe/s), und die Uhr schweigt nur, wenn
+  nichts wächst oder ruht — bei 64 × 64 nie. Ein Index über die aktiven Felder
+  wäre der nächste Schritt, falls es ruckelt.
+- Sichtprüfungen im Preview sind zerbrechlich. Änderungen an Domänen-Modulen
+  lösen einen vollen Reload aus (Spielstand weg), und der Tab ist mit dem
+  Menschen geteilt — Klicks brechen mit „interrupted by human input" ab, dann
+  erst einen frischen Snapshot lesen. Für stabile Bilder eine temporäre
+  `lab.html` im Repo-Root bauen, die echte Komponenten per `import '/src/…'`
+  rendert, und sie danach löschen. Ohne `import '/src/styles/globals.css'`
+  fehlen die `--color-*`-Tokens und das Bild bleibt schwarz.
+- `dist/` ist Build-Ausgabe und nicht versioniert (`git ls-files dist` ist
+  leer) — nicht von Hand editieren. Dasselbe gilt für `dogfood-output/`:
+  nicht tracked, aber auch **nicht** in `.gitignore`. `.freebuff/` und
+  `.worktrees/` stehen dafür inzwischen drin.
+- `.venv/` steht **nicht** in `.gitignore, wird aber von sich selbst ignoriert
+  (`.venv/.gitignore` enthält `*`). Deshalb ist es in `git status` unsichtbar
+  und frisst trotzdem jede Datei-Zählung: ein naiver `pygount .` zählt 121
+  Zeilen `_virtualenv.py` und eine `activate.fish` mit, die zu diesem Projekt
+  nichts sagen. Tools, die den Baum ablaufen, brauchen `.venv` im Ausschluss —
+  `git status` ist kein Beweis, dass etwas nicht da ist.
+- Kein Lint- oder Format-Automat: Keine eslint-/prettier-/biome-Konfiguration,
+  nichts davon in `package.json`. Einrückungsfehler bleiben unentdeckt, bis
   jemand die Datei liest.
-- `npm run dev` bindet an `127.0.0.1` — aus einem Container oder von außen ist
-  das nicht erreichbar.
+- `npm run dev` bindet an `127.0.0.1` (`vite.config.js`) — aus einem Container
+  oder von außen nicht erreichbar; über die Host-IP gibt `curl` Exit 7. Läuft
+  schon ein Dev-Server auf 5173, weicht Vite still auf 5174 aus und loggt das
+  als eine Zeile — wer weiter 5173 prüft, testet den alten Prozess. Vor dem
+  Neustart `ss -ltnp | grep 517`.

@@ -27,8 +27,12 @@ import {
 
 const ROOT = process.cwd();
 
+/**
+ * Schreibt Lock und Spiegel. Alles, was der Lock sonst noch festhält — etwa
+ * ein `amends` aus einer ausdrücklichen Korrektur — bleibt dabei stehen.
+ */
 function writeVersionState({ version, revision }) {
-  const lock = { version, revision };
+  const lock = { ...readJson(join(ROOT, LOCK_FILE)), version, revision };
   const pkg = { ...readJson(join(ROOT, PACKAGE_FILE)), version };
   const npmLock = readJson(join(ROOT, NPM_LOCK_FILE));
   npmLock.version = version;

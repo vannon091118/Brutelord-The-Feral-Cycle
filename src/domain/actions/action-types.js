@@ -21,4 +21,15 @@ export const ACTION = Object.freeze({
   BUILD_MENU_SHOWN: 'BUILD_MENU_SHOWN',
   /** Takt der Verwurzelung: Farbe fadet, Tentakel kriechen, Felder werden frei. */
   ROOTING_TICK: 'ROOTING_TICK',
+
+  /** Bauen: Bau wählen, Bauplatz setzen, Bauwerk auswählen, Dunglinge zuweisen. */
+  BUILD_CHOSEN: 'BUILD_CHOSEN',
+  BUILDING_PLACED: 'BUILDING_PLACED',
+  BUILDING_SELECTED: 'BUILDING_SELECTED',
+  BUILDING_DESELECTED: 'BUILDING_DESELECTED',
+  WORKER_ASSIGNED: 'WORKER_ASSIGNED',
+  WORKER_RELEASED: 'WORKER_RELEASED',
+
+  /** Takt der Arbeit: Aufträge, Essenz, Brut und Bauplätze. */
+  WORK_TICK: 'WORK_TICK',
 });

@@ -9,7 +9,12 @@ import { checkNextMine } from './check-next-mine.mjs';
 function checkHudAndWorker(state) {
   const target = ONBOARDING_CONFIG.firstEarthBlock;
   check('Baumenü erst nach freiem Boden', state.buildMenuVisible && state.onboarding.state === ONBOARDING_STATE.BUILD_MENU_VISIBLE);
-  check('Dungling wartet auf neuem Boden', state.dungling.state === DUNGLING_STATE.IDLE && state.dungling.tile.x === target.x && state.dungling.tile.y === target.y);
+  check(
+    'Dungling wartet auf neuem Boden',
+    state.dunglings[0].state === DUNGLING_STATE.IDLE &&
+      state.dunglings[0].tile.x === target.x &&
+      state.dunglings[0].tile.y === target.y,
+  );
 }
 
 export function checkMiningResult(run) {

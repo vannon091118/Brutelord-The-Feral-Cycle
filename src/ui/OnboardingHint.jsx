@@ -4,9 +4,9 @@ import { PhaseTrail } from './PhaseTrail.jsx';
 
 /**
  * Die schmale Hinweiszeile unten. Sie erklärt den ersten Moment ohne Handbuch
- * und zeigt daneben den nutzbaren Raum.
+ * und zeigt daneben, wie viel Essenz im Hive liegt und wie groß der Raum ist.
  */
-export function OnboardingHint({ onboarding, usableTileCount }) {
+export function OnboardingHint({ onboarding, usableTileCount, essence }) {
   const hint = HINTS[onboarding.state] ?? HINTS[ONBOARDING_STATE.INITIAL];
 
   return (
@@ -22,6 +22,12 @@ export function OnboardingHint({ onboarding, usableTileCount }) {
 
       <PhaseTrail onboarding={onboarding} />
 
+      <div
+        title="Essenz im Hive"
+        className="shrink-0 rounded-full border border-core-500/25 bg-core-500/10 px-2.5 py-1 text-[10px] text-core-300"
+      >
+        ◆ {essence}
+      </div>
       <div className="shrink-0 rounded-full border border-bone-400/15 bg-soil-950/60 px-2.5 py-1 text-[10px] text-bone-300">
         Raum {usableTileCount}
       </div>

@@ -59,6 +59,8 @@ export function readVersionState(root = '.') {
   return {
     version,
     revision: lock.revision,
+    /** Ausdrückliche Rücknahme einer Fehlbenennung — siehe versionTransitionViolations. */
+    amends: lock.amends ?? null,
     mirrorVersion,
     packageVersion: pkg.version,
     npmLockVersion: npmLock.version,
@@ -82,10 +84,20 @@ export function versionViolations(state) {
   if (!Number.isInteger(state.revision) || state.revision < 1) {
     problems.push(`${LOCK_FILE} braucht eine positive, ganzzahlige Revision.`);
   }
+  if (state.amends !== null && !parseVersion(state.amends)) {
+    problems.push(`${LOCK_FILE} nennt unter amends keine gültige Version: ${state.amends}`);
+  }
   return problems;
 }
 
-/** Prüft, ob ein Wechsel vom Basisstand erlaubt wäre (keine Divergenz). */
+/**
+ * Prüft, ob ein Wechsel vom Basisstand erlaubt wäre (keine Divergenz).
+ *
+ * Ein Rückschritt ist normalerweise verboten — sonst könnte jede Seite still
+ * ihre eigene Nummerierung durchdrücken. Genau eine Ausnahme gibt es: die
+ * ausdrückliche Rücknahme einer Fehlbenennung, und die muss im Lock stehen
+ * (`amends` nennt die Version, die damit korrigiert wird).
+ */
 export function versionTransitionViolations({ base, head }) {
   if (!base || !parseVersion(base.version) || !Number.isInteger(base.revision)) return [];
   const problems = [];
@@ -100,8 +112,11 @@ export function versionTransitionViolations({ base, head }) {
       `Version unverändert (${head.version}), Revision änderte sich von ${base.revision} auf ${head.revision}.`,
     );
   }
-  if (versionChanged && compareVersions(head.version, base.version) <= 0) {
-    problems.push(`Version ${head.version} ist nicht größer als der Basisstand ${base.version}.`);
+  const amended = versionChanged && head.amends === base.version;
+  if (versionChanged && !amended && compareVersions(head.version, base.version) <= 0) {
+    problems.push(
+      `Version ${head.version} ist nicht größer als der Basisstand ${base.version}. Eine Rücknahme verlangt amends: ${base.version} im Lock.`,
+    );
   }
   return problems;
 }

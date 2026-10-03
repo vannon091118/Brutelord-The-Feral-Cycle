@@ -27,7 +27,7 @@ function makeObserver(records) {
 }
 
 function observeDispatch(state, now, records) {
-  const dunglingState = state.dungling?.state;
+  const dunglingState = state.dunglings[0]?.state;
   if (dunglingState && records.dunglingStates.at(-1) !== dunglingState) {
     records.dunglingStates.push(dunglingState);
   }

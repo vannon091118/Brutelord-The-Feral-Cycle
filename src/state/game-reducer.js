@@ -11,6 +11,7 @@ import { reduceSelection } from './reducers/selection-reducer.js';
 import { reduceMining } from './reducers/mining-reducer.js';
 import { reduceExpansion } from './reducers/expansion-reducer.js';
 import { reduceRooting } from './reducers/rooting-reducer.js';
+import { reduceColony } from './reducers/colony-reducer.js';
 
 const DOMAIN_REDUCERS = [
   reduceHive,
@@ -19,6 +20,7 @@ const DOMAIN_REDUCERS = [
   reduceMining,
   reduceExpansion,
   reduceRooting,
+  reduceColony,
 ];
 
 export function gameReducer(state, action) {

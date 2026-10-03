@@ -7,7 +7,7 @@ sich reinzufressen. Wurzeln stoßen in die Nachbarfelder. Und das war's fürs Er
 
 Mehr Spiel gibt es nicht. Nicht jetzt.
 
-![Status](https://img.shields.io/badge/Version-0.1.0-c8a45b5) ![Lizenz](https://img.shields.io/badge/Lizenz-MIT-c8a45b5) ![Node](https://img.shields.io/badge/Node-22-c8a45b5)
+![Status](https://img.shields.io/badge/Version-0.0.1-c8a45b5) ![Lizenz](https://img.shields.io/badge/Lizenz-MIT-c8a45b5) ![Node](https://img.shields.io/badge/Node-22-c8a45b5)
 
 ## Was hier wirklich drin ist
 
@@ -16,15 +16,21 @@ Mehr Spiel gibt es nicht. Nicht jetzt.
 - Hive anklicken → 5 s später kommt der erste Dungling
 - Erdblock auswählen, abbauen lassen (3,5 s, sichtbar 0 → 100 %)
 - Grid wächst, das Feld wird nutzbarer Boden
-- Verwurzelung: 10 s Einnehmen, 5 s Ruhe, dann Tentakel in alle Nachbarfelder
+- Verwurzelung: 10 s Einnehmen, 5 s Ruhe, dann Tentakel in die Nachbarfelder —
+  beansprucht wird dabei nur abgebauter Boden
+- **Bauen:** Schwarmhort, Essenz Extractor und Brutlord werden erst als Bauplatz
+  gesetzt und dann von Dunglingen mit Essenz bezahlt — Stück für Stück
+- Ein **Essenz Extractor** presst für jeden zugewiesenen Dungling (maximal drei)
+  eine Essenz pro Zyklus; der Träger bringt sie zum Hive, wo sie als `+1` aufblitzt
+- Ein **Schwarmhort** brütet neue Arbeiter, bis der Schwarm sechs Dunglinge trägt
+- Der **Brutlord** braucht 2 × 2 Felder und zehn Essenz — und wartet danach
 - 13×13-Tile-Kamera folgt dem Raum, 64×64-Welt drumherum (4.096 Felder, davon sind 4 Hive)
 - Eine Leiter steht bei 47,47 draußen im Nirgendwo und wird erst sichtbar, wenn die Wurzeln hinkommen
 
 **Ist noch Attrappe — bitte nicht verwechseln:**
 
-- Das **Baumenü** (Wand, Tür, Fackel). Drei hübsche Buttons mit Inline-SVG-Glyphen.
-  Klicken macht nichts, weil es im Reducer schlicht keinen `BUILD`-Befehl gibt.
-  Das Menü ist der nächste Schritt, nicht der jetzige.
+- Der **Brutlord** steht, kostet und tut sonst nichts. Was er ausbrütet, ist
+  noch nicht entschieden; bis dahin ist er ein sehr teurer Platzhalter mit Panzer.
 - Es gibt **kein `npm test`**. Null. Null Zeilen. Was hier prüft, ist `npm run verify`.
 - Kein Linter, kein Formatter. Wer sich im Repo einbaut, hält sich an den
   bestehenden Stil oder wird vom Review zerschossen.
@@ -66,8 +72,9 @@ npm run verify:commits  # Regressionstests des Commit-Gates selbst
 
 `npm run verify` spielt den Slice mit einer virtuellen Uhr deterministisch
 durch — kein Browser, keine Flakiness, kein "works on my machine". Es prüft
-Onboarding-Zeiten, Abbau-Ergebnis, Verwurzelungs-Phasen und dass die Domäne
-sauber bleibt. **50 Prüfungen, alle grün.** Die Domäne unter `src/domain/` darf
+Onboarding-Zeiten, Abbau-Ergebnis, Verwurzelungs-Phasen, den kompletten
+Bauablauf bis zum Brutlord und dass die Domäne sauber bleibt. **74 Prüfungen,
+alle grün.** Die Domäne unter `src/domain/` darf
 kein React, kein DOM, kein SVG, kein `Math.random()` und kein `Date.now()`
 anfassen — Spielwahrheit ist reines JS und bleibt es.
 
@@ -76,7 +83,9 @@ anfassen — Spielwahrheit ist reines JS und bleibt es.
 **Der Hive ist die Autorität.** `version.lock.json` führt, `VERSION`,
 `package.json` und `package-lock.json` sind Spiegel. Nur über
 `npm run version:bump -- patch` anfassbar. Wer den Lock von Hand editiert, hat
-im Gate verloren.
+im Gate verloren — außer er nimmt eine Fehlbenennung zurück und schreibt die
+korrigierte Nummer samt `amends` in den Lock. Diese eine Ausnahme kennt das
+Gate ausdrücklich; jede andere Rücknahme fällt durch.
 
 **Commit-Bodies sind romanlang.** 100 bis 1.000 Wörter. Jede geänderte Datei
 muss namentlich im Body stehen. Letzte Zeile exakt einmal
@@ -116,15 +125,16 @@ Simulation auf die Config prüfen kann statt auf gerundete Zahlen.
 
 - [x] Hive → Dungling → Abbau → Boden
 - [x] Verwurzelung mit vier Phasen (DARK → GROWING → RESTING → CLAIMED)
+- [x] Bauen: Bauplatz, Essenz-Lieferung, Extraktor, Schwarmhort, Brutlord
+- [x] Mehrere Dunglinge: der Schwarmhort brütet sie, der Extraktor beschäftigt sie
 - [x] Gate für Hard Caps, Version, Commits — läuft in CI auf jedem PR
 - [x] Deterministische Slice-Simulation ohne Browser
 
 ## Roadmap
 
 Steht in [`Docs/ROADMAP.md`](Docs/ROADMAP.md) — versionsgebunden, wird nach
-jedem Task im selben Commit nachgezogen. Kurzfassung: **Bauen** ist als Nächstes
-dran (die drei Buttons tun noch nichts), danach mehr als ein Dungling, dann
-Speichern.
+jedem Task im selben Commit nachgezogen. Kurzfassung: **Bauen steht** (Bauplatz,
+Essenz, Schwarm), als Nächstes kommen Speichern und der Eingang bei 47,47.
 
 ## Ehrliche Einschätzung
 

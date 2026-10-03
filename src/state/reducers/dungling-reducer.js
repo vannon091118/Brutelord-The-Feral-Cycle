@@ -1,7 +1,9 @@
 /**
  * Dungling-Domäne: geboren werden, kriechen, bereit sein.
+ * Der Schwarm ist eine Liste — der erste Dungling bleibt der, der das
+ * Onboarding trägt; alles Weitere kommt aus dem Schwarmhort.
  */
-import { createDungling, idle, startSpawning } from '../../domain/entities/dungling.js';
+import { createDungling, idle, nextDunglingId, startSpawning } from '../../domain/entities/dungling.js';
 import { parseTileId } from '../../domain/world/tile.js';
 import { ONBOARDING_CONFIG } from '../../domain/onboarding/onboarding-config.js';
 import { ONBOARDING_STATE, enterOnboarding } from '../../domain/onboarding/onboarding-state.js';
@@ -21,6 +23,11 @@ export function reduceDungling(state, action) {
   }
 }
 
+/** Der erste Dungling trägt das Onboarding — er ist der, der gemeint ist. */
+function withLead(state, change) {
+  return { ...state, dunglings: state.dunglings.map((worker, index) => (index === 0 ? change(worker) : worker)) };
+}
+
 function spawnTileOf(world) {
   const spawn = world.spawnTileId ?? ONBOARDING_CONFIG.dunglingSpawnTile;
   return typeof spawn === 'string' ? parseTileId(spawn) : spawn;
@@ -28,9 +35,12 @@ function spawnTileOf(world) {
 
 function spawned(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.WAITING_FOR_DUNGLING) return state;
+  const born = startSpawning(
+    createDungling({ id: nextDunglingId(state.dunglings), tile: spawnTileOf(state.world) }),
+  );
   return {
     ...state,
-    dungling: startSpawning(createDungling({ tile: spawnTileOf(state.world) })),
+    dunglings: [...state.dunglings, born],
     hive: { ...state.hive, spawned: state.hive.spawned + 1 },
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.DUNGLING_SPAWNING),
   };
@@ -39,8 +49,7 @@ function spawned(state) {
 function emerged(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.DUNGLING_SPAWNING) return state;
   return {
-    ...state,
-    dungling: idle(state.dungling),
+    ...withLead(state, idle),
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.DUNGLING_IDLE),
   };
 }

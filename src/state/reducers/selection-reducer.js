@@ -1,6 +1,7 @@
 /**
  * Auswahl-Domäne: Erdblock wählen, Auswahl verwerfen.
- * Die Domäne entscheidet, welche Erde überhaupt wählbar ist.
+ * Die Domäne entscheidet, welche Erde überhaupt wählbar ist. Wer Erde wählt,
+ * lässt ein ausgewähltes Bauwerk los — es gibt nur eine Auswahl.
  */
 import { MINING_PHASE, canMineTile } from '../../domain/actions/mining.js';
 import { ONBOARDING_STATE, enterOnboarding, hasReached } from '../../domain/onboarding/onboarding-state.js';
@@ -29,6 +30,7 @@ function selectTile(state, tileId) {
   return {
     ...state,
     selectedTileId: tileId,
+    selectedBuildingId: null,
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.ACTION_MENU),
   };
 }

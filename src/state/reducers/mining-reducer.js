@@ -1,7 +1,8 @@
 /**
  * Abbau-Domäne: Befehl, Laufweg, Arbeitstakt, Abschluss.
  * Jeder Takt verändert genau den Erd-Zustand des einen Tiles und den Job —
- * nichts anderes, und nichts über eine Event-Kette.
+ * nichts anderes, und nichts über eine Event-Kette. Der Abbau bedient sich
+ * beim ersten freien Dungling; der Rest des Schwarms arbeitet weiter.
  */
 import { MINING_PHASE, advanceMiningJob, canMineTile, createMiningJob, earthHealthForProgress, minedFloorTile } from '../../domain/actions/mining.js';
 import { getTile, replaceTile } from '../../domain/world/grid.js';
@@ -25,14 +26,27 @@ export function reduceMining(state, action) {
   }
 }
 
+function withWorker(state, workerId, change) {
+  return {
+    ...state,
+    dunglings: state.dunglings.map((worker) => (worker.id === workerId ? change(worker) : worker)),
+  };
+}
+
+/** Wer nichts trägt, kann Erde brechen — der Abbau belegt ihn dann. */
+function freeWorker(state) {
+  return state.dunglings.find((worker) => !worker.job);
+}
+
 function order(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.ACTION_MENU) return state;
   const targetId = state.selectedTileId;
-  if (!targetId || !canMineTile(state.world, targetId)) return state;
+  const worker = freeWorker(state);
+  if (!targetId || !worker || !canMineTile(state.world, targetId)) return state;
+  const next = withWorker(state, worker.id, (entry) => walkTo(entry, getTile(state.world, targetId)));
   return {
-    ...state,
-    mining: createMiningJob(targetId),
-    dungling: walkTo(state.dungling, getTile(state.world, targetId)),
+    ...next,
+    mining: { ...createMiningJob(targetId), workerId: worker.id },
     selectedTileId: null,
     highlightedTileId: null,
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.MOVING_TO_TILE),
@@ -42,16 +56,16 @@ function order(state) {
 function reached(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.MOVING_TO_TILE || !state.mining) return state;
   return {
-    ...state,
+    ...withWorker(state, state.mining.workerId, startWork),
     mining: { ...state.mining, phase: MINING_PHASE.WORKING },
-    dungling: startWork(state.dungling),
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.MINING),
   };
 }
 
 /** Ein definierter Takt Arbeit → sichtbarer Zustand der Erde. */
 function progress(state) {
-  if (state.onboarding.state !== ONBOARDING_STATE.MINING || !state.mining) return state;
+  if (state.onboarding.state !== ONBOARDING_STATE.MINING) return state;
+  if (!state.mining) return state;
   const job = advanceMiningJob(state.mining);
   const tile = getTile(state.world, job.tileId);
   if (!tile) return { ...state, mining: job };
@@ -68,10 +82,9 @@ function completed(state) {
   const tile = getTile(state.world, state.mining.tileId);
   if (!tile) return state;
   return {
-    ...state,
+    ...withWorker(state, state.mining.workerId, idle),
     world: replaceTile(state.world, minedFloorTile(tile)),
     mining: { ...state.mining, phase: MINING_PHASE.COMPLETE, progress: 1 },
-    dungling: idle(state.dungling),
     lastDestroyedTileId: tile.id,
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.TILE_DESTROYED),
   };

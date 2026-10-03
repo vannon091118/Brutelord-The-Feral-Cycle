@@ -1,7 +1,9 @@
 /**
  * Die Verwurzelung: ein abgebautes Block gehört sofort dem Hive, braucht
- * konfigurierte Zeit zum Einnehmen, ruht danach und stößt dann erst in die
- * Nachbarfelder. Geprüft wird gegen die Config, nicht gegen feste Zahlen.
+ * konfigurierte Zeit zum Einnehmen und ruht danach, bevor die Tentakel
+ * weiterstoßen. Beansprucht wird dabei nur abgebauter Boden — die Erde
+ * ringsum bleibt unbeansprucht. Geprüft wird gegen die Config, nicht gegen
+ * feste Zahlen.
  */
 import { ACTION } from '../../src/domain/actions/action-types.js';
 import { ROOTING_CONFIG } from '../../src/domain/world/rooting-config.js';
@@ -38,6 +40,5 @@ export function checkRooting(slice) {
 
   const spread = afterTicks(slice.state, TICKS_FOR(ROOTING_CONFIG.claimDurationMs + ROOTING_CONFIG.cooldownMs));
   check('Nach dem Cooldown endgültig eingenommen', phaseOf(spread, target) === ROOTING_PHASE.CLAIMED);
-  check('Tentakel wachsen in alle freien Nachbarfelder', free.every((id) => phaseOf(spread, id) === ROOTING_PHASE.GROWING));
-  check('Wurzelreich wird dabei sichtbar', free.every((id) => getTile(spread.world, id).visibility === 'VISIBLE'));
+  check('Die Tentakel beanspruchen keine unberührte Erde', free.every((id) => phaseOf(spread, id) === ROOTING_PHASE.DARK));
 }

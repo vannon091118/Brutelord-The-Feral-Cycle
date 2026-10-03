@@ -1,10 +1,14 @@
 /**
  * Die Verwurzelung auf Weltebene. Was der Hive abbaut, nimmt er ein: erst
- * färbt sich das Feld, dann ruht es, und danach stoßen die Tentakel in alle
- * benachbarten Felder. Diese Wege legen die Wurzeln frei, die den Raum
- * sondieren — deshalb wird dabei auch sichtbar, was sie erreichen.
+ * färbt sich das Feld, dann ruht es, und danach stoßen die Tentakel in die
+ * Nachbarfelder.
+ *
+ * Beansprucht wird dabei ausschließlich abgebauter Boden. Unberührte Erde
+ * gehört dem Hive nicht — sie wird von der Sonde nur sichtbar gemacht, nie
+ * eingenommen.
  */
 import { allTiles, getTile, neighborIds, replaceTile } from './grid.js';
+import { TILE_KIND } from './tile.js';
 import { ROOTING_PHASE, advanceRooting, beginRooting, createRooting, isRootingBusy } from './rooting.js';
 import { ROOTING_CONFIG } from './rooting-config.js';
 import { revealAround } from './reveal.js';
@@ -34,7 +38,10 @@ export function tickRooting(world, dtMs = ROOTING_CONFIG.tickMs) {
   return { world: next, spreading };
 }
 
-/** Die Tentakel stoßen in alle Nachbarfelder, die noch nicht beansprucht sind. */
+/**
+ * Die Tentakel stoßen in die Nachbarfelder. Sichtbar wird dabei der Raum um
+ * das beanspruchte Feld; eingenommen wird nur, was schon abgebaut ist.
+ */
 export function spreadToNeighbors(world, ids) {
   let next = world;
   for (const id of ids) {
@@ -43,12 +50,17 @@ export function spreadToNeighbors(world, ids) {
     next = revealAround(next, anchor);
     for (const neighborId of neighborIds(next, id)) {
       const neighbor = getTile(next, neighborId);
-      if (neighbor && neighbor.rooting.phase === ROOTING_PHASE.DARK) {
+      if (neighbor && isClaimable(neighbor)) {
         next = replaceTile(next, { ...neighbor, rooting: createRooting(ROOTING_PHASE.GROWING) });
       }
     }
   }
   return next;
+}
+
+/** Eingenommen wird nur abgebauter Boden, der noch nichts vom Hive weiß. */
+function isClaimable(tile) {
+  return tile.kind === TILE_KIND.DUNGEON_FLOOR && tile.rooting.phase === ROOTING_PHASE.DARK;
 }
 
 /** Gibt es noch Felder, die wachsen oder ruhen? Steuert die Sim-Uhr. */
