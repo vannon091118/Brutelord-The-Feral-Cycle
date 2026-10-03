@@ -15,6 +15,8 @@ export const LADDER_TILE = Object.freeze({ x: 47, y: 47 });
 
 export const WORLD_BLEED_TILES = 0.75;
 
+export const DEPTH_RADIUS_TILES = 14;
+
 export const MIN_WORLD_SCALE = 0.4;
 export const MAX_WORLD_SCALE = 1;
 

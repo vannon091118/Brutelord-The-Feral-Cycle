@@ -18,7 +18,7 @@ export function PhaseTrail({ onboarding }) {
               }`}
             />
             <span
-              className={`hidden text-[9px] uppercase tracking-[0.1em] sm:inline ${
+              className={`hidden text-[10px] uppercase tracking-[0.1em] sm:inline ${
                 active ? 'text-bone-300' : 'text-bone-400/50'
               }`}
             >

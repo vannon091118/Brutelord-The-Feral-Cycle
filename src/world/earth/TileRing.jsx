@@ -1,9 +1,25 @@
 /** Visuelle Darstellung der Auswahl, des Arbeitsziels und des Hinweises. */
 function ringAppearance({ highlighted, selected, working, interactive, hovered, softHint }) {
-  if (selected) return { stroke: 'var(--color-bone-100)', opacity: 0.85, width: 1.8, dashed: true };
-  if (highlighted || working) return { stroke: 'var(--color-core-400)', opacity: 0.45, width: 1.2, dashed: false };
-  if (interactive && hovered) return { stroke: 'var(--color-bone-300)', opacity: 0.34, width: 1.2, dashed: false };
-  return softHint ? { stroke: 'var(--color-bone-300)', opacity: 0.16, width: 1.2, dashed: false } : null;
+  if (selected) return { stroke: 'var(--color-core-300)', opacity: 0.5, width: 1.1 };
+  if (highlighted || working) return { stroke: 'var(--color-core-400)', opacity: 0.45, width: 1.2 };
+  if (interactive && hovered) return { stroke: 'var(--color-bone-300)', opacity: 0.34, width: 1.2 };
+  return softHint ? { stroke: 'var(--color-bone-300)', opacity: 0.16, width: 1.2 } : null;
+}
+
+/** Die Auswahl ist Licht, keine Kontur: die Masse selbst leuchtet auf. */
+function SelectionGlow({ geometry }) {
+  return (
+    <>
+      <path d={geometry.mass} fill="url(#dl-coreHalo)" opacity="0.55" />
+      <path
+        d={geometry.mass}
+        fill="none"
+        stroke="var(--color-core-300)"
+        strokeWidth="1.1"
+        opacity="0.45"
+      />
+    </>
+  );
 }
 
 function PulseRing({ geometry }) {
@@ -26,7 +42,6 @@ function StaticRing({ geometry, appearance }) {
       fill="none"
       stroke={appearance.stroke}
       strokeWidth={appearance.width}
-      strokeDasharray={appearance.dashed ? '6 4' : undefined}
       opacity={appearance.opacity}
     />
   );
@@ -50,6 +65,7 @@ export function TileRing({ geometry, state }) {
   if (!appearance) return null;
   return (
     <>
+      {state.selected ? <SelectionGlow geometry={geometry} /> : null}
       {state.highlighted ? <PulseRing geometry={geometry} /> : null}
       <StaticRing geometry={geometry} appearance={appearance} />
       {state.highlighted || state.working ? <GlowHalo geometry={geometry} working={state.working} /> : null}

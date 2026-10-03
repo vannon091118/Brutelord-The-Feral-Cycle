@@ -1,4 +1,14 @@
 /** Verläufe, Filter und Muster der Welt. */
+import { DEPTH_RADIUS_TILES, HIVE_ORIGIN, HIVE_SIZE, TILE_SIZE } from '../domain/world/world-config.js';
+
+function hiveCenter() {
+  return {
+    cx: (HIVE_ORIGIN.x + HIVE_SIZE.width / 2) * TILE_SIZE,
+    cy: (HIVE_ORIGIN.y + HIVE_SIZE.height / 2) * TILE_SIZE,
+    r: DEPTH_RADIUS_TILES * TILE_SIZE,
+  };
+}
+
 function SoilGradients() {
   return (
     <>
@@ -26,11 +36,12 @@ function CaveGradients({ camera }) {
   const { x, y, width, height } = camera;
   return (
     <>
-      <linearGradient id="dl-earthMass" gradientUnits="userSpaceOnUse" x1={x} y1={y} x2={x} y2={y + height}>
-        <stop offset="0%" stopColor="var(--color-soil-800)" />
-        <stop offset="42%" stopColor="var(--color-soil-500)" />
+      {/* Erde trägt die Tiefe: warm nahe am Hive, kalt an den Rändern des Ausschnitts. */}
+      <radialGradient id="dl-earthMass" gradientUnits="userSpaceOnUse" {...hiveCenter()}>
+        <stop offset="0%" stopColor="var(--color-soil-500)" />
+        <stop offset="46%" stopColor="var(--color-soil-600)" />
         <stop offset="100%" stopColor="var(--color-soil-800)" />
-      </linearGradient>
+      </radialGradient>
       <linearGradient id="dl-bedStone" gradientUnits="userSpaceOnUse" x1={x} y1={y} x2={x} y2={y + height}>
         <stop offset="0%" stopColor="var(--color-rock-500)" />
         <stop offset="38%" stopColor="var(--color-rock-300)" />
@@ -98,10 +109,14 @@ function CharacterGradients() {
 function AtmosphereDefs() {
   return (
     <>
-      <radialGradient id="dl-vignette" cx="50%" cy="42%" r="72%">
-        <stop offset="45%" stopColor="var(--color-soil-950)" stopOpacity="0" />
+      <radialGradient id="dl-vignette" cx="50%" cy="54%" r="74%">
+        <stop offset="42%" stopColor="var(--color-soil-950)" stopOpacity="0" />
         <stop offset="100%" stopColor="var(--color-soil-950)" stopOpacity="0.88" />
       </radialGradient>
+      <linearGradient id="dl-ceiling" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="var(--color-soil-950)" stopOpacity="0.5" />
+        <stop offset="24%" stopColor="var(--color-soil-950)" stopOpacity="0" />
+      </linearGradient>
       <pattern id="dl-grit" width="9" height="9" patternUnits="userSpaceOnUse">
         <circle cx="2" cy="3" r="0.75" fill="var(--color-soil-950)" opacity="0.5" />
         <circle cx="6.4" cy="6.8" r="0.55" fill="var(--color-soil-300)" opacity="0.06" />

@@ -5,6 +5,7 @@
 import { BUILDING_DEFS, BUILDING_STATE, canAfford } from '../domain/buildings/building-config.js';
 import { BUILD_OPTIONS } from './build-options.jsx';
 import { BuildOptionButton } from './BuildOptionButton.jsx';
+import { ResourceChips } from './ResourceChips.jsx';
 
 function BuildHeader({ count, essence }) {
   return (
@@ -13,14 +14,7 @@ function BuildHeader({ count, essence }) {
         <h2 className="text-[13px] font-semibold tracking-wide text-bone-100">Bauen</h2>
         <span className="text-[10px] text-bone-400">freier Boden wartet</span>
       </div>
-      <div className="flex items-baseline gap-1.5">
-        <span className="rounded-full border border-core-500/25 bg-core-500/10 px-2 py-[2px] text-[10px] text-core-300">
-          ◆ {essence}
-        </span>
-        <span className="rounded-full border border-bone-400/15 bg-soil-950/60 px-2 py-[2px] text-[10px] text-bone-300">
-          {count} {count === 1 ? 'Feld' : 'Felder'}
-        </span>
-      </div>
+      <ResourceChips essence={essence} count={count} countLabel={count === 1 ? 'Feld' : 'Felder'} />
     </header>
   );
 }

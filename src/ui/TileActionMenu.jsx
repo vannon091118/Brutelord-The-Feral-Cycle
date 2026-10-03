@@ -36,7 +36,7 @@ export function TileActionMenu({ left, top, onMine, onClose }) {
 
   return (
     <div
-      className="dl-panel dl-menu-in absolute z-20 w-[158px] rounded-xl px-2 pb-2 pt-1.5"
+      className="dl-panel dl-menu-in absolute z-20 w-[158px] rounded-2xl px-3 pb-3 pt-2.5"
       style={{ left, top, transform: 'translate(-50%, -100%)' }}
       role="menu"
       aria-label="Erdblock"

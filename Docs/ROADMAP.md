@@ -63,6 +63,19 @@ Grund, ihn zu haben.
       Was an Erklärungen aus dem Code weichen musste, steht geschlossen in
       `Docs/ARCHITEKTUR.md` — der Code trägt nur noch den Kopf.
 
+- [x] **Der Untergrund hat Tiefe.** Fünf rein visuelle Hebel, ohne eine einzige
+      Spielregel zu berühren. Die Erdmasse trägt jetzt einen Verlauf, der am
+      Hive warm beginnt und zum Rand des Ausschnitts hin kühlt; die Vignette
+      sitzt asymmetrisch und bekommt eine Decke aus Fels oben; die Auswahl
+      leuchtet als Fläche statt als gestrichelter Kontur; die drei HUD-Panels
+      teilen Radius, Innenabstaende und dieselben beiden Werteplaketten; die
+      Hinweiszeile staffelt 12 zu 11 zu 10 Pixeln statt 12 zu 10 zu 9. Gemessen
+      bei 1280 mal 840: der Textkasten der Hinweiszeile wächst von 73 auf 164
+      Pixel, die Leiste von 430 auf 520. Bewusst nicht angefasst: die längsten
+      Sätze der Hinweiszeile werden weiterhin abgeschnitten, und die
+      Bühne springt beim Oeffnen eines Panels weiterhin — beides gehört zur
+      parallelen Arbeit an Anweisungen und Layout.
+
 Reihenfolge geändert, mit Grund. Der Brutlord stand hier ursprünglich als
 letzter Punkt dieser Section. Ein Verbraucher, der einen Vorrat von hundert
 Essenz schluckt, ist ohne Ökonomie wertlos — das Ressourcen-System kommt
