@@ -1,4 +1,3 @@
-import { ONBOARDING_STATE } from '../domain/onboarding/onboarding-state.js';
 import { HINTS } from './hint-texts.js';
 import { PhaseTrail } from './PhaseTrail.jsx';
 
@@ -7,7 +6,7 @@ import { PhaseTrail } from './PhaseTrail.jsx';
  * und zeigt daneben, wie viel Essenz im Hive liegt und wie groß der Raum ist.
  */
 export function OnboardingHint({ onboarding, usableTileCount, essence }) {
-  const hint = HINTS[onboarding.state] ?? HINTS[ONBOARDING_STATE.INITIAL];
+  const hint = HINTS[onboarding.state];
 
   return (
     <div className="dl-panel dl-line-in flex w-[min(94vw,430px)] items-center gap-3 rounded-full py-1.5 pl-3.5 pr-2">

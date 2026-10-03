@@ -2,11 +2,12 @@
 import { DEPOSIT_PHASE, ESSENCE_STAGE, STAGE_MIN_SHARE } from '../../src/domain/deposits/deposit-config.js';
 import { depositStage, harvestTick } from '../../src/domain/deposits/deposit-state.js';
 import { mineTile } from '../../src/domain/actions/mining.js';
+import { totalMiningTicks } from '../../src/domain/onboarding/onboarding-schedule.js';
 import { allTiles, createWorld } from '../../src/domain/world/grid.js';
 import { checkDepositFlow } from './check-deposit-flow.mjs';
 import { check, section } from './expect.mjs';
 
-const TICKS = 35;
+const TICKS = totalMiningTicks();
 
 function firstDeposit(world) {
   const tile = allTiles(world).find((entry) => entry.depositId);

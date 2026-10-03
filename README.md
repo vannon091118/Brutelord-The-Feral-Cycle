@@ -66,14 +66,14 @@ sein will, wird vom Gate erwischt.
 
 ```sh
 npm run gate            # alles: Hard Caps, Version, Commits
-npm run verify          # die Abnahmesimulation, 50 Prüfungen
+npm run verify          # die Abnahmesimulation, 121 Prüfungen
 npm run verify:commits  # Regressionstests des Commit-Gates selbst
 ```
 
 `npm run verify` spielt den Slice mit einer virtuellen Uhr deterministisch
 durch — kein Browser, keine Flakiness, kein "works on my machine". Es prüft
 Onboarding-Zeiten, Abbau-Ergebnis, Verwurzelungs-Phasen, den kompletten
-Bauablauf bis zum Brutlord und dass die Domäne sauber bleibt. **74 Prüfungen,
+Bauablauf bis zum Brutlord und dass die Domäne sauber bleibt. **121 Prüfungen,
 alle grün.** Die Domäne unter `src/domain/` darf
 kein React, kein DOM, kein SVG, kein `Math.random()` und kein `Date.now()`
 anfassen — Spielwahrheit ist reines JS und bleibt es.

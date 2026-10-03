@@ -7,9 +7,10 @@ import { check, section } from './expect.mjs';
 
 export function checkMiningProgress(run) {
   const { reachedAt, earthHealth, ticks } = run;
+  const expectedTicks = Math.round(ONBOARDING_CONFIG.miningDurationMs / ONBOARDING_CONFIG.miningTickMs);
   section('Abbauzeit und Erd-Zustände');
   check('Abbau dauert konfigurierte 3500 ms', reachedAt.get(ONBOARDING_STATE.TILE_DESTROYED) - reachedAt.get(ONBOARDING_STATE.MINING) === ONBOARDING_CONFIG.miningDurationMs);
-  check('Genau 35 definierte Fortschrittsticks', totalMiningTicks() === 35 && ticks.length === 35);
+  check(`Genau ${expectedTicks} definierte Fortschrittstick`, ticks.length === expectedTicks, `${ticks.length} statt ${expectedTicks}`);
   check('Material-Bursts haben feste Kadenz', miningBurstEveryTicks() >= 1);
 
   const states = earthHealth.map((entry) => entry.health);

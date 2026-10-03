@@ -15,6 +15,12 @@ Code, und `npm run verify` sagt dir, ob er stimmt.
 Der Bau steht, der Schwarm arbeitet. Was jetzt fehlt, ist Bestand — und ein
 Grund, ihn zu haben.
 
+- [ ] **Eine Abnahme für den Browser.** Die Onboarding-Kette ist jetzt geprüft,
+      die Darstellung halb, die Browser-Uhr gar nicht: `scripts/` führt
+      `use-schedule-runner.js` nie aus, weil dort kein Browser läuft. Damit ist
+      ein Drittel des Ablaufs ungetestet — der Abbau-Takt im echten Browser ist
+      derselbe Code wie im Test, aber nur der Test wird geprüft. Ein Browserlauf
+      wäre Playwright oder etwas Gleichwertiges; Playwright ist installiert.
 - [ ] **Speichern.** Aktuell stirbt dein Hive beim Reload. Absicht für den
       Slice, unbrauchbar für alles darüber. Mit Essenz und Bauten im Zustand ist
       das jetzt mehr als eine Bequemlichkeit: wer zehn Minuten in einen Brutlord
@@ -64,7 +70,7 @@ Versionsregel kennt für genau diesen Fall einen ausdrücklichen Korrekturpfad.
 - [x] Verwurzelung: 10 s Einnehmen, 5 s Ruhe, dann Tentakel in die Nachbarfelder
 - [x] Welt 64 × 64 (4.096 Felder, davon 4 Hive), Kamera 13 × 13 folgt dem Raum
 - [x] Gate: Hard Caps (300/30/3/7), Version, Commits — läuft in CI
-- [x] `npm run verify`: 74 Prüfungen, deterministisch, ohne Browser
+- [x] `npm run verify`: 121 Prüfungen, deterministisch, ohne Browser
 - [x] Domäne frei von React, DOM, SVG, `Math.random()`, `Date.now()`
 - [x] **Bauen.** Schwarmhort, Essenz Extractor und Brutlord: Bau wählen, Bauplatz
       setzen, Dunglinge tragen Essenz hin, erst dann steht das Bauwerk. Kein Bau

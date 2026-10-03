@@ -4,14 +4,12 @@
  * ausschließlich im Reducer.
  */
 import { useEffect } from 'react';
-import { MINING_PHASE } from '../domain/actions/mining.js';
-import { scheduleFor } from '../domain/onboarding/onboarding-schedule.js';
+import { intervalAction, scheduleFor } from '../domain/onboarding/onboarding-schedule.js';
 
 function startInterval(interval, latest, dispatch) {
   return setInterval(() => {
-    const job = latest.current.mining;
-    if (!job || job.phase !== MINING_PHASE.WORKING) return;
-    dispatch({ type: interval.isLastTick(job) ? interval.complete : interval.tick });
+    const action = intervalAction(interval, latest.current.mining);
+    if (action) dispatch(action);
   }, interval.everyMs);
 }
 

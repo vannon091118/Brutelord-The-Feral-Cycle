@@ -5,8 +5,7 @@
  */
 import { createInitialGameState } from '../../src/state/game-state.js';
 import { gameReducer } from '../../src/state/game-reducer.js';
-import { MINING_PHASE } from '../../src/domain/actions/mining.js';
-import { scheduleFor } from '../../src/domain/onboarding/onboarding-schedule.js';
+import { intervalAction, scheduleFor } from '../../src/domain/onboarding/onboarding-schedule.js';
 
 export class VirtualClock {
   constructor({ onTransition, onDispatch } = {}) {
@@ -56,10 +55,8 @@ export class VirtualClock {
 
     this.now = nextInterval;
     this.interval.nextAt += this.interval.everyMs;
-    const job = this.state.mining;
-    if (job && job.phase === MINING_PHASE.WORKING) {
-      this.dispatch(this.interval.isLastTick(job) ? this.interval.complete : this.interval.tick);
-    }
+    const action = intervalAction(this.interval, this.state.mining);
+    if (action) this.dispatch(action.type);
     return true;
   }
 

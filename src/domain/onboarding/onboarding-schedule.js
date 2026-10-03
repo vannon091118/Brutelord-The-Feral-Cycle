@@ -2,7 +2,7 @@
 import { ONBOARDING_CONFIG } from './onboarding-config.js';
 import { ONBOARDING_STATE } from './onboarding-state.js';
 import { ACTION } from '../actions/action-types.js';
-import { advanceMiningJob, isMiningFinished, miningTotalTicks } from '../actions/mining.js';
+import { MINING_PHASE, advanceMiningJob, isMiningFinished, miningTotalTicks } from '../actions/mining.js';
 
 export function spawnRemainderMs() {
   return Math.max(
@@ -57,6 +57,12 @@ const MINING_INTERVAL = {
   complete: ACTION.MINING_COMPLETED,
   isLastTick: (job) => isMiningFinished(advanceMiningJob(job)),
 };
+
+/** Was der Intervall-Tick tun soll: null heisst, der Job laeuft gerade nicht. */
+export function intervalAction(interval, job) {
+  if (!job || job.phase !== MINING_PHASE.WORKING) return null;
+  return { type: interval.isLastTick(job) ? interval.complete : interval.tick };
+}
 
 export function scheduleFor(phase) {
   return {

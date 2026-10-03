@@ -226,6 +226,21 @@ Commit-Nachrichten und Code-Kommentare auf Deutsch, Code-Bezeichner englisch.
 - Ein Vorrat hängt an einem Cluster-Datensatz in `world.deposits`, die Tiles
   tragen nur `depositId`. Pro-Tile-Datensätze wären falsch: der Pool gehört dem
   ganzen Vorrat. Details in `Docs/ARCHITEKTUR.md`.
+- **Eine Regel pro Ort, nicht eine Ausnahme und eine Ausnahme.** Der Spawn-Anker
+  kommt aus `spawnTile()` in `src/state/selectors.js` — Reducer *und* `work-state`
+  lesen ihn. Ein `??`-Fallback an einer Stelle und `parseTileId` an der anderen
+  war zwei Regeln für denselben Wert; `parseTileId` ruft `id.split(',')` und
+  stürzt auf `null`. Neue Aufrufer nutzen den Selektor.
+- **Kein `??`-Fallback auf einer Tabelle, die vollständig sein muss.** Der
+  Hinweistext ist total über die 13 Phasen, deshalb `HINTS[state]` ohne `??`:
+  ein fehlender Eintrag soll auffallen, nicht still auf "Der Hive wartet."
+  zurückfallen. Die Vollständigkeit prüft `checkHintCoverage()` in
+  `scripts/verify/check-onboarding.mjs`.
+- **Ein Zeitplan wird an einer Stelle entschieden, nicht in jeder Uhr.** Was der
+  Intervall-Tick tut, steht in `intervalAction()` in
+  `src/domain/onboarding/onboarding-schedule.js`; Browser- und Node-Uhr fragen
+  nur noch. Vorher kannte die Onboarding-Uhr den Mining-Zustand (`WORKING`)
+  und änderte sich mit ihm.
 
 ## Gestalterische Vorgaben
 

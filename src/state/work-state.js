@@ -1,11 +1,11 @@
 /** Die Arbeitssicht des Zustands für Reducer und Uhr. */
-import { parseTileId } from '../domain/world/tile.js';
 import { hasWork } from '../domain/labour/work-tick.js';
+import { spawnTile } from './selectors.js';
 
 export function workOf(state) {
   return {
     essence: state.essence,
-    anchor: parseTileId(state.world.spawnTileId),
+    anchor: spawnTile(state.world),
     dunglings: state.dunglings,
     buildings: state.buildings,
     popups: state.popups,

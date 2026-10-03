@@ -38,15 +38,21 @@ export function createOnboarding() {
   };
 }
 
-export function enterOnboarding(onboarding, next) {
-  if (onboarding.state === next) return onboarding;
-  return { state: next, trail: [...onboarding.trail, next] };
+const TRAIL_LIMIT = ONBOARDING_ORDER.length * 4;
+
+function appendTrail(trail, next) {
+  return [...trail, next].slice(-TRAIL_LIMIT);
 }
 
-export function onboardingStepIndex(onboarding) {
+export function enterOnboarding(onboarding, next) {
+  if (onboarding.state === next) return onboarding;
+  return { state: next, trail: appendTrail(onboarding.trail, next) };
+}
+
+function stepIndex(onboarding) {
   return ONBOARDING_ORDER.indexOf(onboarding.state);
 }
 
 export function hasReached(onboarding, state) {
-  return onboardingStepIndex(onboarding) >= ONBOARDING_ORDER.indexOf(state);
+  return stepIndex(onboarding) >= ONBOARDING_ORDER.indexOf(state);
 }

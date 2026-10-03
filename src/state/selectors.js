@@ -2,6 +2,12 @@
 import { MINING_PHASE, canMineTile } from '../domain/actions/mining.js';
 import { ONBOARDING_CONFIG } from '../domain/onboarding/onboarding-config.js';
 import { ONBOARDING_STATE, hasReached } from '../domain/onboarding/onboarding-state.js';
+import { parseTileId, tileId } from '../domain/world/tile.js';
+
+export function spawnTile(world) {
+  const spawn = world.spawnTileId ?? tileId(ONBOARDING_CONFIG.dunglingSpawnTile.x, ONBOARDING_CONFIG.dunglingSpawnTile.y);
+  return parseTileId(spawn);
+}
 
 export function firstMineableTileId(world) {
   const { x, y } = ONBOARDING_CONFIG.firstEarthBlock;
