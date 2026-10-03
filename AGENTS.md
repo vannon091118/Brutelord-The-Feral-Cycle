@@ -170,6 +170,15 @@ bleibt ein Gate-Fehler.
 - Vorprüfung und Commit müssen dieselben Bytes sehen: Message nach
   `/tmp/commit-msg.txt` schreiben, `commitViolations` darauf laufen lassen,
   dann `git commit -F /tmp/commit-msg.txt`.
+- **Die Signaturpflicht gilt für Commits von Hand, nicht für den
+  Versions-Bot.** `commit.gpgsign = true` mit SSH-Signatur ist die Voreinstellung,
+  und `~/.ssh/allowed_signers` kennt genau einen Schlüssel: deinen. Der Workflow
+  `.github/workflows/auto-bump.yml` committet als `github-actions[bot]` und ist
+  deshalb unsigniert (`git log --show-signature` zeigt `N`). Das bleibt so: Ein
+  Bot, der sich als Mensch ausgibt, ist nicht prüfbar, sondern nur behauptet —
+  und der persönliche Signaturschlüssel gehört nicht in `GITHUB_TOKEN`. Ein
+  automatisches Nachsignieren würde die Aussage wertlos machen. Nachprüfen:
+  `git log --show-signature -1` zeigt `G` mit Schlüssel-Kennung für Hand-Commits.
 
 Commit-Nachrichten und Code-Kommentare auf Deutsch, Code-Bezeichner englisch.
 
