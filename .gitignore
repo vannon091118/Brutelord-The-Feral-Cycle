@@ -21,3 +21,4 @@ Thumbs.db
 .worktrees/
 .preview-profile/
 tools/preview/daemon.log
+tools/preview/inbox.json

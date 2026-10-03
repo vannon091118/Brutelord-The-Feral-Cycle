@@ -324,19 +324,7 @@ Commit → Push.
   über alle 4.096 Kacheln (~41 k Zugriffe/s), und die Uhr schweigt nur, wenn
   nichts wächst oder ruht — bei 64 × 64 nie. Ein Index über die aktiven Felder
   wäre der nächste Schritt, falls es ruckelt.
-- Sichtprüfungen laufen über `tools/preview/`, nicht über eine temporäre
-  `lab.html`. `node tools/preview/preview.mjs` startet ein sichtbares Chrome
-  mit `--remote-debugging-port=9222` und eigenem Profil unter
-  `.preview-profile/`, `node tools/preview/daemon.mjs` hängt sich per CDP an
-  und injiziert `marker.js` dauerhaft. Im Fenster markiert `m` ein Element,
-  `Esc` beendet; jeder Klick vergibt eine ID `m1`, `m2`, … und ein `node
-  tools/preview/marks.mjs` liefert genau diese Elemente als JSON mit Selector
-  und Rechteck — damit lässt sich im Chat „m2 ist zu blau" sagen und es ist
-  eindeutig. Zwei Fallstricke: `Page.addScriptToEvaluateOnNewDocument` gilt nur
-  für die offene CDP-Session, ein Kurzskript verliert die Registrierung beim
-  Schließen (deshalb der Daemon), und der Marker darf bei `document-start` kein
-  DOM anfassen — `document.body` ist dann noch `null`, der Mount hängt am
-  `readyState`.
+- Sichtprüfungen laufen über `tools/preview/`, nicht über eine temporäre + NL +   `lab.html`. Ein Befehl bringt alles hoch und hält es am Leben: + NL +   `node tools/preview/up.mjs` ist ein Supervisor, der das sichtbare Chrome, + NL +   den Inbox-Server und den Marker-Daemon startet und Chrome neu hochholt, + NL +   wenn es wegbricht. Der Daemon hängt sich per CDP an und injiziert + NL +   `marker.js` nach jedem Reload neu. Im Fenster markiert `m` ein Element, + NL +   `p` blendet das Panel ein, `Esc` beendet den Modus; jeder Klick vergibt eine + NL +   ID `m1`, `m2`, … Das Panel listet die Marks als Bullet-Liste mit + NL +   Kommentarfeld. **Senden -> Chat** legt die Liste in die Zwischenablage + NL +   **und** in die Inbox auf `127.0.0.1:9333`; `node tools/preview/pull.mjs` + NL +   liefert sie zurück, `--clear` leert. Damit ist „m2 ist zu blau" im Chat + NL +   eine Zeile mit Selektor und Rechteck, kein Raten. + NL + - Drei Fallstricke, alle schon bezahlt: `Page.addScriptToEvaluateOnNewDocument` + NL +   gilt nur für die offene CDP-Session, ein Kurzskript verliert die + NL +   Registrierung beim Schließen (deshalb der Daemon). Der Marker darf bei + NL +   `document-start` kein DOM anfassen, `document.body` ist dort noch `null`, + NL +   der Mount hängt am `readyState`. Und die Tastatur-Handler laufen in der + NL +   Capture-Phase, ein Kind kann sie nicht stoppen — die Tipp-Prüfung muss + NL +   **vor** jeder Taste stehen, sonst schluckt ein `Esc` im Kommentar-Feld + NL +   den Fokus und der Rest des Satzes verschwindet.
 - `dist/` ist Build-Ausgabe und nicht versioniert (`git ls-files dist` ist
   leer) — nicht von Hand editieren. Dasselbe gilt für `dogfood-output/`:
   nicht tracked, aber auch **nicht** in `.gitignore`. `.freebuff/` und
