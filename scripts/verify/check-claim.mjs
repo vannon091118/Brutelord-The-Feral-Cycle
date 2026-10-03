@@ -1,9 +1,4 @@
-/**
- * Die Regel aus dem Feedback: beansprucht wird ausschließlich abgebauter
- * Boden. Der Durchlauf macht aus einem Nachbarfeld des Wurzelankers
- * nachträglich Boden und lässt die Tentakel ein zweites Mal stoßen — Erde
- * daneben bleibt unbeansprucht, aber sichtbar.
- */
+/** Prüft, dass nur abgebauter Boden beansprucht wird. */
 import { minedFloorTile } from '../../src/domain/actions/mining.js';
 import { getTile, neighborIds, replaceTile } from '../../src/domain/world/grid.js';
 import { ROOTING_PHASE } from '../../src/domain/world/rooting.js';

@@ -1,40 +1,26 @@
-/**
- * Hard Caps als Textanalyse: Modulgröße, Funktionslänge, Parameterzahl,
- * Importzahl. Bewusst heuristisch und ohne Parser-Abhängigkeit:
- *
- *  - erkannt werden benannte Funktionsdeklarationen und benannte Arrow-/
- *    Funktionsausdrücke (`function name(...)`, `const name = (...) => {`)
- *  - anonyme Callbacks zählen nicht (die Regel betrifft Einheiten, nicht
- *    Ausdrücke)
- *  - Klassemethoden und Template-Strings mit unbalancierten Klammern sind
- *    nicht abgedeckt; der Check liefert deshalb nur Verstöße, nie Freibriefe
- */
+/** Hard Caps als Textanalyse: Codezeilen, Kommentare, Funktionen, Parameter, Imports. */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const HARD_CAPS = {
   moduleLines: 300,
+  commentLines: 5,
   functionLines: 30,
   parameters: 3,
   imports: 7,
 };
 
-export const SOURCE_EXTENSIONS = ['.js', '.jsx', '.mjs'];
+export const SOURCE_EXTENSIONS = ['.js', '.jsx', '.mjs', '.css'];
+export const DOCUMENTATION_EXTENSIONS = ['.md', '.markdown', '.txt'];
 
 const FUNCTION_PATTERNS = [
-  /* function name(a, b) { */
   /(?:^|\n)[ \t]*(?:export[ \t]+)?(?:default[ \t]+)?(?:async[ \t]+)?function[ \t]+([A-Za-z_$][\w$]*)[ \t]*\(([^)]*)\)[ \t]*\{/g,
-  /* const name = (a, b) => { */
   /(?:^|\n)[ \t]*(?:export[ \t]+)?const[ \t]+([A-Za-z_$][\w$]*)[ \t]*=[ \t]*(?:async[ \t]*)?\(([^)]*)\)[ \t]*=>[ \t]*\{/g,
-  /* const name = function (a, b) { */
   /(?:^|\n)[ \t]*(?:export[ \t]+)?const[ \t]+([A-Za-z_$][\w$]*)[ \t]*=[ \t]*(?:async[ \t]*)?function[ \t]*\(([^)]*)\)[ \t]*\{/g,
-  /* const name = memo(function inner(a, b) { */
   /(?:^|\n)[ \t]*(?:export[ \t]+)?const[ \t]+([A-Za-z_$][\w$]*)[ \t]*=[ \t]*[A-Za-z_$.]+\([ \t]*(?:async[ \t]*)?function[ \t]+([A-Za-z_$][\w$]*)[ \t]*\(([^)]*)\)[ \t]*\{/g,
-  /* const name = memo((a, b) => { */
   /(?:^|\n)[ \t]*(?:export[ \t]+)?const[ \t]+([A-Za-z_$][\w$]*)[ \t]*=[ \t]*[A-Za-z_$.]+\([ \t]*(?:async[ \t]*)?\(([^)]*)\)[ \t]*=>[ \t]*\{/g,
 ];
 
-/** Letzte Gruppe ist immer die Parameterliste, davor steht der Name. */
 function nameOfMatch(match) {
   return match.length > 3 ? (match[2] ?? match[1]) : match[1];
 }
@@ -43,7 +29,6 @@ function paramsOfMatch(match) {
   return match[match.length - 1];
 }
 
-/** Kommentare und einfache Zeichenketten entfernen, Zeilen bleiben erhalten. */
 export function stripNoise(code) {
   return code
     .replace(/\/\*[\s\S]*?\*\//g, (match) => match.replace(/[^\n]/g, ' '))
@@ -59,6 +44,33 @@ export function collectSourceFiles(root, extensions = SOURCE_EXTENSIONS, found =
     else if (extensions.some((extension) => full.endsWith(extension))) found.push(full);
   }
   return found;
+}
+
+export function commentLineNumbers(code) {
+  const numbers = [];
+  let inBlock = false;
+  code.split('\n').forEach((line, index) => {
+    const trimmed = line.trim();
+    if (inBlock) {
+      numbers.push(index + 1);
+      if (trimmed.includes('*/')) inBlock = false;
+      return;
+    }
+    if (trimmed.startsWith('/*') || trimmed.startsWith('{/*')) {
+      numbers.push(index + 1);
+      if (!trimmed.includes('*/')) inBlock = true;
+      return;
+    }
+    if (trimmed.startsWith('//')) numbers.push(index + 1);
+  });
+  return numbers;
+}
+
+export function codeLineCount(code) {
+  const comments = new Set(commentLineNumbers(code));
+  return code
+    .split('\n')
+    .filter((line, index) => line.trim() !== '' && !comments.has(index + 1)).length;
 }
 
 function countTopLevelParams(text) {
@@ -90,7 +102,6 @@ function lineOf(code, index) {
   return code.slice(0, index).split('\n').length;
 }
 
-/** Alle benannten Funktionen mit Zeilenumfang und Parameterzahl. */
 export function parseFunctions(code) {
   const found = [];
   const noiseFree = stripNoise(code);
@@ -114,9 +125,21 @@ export function parseFunctions(code) {
 }
 
 function moduleViolations(file, code, caps) {
-  const moduleLines = code.split('\n').length;
-  if (moduleLines <= caps.moduleLines) return [];
-  return [{ file, rule: `max ${caps.moduleLines} LOC pro Modul`, detail: `${moduleLines} Zeilen` }];
+  const lines = codeLineCount(code);
+  if (lines <= caps.moduleLines) return [];
+  return [{ file, rule: `max ${caps.moduleLines} Codezeilen pro Modul`, detail: `${lines} Codezeilen` }];
+}
+
+function commentViolations(file, code, caps) {
+  const comments = commentLineNumbers(code);
+  if (comments.length <= caps.commentLines) return [];
+  return [
+    {
+      file,
+      rule: `max ${caps.commentLines} Kommentarzeilen pro Datei`,
+      detail: `${comments.length} Kommentarzeilen (Erklärung gehört nach Docs/)`,
+    },
+  ];
 }
 
 function importViolations(file, code, caps) {
@@ -126,6 +149,7 @@ function importViolations(file, code, caps) {
 }
 
 function functionViolations(file, code, caps) {
+  if (file.endsWith('.css')) return [];
   const violations = [];
   for (const unit of parseFunctions(code)) {
     if (unit.lines > caps.functionLines) {
@@ -149,8 +173,12 @@ function functionViolations(file, code, caps) {
 }
 
 export function metricViolations(file, code, caps = HARD_CAPS) {
+  if (file.endsWith('.css')) {
+    return [...moduleViolations(file, code, caps), ...commentViolations(file, code, caps)];
+  }
   return [
     ...moduleViolations(file, code, caps),
+    ...commentViolations(file, code, caps),
     ...importViolations(file, code, caps),
     ...functionViolations(file, code, caps),
   ];

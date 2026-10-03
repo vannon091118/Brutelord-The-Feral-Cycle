@@ -1,10 +1,4 @@
-/**
- * Geometrie eines Erdblocks — reine Daten, kein Rendering.
- *
- * Die Form entsteht deterministisch aus der Tile-Koordinate: dieselbe Erde
- * sieht immer gleich aus. Wichtig ist, dass die Masse über die Kachelgrenze
- * hinausragt — nur so verschwindet das Raster und es bleibt Gestein.
- */
+/** Geometrie eines Erdblocks: Umriss, Körner, Risse. */
 import { EARTH_HEALTH } from '../../domain/world/tile.js';
 import { chipBlob, crackPath, soilBlob, soilSpeckles, tileSeed } from '../tile-shapes.js';
 
@@ -63,11 +57,6 @@ export function earthGeometry({ tile, size }) {
     size,
     seed,
     center: { x: x + size / 2, y: y + size / 2 },
-    /**
-     * Ragt bewusst über die Kachel hinaus: `outward` schiebt den Rand nach
-     * außen, viele Punkte halten die Kurve eng am Rand. Erst dadurch
-     * verschmelzen vier Nachbarn ohne Loch an den Ecken zu einer Masse.
-     */
     mass: soilBlob({ x, y, size, inset: 4, jitter: 2.6, outward: 10, points: 16, seed }),
     speckles: soilSpeckles({ x, y, size, count: 6, seed, inset: 4 }),
     handLines: handLines({ x, y, size, seed }),

@@ -89,7 +89,8 @@ Gate ausdrücklich; jede andere Rücknahme fällt durch.
 
 **Commit-Bodies sind romanlang.** 100 bis 1.000 Wörter. Jede geänderte Datei
 muss namentlich im Body stehen. Letzte Zeile exakt einmal
-`Vannon-(vannon091118)`. Verboten: `Co-Authored-By`, `Signed-off-by`,
+`created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice,
+Never Average Vibe.`. Verboten: `Co-Authored-By`, `Signed-off-by`,
 `Reviewed-by`, `Generated with …`, Footer-Trenner und jedes `Key: value` als
 Trailer.
 

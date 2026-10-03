@@ -1,6 +1,6 @@
+/** Der Bauplatz: Umriss, Gerüst, Essenzpunkte. */
 import { buildingBox } from './building-geometry.js';
 
-/** Ein Essenzpunkt: leer, bis die Essenz wirklich angekommen ist. */
 function pipPath(x, y) {
   return `M${x},${y - 3.4} L${x + 3.4},${y} L${x},${y + 3.4} L${x - 3.4},${y} Z`;
 }
@@ -22,7 +22,6 @@ function EssencePoints({ building, box }) {
   );
 }
 
-/** Das Gerüst: zwei Stangen und ein Querbalken zeigen, dass hier gebaut wird. */
 function Scaffold({ box }) {
   const left = box.x + box.width * 0.3;
   const right = box.x + box.width * 0.7;
@@ -37,10 +36,6 @@ function Scaffold({ box }) {
   );
 }
 
-/**
- * Der Bauplatz: gestrichelter Umriss, Gerüst und eine Reihe Essenzpunkte.
- * Man sieht also nicht nur, dass hier etwas entsteht, sondern wie viel fehlt.
- */
 export function BuildSiteArt({ building, tileSize }) {
   const box = buildingBox(building, tileSize);
   const inset = tileSize * 0.08;

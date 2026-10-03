@@ -1,8 +1,4 @@
-/**
- * Das Essenzsymbol: ein kleiner Kern, der über dem Abladeort aufsteigt und
- * dabei verblasst. Dieselbe Form trägt der Dungling, solange er eine Essenz
- * bei sich hat — so ist auf einen Blick klar, wer unterwegs ist.
- */
+/** Essenzsymbol: getragen und als +1 über dem Abladeort. */
 function Spark({ scale = 1 }) {
   return (
     <g transform={`scale(${scale})`}>
@@ -17,7 +13,6 @@ function Spark({ scale = 1 }) {
   );
 }
 
-/** Die Last über dem Kopf: wer trägt, zeigt es. */
 export function CarriedEssence({ position, tileSize }) {
   return (
     <g transform={`translate(${position.x} ${position.y - tileSize * 0.46})`} opacity="0.92">
@@ -28,7 +23,6 @@ export function CarriedEssence({ position, tileSize }) {
   );
 }
 
-/** Das +1 über dem Abladeort — kurz, lesbar, dann weg. */
 export function EssencePopup({ at }) {
   return (
     <g transform={`translate(${at.x} ${at.y - 16})`}>

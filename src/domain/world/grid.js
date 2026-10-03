@@ -1,8 +1,4 @@
-/**
- * Das Grid ist ein 2D-Vogelblick-Raster. Ein Tile pro Koordinate — kein Tile
- * existiert doppelt, keines hat zwei Zustände. Das Raster ist groß und fein;
- * sichtbar ist davon nur, was die Verwurzelung freigelegt hat.
- */
+/** Das Raster: ein Tile pro Koordinate, Sichtbarkeit folgt der Sonde. */
 import {
   GRID_HEIGHT,
   GRID_WIDTH,
@@ -23,20 +19,6 @@ import {
 import { revealWorld } from './reveal.js';
 import { ONBOARDING_CONFIG } from '../onboarding/onboarding-config.js';
 
-/**
- * Startwelt des Slices:
- *
- *   E E E E E E
- *   E E E E E E
- *   E E H H E E
- *   E E H H E E
- *   E E F E E E     <- F: der Hive hat sich einen Eingang freigeschoben
- *   E E E E E E
- *
- * Der Hive belegt exakt 2x2 Tiles, rundherum liegt sichtbare, aber noch
- * unbenutzte Erde. Der Dungling braucht eine gültige Startposition, deshalb
- * gehört der freigeschobene Eingang (F) zur Ausgangslage.
- */
 function isHiveCell(x, y, hiveOrigin) {
   return (
     x >= hiveOrigin.x &&
@@ -104,7 +86,6 @@ export function replaceTile(world, nextTile) {
   return { ...world, tiles: { ...world.tiles, [nextTile.id]: nextTile } };
 }
 
-/** Orthogonale Nachbarn — Diagonalen zählen nicht. */
 export function neighborIds(world, id) {
   const { x, y } = parseTileId(id);
   return [
@@ -121,7 +102,6 @@ export function floorTiles(world) {
   return allTiles(world).filter(isBuildable);
 }
 
-/** Nutzbarer Bodenraum: nur fertiger Boden kann ein Objekt aufnehmen. */
 export function countFloorTiles(world) {
   return floorTiles(world).length;
 }

@@ -1,8 +1,4 @@
-/**
- * Die Arbeitssicht des Zustands: genau das, was der Takt braucht, an einer
- * Stelle zusammengezogen. Reducer und Uhr lesen dieselbe Sicht — es gibt
- * keine zweite Wahrheit über Dunglinge, Bauten und Essenz.
- */
+/** Die Arbeitssicht des Zustands für Reducer und Uhr. */
 import { parseTileId } from '../domain/world/tile.js';
 import { hasWork } from '../domain/labour/work-tick.js';
 
@@ -17,7 +13,6 @@ export function workOf(state) {
   };
 }
 
-/** Schweigt die Uhr? Dann tickt sie nicht — wie die der Verwurzelung. */
 export function workIsIdle(state) {
   return !hasWork(workOf(state));
 }

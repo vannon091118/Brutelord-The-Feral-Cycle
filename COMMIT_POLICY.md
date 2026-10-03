@@ -2,7 +2,7 @@
 
 ## Commit-Nachrichten
 
-Jeder neue Commit hat einen kurzen Betreff und einen erklärenden Body mit **100 bis 1000 Wörtern**. Der Body nennt jeden geänderten Fachbereich oder jede geänderte Datei und erklärt, was sich geändert hat und warum. Die letzte nichtleere Body-Zeile muss genau einmal `Vannon-(vannon091118)` lauten. Diese Kennzeichnung basiert auf dem GitHub-Profil `vannon091118`.
+Jeder neue Commit hat einen kurzen Betreff und einen erklärenden Body mit **100 bis 1000 Wörtern**. Der Body nennt jeden geänderten Fachbereich oder jede geänderte Datei und erklärt, was sich geändert hat und warum. Die letzte nichtleere Body-Zeile muss genau einmal `created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.` lauten.
 
 Das Gate weist generierte Signaturen wie `Generated with ...`, Co-Author-/Review-/Sign-off-Trailer, Footer-Trenner und andere `Key: value`-Trailer zurück. Kein anderer Footer oder Trailer ersetzt das Vannon-Label.
 

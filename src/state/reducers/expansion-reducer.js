@@ -1,8 +1,4 @@
-/**
- * Ausbau-Domäne: Der zerstörte Block wird zum nutzbaren Raum, danach wird
- * das Baumenü sichtbar. Das Grid wächst exakt um das eine Tile — und die
- * Verwurzelung sondiert den neuen Umkreis.
- */
+/** Ausbau: zerstörter Block wird Raum, dann erscheint das Baumenü. */
 import { countFloorTiles, getTile } from '../../domain/world/grid.js';
 import { revealAround } from '../../domain/world/reveal.js';
 import { startRooting } from '../../domain/world/rooting-world.js';
@@ -20,11 +16,6 @@ export function reduceExpansion(state, action) {
   }
 }
 
-/**
- * Das neue Feld gehört sofort dem Hive: die Verwurzelung beginnt hier, nicht
- * erst, wenn der Spieler weiterbaut. Erst färbt sich der Block ein, dann ruht
- * er, dann stoßen die Tentakel weiter.
- */
 function expanded(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.TILE_DESTROYED || !state.mining) return state;
   const gainedTileId = state.mining.tileId;

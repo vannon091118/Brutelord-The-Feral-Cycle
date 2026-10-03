@@ -1,43 +1,23 @@
-/**
- * Der Auftrag eines Dunglings: hinlaufen, Hand anlegen, zurücklaufen.
- *
- * Ein Auftrag ist eine kleine Maschine mit fünf Phasen und kennt nur Tiles
- * und Zeiten. Wer die Essenz bezahlt und wer sie bekommt, entscheidet der
- * Takt — der Auftrag selbst kennt keine Ökonomie, nur Wege.
- *
- *   `origin` ist der Ausgangspunkt (Hive oder Extraktor),
- *   `target` das Ziel (Bauplatz oder Hive).
- */
+/** Der Auftrag eines Dunglings: fünf Phasen, Wege und Zeiten. */
 import { JOB_CONFIG } from './job-config.js';
 
 export const JOB_KIND = Object.freeze({
-  /** Essenz vom Hive zum Bauplatz bringen. */
   DELIVER: 'DELIVER',
-  /** Am Extraktor arbeiten und die Essenz zum Hive tragen. */
   EXTRACT: 'EXTRACT',
 });
 
 export const JOB_PHASE = Object.freeze({
-  /** Am Ausgangspunkt: eine Essenz aufnehmen. */
   FETCH: 'FETCH',
-  /** Am Extraktor: der Zyklus läuft, bis die Essenz reif ist. */
   ATTEND: 'ATTEND',
-  /** Mit der Last unterwegs zum Ziel. */
   TRAVEL: 'TRAVEL',
-  /** Am Ziel: abladen. */
   WORK: 'WORK',
-  /** Leer zurück zum Ausgangspunkt. */
   RETURN: 'RETURN',
 });
 
 export const JOB_EVENT = Object.freeze({
-  /** Essenz verlässt den Vorrat des Hive. */
   PICKED: 'PICKED',
-  /** Am Extraktor ist eine Essenz entstanden. */
   PRODUCED: 'PRODUCED',
-  /** Essenz ist angekommen — am Bauplatz oder am Hive. */
   DEPOSITED: 'DEPOSITED',
-  /** Der Auftrag ist abgeschlossen, der Dungling wieder frei. */
   FINISHED: 'FINISHED',
 });
 
@@ -55,12 +35,10 @@ function standing({ kind, buildingId, phase, origin, target, durationMs }) {
     durationMs,
     origin: { ...origin },
     target: { ...target },
-    /** Trägt er gerade eine Essenz? Der Träger ist sichtbar, die Last auch. */
     carrying: 0,
   };
 }
 
-/** Essenz holen, hintragen, abladen, leer zurück. */
 export function createDeliverJob({ buildingId, origin, target, config = JOB_CONFIG }) {
   return standing({
     kind: JOB_KIND.DELIVER,
@@ -72,7 +50,6 @@ export function createDeliverJob({ buildingId, origin, target, config = JOB_CONF
   });
 }
 
-/** Am Extraktor warten, bis die Essenz reif ist — dann trägt er sie zum Hive. */
 export function createExtractJob({ buildingId, origin, target, config = JOB_CONFIG }) {
   return standing({
     kind: JOB_KIND.EXTRACT,
@@ -84,10 +61,6 @@ export function createExtractJob({ buildingId, origin, target, config = JOB_CONF
   });
 }
 
-/**
- * Ein Takt Zeit vergeht. Rückgabe: der neue Auftrag und das Ereignis, das
- * genau an dieser Phasengrenze fällig ist — oder null.
- */
 export function advanceJob(job, dtMs, config = JOB_CONFIG) {
   if (!job) return { job: null, event: null };
   const progressMs = Math.min(job.durationMs, job.progressMs + dtMs);
@@ -112,7 +85,6 @@ function nextPhase(job, config) {
   }
 }
 
-/** Der Weg einer Phase — vorwärts zum Ziel, rückwärts zum Ausgangspunkt. */
 function leg(job, config, { phase = JOB_PHASE.TRAVEL, carrying = 0, event = null } = {}) {
   const [from, to] = phase === JOB_PHASE.RETURN ? [job.target, job.origin] : [job.origin, job.target];
   return {
@@ -121,7 +93,6 @@ function leg(job, config, { phase = JOB_PHASE.TRAVEL, carrying = 0, event = null
   };
 }
 
-/** Ein Extraktor bindet seinen Dungling dauerhaft; jede andere Last endet hier. */
 function afterReturn(job, config) {
   if (job.kind !== JOB_KIND.EXTRACT) return { job: null, event: JOB_EVENT.FINISHED };
   return {
@@ -130,10 +101,6 @@ function afterReturn(job, config) {
   };
 }
 
-/**
- * Wo der Dungling zwischen zwei Tiles steht — die Darstellung interpoliert
- * daraus seinen Lauf, statt ihn springen zu lassen.
- */
 export function jobTrip(job) {
   if (!job) return null;
   if (job.phase === JOB_PHASE.TRAVEL) return trip(job.origin, job.target, job);

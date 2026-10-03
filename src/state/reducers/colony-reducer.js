@@ -1,11 +1,4 @@
-/**
- * Kolonie-Domäne: was der Spieler baut und was die Kolonie danach tut.
- *
- * Zwei Verantwortungen in einer Datei, weil die Bau-Befehle und der
- * Arbeitstakt dieselben Dinge anfassen — Bauplätze, Dunglinge, Essenz — und
- * der Import-Deckel keine zwei Module zulässt. Getrennt bleibt es trotzdem:
- * oben die Befehle, unten der Takt, der alles Weitere ausrechnet.
- */
+/** Kolonie-Domäne: Bau-Befehle des Spielers und der Arbeitstakt. */
 import { ACTION } from '../../domain/actions/action-types.js';
 import { BUILDING_STATE, BUILDING_TYPE, canAfford } from '../../domain/buildings/building-config.js';
 import {
@@ -40,7 +33,6 @@ export function reduceColony(state, action) {
   }
 }
 
-/** Gewählt wird nur, was die Essenz im Hive auch hergibt. */
 function choose(state, type) {
   if (!Object.values(BUILDING_TYPE).includes(type) || !canAfford(state.essence, type)) return state;
   return {
@@ -50,7 +42,6 @@ function choose(state, type) {
   };
 }
 
-/** Der Bauplatz ersetzt die Wahl: ab hier tragen die Dunglinge die Essenz hin. */
 function place(state, tileId) {
   if (!state.buildChoice || !tileId) return state;
   const anchor = parseTileId(tileId);
@@ -69,10 +60,6 @@ function deselect(state) {
   return state.selectedBuildingId === null ? state : { ...state, selectedBuildingId: null };
 }
 
-/**
- * Ein Dungling mehr an diesem Bauwerk — bis die Plätze voll sind. Wer gerade
- * eine Lieferung trägt, darf sie zu Ende bringen und geht danach an den Platz.
- */
 function staff(state, buildingId) {
   const building = state.buildings.find((entry) => entry.id === buildingId);
   if (!building || building.state !== BUILDING_STATE.READY) return state;
@@ -82,7 +69,6 @@ function staff(state, buildingId) {
   return staffed ? replace(state, buildingId, staffed) : state;
 }
 
-/** Freigeben macht den Dungling sofort wieder verfügbar — ohne Auftrag. */
 function release(state, buildingId) {
   const building = state.buildings.find((entry) => entry.id === buildingId);
   if (!building || building.workers.length === 0) return state;

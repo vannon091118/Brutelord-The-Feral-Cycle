@@ -1,10 +1,4 @@
-/**
- * Ableitung für die Darstellung: was ist gerade zu sehen, was ist anklickbar,
- * wo steht der Schwarm. Reine Leseoperation auf dem Spielzustand.
- *
- * Die Welt ist groß, das Bild ist klein: die Kamera folgt dem gebauten Raum,
- * und sie zeigt nur, was die Verwurzelung freigelegt hat.
- */
+/** Ableitung für die Darstellung: Ausschnitt, Schwarm, Popups, Bauten. */
 import { TILE_KIND, isVisible } from '../domain/world/tile.js';
 import { allTiles } from '../domain/world/grid.js';
 import { MINING_PHASE, mineableFrontierIds } from '../domain/actions/mining.js';
@@ -24,7 +18,6 @@ import {
 
 const ARRIVAL_STATES = [ONBOARDING_STATE.GRID_EXPANDED, ONBOARDING_STATE.TILE_DESTROYED];
 
-/** Mittelpunkt von allem, was gebaut oder gewachsen ist. */
 export function builtCenterPx(world, tileSize) {
   const built = allTiles(world).filter((tile) => tile.kind !== TILE_KIND.EARTH);
   const source = built.length > 0 ? built : [{ x: world.hiveOrigin.x, y: world.hiveOrigin.y }];
@@ -33,7 +26,6 @@ export function builtCenterPx(world, tileSize) {
   return { x: sumX / source.length, y: sumY / source.length };
 }
 
-/** Das Sichtfeld als Kasten in Weltkoordinaten, im Raster verankert. */
 export function cameraBox({ world, tileSize, viewport }) {
   const whole = worldPixelSize(tileSize);
   const focus = builtCenterPx(world, tileSize);
@@ -54,7 +46,6 @@ function tilesInView(world, camera, tileSize) {
   });
 }
 
-/** Der Schwarm: wer gerade wo steht und ob er Erde bricht. */
 function workerViews(game, tileSize) {
   return game.dunglings.map((worker) => ({
     id: worker.id,

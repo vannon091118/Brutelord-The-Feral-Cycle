@@ -1,3 +1,4 @@
+/** Das Feld in vier Durchgängen: Erde, Boden, Wurzeln, Bauten. */
 import { EarthTile } from './EarthTile.jsx';
 import { DungeonFloorTile } from './DungeonFloorTile.jsx';
 import { RootingVeil } from './rooting/RootingVeil.jsx';
@@ -5,15 +6,6 @@ import { BuildingLayer } from './buildings/BuildingLayer.jsx';
 import { TILE_KIND } from '../domain/world/tile.js';
 import { ROOTING_PHASE } from '../domain/world/rooting.js';
 
-/**
- * Das Feld: Erde, fertiger Boden und was darauf steht. Hive-Tiles werden vom
- * Hive selbst überdeckt. Kein Tile kennt seinen Zustand doppelt — er kommt
- * aus der Welt.
- *
- * Vier Durchgänge, ein Aufbau: erst die Masse, dann der Boden, darüber die
- * Verwurzelung, zuletzt die Bauten. So überlagert sich Erde nicht mit dem,
- * was bereits freigelegt ist, und ein Bauwerk steht sichtbar über den Wurzeln.
- */
 function EarthCell({ tile, view, tileSize, selectedTileId, highlightedTileId, onSelect }) {
   return (
     <EarthTile

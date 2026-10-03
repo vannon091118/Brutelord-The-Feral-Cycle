@@ -1,11 +1,4 @@
-/**
- * Der Bau-Durchlauf als Simulation: Onboarding, sechs Felder abbauen, dann
- * Extraktor, Schwarmhort und Brutlord bauen — mit virtueller Uhr, echten
- * Reducern und demselben Arbeitstakt wie im Browser.
- *
- * Das Ergebnis sind Beobachtungen, kein Test: die Prüfungen entscheiden, was
- * davon gelten muss.
- */
+/** Bau-Durchlauf als Simulation: Extraktor, Schwarmhort, Brutlord. */
 import { ACTION } from '../../src/domain/actions/action-types.js';
 import { BUILDING_TYPE, canAfford } from '../../src/domain/buildings/building-config.js';
 import { JOB_CONFIG } from '../../src/domain/labour/job-config.js';
@@ -13,7 +6,6 @@ import { ONBOARDING_CONFIG } from '../../src/domain/onboarding/onboarding-config
 import { tileId } from '../../src/domain/world/tile.js';
 import { VirtualClock } from './virtual-clock.mjs';
 
-/** Der Raum des Durchlaufs: das erste Feld plus ein 2x2-Feld daneben. */
 function roomTiles() {
   const { x, y } = ONBOARDING_CONFIG.firstEarthBlock;
   return [
@@ -28,12 +20,10 @@ function roomTiles() {
 
 export const ROOM = Object.freeze(roomTiles());
 export const ROOM_IDS = Object.freeze(ROOM.map(({ x, y }) => tileId(x, y)));
-/** Wo im Durchlauf gebaut wird — je Bau eine eigene Stelle. */
 export const SITE_TILES = Object.freeze({
   extractor: ROOM_IDS[0],
   swarmHost: ROOM_IDS[1],
   bruteLord: ROOM_IDS[2],
-  /** Ein Feld neben dem Raum — nie abgebaut, also kein Bauplatz. */
   earth: tileId(roomTiles()[0].x + 2, roomTiles()[0].y),
 });
 
@@ -47,7 +37,6 @@ function tickOnce(clock) {
   clock.dispatch(ACTION.WORK_TICK, { dtMs: JOB_CONFIG.tickMs });
 }
 
-/** Takt für Takt, bis die Bedingung stimmt — oder die Geduld reißt. */
 function tickUntil(clock, limitMs, reached) {
   let elapsed = 0;
   while (elapsed < limitMs && !reached(clock.state)) {
@@ -71,7 +60,6 @@ function place(clock, id) {
   return clock.state.buildings.at(-1) ?? null;
 }
 
-/** Warten, bis dieser Bauplatz bezahlt ist: geliefert heißt fertig. */
 function paid(building) {
   return Boolean(building) && building.delivered >= building.required;
 }
@@ -89,7 +77,6 @@ function buildExtractor(clock) {
   };
 }
 
-/** Ein Arbeiter am Extraktor: ein Zyklus, dann liegt die erste Essenz im Hive. */
 function runExtractorCycle(clock) {
   clock.dispatch(ACTION.WORKER_ASSIGNED, { buildingId: clock.state.buildings[0].id });
   const afterMs = tickUntil(clock, 40000, (state) => state.essence > 0);
@@ -109,7 +96,6 @@ function buildSwarmHost(clock) {
   place(clock, SITE_TILES.swarmHost);
   const builtInMs = tickUntil(clock, 200000, (state) => paid(state.buildings[1]));
   const before = clock.state.dunglings.length;
-  /** Lange genug, dass der Hort mehrfach brütet — nur so füllt sich der Schwarm. */
   tickFor(clock, 100000);
   return {
     state: clock.state.buildings[1].state,
@@ -118,7 +104,6 @@ function buildSwarmHost(clock) {
   };
 }
 
-/** Vier Zuweisungen an denselben Extraktor — mehr als die Grenze geht nicht. */
 function staffToLimit(clock) {
   const buildingId = clock.state.buildings[0].id;
   for (let attempt = 0; attempt < 4; attempt += 1) {
@@ -127,7 +112,6 @@ function staffToLimit(clock) {
   return clock.state.buildings[0].workers.length;
 }
 
-/** Ein zweiter Bau auf demselben Feld ist kein Bau — die Zahl bleibt gleich. */
 function tryPlace(clock, id) {
   const before = clock.state.buildings.length;
   place(clock, id);
@@ -154,7 +138,6 @@ function buildBruteLord(clock) {
   };
 }
 
-/** Onboarding, Abbau und die erste Ablehnung: der Start des Durchlaufs. */
 function prepare(clock) {
   clock.dispatch(ACTION.HIVE_CLICKED);
   clock.run();

@@ -2,7 +2,8 @@
 import { execFileSync } from 'node:child_process';
 
 export const COMMIT_LIMITS = { subjectLength: 72, bodyMinWords: 100, bodyMaxWords: 1000 };
-export const REQUIRED_LABEL = 'Vannon-(vannon091118)';
+export const REQUIRED_LABEL =
+  'created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.';
 
 const FORBIDDEN = [
   { id: 'co-authored-by', pattern: /^\s*co-authored-by\s*:/im },
@@ -50,7 +51,7 @@ function labelViolations(body) {
   const lines = bodyLines(body);
   const occurrences = body.split(REQUIRED_LABEL).length - 1;
   if (lines.at(-1) !== REQUIRED_LABEL || occurrences !== 1) {
-    return [{ rule: 'Vannon-Label am Body-Ende', detail: `genau eine letzte Zeile muss ${REQUIRED_LABEL} sein` }];
+    return [{ rule: 'VANNON-Label am Body-Ende', detail: `genau eine letzte Zeile muss ${REQUIRED_LABEL} sein` }];
   }
   return [];
 }

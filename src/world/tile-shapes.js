@@ -1,13 +1,4 @@
-/**
- * Deterministische Formgebung für die Weltgrafik.
- *
- * Kein Math.random, kein Date.now: dieselbe Tile-Koordinate ergibt immer
- * dieselbe Erde. Die Variationen sind kontrolliert — kleine Unterschiede in
- * Silhouette, Korn und Rissen, aber dieselbe Grundform.
- *
- * Reine Geometrie (keine React-, DOM- oder Stil-Abhängigkeit).
- */
-
+/** Deterministische Formgebung für die Weltgrafik. */
 export function tileSeed(x, y) {
   let h = Math.imul(x + 1013, 73856093) ^ Math.imul(y + 7079, 19349663);
   h ^= h >>> 13;
@@ -27,7 +18,6 @@ function round(value) {
   return Math.round(value * 100) / 100;
 }
 
-/** Weiche, geschlossene Kurve durch alle Punkte (Enden laufen ineinander). */
 export function smoothClosedPath(points) {
   const n = points.length;
   if (n < 3) return '';
@@ -43,7 +33,6 @@ export function smoothClosedPath(points) {
   return `${d}Z`;
 }
 
-/** Punkt auf dem Rechteckumlauf plus Innenrichtung. */
 function perimeterPoint({ t, minX, minY, maxX, maxY }) {
   const w = maxX - minX;
   const h = maxY - minY;
@@ -55,11 +44,6 @@ function perimeterPoint({ t, minX, minY, maxX, maxY }) {
   return { x: minX, y: maxY - (d - 2 * w - h), nx: 1, ny: 0 };
 }
 
-/**
- * Die vier Ecken sind feste Stützpunkte. Ohne sie schneidet die weiche Kurve
- * genau dort ein — und vier benachbarte Flächen lassen zwischen sich ein
- * Loch in Form einer Raute.
- */
 function blobPlaces(points) {
   const corners = [0, 0.25, 0.5, 0.75];
   const alongEdge = Array.from({ length: points }, (_, index) => (index + 0.5) / points);
@@ -79,19 +63,12 @@ function blobPoint({ place, rng, inset, jitter, wobble, outward }, { x, y, size 
   return { x: p.x + p.nx * inward, y: p.y + p.ny * inward };
 }
 
-/**
- * Rundliche Erdfläche: ein Rechteck, dessen Rand unregelmäßig nach innen
- * gezogen wird. `inset` bestimmt, wie viel Rand bleibt, `jitter` wie wild.
- * `outward` schiebt den Rand zusätzlich nach außen — damit wachsen Flächen
- * über ihre Kachel hinaus und verschmelzen ohne Fuge mit den Nachbarn.
- */
 export function soilBlob({ x, y, size, inset = 3, jitter = 3.2, points = 7, seed = 1, wobble = 0, outward = 0 }) {
   const rng = makeRng(seed);
   const tuning = { rng, inset, jitter, wobble, outward };
   return smoothClosedPath(blobPlaces(points).map((place) => blobPoint({ place, ...tuning }, { x, y, size })));
 }
 
-/** Kleine Körner und Kiesel im Erdblock. */
 export function soilSpeckles({ x, y, size, count = 5, seed = 1, inset = 11 }) {
   const rng = makeRng(seed ^ 0x9e37);
   const grains = [];
@@ -106,7 +83,6 @@ export function soilSpeckles({ x, y, size, count = 5, seed = 1, inset = 11 }) {
   return grains;
 }
 
-/** Ein Riss: startet am Rand des Blocks und wandert ins Innere. */
 export function crackPath({ x, y, size, seed, index = 0, spread = 1 }) {
   const rng = makeRng(seed ^ (0x51ed + index * 977));
   const centerX = x + size / 2;
@@ -130,7 +106,6 @@ export function crackPath({ x, y, size, seed, index = 0, spread = 1 }) {
   return d;
 }
 
-/** Ausgebrochene Kerbe am Rand des Blocks. */
 export function chipBlob({ x, y, size, seed, index = 0, grow = 1 }) {
   const rng = makeRng(seed ^ (0x7a11 + index * 613));
   const side = Math.floor(rng() * 4);
@@ -158,7 +133,6 @@ export function chipBlob({ x, y, size, seed, index = 0, grow = 1 }) {
   return smoothClosedPath(pts);
 }
 
-/** Verstreute Brocken außerhalb des Spielfelds — reine Kulisse. */
 export function scatterRocks({ seed, minX, minY, maxX, maxY, count = 16 }) {
   const rng = makeRng(seed);
   const rocks = [];

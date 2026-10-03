@@ -24,6 +24,13 @@ Der Bau steht, der Schwarm arbeitet. Was jetzt fehlt, ist Bestand.
 - [ ] **Der Brutlord tut etwas.** Er wird gebaut, er kostet, er wartet. Was er
       ausbrütet, ist noch nicht entschieden — bis dahin ist er ein teurer
       Platzhalter mit Panzer, und das steht hier, damit es niemand übersieht.
+- [x] **Die Regeln nachgeschärft.** Hard Caps messen jetzt nur Code — Leer- und
+      Kommentarzeilen fallen aus dem LOC-Cap heraus —, und Kommentare selbst
+      sind auf fünf Zeilen pro Datei gedeckelt: global für alles unter `src/`
+      und `scripts/`, CSS eingeschlossen, Dokumentation bleibt frei. Das
+      Commit-Label ist der VANNON-Satz statt der alten `vannon091118`-Kennung.
+      Was an Erklärungen aus dem Code weichen musste, steht geschlossen in
+      `Docs/ARCHITEKTUR.md` — der Code trägt nur noch den Kopf.
 
 ## 0.0.1 — steht
 

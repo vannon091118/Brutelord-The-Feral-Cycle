@@ -1,10 +1,4 @@
-/**
- * Geometrie eines nutzbaren Bodens: eine durchgehende Fläche aus hellem
- * Stein. Rein und deterministisch — dieselbe Kachel sieht immer gleich aus.
- *
- * Wie die Erde ragt die Fläche über die Kachelgrenze hinaus, damit der Boden
- * als ein Stück Höhle und nicht als Reihe von Feldern wirkt.
- */
+/** Geometrie eines Bodenfelds. */
 import { FLOOR_ORIGIN } from '../../domain/world/tile.js';
 import { soilBlob, soilSpeckles, tileSeed } from '../tile-shapes.js';
 import { stoneMarks } from './substrate.js';

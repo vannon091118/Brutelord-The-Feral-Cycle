@@ -1,20 +1,9 @@
-/**
- * Der Zeitplan des Onboardings — reine Domänendaten.
- *
- * Hier steht als Tabelle, welcher Übergang in welchem Zustand fällig wird.
- * Die Sim-Uhr (React-Hook) führt den Plan nur aus: setTimeout/setInterval,
- * keine eigenen Zahlen. Dadurch sind Timings prüfbar, ohne einen Browser
- * laufen zu lassen.
- */
+/** Der Zeitplan des Onboardings als Tabelle. */
 import { ONBOARDING_CONFIG } from './onboarding-config.js';
 import { ONBOARDING_STATE } from './onboarding-state.js';
 import { ACTION } from '../actions/action-types.js';
 import { advanceMiningJob, isMiningFinished, miningTotalTicks } from '../actions/mining.js';
 
-/**
- * Restzeit bis zum Dungling, gerechnet aus der Config: der Spawn liegt exakt
- * `dunglingSpawnDelayMs` nach dem Hive-Klick.
- */
 export function spawnRemainderMs() {
   return Math.max(
     0,
@@ -24,7 +13,6 @@ export function spawnRemainderMs() {
   );
 }
 
-/** Wie viele Abbau-Ticks liegen zwischen zwei sichtbaren Material-Bursts? */
 export function miningBurstEveryTicks() {
   return Math.max(
     1,
@@ -36,7 +24,6 @@ export function totalMiningTicks() {
   return miningTotalTicks(ONBOARDING_CONFIG);
 }
 
-/** Einmalige Übergänge pro Onboarding-Zustand. */
 const TIMERS = {
   [ONBOARDING_STATE.HIVE_CLICKED]: [
     { delayMs: ONBOARDING_CONFIG.hiveHitDurationMs, type: ACTION.HIVE_MUTATION_STARTED },
@@ -64,7 +51,6 @@ const TIMERS = {
   ],
 };
 
-/** Die Abbau-Uhr tickt, bis die Domäne den letzten Tick meldet. */
 const MINING_INTERVAL = {
   everyMs: ONBOARDING_CONFIG.miningTickMs,
   tick: ACTION.MINING_PROGRESS,
@@ -72,10 +58,6 @@ const MINING_INTERVAL = {
   isLastTick: (job) => isMiningFinished(advanceMiningJob(job)),
 };
 
-/**
- * Was ist im aktuellen Onboarding-Zustand fällig?
- * @returns {{timers: Array<{delayMs:number,type:string}>, interval: object|null}}
- */
 export function scheduleFor(phase) {
   return {
     timers: TIMERS[phase] ?? [],

@@ -1,3 +1,4 @@
+/** Der Hive als Ganzes: Mulde, Zeichnung, Einladung, Klickfläche. */
 import { memo } from 'react';
 import { canMutate } from '../domain/entities/hive.js';
 import { soilBlob } from './tile-shapes.js';
@@ -5,12 +6,6 @@ import { HiveSvg } from './Hive.svg.jsx';
 import { HiveInvitation } from './hive/HiveInvitation.jsx';
 import { HiveHitArea } from './hive/HiveHitArea.jsx';
 
-/**
- * Der Hive als Ganzes: Mulde, Zeichnung, Einladung und Klickfläche. Er ist nur
- * klickbar, solange er noch nichts geboren hat. Unter ihm liegt kein Feld,
- * sondern gewachsene Erde — die Mulde, die er sich selbst gegraben hat.
- */
-/** Die gewachsene Mulde, in der der Hive sitzt. */
 function hiveNest({ hive, tileSize }) {
   return soilBlob({
     x: hive.origin.x * tileSize,

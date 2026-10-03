@@ -1,9 +1,4 @@
-/**
- * Abbau-Domäne: Befehl, Laufweg, Arbeitstakt, Abschluss.
- * Jeder Takt verändert genau den Erd-Zustand des einen Tiles und den Job —
- * nichts anderes, und nichts über eine Event-Kette. Der Abbau bedient sich
- * beim ersten freien Dungling; der Rest des Schwarms arbeitet weiter.
- */
+/** Abbau-Domäne: Befehl, Laufweg, Takt, Abschluss. */
 import { MINING_PHASE, advanceMiningJob, canMineTile, createMiningJob, earthHealthForProgress, minedFloorTile } from '../../domain/actions/mining.js';
 import { getTile, replaceTile } from '../../domain/world/grid.js';
 import { withEarthHealth } from '../../domain/world/tile.js';
@@ -33,7 +28,6 @@ function withWorker(state, workerId, change) {
   };
 }
 
-/** Wer nichts trägt, kann Erde brechen — der Abbau belegt ihn dann. */
 function freeWorker(state) {
   return state.dunglings.find((worker) => !worker.job);
 }
@@ -62,7 +56,6 @@ function reached(state) {
   };
 }
 
-/** Ein definierter Takt Arbeit → sichtbarer Zustand der Erde. */
 function progress(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.MINING) return state;
   if (!state.mining) return state;

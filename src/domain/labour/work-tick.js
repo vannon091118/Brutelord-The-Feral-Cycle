@@ -1,12 +1,4 @@
-/**
- * Der Takt der Kolonie. Er führt zusammen, was zwischen den Bauten, den
- * Dunglingen und der Essenz passiert: Aufträge laufen weiter, Essenz wandert,
- * der Schwarmhort brütet, Bauplätze bezahlen sich Stück für Stück, Popups
- * verblassen.
- *
- * Reine Rechnung auf einfachen Daten — kein React, keine Uhr, kein Zufall.
- * Die Uhr tickt nur, wenn es etwas zu tun gibt (`hasWork`).
- */
+/** Der Arbeitstakt der Kolonie: Aufträge, Essenz, Brut, Bauplätze, Popups. */
 import {
   JOB_EVENT,
   JOB_KIND,
@@ -25,7 +17,6 @@ import {
 import { deliverToSite, openSites, settleSite } from '../buildings/building.js';
 import { createDungling, idle, nextDunglingId, withJob } from '../entities/dungling.js';
 
-/** Ein Takt über alles, was arbeitet. Zurück kommt nur, was der Takt besitzt. */
 export function advanceWork(work, dtMs, config = JOB_CONFIG) {
   const staffed = staffWorkers(work, config);
   const working = advanceWorkers(staffed, dtMs, config);
@@ -39,16 +30,10 @@ export function advanceWork(work, dtMs, config = JOB_CONFIG) {
   };
 }
 
-/**
- * Ein Extraktor bindet einen Dungling dauerhaft; eine Lieferung endet von
- * selbst. Zuweisen darf man deshalb auch mitten in einer Lieferung: der
- * Dungling geht danach an seinen Platz.
- */
 export function isStationJob(job) {
   return job?.kind === JOB_KIND.EXTRACT;
 }
 
-/** Die Uhr schweigt, solange niemand trägt, brütet oder auf Essenz wartet. */
 export function hasWork(work) {
   if (work.popups.length > 0) return true;
   if (work.dunglings.some((worker) => worker.job)) return true;
@@ -83,7 +68,6 @@ function applyEvent(work, event, job) {
   };
 }
 
-/** Die angekommene Essenz zeigt sich kurz als +1 über dem Abladeort. */
 function addPopup(work, job) {
   const popup = { id: `essence-${work.popupSeq}`, x: job.target.x, y: job.target.y, ageMs: 0 };
   return { ...work, popups: [...work.popups, popup], popupSeq: work.popupSeq + 1 };
@@ -95,12 +79,6 @@ function agePopups(popups, dtMs, config) {
     .filter((popup) => popup.ageMs < config.popupLifetimeMs);
 }
 
-/**
- * Freie Dunglinge nehmen sich Arbeit: erst der offene Bauplatz, dann der
- * Extraktor. Wer am Extraktor steht, wird an der Phasengrenze abgezogen,
- * sobald draußen Essenz gebraucht wird — sonst käme ein einzelner Arbeiter
- * nie vom Extraktor los und kein Bau würde fertig.
- */
 function staffWorkers(work, config) {
   let next = work;
   for (const worker of work.dunglings) {
@@ -113,7 +91,6 @@ function staffWorkers(work, config) {
   return next;
 }
 
-/** Am Extraktor warten heißt: verfügbar, sobald ein Bauplatz Essenz braucht. */
 function relievedWorker(work, worker) {
   const waiting = worker.job?.kind === JOB_KIND.EXTRACT && worker.job.phase === JOB_PHASE.ATTEND;
   if (!waiting || work.essence <= 0 || openSites(work.buildings).length === 0) return worker;
@@ -133,7 +110,6 @@ function deliveryFor(work, config) {
   return createDeliverJob({ buildingId: site.id, origin: work.anchor, target: site.anchor, config });
 }
 
-/** Ein zugewiesener Dungling kehrt an seinen Extraktor zurück, sobald er frei ist. */
 function stationFor(work, worker, config) {
   for (const building of work.buildings) {
     if (building.type !== BUILDING_TYPE.ESSENCE_EXTRACTOR) continue;
@@ -143,7 +119,6 @@ function stationFor(work, worker, config) {
   return null;
 }
 
-/** Der Schwarmhort brütet: alle `spawnEveryMs` ein Arbeiter, bis der Schwarm voll ist. */
 function advanceBuildings(work, dtMs) {
   let dunglings = work.dunglings;
   const buildings = work.buildings.map((building) => {

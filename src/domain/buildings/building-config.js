@@ -1,21 +1,12 @@
-/**
- * Was der Hive bauen kann: Grundfläche, Preis in Essenz und was das Bauwerk
- * danach tut. Fakten als eingefrorene Konstanten — kein Magic String in
- * Reducern oder Komponenten.
- */
+/** Baubare Objekte: Typen, Grundflächen, Preise, Startvorrat. */
 export const BUILDING_TYPE = Object.freeze({
-  /** Brütet neue Arbeiter für den Schwarm. */
   SWARM_HOST: 'SWARM_HOST',
-  /** Presst Essenz, ein Dungling pro Zyklus. */
   ESSENCE_EXTRACTOR: 'ESSENCE_EXTRACTOR',
-  /** Der Brutlord: groß, teuer, das Ziel des Ausbaus. */
   BRUTE_LORD: 'BRUTE_LORD',
 });
 
 export const BUILDING_STATE = Object.freeze({
-  /** Der Bauplatz steht, die Essenz fehlt noch — Träger bringen sie hin. */
   SITE: 'SITE',
-  /** Fertig gebaut und in Betrieb. */
   READY: 'READY',
 });
 
@@ -36,7 +27,6 @@ export const BUILDING_DEFS = Object.freeze({
     width: 1,
     height: 1,
     cost: COST.extractor,
-    /** Höchstens so viele Dunglinge arbeiten an einem Extraktor. */
     maxWorkers: 3,
   }),
   [BUILDING_TYPE.BRUTE_LORD]: Object.freeze({
@@ -48,10 +38,8 @@ export const BUILDING_DEFS = Object.freeze({
   }),
 });
 
-/** Der Hive beginnt mit genau einem Extraktor Vorrat — sonst kommt er nie in Gang. */
 export const START_ESSENCE = COST.extractor;
 
-/** Mehr Dunglinge trägt der Schwarm nicht. */
 export const MAX_DUNGLINGS = 6;
 
 export function buildingDef(type) {

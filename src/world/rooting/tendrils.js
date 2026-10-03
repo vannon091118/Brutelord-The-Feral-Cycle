@@ -1,17 +1,9 @@
-/**
- * Die Tentakel der Verwurzelung. Sie wachsen von den Rändern des Feldes nach
- * innen und sehen aus wie Wurzeln, die sich durch den Boden fressen.
- *
- * `pathLength="100"` normiert jede Bahn auf 100 Einheiten — damit der Fortschritt
- * direkt als Strichlänge gesetzt werden kann, ohne die Bahn zu messen.
- */
+/** Deterministische Wurzeltentakel je Feld. */
 import { crackPath, makeRng, tileSeed } from '../tile-shapes.js';
 
 const ROOTS = [0, 1, 2, 3];
 
 function rootBend({ x, y, size, seed, index, side }) {
-  // Der Ansatz sitzt auf einer Seite, das Ziel in der Mitte: vier Wurzeln
-  // wachsen gegeneinander und treffen sich im Zentrum.
   const along = 0.28 + (index % 2) * 0.44;
   const starts = [
     { cx: x + size * along, cy: y + 2 },
@@ -30,7 +22,6 @@ function rootBend({ x, y, size, seed, index, side }) {
   });
 }
 
-/** Alle Tentakel eines Feldes, mit Färbung und Zielrichtung. */
 export function tendrilsOf({ tile, size }) {
   const seed = tileSeed(tile.x, tile.y) ^ 0x7a17;
   const rng = makeRng(seed);

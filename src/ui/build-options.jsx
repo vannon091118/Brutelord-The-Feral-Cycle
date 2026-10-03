@@ -1,10 +1,4 @@
-/**
- * Die Bauoptionen als Daten: Reihenfolge und Formen. Die Formen sind inline
- * SVG — kein Asset, keine Icon-Bibliothek, direkt im Code iterierbar.
- *
- * Name, Hinweis und Preis kommen aus der Domäne: es gibt genau eine Wahrheit
- * über einen Bau, und die steht nicht in der Darstellung.
- */
+/** Die Bauoptionen als Daten: Reihenfolge und Formen. */
 import { BUILDING_TYPE } from '../domain/buildings/building-config.js';
 
 export const BUILD_OPTIONS = [

@@ -1,8 +1,4 @@
-/**
- * Dungling-Domäne: geboren werden, kriechen, bereit sein.
- * Der Schwarm ist eine Liste — der erste Dungling bleibt der, der das
- * Onboarding trägt; alles Weitere kommt aus dem Schwarmhort.
- */
+/** Dungling-Domäne: geboren werden, kriechen, bereit sein. */
 import { createDungling, idle, nextDunglingId, startSpawning } from '../../domain/entities/dungling.js';
 import { parseTileId } from '../../domain/world/tile.js';
 import { ONBOARDING_CONFIG } from '../../domain/onboarding/onboarding-config.js';
@@ -23,7 +19,6 @@ export function reduceDungling(state, action) {
   }
 }
 
-/** Der erste Dungling trägt das Onboarding — er ist der, der gemeint ist. */
 function withLead(state, change) {
   return { ...state, dunglings: state.dunglings.map((worker, index) => (index === 0 ? change(worker) : worker)) };
 }
@@ -54,7 +49,6 @@ function emerged(state) {
   };
 }
 
-/** Der Dungling ist bereit: genau ein Erdblock wird zur nächsten Aktion. */
 function ready(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.DUNGLING_IDLE) return state;
   return {

@@ -1,14 +1,5 @@
 #!/usr/bin/env node
-/**
- * Das CI-Gate. Drei Wächter, ein Befehl:
- *
- *   --tree             Hard Caps: Modulgröße, Funktionslänge, Parameter, Imports
- *   --version          Globale Autorität: version.lock.json + gespiegelte Metadaten
- *   --commits[=RANGE]  100–1000 Body-Wörter, Datei-Erklärung, Vannon-Label, keine Trailer
- *
- * Ohne Argumente laufen alle drei. Commit-Prüfungen laufen relativ zur
- * Basislinie. Der Lock wird gegen die Basisrevision geprüft.
- */
+/** Das CI-Gate: Hard Caps, Version, Commit-Regeln. */
 import { execFileSync } from 'node:child_process';
 import {
   commitViolations,
@@ -42,7 +33,6 @@ function currentBranch() {
   }
 }
 
-/** Ohne Vorgabe: alles, was vor der Basislinie noch nicht existiert. */
 export function detectRange() {
   if (hasRef('origin/main')) return 'origin/main..HEAD';
   if (hasRef('main') && currentBranch() !== 'main') return 'main..HEAD';
@@ -67,7 +57,6 @@ function readVersionAt(ref) {
     const lock = JSON.parse(output);
     return { version: lock.version, revision: lock.revision };
   } catch {
-    // Erstmalige Einführung der globalen Autorität: es gibt noch keinen Lock.
     return null;
   }
 }

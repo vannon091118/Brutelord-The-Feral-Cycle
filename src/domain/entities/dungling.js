@@ -1,7 +1,4 @@
-/**
- * Der Dungling: kleines arbeitendes Wesen. Kennt seinen Zustand, sein Tile und
- * seinen Auftrag — aber keine Grafik und keine Timings.
- */
+/** Der Dungling: Zustand, Auftrag, Tile und Position. */
 import { TILE_SIZE } from '../world/world-config.js';
 import { jobTrip } from '../labour/jobs.js';
 
@@ -20,12 +17,10 @@ export function createDungling({ tile, facing = 1, id = 'dungling-1' }) {
     facing,
     state: DUNGLING_STATE.NONE,
     targetTileId: null,
-    /** Was er gerade tut: ein Auftrag oder nichts. */
     job: null,
   };
 }
 
-/** Der Schwarm zählt seine Arbeiter — die Nummer ist der nächste freie Platz. */
 export function nextDunglingId(dunglings) {
   return `dungling-${dunglings.length + 1}`;
 }
@@ -38,11 +33,6 @@ export function dunglingPositionPx(dungling, tileSize = TILE_SIZE) {
   return tilePositionPx(dungling.tile, tileSize);
 }
 
-/**
- * Wo der Dungling gerade steht: mitten auf dem Weg, wenn er läuft. Die
- * Wahrheit ist das Tile — die Zwischenposition ist Darstellung, und sie kommt
- * aus dem Auftrag, nicht aus einer Uhr.
- */
 export function workerPositionPx(worker, tileSize = TILE_SIZE) {
   const trip = jobTrip(worker.job);
   if (!trip) return tilePositionPx(worker.tile, tileSize);
@@ -60,7 +50,6 @@ export function idle(dungling) {
   return { ...dungling, state: DUNGLING_STATE.IDLE, targetTileId: null };
 }
 
-/** Laufbefehl: Der Dungling übernimmt das Ziel-Tile sichtbar als Position. */
 export function walkTo(dungling, targetTile) {
   const facing = targetTile.x >= dungling.tile.x ? 1 : -1;
   return {
@@ -84,7 +73,6 @@ const JOB_STATE = Object.freeze({
   RETURN: DUNGLING_STATE.MOVING,
 });
 
-/** Ein neuer Auftrag: Zustand, Tile und Blickrichtung folgen der Phase. */
 export function withJob(worker, job) {
   if (!job) return { ...idle(worker), job: null };
   const trip = jobTrip(job);

@@ -1,12 +1,4 @@
-/**
- * Globale Versionierung — lesen und prüfen.
- *
- * `version.lock.json` ist die globale Wahrheit für Version und monotone
- * Revision. `VERSION` und `package.json` sind Spiegel. Parallele Branches
- * müssen denselben Lock fortschreiben; bei konkurrierenden Erhöhungen kommt
- * es zum Merge-Konflikt statt stiller Versionsdivergenz. Nur der Versionierer
- * darf Version und Revision gemeinsam erhöhen.
- */
+/** Globale Versionierung: Lock lesen, Spiegel prüfen, Korrektur erlauben. */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -49,7 +41,6 @@ export function compareVersions(left, right) {
   return (a.major - b.major) || (a.minor - b.minor) || (a.patch - b.patch);
 }
 
-/** Liest den Stand der drei Stellen (VERSION, Lock, package.json). */
 export function readVersionState(root = '.') {
   const lock = readJson(join(root, LOCK_FILE));
   const version = lock.version;
@@ -59,7 +50,6 @@ export function readVersionState(root = '.') {
   return {
     version,
     revision: lock.revision,
-    /** Ausdrückliche Rücknahme einer Fehlbenennung — siehe versionTransitionViolations. */
     amends: lock.amends ?? null,
     mirrorVersion,
     packageVersion: pkg.version,
@@ -68,7 +58,6 @@ export function readVersionState(root = '.') {
   };
 }
 
-/** Prüft die Konsistenz der Versionierung an sich. */
 export function versionViolations(state) {
   const problems = [];
   if (!parseVersion(state.version)) problems.push(`${LOCK_FILE} enthält keine gültige Version: ${state.version}`);
@@ -90,14 +79,6 @@ export function versionViolations(state) {
   return problems;
 }
 
-/**
- * Prüft, ob ein Wechsel vom Basisstand erlaubt wäre (keine Divergenz).
- *
- * Ein Rückschritt ist normalerweise verboten — sonst könnte jede Seite still
- * ihre eigene Nummerierung durchdrücken. Genau eine Ausnahme gibt es: die
- * ausdrückliche Rücknahme einer Fehlbenennung, und die muss im Lock stehen
- * (`amends` nennt die Version, die damit korrigiert wird).
- */
 export function versionTransitionViolations({ base, head }) {
   if (!base || !parseVersion(base.version) || !Number.isInteger(base.revision)) return [];
   const problems = [];

@@ -1,3 +1,4 @@
+/** Verläufe, Filter und Muster der Welt. */
 function SoilGradients() {
   return (
     <>
@@ -21,11 +22,6 @@ function SoilGradients() {
   );
 }
 
-/**
- * Erde und freigelegter Stein bekommen ihre Helligkeit aus einem einzigen
- * Verlauf über das ganze Sichtfeld (userSpaceOnUse). Dadurch stoßen sich die
- * Kacheln nicht mit sichtbaren Nähten ab — es bleibt eine durchgehende Masse.
- */
 function CaveGradients({ camera }) {
   const { x, y, width, height } = camera;
   return (
@@ -121,7 +117,6 @@ function AtmosphereDefs() {
   );
 }
 
-/** Farbverläufe und Filter der SVG-Welt. */
 export function WorldDefs({ camera }) {
   return (
     <defs>

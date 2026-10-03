@@ -27,7 +27,7 @@ const checks = [
   ['Co-Authored Trailer wird abgewiesen', trailerViolations.some((item) => item.rule.includes('Footer/Trailer'))],
   ['Generated-Footer und falsches Label werden abgewiesen', wrongLabel.length > 0],
   ['Generischer Trailer wird abgewiesen', genericTrailer.some((item) => item.rule.includes('Footer/Trailer'))],
-  ['Vannon-Label ist genau einmal die letzte Zeile', repeatedLabel.some((item) => item.rule.includes('Vannon-Label'))],
+  ['VANNON-Label ist genau einmal die letzte Zeile', repeatedLabel.some((item) => item.rule.includes('VANNON-Label'))],
   ['Nicht erklärte Dateien werden abgewiesen', missingScope.some((item) => item.rule.includes('Datei erklären'))],
   ['Zu kurzer Body wird abgewiesen', tooShort.some((item) => item.rule.includes('100–1000'))],
 ];

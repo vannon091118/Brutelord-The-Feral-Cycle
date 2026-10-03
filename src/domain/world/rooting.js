@@ -1,13 +1,4 @@
-/**
- * Die Verwurzelung eines einzelnen Feldes — reine Rechnung, kein Zustand der
- * Welt. Ein Feld durchläuft vier Phasen:
- *
- *   DARK → GROWING → RESTING → CLAIMED
- *
- * `GROWING` ist das Einnehmen: die Farbe des Hive fadet ins Feld, zehn
- * Sekunden lang. `RESTING` ist die Ruhe danach. Erst wenn sie vorbei ist,
- * stoßen die Tentakel in die Nachbarfelder — deshalb `spread`.
- */
+/** Die vier Phasen eines Feldes: DARK, GROWING, RESTING, CLAIMED. */
 import { ROOTING_CONFIG } from './rooting-config.js';
 
 export const ROOTING_PHASE = Object.freeze({
@@ -21,7 +12,6 @@ export function createRooting(phase = ROOTING_PHASE.DARK) {
   return { phase, progress: 0 };
 }
 
-/** Ein abgebautes Block beginnt sofort zu wachsen. */
 export function beginRooting() {
   return createRooting(ROOTING_PHASE.GROWING);
 }
@@ -30,10 +20,6 @@ function phaseConfig(phase, config) {
   return phase === ROOTING_PHASE.GROWING ? config.claimDurationMs : config.cooldownMs;
 }
 
-/**
- * Ein Takt Zeit vergeht. Rückgabe: der neue Zustand und die Antwort, ob in
- * diesem Takt die Nachbarfelder gestoßen werden dürfen.
- */
 export function advanceRooting(rooting, dtMs, config = ROOTING_CONFIG) {
   if (rooting.phase !== ROOTING_PHASE.GROWING && rooting.phase !== ROOTING_PHASE.RESTING) {
     return { rooting, spread: false };
@@ -49,12 +35,10 @@ export function advanceRooting(rooting, dtMs, config = ROOTING_CONFIG) {
   };
 }
 
-/** Arbeit für die Uhr: irgendwo wächst oder ruht noch etwas. */
 export function isRootingBusy(rooting) {
   return rooting.phase === ROOTING_PHASE.GROWING || rooting.phase === ROOTING_PHASE.RESTING;
 }
 
-/** Wie weit ist das Feld sichtbar eingenommen? 0 bis 1. */
 export function rootingCoverage(rooting) {
   if (rooting.phase === ROOTING_PHASE.CLAIMED) return 1;
   if (rooting.phase === ROOTING_PHASE.DARK) return 0;

@@ -1,8 +1,4 @@
-/**
- * Der Onboarding-Ablauf als expliziter Zustandsautomat.
- * Die UI liest diesen Zustand nur — sie entscheidet ihn nicht.
- */
-
+/** Zustände und Übergänge des Onboardings. */
 export const ONBOARDING_STATE = Object.freeze({
   INITIAL: 'INITIAL',
   HIVE_CLICKED: 'HIVE_CLICKED',
@@ -19,7 +15,6 @@ export const ONBOARDING_STATE = Object.freeze({
   BUILD_MENU_VISIBLE: 'BUILD_MENU_VISIBLE',
 });
 
-/** Reihenfolge des Ablaufs — erlaubt "bin ich schon so weit?"-Abfragen. */
 export const ONBOARDING_ORDER = Object.freeze([
   ONBOARDING_STATE.INITIAL,
   ONBOARDING_STATE.HIVE_CLICKED,
@@ -39,7 +34,6 @@ export const ONBOARDING_ORDER = Object.freeze([
 export function createOnboarding() {
   return {
     state: ONBOARDING_STATE.INITIAL,
-    /** Für Debug/Sichtbarkeit: die tatsächlich durchlaufene Kette. */
     trail: [ONBOARDING_STATE.INITIAL],
   };
 }
@@ -53,7 +47,6 @@ export function onboardingStepIndex(onboarding) {
   return ONBOARDING_ORDER.indexOf(onboarding.state);
 }
 
-/** true, sobald der Ablauf diesen Punkt erreicht (oder überschritten) hat. */
 export function hasReached(onboarding, state) {
   return onboardingStepIndex(onboarding) >= ONBOARDING_ORDER.indexOf(state);
 }

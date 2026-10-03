@@ -1,3 +1,4 @@
+/** Die Hülle der Verwurzelung über einem Feld. */
 import { memo } from 'react';
 import { TILE_KIND } from '../../domain/world/tile.js';
 import { rootingCoverage } from '../../domain/world/rooting.js';
@@ -5,23 +6,17 @@ import { earthGeometry } from '../earth/earth-geometry.js';
 import { floorGeometry } from '../floor/floor-geometry.js';
 import { tendrilsOf } from './tendrils.js';
 
-/** Die Fläche des Feldes — sie hängt an der Art, nicht an der Verwurzelung. */
 function massOf({ tile, size }) {
   return tile.kind === TILE_KIND.EARTH
     ? earthGeometry({ tile, size }).mass
     : floorGeometry({ tile, size }).mass;
 }
 
-/** Wie weit ist dieser Strang schon gewachsen? */
 function grownOf({ coverage, delay }) {
   const span = Math.max(0.001, 1 - delay);
   return Math.max(0, Math.min(1, (coverage - delay) / span));
 }
 
-/**
- * Ein Strang. `pathLength="100"` macht die Bahn messbar unabhängig von ihrer
- * Länge: der Fortschritt wird direkt zur Strichlänge.
- */
 function Tendril({ tendril, coverage }) {
   return (
     <path
@@ -38,11 +33,6 @@ function Tendril({ tendril, coverage }) {
   );
 }
 
-/**
- * Die Verwurzelung über einem Feld: die Farbe des Hive fadet hinein, während
- * die Tentakel von den Rändern nach innen wachsen. Erst wenn das Feld ganz
- * eingenommen ist, bleibt der Schleier liegen.
- */
 export const RootingVeil = memo(function RootingVeil({ tile, size }) {
   const coverage = rootingCoverage(tile.rooting);
   if (coverage <= 0) return null;

@@ -1,7 +1,4 @@
-/**
- * Ein kompletter Durchlauf des Slice mit Beobachtung: Zustandskette, Zeiten,
- * Dungling-Zustände, Erd-Fortschritt und Ticks werden mitgeschrieben.
- */
+/** Ein Durchlauf des Slice mit Beobachtung. */
 import { ACTION } from '../../src/domain/actions/action-types.js';
 import { ONBOARDING_CONFIG } from '../../src/domain/onboarding/onboarding-config.js';
 import { ONBOARDING_STATE } from '../../src/domain/onboarding/onboarding-state.js';
@@ -9,10 +6,8 @@ import { allTiles, getTile } from '../../src/domain/world/grid.js';
 import { TILE_KIND, tileId } from '../../src/domain/world/tile.js';
 import { VirtualClock } from './virtual-clock.mjs';
 
-/** Das Zielfeld kommt aus der Config — verschiebt sich der Hive, wandert es mit. */
 const TARGET_TILE = tileId(ONBOARDING_CONFIG.firstEarthBlock.x, ONBOARDING_CONFIG.firstEarthBlock.y);
 
-/** Erdblöcke im Startzustand — unabhängig von der Größe des Rasters. */
 function countEarth(world) {
   return allTiles(world).filter((tile) => tile.kind === TILE_KIND.EARTH).length;
 }

@@ -1,10 +1,4 @@
-/**
- * Die Verwurzelung: ein abgebautes Block gehört sofort dem Hive, braucht
- * konfigurierte Zeit zum Einnehmen und ruht danach, bevor die Tentakel
- * weiterstoßen. Beansprucht wird dabei nur abgebauter Boden — die Erde
- * ringsum bleibt unbeansprucht. Geprüft wird gegen die Config, nicht gegen
- * feste Zahlen.
- */
+/** Die Verwurzelung gegen die Config geprüft. */
 import { ACTION } from '../../src/domain/actions/action-types.js';
 import { ROOTING_CONFIG } from '../../src/domain/world/rooting-config.js';
 import { ROOTING_PHASE } from '../../src/domain/world/rooting.js';
@@ -25,7 +19,6 @@ function afterTicks(state, ticks) {
 export function checkRooting(slice) {
   const target = slice.targetTileId;
   const phaseOf = (state, id) => getTile(state.world, id).rooting.phase;
-  /** Nur Felder, die der Hive noch nicht besitzt — der Eingang gehört ihm schon. */
   const free = neighborIds(slice.state.world, target).filter((id) => phaseOf(slice.state, id) === ROOTING_PHASE.DARK);
   section('Verwurzelung');
 

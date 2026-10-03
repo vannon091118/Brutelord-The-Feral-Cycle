@@ -1,6 +1,6 @@
+/* Palette, Grundlagen, Animationen und Panels. */
 @import "tailwindcss";
 
-/* ------------------------------------------------------------------ Palette */
 @theme {
   --color-soil-950: #120d08;
   --color-soil-900: #1b1310;
@@ -18,7 +18,6 @@
   --color-moss-600: #55632f;
   --color-moss-500: #6c7c3e;
 
-  /* Untergrund abgebauter Felder: heller Stein */
   --color-rock-800: #2c313d;
   --color-rock-700: #3b4251;
   --color-rock-600: #4e5666;
@@ -44,7 +43,6 @@
   --color-bone-400: #9c8a6e;
 }
 
-/* --------------------------------------------------------------------- Base */
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
@@ -84,9 +82,6 @@
   }
 }
 
-/* --------------------------------------------------------------- Animationen
-   Alle Effekte sind rein visuell. Der Spielzustand entsteht im Reducer —
-   diese Timings bestimmen nichts, sie zeigen nur.                              */
 
 .dl-anim {
   transform-box: fill-box;
@@ -262,7 +257,6 @@
 .dl-place-hint { animation: dl-place-hint 2.4s ease-in-out infinite; }
 .dl-puff { animation: dl-puff 620ms ease-out 1 forwards; }
 
-/* ------------------------------------------------------------------- Panels */
 .dl-panel {
   background: linear-gradient(180deg, rgba(40, 29, 19, 0.95), rgba(23, 16, 11, 0.97));
   border: 1px solid rgba(224, 152, 58, 0.22);

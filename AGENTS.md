@@ -59,20 +59,28 @@ Commit-Wächter die Shas.
 
 ## Hard Caps (blockieren CI)
 
-Jede Datei unter `src/` und `scripts/`: max. 300 LOC, max. 7 Imports, max. 3
-Parameter pro benannter Funktion, max. 30 LOC pro benannter Funktion. Der Check
-ist eine Textanalyse in `scripts/lib/source-metrics.mjs` — er zählt **Imports
-als Zeilen**, nicht als Symbole: ein mehrzeiliger `import { … }`-Block ist eine
-Zeile, zwei getrennte `import`-Statements sind zwei. Anonyme Callbacks zählen
-nicht als Funktionen. Gemessen werden nur `.js`, `.jsx` und `.mjs` —
-`src/styles/globals.css` fällt nicht darunter.
+Jede Datei unter `src/` und `scripts/`: max. 300 **Codezeilen**, max. 7 Imports,
+max. 3 Parameter pro benannter Funktion, max. 30 LOC pro benannter Funktion —
+und **max. 5 Kommentarzeilen pro Datei**. Der Check ist eine Textanalyse in
+`scripts/lib/source-metrics.mjs`:
+
+- Gemessen wird `.js`, `.jsx`, `.mjs` **und `.css`** — `src/styles/globals.css`
+  steht ausdrücklich mit im Cap. Dokumentation (`.md`, `.txt`) ist ausgenommen.
+- Für den LOC-Cap zählen nur Codezeilen: Kommentarzeilen und Leerzeilen fallen
+  heraus. Der Cap gilt global, auch für CSS.
+- Kommentare sind auf fünf Zeilen pro Datei begrenzt — wer mehr erklären will,
+  schreibt es nach `Docs/` (siehe `Docs/ARCHITEKTUR.md`). Kurze Warum-Sätze im
+  Code bleiben erlaubt, ganze Absätze nicht.
+- **Imports zählen als Zeilen**, nicht als Symbole: ein mehrzeiliger
+  `import { … }`-Block ist eine Zeile, zwei getrennte `import`-Statements sind
+  zwei. Anonyme Callbacks zählen nicht als Funktionen.
 
 Konsequenz: neue Logik gehört in eine eigene Datei, nicht in eine bestehende
 Komponente. Ein Verstoß wird erst sichtbar, wenn das Gate läuft — `npm run gate`
 vor dem Commit.
 
 Aktueller Stand, gemessen mit derselben Regex wie das Gate (Grenze 7 Imports /
-300 LOC / 30 LOC pro Funktion):
+300 Codezeilen / 5 Kommentarzeilen / 30 LOC pro Funktion):
 
 - Genau 7 Imports, also am Anschlag: `src/state/game-reducer.js`,
   `src/state/reducers/colony-reducer.js`, `src/state/use-game-engine.js`,
@@ -86,11 +94,12 @@ Aktueller Stand, gemessen mit derselben Regex wie das Gate (Grenze 7 Imports /
 - Bei 6 Imports: zwölf weitere Dateien, darunter alle übrigen Reducer in
   `src/state/reducers/`, `scripts/verify/run-slice.mjs` und
   `scripts/verify/build-run.mjs`.
-- Größtes Modul: `scripts/verify/build-run.mjs` mit 183 von 300 LOC, knapp vor
-  `src/world/tile-shapes.js` (178). Kein Modul ist in Gefahr, aber das Gate
-  zählt die Datei über `split('\n').length` — Kommentarzeilen und Leerzeilen
-  zählen mit. Der Bau-Durchlauf liegt bewusst in viele kleine Phasen zerlegt;
-  die längste davon (`buildRun`) hat 12 Zeilen.
+- Größtes Modul: `src/styles/globals.css` mit 238 von 300 Codezeilen, davor
+  `scripts/lib/source-metrics.mjs` (171) und `scripts/verify/build-run.mjs`
+  (146). Seit dem Aufräumen der Kommentare hat jede Datei unter `src/` und
+  `scripts/` genau **eine** Kommentarzeile — den Kopf. Der Bau-Durchlauf liegt
+  bewusst in viele kleine Phasen zerlegt; die längste davon (`buildRun`) hat
+  12 Zeilen.
 - Längste Funktion: `OnboardingHint()` in `src/ui/OnboardingHint.jsx` und
   `HiveRoots()` in `src/world/hive/HiveRoots.jsx` mit je 29 von 30 LOC. Beide
   können keinen ganzen Absatz mehr aufnehmen; `CharacterGradients()` liegt bei
@@ -130,7 +139,8 @@ bleibt ein Gate-Fehler.
 - Betreff max. 72 Zeichen.
 - Body **100–1000 Wörter** (ohne das Label) und **jede geänderte Datei muss
   namentlich im Body vorkommen**.
-- Letzte nichtleere Body-Zeile: exakt einmal `Vannon-(vannon091118)`.
+- Letzte nichtleere Body-Zeile: exakt einmal
+  `created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.`
 - Verboten: `Co-Authored-By`, `Signed-off-by`, `Reviewed-by`, `Generated with …`,
   Footer-Trenner (`---`) und generische `Key: value`-Trailer.
 - Die Trailer-Erkennung ist ein Zeilenanfang-Muster: jede Body-Zeile, die mit
@@ -178,10 +188,12 @@ Commit-Nachrichten und Code-Kommentare auf Deutsch, Code-Bezeichner englisch.
 - Fakten liegen als eingefrorene Konstanten-Objekte (`TILE_KIND`, `TILE_VISIBILITY`,
   `TILE_USABILITY`, `EARTH_HEALTH`, `DUNGLING_STATE`, `ROOTING_PHASE`, `HARD_CAPS`)
   in `*-config.js` bzw. beim Entity — nie als Magic Strings. `src/` hält sich
-  daran; `scripts/verify/` reißt es zweimal: `check-start.mjs:21` und
-  `check-rooting.mjs:42` vergleichen gegen das Literal `'VISIBLE'`. Wer
-  `TILE_VISIBILITY` umbenennt, lässt diese zwei Prüfungen still grün werden.
-- Kommentare und Doc-Blöcke sind auf Deutsch und erklären das *Warum*.
+  daran; `scripts/verify/check-start.mjs:21` reißt es: dort steht das Literal
+  `'VISIBLE'`. Wer `TILE_VISIBILITY` umbenennt, lässt diese eine Prüfung still
+  grün werden.
+- Kommentare sind auf Deutsch, höchstens fünf Zeilen pro Datei, und erklären
+  das *Warum* in einem Satz. Alles Ausführliche gehört nach `Docs/`, vor allem
+  `Docs/ARCHITEKTUR.md` — nicht in den Code.
 - Deterministisch: sichtbare Geometrie leitet sich aus Koordinaten und Seeds ab,
   nie aus `Math.random()`. Die Seed-Funktion heißt `tileSeed(x, y)` und lebt in
   `src/world/tile-shapes.js` — daneben `makeRng(seed)` als Zufallsstrom darauf.

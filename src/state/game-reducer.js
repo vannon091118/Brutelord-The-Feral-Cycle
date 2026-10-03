@@ -1,10 +1,4 @@
-/**
- * Der zentrale Reducer — als Verteiler, nicht als Sammelbecken.
- *
- * Jede Domäne bringt ihren eigenen Reducer mit und gibt den Zustand
- * unverändert zurück, wenn der Befehl sie nicht betrifft. Genau ein Befehl
- * ändert genau einen Bereich; die Darstellung hört danach passiv zu.
- */
+/** Der zentrale Reducer als Verteiler. */
 import { reduceHive } from './reducers/hive-reducer.js';
 import { reduceDungling } from './reducers/dungling-reducer.js';
 import { reduceSelection } from './reducers/selection-reducer.js';

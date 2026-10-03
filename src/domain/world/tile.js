@@ -1,19 +1,12 @@
-/**
- * Ein Tile ist ein einziges, klar beschriebenes Datenobjekt.
- * Es gibt keine zweite Wahrheit: kein Tile liegt gleichzeitig in zwei Arrays
- * mit unterschiedlichem Zustand. Erde, Sichtbarkeit und Nutzbarkeit stehen
- * ausschließlich hier — und die Verwurzelung, die der Hive darüber legt.
- */
+/** Ein Tile als ein Datenobjekt: Art, Sichtbarkeit, Nutzbarkeit, Verwurzelung. */
 import { ROOTING_PHASE, createRooting } from './rooting.js';
 
-/** Was ist dieses Feld? */
 export const TILE_KIND = Object.freeze({
   EARTH: 'EARTH',
   HIVE: 'HIVE',
   DUNGEON_FLOOR: 'DUNGEON_FLOOR',
 });
 
-/** Sichtbar heißt nicht nutzbar. Erde ist sichtbar, aber kein Bauplatz. */
 export const TILE_VISIBILITY = Object.freeze({
   VISIBLE: 'VISIBLE',
   HIDDEN: 'HIDDEN',
@@ -24,7 +17,6 @@ export const TILE_USABILITY = Object.freeze({
   UNUSABLE: 'UNUSABLE',
 });
 
-/** Sichtbare Zustände eines Erdblocks. */
 export const EARTH_HEALTH = Object.freeze({
   HEALTHY: 'HEALTHY',
   TOUCHED: 'TOUCHED',
@@ -32,7 +24,6 @@ export const EARTH_HEALTH = Object.freeze({
   DESTROYED: 'DESTROYED',
 });
 
-/** Woher kommt ein freier Boden? */
 export const FLOOR_ORIGIN = Object.freeze({
   HIVE_BURROW: 'HIVE_BURROW',
   MINED: 'MINED',
@@ -71,7 +62,6 @@ export function createHiveTile(x, y) {
     usability: TILE_USABILITY.USABLE,
     earthHealth: EARTH_HEALTH.DESTROYED,
     floorOrigin: null,
-    /** Der Hive selbst ist der Ursprung: seine Felder sind immer eingenommen. */
     rooting: createRooting(ROOTING_PHASE.CLAIMED),
   };
 }
@@ -86,7 +76,6 @@ export function createFloorTile(x, y, origin = FLOOR_ORIGIN.MINED) {
     usability: TILE_USABILITY.USABLE,
     earthHealth: EARTH_HEALTH.DESTROYED,
     floorOrigin: origin,
-    /** Der Hive-Eingang gehört ihm von Anfang an. */
     rooting: createRooting(origin === FLOOR_ORIGIN.HIVE_BURROW ? ROOTING_PHASE.CLAIMED : ROOTING_PHASE.DARK),
   };
 }
@@ -99,12 +88,10 @@ export function isVisible(tile) {
   return tile.visibility === TILE_VISIBILITY.VISIBLE;
 }
 
-/** Nutzbarer Raum: fertiger Boden oder der Hive selbst. */
 export function isUsable(tile) {
   return tile.usability === TILE_USABILITY.USABLE;
 }
 
-/** Nur fertiger Boden kann später ein Objekt aufnehmen. */
 export function isBuildable(tile) {
   return tile.kind === TILE_KIND.DUNGEON_FLOOR;
 }

@@ -1,10 +1,4 @@
-/**
- * Der Untergrund: heller Stein, der unter der abgetragenen Schicht liegt.
- *
- * Vorläufig gibt es nur eine Gesteinsart. Die Spuren sind trotzdem
- *koordinaten-deterministisch, damit dieselbe Stelle immer gleich aussieht —
- * kein Zufall, keine Spielwahrheit, nur Geometrie.
- */
+/** Untergrund abgebauter Felder: heller Stein. */
 import { crackPath, makeRng, soilSpeckles } from '../tile-shapes.js';
 
 const STYLE = Object.freeze({
@@ -22,7 +16,6 @@ function dot({ key, grain: { cx, cy, r }, fill, opacity }) {
   return { kind: 'dot', key, cx, cy, r: n(r), fill, opacity };
 }
 
-/** Kantige Bruchfläche: wenige Eckpunkte, leicht in die Länge gezogen. */
 function shardPoints({ cx, cy, radius, seed, count }) {
   const rng = makeRng(seed);
   const corners = Array.from({ length: count }, (_, index) => {
@@ -63,7 +56,6 @@ function seamsOf({ x, y, size, seed }) {
   }));
 }
 
-/** Was den hellen Stein verrät: Bruchflächen, Nähte, helles Korn. */
 export function stoneMarks({ x, y, size, seed }) {
   const cx = x + size / 2;
   const cy = y + size / 2;

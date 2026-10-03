@@ -1,15 +1,5 @@
 #!/usr/bin/env node
-/**
- * Der Versionierer: die einzige Stelle, die Versionen schreibt.
- *
- *   node scripts/version.mjs check              Stand prüfen
- *   node scripts/version.mjs sync               package.json aus VERSION spiegeln
- *   node scripts/version.mjs bump patch|minor|major
- *   node scripts/version.mjs set 1.2.3
- *
- * Warum nur hier? Parallele Branches, die selbst an der Version drehen,
- * divergieren. Version und Revision wandern gemeinsam — über dieses Werkzeug.
- */
+/** Der Versionierer: die einzige Stelle, die Versionen schreibt. */
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -27,10 +17,6 @@ import {
 
 const ROOT = process.cwd();
 
-/**
- * Schreibt Lock und Spiegel. Alles, was der Lock sonst noch festhält — etwa
- * ein `amends` aus einer ausdrücklichen Korrektur — bleibt dabei stehen.
- */
 function writeVersionState({ version, revision }) {
   const lock = { ...readJson(join(ROOT, LOCK_FILE)), version, revision };
   const pkg = { ...readJson(join(ROOT, PACKAGE_FILE)), version };
