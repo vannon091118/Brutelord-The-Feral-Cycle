@@ -90,7 +90,8 @@ Aktueller Stand, gemessen mit derselben Regex wie das Gate (Grenze 7 Imports /
   `src/ui/GameStage.jsx`, `src/world/DungeonWorld.jsx`,
   `src/world/Dungling.svg.jsx`, `src/world/Hive.svg.jsx`,
   `src/world/world-view.js`, `scripts/verify-slice.mjs`,
-  `scripts/verify/check-next-mine.mjs`, `scripts/verify/check-start.mjs`.
+  `scripts/verify/check-next-mine.mjs`, `scripts/verify/check-start.mjs`,
+  `scripts/verify/check-rooting.mjs`, `scripts/verify/check-deposits.mjs`.
   Ein achter Import fällt dort sofort durch — `game-reducer.js` ist deshalb
   bei sieben geblieben: Bau-Befehle und Arbeitstakt teilen sich den
   `colony-reducer.js`, statt die Kette um einen achten Import zu erweitern.
@@ -216,7 +217,11 @@ Commit-Nachrichten und Code-Kommentare auf Deutsch, Code-Bezeichner englisch.
 - Deterministische Streuung darf die Domäne nicht aus `src/world/tile-shapes.js`
   holen. Wo sie gebraucht wird (`wobbleAt` in `reveal.js`), steht bewusst eine
   eigene kleine Hash-Funktion — die Schichtgrenze ist wichtiger als
-  Wiederverwendung.
+  Wiederverwendung. Zweite eigene Instanz: `deposit-hash.js` streut die
+  Vorräte über `Math.imul`, `tileSeed` bleibt unangetastet.
+- Ein Vorrat hängt an einem Cluster-Datensatz in `world.deposits`, die Tiles
+  tragen nur `depositId`. Pro-Tile-Datensätze wären falsch: der Pool gehört dem
+  ganzen Vorrat. Details in `Docs/ARCHITEKTUR.md`.
 
 ## Gestalterische Vorgaben
 

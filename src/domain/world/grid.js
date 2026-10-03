@@ -18,6 +18,7 @@ import {
 } from './tile.js';
 import { revealWorld } from './reveal.js';
 import { ONBOARDING_CONFIG } from '../onboarding/onboarding-config.js';
+import { createDeposits } from '../deposits/deposit-placement.js';
 
 function isHiveCell(x, y, hiveOrigin) {
   return (
@@ -62,12 +63,29 @@ export function createWorld({
     width,
     height,
     hiveOrigin: { ...hiveOrigin },
+    hiveSize: { ...HIVE_SIZE },
     spawnTileId: spawnTile ? tileId(spawnTile.x, spawnTile.y) : null,
     entrance: { ...LADDER_TILE },
     tiles,
   };
 
-  return revealWorld(world, [...hiveAnchorIds(hiveOrigin), ...(spawnTile ? [spawnTile] : [])]);
+  return revealWorld(withDeposits(world, spawnTile), [...hiveAnchorIds(hiveOrigin), ...(spawnTile ? [spawnTile] : [])]);
+}
+
+function withDeposits(world, spawnTile) {
+  const deposits = createDeposits({
+    width: world.width,
+    height: world.height,
+    hiveOrigin: world.hiveOrigin,
+    spawnTile,
+  });
+  const tiles = { ...world.tiles };
+  for (const deposit of Object.values(deposits)) {
+    for (const id of deposit.cells) {
+      if (tiles[id]) tiles[id] = { ...tiles[id], depositId: deposit.id };
+    }
+  }
+  return { ...world, deposits, tiles };
 }
 
 export function getTile(world, id) {

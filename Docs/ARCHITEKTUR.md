@@ -80,6 +80,45 @@ Drei Uhren halten die Simulation in Bewegung, alle ohne eigenen Zustand:
 Der Schwarm ist eine Liste. Der erste Dungling trägt das Onboarding, der Abbau
 bedient den ersten freien Arbeiter.
 
+## Vorräte unter der Erde
+
+Essenz-Cluster liegen als Daten in `world.deposits`, die betroffenen Tiles
+tragen nur `depositId`. Ein Datensatz je Cluster, nicht je Feld: der Pool
+gehört dem ganzen Vorrat, sonst ließe sich ein Dreifeld-Cluster dreimal leer
+pumpen.
+
+Vier Zustände: `BURIED` (Daten da, der Spieler ahnt nichts und es wird nichts
+gezeichnet), `HINTED` (ein geclaimtes Nachbarfeld hat den Rand spürbar gemacht),
+`FOUND` (das Vorratsfeld selbst ist abgebaut), `SPENT` (Pool leer). Der
+Übergang sitzt in `spreadToNeighbors` und nicht in der Reveal-Logik — der
+Sichtbarkeitsradius der Sonde darf keinen verborgenen Vorrat aufdecken.
+
+Die Platzierung ist deterministisch und ohne Zufall: `deposit-hash.js` streut
+über einen eigenen `Math.imul`-Hash, bewusst nicht über `tileSeed` aus
+`src/world/tile-shapes.js`, weil die Domäne nichts aus `src/world/` ziehen
+darf. Isolation folgt aus dem Raster statt aus einer Nachbarschaftsprüfung:
+Blöcke über 4 × 4 Felder, ein Cluster bleibt im inneren 2 × 2-Fenster — zwei
+Cluster liegen dadurch mindestens drei Felder auseinander.
+
+Gemessen für die 64 × 64-Welt, nicht geschätzt: **150 Cluster auf 293 Feldern,
+8860 Essenz im Pool**, Größen 54/49/47, Kapazität 40/60/80 je Feld und
+höchstens 100. Gesperrt sind der Hive-Radius 6, die Burrow-Kachel und die
+Leiter. Die Zahlen stehen als Konstante in `deposit-config.js`, und
+`check-deposits.mjs` vergleicht die Welt damit — wer `blockStride` oder
+`skipPerMille` ändert, färbt genau diese eine Prüfung rot.
+
+Geprüft wird damit sechs Dinge: Isolation ohne Redundanz (kein Nachbarfeld
+eines fremden Vorrats, keine Zelle doppelt), Determinismus (zwei `createWorld()`
+liefern dasselbe), Budget (Clusterzahl im Band, Poolsumme exakt), Kapazität
+(voll, in der Größenordnung, unter der Obergrenze, anfangs alles `BURIED`),
+Sperrzonen und Zustandswechsel (`Claim → HINTED` genau einmal, beim zweiten
+Claim folgenlos, Pool leert auf `SPENT` und liefert danach nichts).
+
+Noch offen und bewusst nicht entschieden: fällt der Abbaupreis auf alle Erde
+oder nur auf Vorratsfelder, und ist ein Cluster ein Schlag oder ein fließender
+Vorrat. Beides gehört zur Ernte, nicht zur Platzierung. Dasselbe gilt fürs
+Zeichnen: `BURIED` bleibt leer, eine Vorratsebene entsteht mit dem Renderer.
+
 ## Welt und Darstellung
 
 `src/world/TileLayer.jsx` zeichnet in vier Durchgängen: Erde, fertiger Boden,
@@ -111,6 +150,10 @@ importiert, nicht nachgebaut.
 
 - `check-colony.mjs` bündelt Bauen und Beanspruchung, weil `verify-slice.mjs` an
   der Importgrenze steht.
+- `check-deposits.mjs` hängt an `checkRooting()`, weil der Einstiegspunkt mit
+  sieben Importzeilen am Cap steht und der Hinweis ohnehin Verwurzelung ist.
+  Beim Nachtreiben von Hand: `startRooting(world, tile)` nimmt die Welt und die
+  Kachel, nicht nur die Kachel.
 - `build-run.mjs` spielt den kompletten Bau-Durchlauf mit der virtuellen Uhr
   durch; die Beobachtungen sind Material, die Behauptungen stehen in
   `check-build.mjs`.

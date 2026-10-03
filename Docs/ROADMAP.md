@@ -24,8 +24,9 @@ Grund, ihn zu haben.
       wird sie der Eingang.
 - [ ] **Verborgene Essenz-Vorräte und eine Hive-Ökonomie.** Unter der Erde
       liegen Cluster aus ein bis drei Feldern mit je höchstens hundert Essenz,
-      stets isoliert; sichtbar werden sie erst durch den Abbau, und der Hive
-      produziert langsam weiter als Motor für den Anfang. Offen sind noch zwei
+      stets isoliert; spürbar wird ein Vorrat nur, wenn die Wurzeln ein
+      Nachbarfeld einnehmen, offen erst, wenn der Abbau sein eigenes Feld
+      erreicht, und der Hive produziert langsam weiter als Motor für den Anfang. Offen sind noch zwei
       Entscheidungen: fällt der Abbaupreis auf alle Erde oder nur auf
       Vorratsfelder, und ist ein Cluster ein Schlag oder ein fließender Vorrat.
       Beim Speichern gehört `deposit` nur auf die Felder, die wirklich eins

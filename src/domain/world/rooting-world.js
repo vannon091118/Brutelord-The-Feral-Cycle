@@ -4,6 +4,7 @@ import { TILE_KIND } from './tile.js';
 import { ROOTING_PHASE, advanceRooting, beginRooting, createRooting, isRootingBusy } from './rooting.js';
 import { ROOTING_CONFIG } from './rooting-config.js';
 import { revealAround } from './reveal.js';
+import { hintAround } from '../deposits/deposit-hint.js';
 
 export function startRooting(world, tile) {
   return replaceTile(world, { ...tile, rooting: beginRooting() });
@@ -34,6 +35,7 @@ export function spreadToNeighbors(world, ids) {
     const anchor = getTile(next, id);
     if (!anchor) continue;
     next = revealAround(next, anchor);
+    next = hintAround(next, anchor);
     for (const neighborId of neighborIds(next, id)) {
       const neighbor = getTile(next, neighborId);
       if (neighbor && isClaimable(neighbor)) {

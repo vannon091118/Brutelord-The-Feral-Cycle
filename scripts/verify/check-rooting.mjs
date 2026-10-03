@@ -5,6 +5,7 @@ import { ROOTING_PHASE } from '../../src/domain/world/rooting.js';
 import { getTile, neighborIds } from '../../src/domain/world/grid.js';
 import { gameReducer } from '../../src/state/game-reducer.js';
 import { check, section } from './expect.mjs';
+import { checkDeposits } from './check-deposits.mjs';
 
 const TICKS_FOR = (ms) => Math.round(ms / ROOTING_CONFIG.tickMs);
 
@@ -34,4 +35,5 @@ export function checkRooting(slice) {
   const spread = afterTicks(slice.state, TICKS_FOR(ROOTING_CONFIG.claimDurationMs + ROOTING_CONFIG.cooldownMs));
   check('Nach dem Cooldown endgültig eingenommen', phaseOf(spread, target) === ROOTING_PHASE.CLAIMED);
   check('Die Tentakel beanspruchen keine unberührte Erde', free.every((id) => phaseOf(spread, id) === ROOTING_PHASE.DARK));
+  checkDeposits();
 }
