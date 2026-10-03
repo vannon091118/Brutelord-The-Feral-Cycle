@@ -6,6 +6,7 @@ coverage/
 
 # Arbeitsstände der Agenten-Umgebung
 .freebuff/
+.claude/
 
 # Logs und lokale Geheimnisse
 *.log
@@ -22,3 +23,6 @@ Thumbs.db
 .preview-profile/
 tools/preview/daemon.log
 tools/preview/inbox.json
+
+# Messprofile des Firefox-Profilers sind Gerätewerte, keine Doku
+Docs/Performance messungen*/
