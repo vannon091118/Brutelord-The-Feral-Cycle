@@ -121,3 +121,4 @@ hier ein.
 Ausnahmen gibt es genau eine: wenn eine geplante Version sich als falsch
 erwies. Dann wird hier dokumentiert, *warum* — nicht, damit die Lücke
 verschwindet, sondern damit sie jemand anderes nicht macht.
+- [x] AGENTS.md überarbeitet (Import-Zahlen, Pitfalls, Konventionen angleichen)

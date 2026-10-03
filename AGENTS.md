@@ -85,29 +85,30 @@ vor dem Commit.
 Aktueller Stand, gemessen mit derselben Regex wie das Gate (Grenze 7 Imports /
 300 Codezeilen / 5 Kommentarzeilen / 30 LOC pro Funktion):
 
-- Genau 7 Imports, also am Anschlag: `src/state/game-reducer.js`,
+- Genau 7 Imports, also am Anschlag (17 Dateien): `src/state/game-reducer.js`,
   `src/state/reducers/colony-reducer.js`, `src/state/reducers/mining-reducer.js`,
   `src/state/use-game-engine.js`, `src/ui/GameStage.jsx`,
   `src/world/DungeonWorld.jsx`, `src/world/Dungling.svg.jsx`,
   `src/world/Hive.svg.jsx`, `src/world/world-view.js`, `src/world/TileLayer.jsx`,
   `scripts/verify-slice.mjs`, `scripts/verify/check-next-mine.mjs`,
   `scripts/verify/check-start.mjs`, `scripts/verify/check-rooting.mjs`,
-  `scripts/verify/check-deposits.mjs`.
+  `scripts/verify/check-deposits.mjs`, `scripts/verify/check-deposit-harvest.mjs`,
+  `scripts/verify/check-onboarding.mjs`.
   Ein achter Import fällt dort sofort durch — `game-reducer.js` ist deshalb
   bei sieben geblieben: Bau-Befehle und Arbeitstakt teilen sich den
   `colony-reducer.js`, statt die Kette um einen achten Import zu erweitern.
   `mining-reducer.js` hat die Grenze mit dem Freilegen erreicht: der Vorrats-
   Aufruf kam als zweiter Namen in die bestehende `deposit-state`-Zeile, nicht
   als neue.
-- Bei 6 Imports: dreizehn weitere Dateien, darunter alle übrigen Reducer in
-  `src/state/reducers/`, `scripts/verify/run-slice.mjs` und
-  `scripts/verify/build-run.mjs`.
+- Bei 6 Imports: elf weitere Dateien, darunter `scripts/verify/run-slice.mjs`,
+  `scripts/verify/build-run.mjs` und `src/world/deposits/deposit-visuals.js`;
+  die übrigen Reducer liegen darunter (3–5).
 - Größtes Modul: `src/styles/globals.css` mit 274 von 300 Codezeilen, davor
   `scripts/lib/source-metrics.mjs` (171) und `scripts/verify/build-run.mjs`
   (146). Die Kommentarzeilen sind nicht überall auf den Kopf zurückgeführt:
   über 60 Dateien tragen zwischen zwei und fünf, die meisten davon sind der
   Kopf plus ein bis zwei Warum-Sätze. Der Bau-Durchlauf liegt bewusst in viele
-  kleine Phasen zerlegt; die längste davon (`buildRun`) hat 12 Zeilen.
+  kleine Phasen zerlegt; die längste davon (`buildRun`) hat 15 Zeilen.
 - Längste Funktion: `OnboardingHint()` in `src/ui/OnboardingHint.jsx` und
   `HiveRoots()` in `src/world/hive/HiveRoots.jsx` mit je 29 von 30 LOC. Beide
   können keinen ganzen Absatz mehr aufnehmen; `CharacterGradients()` liegt bei
@@ -202,11 +203,12 @@ Commit-Nachrichten und Code-Kommentare auf Deutsch, Code-Bezeichner englisch.
   (es rendert die Szene), und `src/world/world-view.js:23` importiert
   `state/selectors.js` (die Kamera liest den Zustand). Es gibt keine einzige
   Kante `world → ui` oder `state → ui`.
-- React steht in `src/`: 17 Dateien importieren `react`/`react-dom` — vier
+- React steht in `src/`: 19 Dateien importieren `react`/`react-dom` — fünf
   Hooks in `src/state/` (`use-game-engine`, `use-game-actions`,
-  `use-rooting-runner`, `use-schedule-runner`), drei in `src/ui/`
-  (`use-stage-scale.js`, `BuildMenu.jsx`, `TileActionMenu.jsx`) und zehn in
-  `src/world/`. `src/domain/` und `src/app/` sind frei.
+  `use-rooting-runner`, `use-schedule-runner`, `use-work-runner`), zwei in
+  `src/ui/` (`use-stage-scale.js`, `TileActionMenu.jsx`) und elf in
+  `src/world/`, plus `src/main.jsx` am Einstieg. `src/domain/` und `src/app/`
+  sind frei.
 - Ein Reducer pro Verantwortung in `src/state/reducers/`, verbunden in
   `src/state/game-reducer.js` — dort iteriert eine Liste über `DOMAIN_REDUCERS`,
   der erste Reducer, der den Zustand verändert, gewinnt.
@@ -305,12 +307,13 @@ Commit → Push.
 - `scripts/verify/run-slice.mjs` leitet sein Zielfeld aus
   `ONBOARDING_CONFIG.firstEarthBlock` über `tileId()` ab, es ist kein festes
   Raster verdrahtet. Verschiebt sich der Hive, wandert das Ziel mit — die
-  abgeleiteten Erwartungen in den `check-*.mjs` aber nicht automatisch. Genau
-  da liegen die harten Zahlen: `check-mining-progress.mjs:12` prüft
-  `totalMiningTicks() === 35`, `check-start.mjs:19` prüft „exakt vier
-  Hive-Tiles" als Literal statt `HIVE_SIZE`. Wer `miningDurationMs`,
-  `earthStateThresholds` oder `HIVE_SIZE` ändert, muss diese Zahlen
-  mitziehen — sonst wird `verify` rot und der Grund ist nicht dort zu sehen.
+  abgeleiteten Erwartungen in den `check-*.mjs` aber nicht automatisch. Die
+  harten Zahlen: `check-mining-progress.mjs` leitet die Fortschrittsticks jetzt
+  aus `miningDurationMs / miningTickMs` ab (selbst-geheilend), aber
+  `check-start.mjs:19` prüft „exakt vier Hive-Tiles" als Literal `4` statt
+  `HIVE_SIZE`. Wer `HIVE_SIZE`, `firstEarthBlock` oder die Thresholds ändert,
+  muss die übrigen Literale mitziehen — sonst wird `verify` rot und der Grund
+  ist nicht dort zu sehen.
 - Hive-Position und Startkoordinaten liegen in zwei Dateien: `HIVE_ORIGIN` in
   `src/domain/world/world-config.js` und `dunglingSpawnTile`/`firstEarthBlock`
   in `src/domain/onboarding/onboarding-config.js`. Wer den Hive verschiebt,
