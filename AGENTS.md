@@ -324,7 +324,37 @@ Commit → Push.
   über alle 4.096 Kacheln (~41 k Zugriffe/s), und die Uhr schweigt nur, wenn
   nichts wächst oder ruht — bei 64 × 64 nie. Ein Index über die aktiven Felder
   wäre der nächste Schritt, falls es ruckelt.
-- Sichtprüfungen laufen über `tools/preview/`, nicht über eine temporäre + NL +   `lab.html`. Ein Befehl bringt alles hoch und hält es am Leben: + NL +   `node tools/preview/up.mjs` ist ein Supervisor, der das sichtbare Chrome, + NL +   den Inbox-Server und den Marker-Daemon startet und Chrome neu hochholt, + NL +   wenn es wegbricht. Der Daemon hängt sich per CDP an und injiziert + NL +   `marker.js` nach jedem Reload neu. Im Fenster markiert `m` ein Element, + NL +   `p` blendet das Panel ein, `Esc` beendet den Modus; jeder Klick vergibt eine + NL +   ID `m1`, `m2`, … Das Panel listet die Marks als Bullet-Liste mit + NL +   Kommentarfeld. **Senden -> Chat** legt die Liste in die Zwischenablage + NL +   **und** in die Inbox auf `127.0.0.1:9333`; `node tools/preview/pull.mjs` + NL +   liefert sie zurück, `--clear` leert. Damit ist „m2 ist zu blau" im Chat + NL +   eine Zeile mit Selektor und Rechteck, kein Raten. + NL + - Drei Fallstricke, alle schon bezahlt: `Page.addScriptToEvaluateOnNewDocument` + NL +   gilt nur für die offene CDP-Session, ein Kurzskript verliert die + NL +   Registrierung beim Schließen (deshalb der Daemon). Der Marker darf bei + NL +   `document-start` kein DOM anfassen, `document.body` ist dort noch `null`, + NL +   der Mount hängt am `readyState`. Und die Tastatur-Handler laufen in der + NL +   Capture-Phase, ein Kind kann sie nicht stoppen — die Tipp-Prüfung muss + NL +   **vor** jeder Taste stehen, sonst schluckt ein `Esc` im Kommentar-Feld + NL +   den Fokus und der Rest des Satzes verschwindet.
+- Sichtprüfungen laufen über `tools/preview/`, nicht über eine temporäre
+  `lab.html`. Ein Befehl bringt alles hoch und hält es am Leben:
+  `node tools/preview/up.mjs` ist ein Supervisor, der das sichtbare Chrome,
+  den Inbox-Server und den Marker-Daemon startet. Er startet Chrome nur neu,
+  wenn **Chrome wirklich weg ist** — und wenn du das Fenster schließt, räumt
+  er auf, statt es sofort wieder aufzureißen. `node tools/preview/down.mjs`
+  sagt ihm dasselbe von der Konsole aus. Der Daemon hängt sich per CDP an und
+  injiziert `marker.js` nach jedem Reload neu. Im Fenster markiert `m` ein
+  Element, `p` blendet das Panel ein, `Esc` beendet den Modus; jeder Klick
+  vergibt eine ID `m1`, `m2`, … Das Panel listet die Marks als Bullet-Liste mit
+  Kommentarfeld. **Senden -> Chat** legt die Liste in die Zwischenablage
+  **und** in die Inbox auf `127.0.0.1:9333`; `node tools/preview/pull.mjs`
+  liefert sie zurück, `--clear` leert. Damit ist „m2 ist zu blau" im Chat eine
+  Zeile mit Selektor und Rechteck, kein Raten.
+- Der Supervisor ist der trickyste Teil, und drei Fehler steckten darin, die
+  alle drei schon ein Fenster aufgerissen haben. Erstens darf der Health-Check
+  **kein HTTP-`fetch`** sein: Node hält Keep-Alive-Sockets, die Chrome nach
+  kurzer Zeit schließt; der nächste `fetch` landet auf einem toten Socket und
+  meldet „Chrome tot", während `curl` in 11 ms mit 200 antwortet. Ein
+  `net.connect` kann das nicht. Zweitens muss er **Chrome und Port getrennt**
+  prüfen — gibt es den Prozess noch, aber der Port ist zu, ist das kein Grund
+  für ein zweites Fenster. Drittens muss er ein geschlossenes Fenster von
+  einem Absturz unterscheiden, sonst wird jedes normale Schließen zum Neustart.
+- Weitere Fallstricke: `Page.addScriptToEvaluateOnNewDocument` gilt nur für
+  die offene CDP-Session, ein Kurzskript verliert die Registrierung beim
+  Schließen (deshalb der Daemon). Der Marker darf bei `document-start` kein
+  DOM anfassen, `document.body` ist dort noch `null`, der Mount hängt am
+  `readyState`. Die Tastatur-Handler laufen in der Capture-Phase, ein Kind
+  kann sie nicht stoppen — die Tipp-Prüfung muss **vor** jeder Taste stehen,
+  sonst schluckt ein `Esc` im Kommentar-Feld den Fokus und der Rest des
+  Satzes verschwindet.
 - `dist/` ist Build-Ausgabe und nicht versioniert (`git ls-files dist` ist
   leer) — nicht von Hand editieren. Dasselbe gilt für `dogfood-output/`:
   nicht tracked, aber auch **nicht** in `.gitignore`. `.freebuff/` und

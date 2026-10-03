@@ -27,7 +27,9 @@ Grund, ihn zu haben.
       liefert Selector und Rechteck für markierte Elemente und schreibt
       Screenshots. Es gibt inzwischen eine Mark-Liste mit Kommentarfeld
       und einen Senden-Knopf, der die Auswahl in die Zwischenablage und in
-      eine Inbox legt. Was fehlt, ist die eigentliche Abnahme — eine Liste von
+      eine Inbox legt, und der Supervisor haelt das Fenster offen, ohne es
+      nach jedem Schliessen sofort neu aufzureissen. Was fehlt, ist die
+      eigentliche Abnahme — eine Liste von
       Erwartungen, die der Durchlauf einhält oder nicht.
 - [ ] **Speichern.** Aktuell stirbt dein Hive beim Reload. Absicht für den
       Slice, unbrauchbar für alles darüber. Mit Essenz und Bauten im Zustand ist
