@@ -1,5 +1,5 @@
 /** Abbau-Domäne: Befehl, Laufweg, Takt, Abschluss. */
-import { MINING_PHASE, advanceMiningJob, canMineTile, createMiningJob, earthHealthForProgress, minedFloorTile } from '../../domain/actions/mining.js';
+import { MINING_PHASE, advanceMiningJob, canMineTile, createMiningJob, earthHealthForProgress, mineTile } from '../../domain/actions/mining.js';
 import { getTile, replaceTile } from '../../domain/world/grid.js';
 import { withEarthHealth } from '../../domain/world/tile.js';
 import { idle, startWork, walkTo } from '../../domain/entities/dungling.js';
@@ -76,7 +76,7 @@ function completed(state) {
   if (!tile) return state;
   return {
     ...withWorker(state, state.mining.workerId, idle),
-    world: replaceTile(state.world, minedFloorTile(tile)),
+    world: mineTile(state.world, tile),
     mining: { ...state.mining, phase: MINING_PHASE.COMPLETE, progress: 1 },
     lastDestroyedTileId: tile.id,
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.TILE_DESTROYED),

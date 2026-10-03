@@ -89,7 +89,7 @@ Aktueller Stand, gemessen mit derselben Regex wie das Gate (Grenze 7 Imports /
   `src/state/reducers/colony-reducer.js`, `src/state/use-game-engine.js`,
   `src/ui/GameStage.jsx`, `src/world/DungeonWorld.jsx`,
   `src/world/Dungling.svg.jsx`, `src/world/Hive.svg.jsx`,
-  `src/world/world-view.js`, `scripts/verify-slice.mjs`,
+  `src/world/world-view.js`, `src/world/TileLayer.jsx`, `scripts/verify-slice.mjs`,
   `scripts/verify/check-next-mine.mjs`, `scripts/verify/check-start.mjs`,
   `scripts/verify/check-rooting.mjs`, `scripts/verify/check-deposits.mjs`.
   Ein achter Import fällt dort sofort durch — `game-reducer.js` ist deshalb

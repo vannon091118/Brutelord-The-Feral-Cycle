@@ -10,7 +10,7 @@ export function blockHash(x, y) {
   return (Math.imul(x + SALT_X, MIX_X) ^ Math.imul(y + SALT_Y, MIX_Y)) >>> 0;
 }
 
-export function unitOf(hash) {
+function unitOf(hash) {
   return (hash >>> 0) / RANGE;
 }
 

@@ -1,5 +1,5 @@
 /** Die Platzierung: Blöcke, Isolation, Sperrzonen, Kapazität. */
-import { DEPOSIT_CONFIG, DEPOSIT_PHASE } from './deposit-config.js';
+import { DEPOSIT_CONFIG, DEPOSIT_PHASE, hiveDistance } from './deposit-config.js';
 import { blockHash, keepBlock, pick } from './deposit-hash.js';
 import { GRID_HEIGHT, GRID_WIDTH, HIVE_ORIGIN, HIVE_SIZE, LADDER_TILE } from '../world/world-config.js';
 import { tileId } from '../world/tile.js';
@@ -33,7 +33,7 @@ function clusterAt({ x, y, index, conf, blocked }) {
   const cells = cellsFor({ x, y, hash, size, conf, blocked });
   if (!cells) return null;
   const capacity = capacityFor(size, conf);
-  return { id: `deposit-${index}`, phase: DEPOSIT_PHASE.BURIED, pool: capacity, capacity, size, yielded: 0, cells };
+  return { id: `deposit-${index}`, phase: DEPOSIT_PHASE.BURIED, pool: capacity, capacity, size, cells };
 }
 
 function sizeFor(hash, conf) {
@@ -80,14 +80,8 @@ function blockedCells({ width, height, hiveOrigin, conf, spawnTile }) {
 }
 
 function isBlocked({ x, y, hiveOrigin, conf, spawnTile }) {
-  if (hiveDistance({ x, y, hiveOrigin }) <= conf.hiveExclusion) return true;
+  if (hiveDistance({ x, y, hiveOrigin, hiveSize: HIVE_SIZE }) <= conf.hiveExclusion) return true;
   return sameSpot({ x, y, other: spawnTile }) || sameSpot({ x, y, other: LADDER_TILE });
-}
-
-function hiveDistance({ x, y, hiveOrigin }) {
-  const dx = Math.max(hiveOrigin.x - x, x - (hiveOrigin.x + HIVE_SIZE.width - 1), 0);
-  const dy = Math.max(hiveOrigin.y - y, y - (hiveOrigin.y + HIVE_SIZE.height - 1), 0);
-  return Math.max(dx, dy);
 }
 
 function sameSpot({ x, y, other }) {

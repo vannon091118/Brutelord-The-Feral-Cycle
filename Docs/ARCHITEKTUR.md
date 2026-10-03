@@ -93,6 +93,14 @@ gezeichnet), `HINTED` (ein geclaimtes Nachbarfeld hat den Rand spürbar gemacht)
 Übergang sitzt in `spreadToNeighbors` und nicht in der Reveal-Logik — der
 Sichtbarkeitsradius der Sonde darf keinen verborgenen Vorrat aufdecken.
 
+Der Abbau ist der zweite Übergang: `mineTile` in `src/domain/actions/mining.js`
+legt den Boden an und setzt den Vorrat auf `FOUND`, weil erst dann die Ader
+offen ist. Ein geöffneter Vorrat bekommt seinen grünen Schein in
+`src/world/deposits/DepositGlow.jsx` — eine Fläche aus demselben Boden-Blob wie
+Erde und Boden, eine Feldbreite in die Nachbarschaft reichend, mit radialem
+Abfall von sechzehn über sechs auf null Prozent. Der Rand ist null, deshalb
+sieht man keine Kachel.
+
 Die Platzierung ist deterministisch und ohne Zufall: `deposit-hash.js` streut
 über einen eigenen `Math.imul`-Hash, bewusst nicht über `tileSeed` aus
 `src/world/tile-shapes.js`, weil die Domäne nichts aus `src/world/` ziehen
@@ -113,8 +121,7 @@ eines fremden Vorrats, keine Zelle doppelt), Determinismus (zwei `createWorld()`
 liefern dasselbe), Budget (Clusterzahl im Band, Poolsumme exakt), Kapazität
 (voll, in der Größenordnung, unter der Obergrenze, anfangs alles `BURIED`),
 Sperrzonen und Zustandswechsel (`Claim → HINTED` genau einmal, beim zweiten
-Claim folgenlos, ein abgebautes Vorratsfeld bleibt erreichbar, Pool leert auf
-`SPENT` und liefert danach nichts).
+Claim folgenlos, der Abbau öffnet den Vorrat und lässt seinen Pool ganz).
 
 Noch offen und bewusst nicht entschieden: fällt der Abbaupreis auf alle Erde
 oder nur auf Vorratsfelder, und ist ein Cluster ein Schlag oder ein fließender

@@ -8,7 +8,8 @@ import {
   isUsable,
   isVisible,
 } from '../world/tile.js';
-import { getTile, neighborIds } from '../world/grid.js';
+import { getTile, neighborIds, replaceTile } from '../world/grid.js';
+import { exposeDeposit } from '../deposits/deposit-state.js';
 
 export const MINING_PHASE = Object.freeze({
   IDLE: 'IDLE',
@@ -72,4 +73,8 @@ export function mineableFrontierIds(world) {
 export function minedFloorTile(tile) {
   const floor = createFloorTile(tile.x, tile.y, FLOOR_ORIGIN.MINED);
   return tile.depositId ? { ...floor, depositId: tile.depositId } : floor;
+}
+
+export function mineTile(world, tile) {
+  return exposeDeposit(replaceTile(world, minedFloorTile(tile)), tile);
 }
