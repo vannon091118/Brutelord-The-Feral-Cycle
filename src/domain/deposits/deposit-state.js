@@ -1,5 +1,5 @@
-/** Ein Vorrat: Lesen und Phase setzen — alles über die Cluster-Id. */
-import { DEPOSIT_PHASE } from './deposit-config.js';
+/** Ein Vorrat: Lesen, Phase setzen, Ernte — alles über die Cluster-Id. */
+import { DEPOSIT_PHASE, ESSENCE_STAGE, STAGE_MIN_SHARE } from './deposit-config.js';
 
 export function depositOf(world, tile) {
   const id = tile?.depositId;
@@ -12,7 +12,33 @@ export function withDepositPhase(world, id, phase) {
   return { ...world, deposits: { ...world.deposits, [id]: { ...deposit, phase } } };
 }
 
+// Ein toter Vorrat bleibt tot: der Abbau darf ihn nicht wieder öffnen.
 export function exposeDeposit(world, tile) {
   const deposit = depositOf(world, tile);
-  return deposit ? withDepositPhase(world, deposit.id, DEPOSIT_PHASE.FOUND) : world;
+  if (!deposit || deposit.phase === DEPOSIT_PHASE.SPENT) return world;
+  return withDepositPhase(world, deposit.id, DEPOSIT_PHASE.FOUND);
+}
+
+export function depositFill(deposit) {
+  if (!deposit || deposit.capacity <= 0) return 0;
+  return Math.min(1, Math.max(0, deposit.pool / deposit.capacity));
+}
+
+export function depositStage(deposit) {
+  const fill = depositFill(deposit);
+  if (fill >= STAGE_MIN_SHARE.RICH) return ESSENCE_STAGE.RICH;
+  if (fill >= STAGE_MIN_SHARE.MEDIUM) return ESSENCE_STAGE.MEDIUM;
+  return fill > 0 ? ESSENCE_STAGE.LEAN : ESSENCE_STAGE.DEAD;
+}
+
+// Der Vorrat leert sich im Takt des Grabens: was am Ende übrig bleibt, gehört
+// zur verbleibenden Grabzeit. So erreicht der Pool die Null mit dem letzten Takt.
+export function harvestTick(world, tile, progress) {
+  const deposit = depositOf(world, tile);
+  if (!deposit || deposit.phase !== DEPOSIT_PHASE.FOUND) return { world, gained: 0, depleted: false };
+  const share = Math.min(1, Math.max(0, progress ?? 0));
+  const pool = Math.min(deposit.pool, Math.ceil(deposit.capacity * (1 - share)));
+  const phase = pool === 0 ? DEPOSIT_PHASE.SPENT : deposit.phase;
+  const updated = { ...world, deposits: { ...world.deposits, [deposit.id]: { ...deposit, pool, phase } } };
+  return { world: updated, gained: deposit.pool - pool, depleted: pool === 0 };
 }

@@ -63,14 +63,19 @@ function popupViews(game, tileSize) {
   return game.popups.map((popup) => ({ id: popup.id, position: tilePositionPx(popup, tileSize) }));
 }
 
+function depositsOf(world, tiles) {
+  return tiles.map((tile) => ({ ...tile, deposit: tile.depositId ? world.deposits?.[tile.depositId] ?? null : null }));
+}
+
 export function worldView({ game, tileSize = TILE_SIZE }) {
   const viewport = viewportPixelSize(tileSize);
   const camera = cameraBox({ world: game.world, tileSize, viewport });
+  const visible = tilesInView(game.world, camera, tileSize);
   return {
     tileSize,
     viewport,
     camera,
-    tiles: tilesInView(game.world, camera, tileSize),
+    tiles: depositsOf(game.world, visible),
     frontier: new Set(mineableFrontierIds(game.world)),
     canSelect: selectMaySelectTiles(game),
     softHint: selectSoftHintVisible(game),
@@ -82,6 +87,7 @@ export function worldView({ game, tileSize = TILE_SIZE }) {
     buildChoice: game.buildChoice,
     selectedBuildingId: game.selectedBuildingId,
     newFloorTileId: game.expansion?.tileId ?? null,
+    lastHarvest: game.lastHarvest ?? null,
     showArrival: game.expansion !== null && ARRIVAL_STATES.includes(game.onboarding.state),
   };
 }

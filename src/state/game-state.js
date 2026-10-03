@@ -22,6 +22,7 @@ export function createInitialGameState() {
     highlightedTileId: null,
     expansion: null,
     lastDestroyedTileId: null,
+    lastHarvest: null,
     usableTileCount: countFloorTiles(world),
     buildMenuVisible: false,
   };

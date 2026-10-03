@@ -86,24 +86,28 @@ Aktueller Stand, gemessen mit derselben Regex wie das Gate (Grenze 7 Imports /
 300 Codezeilen / 5 Kommentarzeilen / 30 LOC pro Funktion):
 
 - Genau 7 Imports, also am Anschlag: `src/state/game-reducer.js`,
-  `src/state/reducers/colony-reducer.js`, `src/state/use-game-engine.js`,
-  `src/ui/GameStage.jsx`, `src/world/DungeonWorld.jsx`,
-  `src/world/Dungling.svg.jsx`, `src/world/Hive.svg.jsx`,
-  `src/world/world-view.js`, `src/world/TileLayer.jsx`, `scripts/verify-slice.mjs`,
-  `scripts/verify/check-next-mine.mjs`, `scripts/verify/check-start.mjs`,
-  `scripts/verify/check-rooting.mjs`, `scripts/verify/check-deposits.mjs`.
+  `src/state/reducers/colony-reducer.js`, `src/state/reducers/mining-reducer.js`,
+  `src/state/use-game-engine.js`, `src/ui/GameStage.jsx`,
+  `src/world/DungeonWorld.jsx`, `src/world/Dungling.svg.jsx`,
+  `src/world/Hive.svg.jsx`, `src/world/world-view.js`, `src/world/TileLayer.jsx`,
+  `scripts/verify-slice.mjs`, `scripts/verify/check-next-mine.mjs`,
+  `scripts/verify/check-start.mjs`, `scripts/verify/check-rooting.mjs`,
+  `scripts/verify/check-deposits.mjs`.
   Ein achter Import fällt dort sofort durch — `game-reducer.js` ist deshalb
   bei sieben geblieben: Bau-Befehle und Arbeitstakt teilen sich den
   `colony-reducer.js`, statt die Kette um einen achten Import zu erweitern.
-- Bei 6 Imports: zwölf weitere Dateien, darunter alle übrigen Reducer in
+  `mining-reducer.js` hat die Grenze mit dem Freilegen erreicht: der Vorrats-
+  Aufruf kam als zweiter Namen in die bestehende `deposit-state`-Zeile, nicht
+  als neue.
+- Bei 6 Imports: dreizehn weitere Dateien, darunter alle übrigen Reducer in
   `src/state/reducers/`, `scripts/verify/run-slice.mjs` und
   `scripts/verify/build-run.mjs`.
-- Größtes Modul: `src/styles/globals.css` mit 238 von 300 Codezeilen, davor
+- Größtes Modul: `src/styles/globals.css` mit 274 von 300 Codezeilen, davor
   `scripts/lib/source-metrics.mjs` (171) und `scripts/verify/build-run.mjs`
-  (146). Seit dem Aufräumen der Kommentare hat jede Datei unter `src/` und
-  `scripts/` genau **eine** Kommentarzeile — den Kopf. Der Bau-Durchlauf liegt
-  bewusst in viele kleine Phasen zerlegt; die längste davon (`buildRun`) hat
-  12 Zeilen.
+  (146). Die Kommentarzeilen sind nicht überall auf den Kopf zurückgeführt:
+  über 60 Dateien tragen zwischen zwei und fünf, die meisten davon sind der
+  Kopf plus ein bis zwei Warum-Sätze. Der Bau-Durchlauf liegt bewusst in viele
+  kleine Phasen zerlegt; die längste davon (`buildRun`) hat 12 Zeilen.
 - Längste Funktion: `OnboardingHint()` in `src/ui/OnboardingHint.jsx` und
   `HiveRoots()` in `src/world/hive/HiveRoots.jsx` mit je 29 von 30 LOC. Beide
   können keinen ganzen Absatz mehr aufnehmen; `CharacterGradients()` liegt bei

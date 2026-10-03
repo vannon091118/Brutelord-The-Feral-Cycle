@@ -18,6 +18,20 @@ export const DEPOSIT_CONFIG = Object.freeze({
   hiveExclusion: 6,
 });
 
+export const ESSENCE_STAGE = Object.freeze({
+  RICH: 'RICH',
+  MEDIUM: 'MEDIUM',
+  LEAN: 'LEAN',
+  DEAD: 'DEAD',
+});
+
+export const STAGE_MIN_SHARE = Object.freeze({
+  RICH: 0.75,
+  MEDIUM: 0.25,
+  LEAN: 0.01,
+  DEAD: 0,
+});
+
 export const CLUSTER_COUNT_MIN = 120;
 export const CLUSTER_COUNT_MAX = 200;
 export const WORLD_ESSENCE_BUDGET = 8860;

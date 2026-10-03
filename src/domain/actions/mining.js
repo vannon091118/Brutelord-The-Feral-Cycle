@@ -70,7 +70,7 @@ export function mineableFrontierIds(world) {
   return Object.keys(world.tiles).filter((id) => canMineTile(world, id));
 }
 
-export function minedFloorTile(tile) {
+function minedFloorTile(tile) {
   const floor = createFloorTile(tile.x, tile.y, FLOOR_ORIGIN.MINED);
   return tile.depositId ? { ...floor, depositId: tile.depositId } : floor;
 }

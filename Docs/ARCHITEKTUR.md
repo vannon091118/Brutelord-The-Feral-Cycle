@@ -93,13 +93,37 @@ gezeichnet), `HINTED` (ein geclaimtes Nachbarfeld hat den Rand spürbar gemacht)
 Übergang sitzt in `spreadToNeighbors` und nicht in der Reveal-Logik — der
 Sichtbarkeitsradius der Sonde darf keinen verborgenen Vorrat aufdecken.
 
-Der Abbau ist der zweite Übergang: `mineTile` in `src/domain/actions/mining.js`
-legt den Boden an und setzt den Vorrat auf `FOUND`, weil erst dann die Ader
-offen ist. Ein geöffneter Vorrat bekommt seinen grünen Schein in
-`src/world/deposits/DepositGlow.jsx` — eine Fläche aus demselben Boden-Blob wie
-Erde und Boden, eine Feldbreite in die Nachbarschaft reichend, mit radialem
-Abfall von sechzehn über sechs auf null Prozent. Der Rand ist null, deshalb
-sieht man keine Kachel.
+Der Abbau ist der zweite Übergang, und er sitzt früher als gedacht: nicht erst
+`mineTile` legt den Boden an, sondern `reached` im `mining-reducer` öffnet den
+Vorrat in dem Moment, in dem der Dungling wirklich zu graben beginnt. Vorher
+war der Übergang unerreichbar — eine Kachel ist `EARTH` genau solange ihr
+Vorrat `BURIED` ist, und `FOUND` genau dann, wenn sie schon Boden ist. Die
+beiden Zustände schlossen sich aus, `harvestTick` war toter Code.
+
+Die Ernte folgt dem Grabfortschritt: der Pool ist `capacity × (1 − progress)`,
+also trifft er im 35. Takt exakt die Null und der Cluster stirbt mit dem Schlag,
+den der Dungling geführt hat. Das ist die entschiedene Antwort auf die offene
+Frage, ob ein Cluster ein Schlag oder ein fließender Vorrat ist — ein Schlag.
+Bei einer Essenz je Takt könnte ein Pool von 40 bis 100 nie leer werden und das
+Todessignal bliebe unerreichbar. Die Weltbilanz bleibt dieselbe: jeder Cluster
+liefert genau seine Kapazität, `WORLD_ESSENCE_BUDGET` gilt unverändert.
+
+Vier Verhaltensweisen und drei Sättigungsstufen liegen in `src/world/deposits/`.
+`deposit-visuals.js` rechnet sie aus dem Pool — Rauten auf den Vorratsfeldern,
+deren Anzahl und Grünanteil an der Füllung hängen (`SHARD_BY_STAGE` 8/7/5/4,
+Farbschlüssel je Stufe, streng fallend 75/57/40/0 Prozent), ein atmender
+Schein auf aufgedeckten Nachbarfeldern, ein Schwall, der aus dem Ring um den
+Vorrat auf den grabenden Dungling zufliegt, und schwarze Asche, wenn der Pool
+leer ist. `DepositLayer.jsx` führt die Ebenen zusammen und hängt in
+`TileLayer.jsx` **über** den Wurzeln: der `RootingVeil` malt mit 78 Prozent
+deckend und würde den Hinweis sonst begraben — genau auf den Feldern, für die
+er steht.
+
+Zwei Fallen, die beide gemessen wurden: das `transform`-Attribut einer SVG-Form
+wird von der CSS-`transform`-Eigenschaft der Animation überschrieben, die
+Platzierung der Splitter liegt deshalb in einer umschließenden Gruppe; und ein
+gemeinsamer Radialverlauf für alle Vorräte zwingt allen Kacheln die Helligkeit
+des ersten auf, also hat jetzt jeder Vorrat einen eigenen.
 
 Die Platzierung ist deterministisch und ohne Zufall: `deposit-hash.js` streut
 über einen eigenen `Math.imul`-Hash, bewusst nicht über `tileSeed` aus
@@ -116,17 +140,21 @@ Leiter. Die Zahlen stehen als Konstante in `deposit-config.js`, und
 `check-deposits.mjs` vergleicht die Welt damit — wer `blockStride` oder
 `skipPerMille` ändert, färbt genau diese eine Prüfung rot.
 
-Geprüft wird damit sechs Dinge: Isolation ohne Redundanz (kein Nachbarfeld
+Geprüft wird damit sieben Dinge: Isolation ohne Redundanz (kein Nachbarfeld
 eines fremden Vorrats, keine Zelle doppelt), Determinismus (zwei `createWorld()`
 liefern dasselbe), Budget (Clusterzahl im Band, Poolsumme exakt), Kapazität
 (voll, in der Größenordnung, unter der Obergrenze, anfangs alles `BURIED`),
-Sperrzonen und Zustandswechsel (`Claim → HINTED` genau einmal, beim zweiten
-Claim folgenlos, der Abbau öffnet den Vorrat und lässt seinen Pool ganz).
+Sperrzonen, Zustandswechsel (`Claim → HINTED` genau einmal, beim zweiten Claim
+folgenlos) und der Ernteweg. Der letzte Punkt ist der wichtigste, weil er als
+einziger den **echten Reducer** fährt: `check-deposit-flow.mjs` grabt ein
+Nachbarfeld, lässt die Wurzeln laufen, bis der Vorrat abbaubar ist, und
+schickt dann `MINING_ORDERED`, `DUNGLING_REACHED_TILE`, 35 × `MINING_PROGRESS`
+und `MINING_COMPLETED` durch `reduceMining`. Geprüft werden der sinkende Pool,
+`lastHarvest` mit echtem Ziel in jedem Takt, `depleted` und der Endzustand
+`SPENT`. Das ist der Test, der den toten `harvestTick` gefunden hat.
 
 Noch offen und bewusst nicht entschieden: fällt der Abbaupreis auf alle Erde
-oder nur auf Vorratsfelder, und ist ein Cluster ein Schlag oder ein fließender
-Vorrat. Beides gehört zur Ernte, nicht zur Platzierung. Dasselbe gilt fürs
-Zeichnen: `BURIED` bleibt leer, eine Vorratsebene entsteht mit dem Renderer.
+oder nur auf Vorratsfelder. Das gehört zur Wirtschaft, nicht zur Ernte.
 
 ## Welt und Darstellung
 

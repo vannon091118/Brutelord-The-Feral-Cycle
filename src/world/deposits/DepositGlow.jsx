@@ -1,39 +1,27 @@
-/** Der grüne Schein über einem geöffneten Vorrat — weicher Rand, keine Kante. */
+/** Der grüne Schimmer über einem geöffneten Vorrat — weich, ohne Kante. */
 import { DEPOSIT_PHASE } from '../../domain/deposits/deposit-config.js';
-import { soilBlob, tileSeed } from '../tile-shapes.js';
+import { depositHalo, haloStops } from './deposit-visuals.js';
 
-const GLOW_GRADIENT = 'dl-essence-glow';
+const GLOW_PREFIX = 'dl-essence-glow';
 
-function halo(tile, size) {
-  const span = size * 3;
-  return soilBlob({
-    x: tile.x * size + size * 0.5 - span * 0.5,
-    y: tile.y * size + size * 0.5 - span * 0.5,
-    size: span,
-    inset: 0,
-    jitter: 18,
-    points: 8,
-    seed: tileSeed(tile.x, tile.y),
-    outward: 14,
-  });
-}
-
-function stops() {
-  return [0.16, 0.06, 0].map((opacity, index) => (
-    <stop key={index} offset={index * 0.5} stopColor="var(--color-essence-400)" stopOpacity={opacity} />
-  ));
+// Jeder Vorrat braucht einen eigenen Verlauf: ein gemeinsamer Gradient würde
+// allen Kacheln die Helligkeit des ersten Vorrats aufzwingen.
+function Halo({ tile, size }) {
+  const gradientId = `${GLOW_PREFIX}-${tile.id}`;
+  return (
+    <g>
+      <radialGradient id={gradientId}>
+        {haloStops(tile.deposit).map((stop, index) => (
+          <stop key={index} offset={stop.offset} stopColor="var(--color-essence-400)" stopOpacity={stop.opacity} />
+        ))}
+      </radialGradient>
+      <path className="dl-anim dl-essence-breathe" d={depositHalo(tile, size)} fill={`url(#${gradientId})`} />
+    </g>
+  );
 }
 
 export function DepositGlow({ view, size }) {
-  const open = view.tiles.filter(
-    (tile) => tile.depositId && view.world.deposits?.[tile.depositId]?.phase === DEPOSIT_PHASE.FOUND,
-  );
-  return (
-    <g>
-      <radialGradient id={GLOW_GRADIENT}>{stops()}</radialGradient>
-      {open.map((tile) => (
-        <path key={`glow-${tile.id}`} d={halo(tile, size)} fill={`url(#${GLOW_GRADIENT})`} />
-      ))}
-    </g>
-  );
+  return view.tiles
+    .filter((tile) => tile.deposit?.phase === DEPOSIT_PHASE.FOUND)
+    .map((tile) => <Halo key={`glow-${tile.id}`} tile={tile} size={size} />);
 }

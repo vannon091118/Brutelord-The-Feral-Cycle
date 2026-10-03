@@ -1,5 +1,6 @@
-/** Abbau-Domäne: Befehl, Laufweg, Takt, Abschluss. */
+/** Abbau-Domäne: Befehl, Laufweg, Takt, Ernte, Abschluss. */
 import { MINING_PHASE, advanceMiningJob, canMineTile, createMiningJob, earthHealthForProgress, mineTile } from '../../domain/actions/mining.js';
+import { exposeDeposit, harvestTick } from '../../domain/deposits/deposit-state.js';
 import { getTile, replaceTile } from '../../domain/world/grid.js';
 import { withEarthHealth } from '../../domain/world/tile.js';
 import { idle, startWork, walkTo } from '../../domain/entities/dungling.js';
@@ -49,8 +50,10 @@ function order(state) {
 
 function reached(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.MOVING_TO_TILE || !state.mining) return state;
+  const tile = getTile(state.world, state.mining.tileId);
   return {
     ...withWorker(state, state.mining.workerId, startWork),
+    world: tile ? exposeDeposit(state.world, tile) : state.world,
     mining: { ...state.mining, phase: MINING_PHASE.WORKING },
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.MINING),
   };
@@ -67,7 +70,25 @@ function progress(state) {
     tile.earthHealth === nextHealth
       ? state.world
       : replaceTile(state.world, withEarthHealth(tile, nextHealth));
-  return { ...state, world, mining: job };
+  const harvest = harvestTick(world, tile, job.progress);
+  if (harvest.gained === 0) return { ...state, world, mining: job };
+  return {
+    ...state,
+    world: harvest.world,
+    essence: state.essence + harvest.gained,
+    lastHarvest: {
+      seq: (state.lastHarvest?.seq ?? 0) + 1,
+      tileId: tile.id,
+      depleted: harvest.depleted,
+      to: workerSpot(state, job.workerId),
+    },
+    mining: job,
+  };
+}
+
+function workerSpot(state, workerId) {
+  const worker = state.dunglings.find((entry) => entry.id === workerId);
+  return worker ? { x: worker.tile.x, y: worker.tile.y } : null;
 }
 
 function completed(state) {

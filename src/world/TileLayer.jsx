@@ -1,9 +1,9 @@
-/** Das Feld in vier Durchgängen: Erde, Boden, Wurzeln, Bauten. */
+/** Das Feld in vier Durchgängen: Erde, Boden, Wurzeln, Vorräte, Bauten. */
 import { EarthTile } from './EarthTile.jsx';
 import { DungeonFloorTile } from './DungeonFloorTile.jsx';
 import { RootingVeil } from './rooting/RootingVeil.jsx';
 import { BuildingLayer } from './buildings/BuildingLayer.jsx';
-import { DepositGlow } from './deposits/DepositGlow.jsx';
+import { DepositLayer } from './deposits/DepositLayer.jsx';
 import { TILE_KIND } from '../domain/world/tile.js';
 import { ROOTING_PHASE } from '../domain/world/rooting.js';
 
@@ -54,8 +54,8 @@ export function TileLayer({ view, tileSize, selectedTileId, highlightedTileId, o
     <>
       {earthTiles(view, shared)}
       {floorTiles(view, tileSize)}
-      <DepositGlow view={view} size={tileSize} />
       {rootedTiles(view, tileSize)}
+      <DepositLayer view={view} tileSize={tileSize} />
       <BuildingLayer view={view} tileSize={tileSize} onPlace={onPlace} onSelect={onSelectBuilding} />
     </>
   );

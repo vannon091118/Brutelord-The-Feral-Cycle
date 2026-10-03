@@ -7,11 +7,11 @@ import {
   WORLD_ESSENCE_BUDGET,
   hiveDistance,
 } from '../../src/domain/deposits/deposit-config.js';
-import { depositOf } from '../../src/domain/deposits/deposit-state.js';
 import { touchingTiles } from '../../src/domain/deposits/deposit-hint.js';
-import { mineTile } from '../../src/domain/actions/mining.js';
-import { allTiles, createWorld, getTile } from '../../src/domain/world/grid.js';
+import { canMineTile, mineTile } from '../../src/domain/actions/mining.js';
+import { allTiles, createWorld, getTile, neighborIds } from '../../src/domain/world/grid.js';
 import { spreadToNeighbors, startRooting, tickRooting } from '../../src/domain/world/rooting-world.js';
+import { checkDepositHarvest } from './check-deposit-harvest.mjs';
 import { check, section } from './expect.mjs';
 
 const BIG_TICK = 60000;
@@ -24,6 +24,27 @@ export function checkDeposits() {
   checkCapacity(world);
   checkExclusion(world);
   checkStates(world);
+  checkDepositHarvest(rootedTarget());
+}
+
+// Ein Nachbarfeld graben, die Wurzeln laufen lassen und den Vorrat daneben
+// aufdecken — genau der Weg, den das Spiel nimmt.
+function rootBeside(world, anchorId) {
+  const mined = mineTile(world, getTile(world, anchorId));
+  const rested = tickRooting(startRooting(mined, getTile(mined, anchorId)), BIG_TICK);
+  const claimed = tickRooting(rested.world, BIG_TICK);
+  return spreadToNeighbors(claimed.world, claimed.spreading);
+}
+
+function rootedTarget() {
+  const world = createWorld();
+  const deposit = clusterList(world).find((entry) => entry.phase === DEPOSIT_PHASE.BURIED);
+  const targetId = deposit.cells[0];
+  const anchors = neighborIds(world, targetId).filter((id) => !getTile(world, id).depositId);
+  const rooted = anchors.map((id) => rootBeside(world, id)).find((entry) => canMineTile(entry, targetId));
+  section('Vorräte: der Weg in den Abbau');
+  check('Der aufgedeckte Nachbarvorrat lässt sich abbauen', Boolean(rooted));
+  return { rooted: rooted ?? world, targetId };
 }
 
 function clusterList(world) {
@@ -50,10 +71,9 @@ function checkIsolation(world) {
 }
 
 function touchesForeign(world, tile) {
-  return touchingTiles(world, tile).some((neighbor) => {
-    const deposit = depositOf(world, neighbor);
-    return Boolean(deposit) && deposit.id !== tile.depositId;
-  });
+  return touchingTiles(world, tile).some(
+    (neighbor) => neighbor.depositId && neighbor.depositId !== tile.depositId,
+  );
 }
 
 function checkDeterminism() {
@@ -131,7 +151,7 @@ function onlyCluster(hinted, deposit) {
 function checkMine(world) {
   const deposit = clusterList(world).find((entry) => entry.phase === DEPOSIT_PHASE.BURIED);
   const mined = mineTile(world, getTile(world, deposit.cells[0]));
-  const found = depositOf(mined, getTile(mined, deposit.cells[0]));
-  const opened = found?.phase === DEPOSIT_PHASE.FOUND && found.pool === deposit.pool;
-  check('Der Abbau öffnet den Vorrat und lässt seinen Pool ganz', opened, `${found?.phase ?? 'verloren'}`);
+  const found = mined.deposits[deposit.id];
+  const opened = found.phase === DEPOSIT_PHASE.FOUND && found.pool === deposit.pool;
+  check('Der Abbau öffnet den Vorrat und lässt seinen Pool ganz', opened, found.phase);
 }

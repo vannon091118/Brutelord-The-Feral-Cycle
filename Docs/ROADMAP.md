@@ -26,9 +26,13 @@ Grund, ihn zu haben.
       liegen Cluster aus ein bis drei Feldern mit je höchstens hundert Essenz,
       stets isoliert; spürbar wird ein Vorrat nur, wenn die Wurzeln ein
       Nachbarfeld einnehmen, offen erst, wenn der Abbau sein eigenes Feld
-      erreicht, und der Hive produziert langsam weiter als Motor für den Anfang. Offen sind noch zwei
-      Entscheidungen: fällt der Abbaupreis auf alle Erde oder nur auf
-      Vorratsfelder, und ist ein Cluster ein Schlag oder ein fließender Vorrat.
+      erreicht. **Cluster sind ein Schlag, kein fließender Vorrat:** der Pool
+      folgt dem Grabfortschritt und ist im letzten Takt leer, damit das
+      Todessignal überhaupt erreichbar ist. Die vier Verhaltensweisen und drei
+      Sättigungsstufen sind gezeichnet, `lastHarvest` wird vom echten Reducer
+      gesetzt und über `check-deposit-flow.mjs` geprüft. Offen bleibt die
+      zweite Entscheidung, fällt der Abbaupreis auf alle Erde oder nur auf
+      Vorratsfelder, und der Hive produziert als Motor noch nicht weiter.
       Beim Speichern gehört `deposit` nur auf die Felder, die wirklich eins
       haben.
 - [ ] **Der Brutlord tut etwas.** Er wird gebaut, er kostet, er wartet — und er
