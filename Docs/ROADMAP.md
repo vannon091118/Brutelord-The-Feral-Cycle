@@ -12,7 +12,8 @@ Code, und `npm run verify` sagt dir, ob er stimmt.
 
 ## 0.0.2 — als Nächstes
 
-Der Bau steht, der Schwarm arbeitet. Was jetzt fehlt, ist Bestand.
+Der Bau steht, der Schwarm arbeitet. Was jetzt fehlt, ist Bestand — und ein
+Grund, ihn zu haben.
 
 - [ ] **Speichern.** Aktuell stirbt dein Hive beim Reload. Absicht für den
       Slice, unbrauchbar für alles darüber. Mit Essenz und Bauten im Zustand ist
@@ -21,9 +22,18 @@ Der Bau steht, der Schwarm arbeitet. Was jetzt fehlt, ist Bestand.
 - [ ] **Die Leiter bei 47,47.** Steht als `LADDER_TILE` in der Config und wird
       gerendert, sobald die Wurzeln hinkommen. Sie ist Deko mit Tiefe — irgendwann
       wird sie der Eingang.
-- [ ] **Der Brutlord tut etwas.** Er wird gebaut, er kostet, er wartet. Was er
-      ausbrütet, ist noch nicht entschieden — bis dahin ist er ein teurer
-      Platzhalter mit Panzer, und das steht hier, damit es niemand übersieht.
+- [ ] **Verborgene Essenz-Vorräte und eine Hive-Ökonomie.** Unter der Erde
+      liegen Cluster aus ein bis drei Feldern mit je höchstens hundert Essenz,
+      stets isoliert; sichtbar werden sie erst durch den Abbau, und der Hive
+      produziert langsam weiter als Motor für den Anfang. Offen sind noch zwei
+      Entscheidungen: fällt der Abbaupreis auf alle Erde oder nur auf
+      Vorratsfelder, und ist ein Cluster ein Schlag oder ein fließender Vorrat.
+      Beim Speichern gehört `deposit` nur auf die Felder, die wirklich eins
+      haben.
+- [ ] **Der Brutlord tut etwas.** Er wird gebaut, er kostet, er wartet — und er
+      ist die Senke für einen Vorrat, den erst das System darüber erzeugt. Was
+      er ausbrütet, ist noch nicht entschieden; ohne Cluster ist er ein teurer
+      Platzhalter mit Panzer.
 - [x] **Die Regeln nachgeschärft.** Hard Caps messen jetzt nur Code — Leer- und
       Kommentarzeilen fallen aus dem LOC-Cap heraus —, und Kommentare selbst
       sind auf fünf Zeilen pro Datei gedeckelt: global für alles unter `src/`
@@ -31,6 +41,11 @@ Der Bau steht, der Schwarm arbeitet. Was jetzt fehlt, ist Bestand.
       Commit-Label ist der VANNON-Satz statt der alten `vannon091118`-Kennung.
       Was an Erklärungen aus dem Code weichen musste, steht geschlossen in
       `Docs/ARCHITEKTUR.md` — der Code trägt nur noch den Kopf.
+
+Reihenfolge geändert, mit Grund. Der Brutlord stand hier ursprünglich als
+letzter Punkt dieser Section. Ein Verbraucher, der einen Vorrat von hundert
+Essenz schluckt, ist ohne Ökonomie wertlos — das Ressourcen-System kommt
+deshalb zwingend vorher, und der Brutlord wartet, bis es steht.
 
 ## 0.0.1 — steht
 

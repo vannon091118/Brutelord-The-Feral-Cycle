@@ -68,6 +68,9 @@ und **max. 5 Kommentarzeilen pro Datei**. Der Check ist eine Textanalyse in
   steht ausdrücklich mit im Cap. Dokumentation (`.md`, `.txt`) ist ausgenommen.
 - Für den LOC-Cap zählen nur Codezeilen: Kommentarzeilen und Leerzeilen fallen
   heraus. Der Cap gilt global, auch für CSS.
+- Die Dokumentations-Ausnahme ist implizit: `DOCUMENTATION_EXTENSIONS` wird
+  nirgends angewandt — `.md` und `.txt` entkommen dem Cap nur, weil
+  `collectSourceFiles` sie nicht einsammelt. `Docs/` darf damit beliebig lang sein.
 - Kommentare sind auf fünf Zeilen pro Datei begrenzt — wer mehr erklären will,
   schreibt es nach `Docs/` (siehe `Docs/ARCHITEKTUR.md`). Kurze Warum-Sätze im
   Code bleiben erlaubt, ganze Absätze nicht.
@@ -127,6 +130,11 @@ pro Versionserhöhung um genau 1. `npm run version:sync` spiegelt den Lock in
 `VERSION`, `package.json` und `package-lock.json`, ohne weitere Felder des
 Locks zu verlieren — der Lock darf also mehr wissen als Version und Revision.
 
+Bleibt die Version stehen, muss auch die `revision` stehen bleiben —
+`versionTransitionViolations` prüft beides. Regel- und Doku-Commits brauchen
+deshalb keinen Bump, und ihr Roadmap-Eintrag darf trotzdem als erledigt unter
+der nächsten Section stehen.
+
 Genau eine Ausnahme von der Monotonie gibt es: eine ausdrückliche Rücknahme
 einer Fehlbenennung. Sie steht als `amends` im Lock und nennt die Version, die
 damit korrigiert wird (Beispiel: `{ "version": "0.0.1", "revision": 2,
@@ -154,6 +162,9 @@ bleibt ein Gate-Fehler.
   aufrufen. Damit lassen sich Wortzahl, Label und Dateiabdeckung prüfen, bevor
   der Commit existiert — billiger als ein Commit, der am Gate scheitert. `sha`
   wird nur als `scope` durchgereicht, inhaltlich uninteressant.
+- Vorprüfung und Commit müssen dieselben Bytes sehen: Message nach
+  `/tmp/commit-msg.txt` schreiben, `commitViolations` darauf laufen lassen,
+  dann `git commit -F /tmp/commit-msg.txt`.
 
 Commit-Nachrichten und Code-Kommentare auf Deutsch, Code-Bezeichner englisch.
 
@@ -305,3 +316,14 @@ Commit → Push.
   schon ein Dev-Server auf 5173, weicht Vite still auf 5174 aus und loggt das
   als eine Zeile — wer weiter 5173 prüft, testet den alten Prozess. Vor dem
   Neustart `ss -ltnp | grep 517`.
+- Die deutschen `rule`-Texte aus `commitViolations` sind die Schnittstelle zu
+  `scripts/verify-commit-gate.mjs` — die Tests greifen per `includes()` und
+  unterscheiden Großschreibung. Ein umbenannter Regelname macht genau eine
+  Zeile rot, ohne auf die Ursache zu zeigen.
+- Das Pflicht-Label enthält einen Gedankenstrich (U+2014); ein ASCII-Hyphen
+  fällt durch. `git log -1 --format=%B | tail -1` taugt nicht als Prüfung —
+  `%B` endet mit Zeilenumbruch, die letzte Zeile ist leer. Erst `messageParts()`
+  aus `scripts/lib/commit-rules.mjs` filtert die Leerzeilen weg.
+- `TREE_ROOTS` in `scripts/ci-gate.mjs` kennt nur `src` und `scripts`:
+  Hilfsskripte im Repo-Root umgehen alle Caps, landen beim Staging aber im
+  Commit und müssen dort namentlich im Body stehen. Messskripte gehören nach `/tmp`.
