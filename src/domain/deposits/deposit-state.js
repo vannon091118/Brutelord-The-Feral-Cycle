@@ -24,7 +24,3 @@ export function takeEssence(world, id, amount) {
   const phase = pool === 0 ? DEPOSIT_PHASE.SPENT : deposit.phase;
   return { ...world, deposits: { ...world.deposits, [id]: { ...deposit, pool, phase, yielded: deposit.yielded + taken } } };
 }
-
-export function isHarvestable(world, tile) {
-  return depositOf(world, tile)?.phase === DEPOSIT_PHASE.FOUND;
-}

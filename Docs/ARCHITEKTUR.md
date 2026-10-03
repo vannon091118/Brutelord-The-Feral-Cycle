@@ -96,7 +96,8 @@ Sichtbarkeitsradius der Sonde darf keinen verborgenen Vorrat aufdecken.
 Die Platzierung ist deterministisch und ohne Zufall: `deposit-hash.js` streut
 über einen eigenen `Math.imul`-Hash, bewusst nicht über `tileSeed` aus
 `src/world/tile-shapes.js`, weil die Domäne nichts aus `src/world/` ziehen
-darf. Isolation folgt aus dem Raster statt aus einer Nachbarschaftsprüfung:
+darf. Beim Abbau reicht `minedFloorTile` den Verweis durch, sonst bliebe der
+Datensatz ohne Kachel zurück. Isolation folgt aus dem Raster statt aus einer Nachbarschaftsprüfung:
 Blöcke über 4 × 4 Felder, ein Cluster bleibt im inneren 2 × 2-Fenster — zwei
 Cluster liegen dadurch mindestens drei Felder auseinander.
 
@@ -112,7 +113,8 @@ eines fremden Vorrats, keine Zelle doppelt), Determinismus (zwei `createWorld()`
 liefern dasselbe), Budget (Clusterzahl im Band, Poolsumme exakt), Kapazität
 (voll, in der Größenordnung, unter der Obergrenze, anfangs alles `BURIED`),
 Sperrzonen und Zustandswechsel (`Claim → HINTED` genau einmal, beim zweiten
-Claim folgenlos, Pool leert auf `SPENT` und liefert danach nichts).
+Claim folgenlos, ein abgebautes Vorratsfeld bleibt erreichbar, Pool leert auf
+`SPENT` und liefert danach nichts).
 
 Noch offen und bewusst nicht entschieden: fällt der Abbaupreis auf alle Erde
 oder nur auf Vorratsfelder, und ist ein Cluster ein Schlag oder ein fließender

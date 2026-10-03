@@ -112,6 +112,7 @@ function checkStates(world) {
   section('Vorräte: Zustandswechsel');
   check('Ein geclaimtes Nachbarfeld macht genau einen Vorrat spürbar', onlyCluster(hinted, buried), `${hinted.length} sichtbar`);
   check('Ein zweiter Claim wiederholt den Hinweis nicht', onlyCluster(again, buried), `${again.length} sichtbar`);
+  checkMineKeepsDeposit(world);
   checkDrain(buried, claim.world);
 }
 
@@ -132,6 +133,15 @@ function visibleAfter(world) {
 
 function onlyCluster(hinted, deposit) {
   return hinted.length === 1 && hinted[0].id === deposit.id;
+}
+
+function checkMineKeepsDeposit(world) {
+  const deposit = clusterList(world).find((entry) => entry.phase === DEPOSIT_PHASE.BURIED);
+  const target = getTile(world, deposit.cells[0]);
+  const mined = replaceTile(world, minedFloorTile(target));
+  const found = depositOf(mined, getTile(mined, deposit.cells[0]));
+  const kept = found?.pool === deposit.pool && found.cells.length === deposit.cells.length;
+  check('Ein abgebautes Vorratsfeld bleibt erreichbar', kept, `${found?.pool ?? 'verloren'} Essenz`);
 }
 
 function checkDrain(deposit, world) {

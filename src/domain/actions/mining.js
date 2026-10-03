@@ -70,5 +70,6 @@ export function mineableFrontierIds(world) {
 }
 
 export function minedFloorTile(tile) {
-  return createFloorTile(tile.x, tile.y, FLOOR_ORIGIN.MINED);
+  const floor = createFloorTile(tile.x, tile.y, FLOOR_ORIGIN.MINED);
+  return tile.depositId ? { ...floor, depositId: tile.depositId } : floor;
 }
