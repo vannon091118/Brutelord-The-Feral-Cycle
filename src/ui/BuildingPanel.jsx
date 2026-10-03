@@ -2,7 +2,8 @@
  * Ein ausgewähltes Bauwerk: was es ist, wie weit es ist und — beim Extraktor —
  * wer daran arbeitet. Zuweisen und Freigeben sind die einzigen Befehle hier.
  */
-import { BUILDING_STATE, buildingDef } from '../domain/buildings/building-config.js';
+import { BUILDING_STATE, BUILDING_TYPE, buildingDef } from '../domain/buildings/building-config.js';
+import { LabPanel } from './stone/LabPanel.jsx';
 
 function stateText(building) {
   if (building.state === BUILDING_STATE.SITE) {
@@ -73,8 +74,30 @@ function WorkerSection({ building, maxWorkers, freeWorkers, onAssign, onRelease 
   );
 }
 
-export function BuildingPanel({ building, freeWorkers, onAssign, onRelease, onClose }) {
+function LabEntry({ open, onOpen }) {
+  if (open) return null;
+  return (
+    <div className="pt-2">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="w-full rounded-lg border border-core-400/40 bg-core-500/15 px-2.5 py-1.5 text-[11px] text-core-200 transition hover:bg-core-500/25"
+      >
+        Labor öffnen
+      </button>
+    </div>
+  );
+}
+
+export function BuildingPanel({ building, lab, essence, onOpenLab, onBuyStone, onPlaceStone, freeWorkers, onAssign, onRelease, onClose }) {
   const def = buildingDef(building.type);
+  const isLord = building.type === BUILDING_TYPE.BRUTE_LORD && building.state === BUILDING_STATE.READY;
+  const showLab = isLord && lab.open;
+
+  if (showLab) {
+    return <LabPanel lab={lab} essence={essence} onBuy={onBuyStone} onPlace={onPlaceStone} onClose={onClose} />;
+  }
+
   return (
     <section
       className="dl-panel dl-panel-in w-[min(92vw,352px)] rounded-2xl px-3 pb-3 pt-2.5"
@@ -89,6 +112,7 @@ export function BuildingPanel({ building, freeWorkers, onAssign, onRelease, onCl
         onAssign={onAssign}
         onRelease={onRelease}
       />
+      {isLord ? <LabEntry open={lab.open} onOpen={onOpenLab} /> : null}
     </section>
   );
 }

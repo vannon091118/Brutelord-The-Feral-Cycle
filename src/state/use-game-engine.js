@@ -6,8 +6,7 @@ import { useReducer, useRef } from 'react';
 import { createInitialGameState } from './game-state.js';
 import { gameReducer } from './game-reducer.js';
 import { useScheduleRunner } from './use-schedule-runner.js';
-import { useRootingRunner } from './use-rooting-runner.js';
-import { useWorkRunner } from './use-work-runner.js';
+import { useColonyClock } from './use-colony-clock.js';
 import { useGameActions } from './use-game-actions.js';
 
 export function useGameEngine() {
@@ -18,8 +17,7 @@ export function useGameEngine() {
   latest.current = state;
 
   useScheduleRunner({ phase: state.onboarding.state, latest, dispatch });
-  useRootingRunner({ latest, dispatch });
-  useWorkRunner({ latest, dispatch });
+  useColonyClock({ latest, dispatch });
 
   return { state, actions: useGameActions(dispatch) };
 }

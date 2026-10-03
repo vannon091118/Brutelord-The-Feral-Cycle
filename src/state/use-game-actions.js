@@ -18,6 +18,10 @@ export function useGameActions(dispatch) {
       clearBuilding: () => dispatch({ type: ACTION.BUILDING_DESELECTED }),
       assignWorker: (buildingId) => dispatch({ type: ACTION.WORKER_ASSIGNED, buildingId }),
       releaseWorker: (buildingId) => dispatch({ type: ACTION.WORKER_RELEASED, buildingId }),
+      openLab: () => dispatch({ type: ACTION.LAB_OPENED }),
+      closeLab: () => dispatch({ type: ACTION.LAB_CLOSED }),
+      buyStone: () => dispatch({ type: ACTION.STONE_BOUGHT }),
+      placeStone: (seed, slot) => dispatch({ type: ACTION.STONE_PLACED, seed, slot }),
     }),
     [dispatch],
   );

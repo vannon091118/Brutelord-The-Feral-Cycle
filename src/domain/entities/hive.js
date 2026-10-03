@@ -17,6 +17,8 @@ export function createHive(origin = HIVE_ORIGIN) {
     size: { ...HIVE_SIZE },
     phase: HIVE_PHASE.DORMANT,
     spawned: 0,
+    pressed: 0,
+    progressMs: 0,
   };
 }
 

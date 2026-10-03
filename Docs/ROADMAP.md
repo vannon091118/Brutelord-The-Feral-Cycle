@@ -38,7 +38,7 @@ Grund, ihn zu haben.
 - [ ] **Die Leiter bei 47,47.** Steht als `LADDER_TILE` in der Config und wird
       gerendert, sobald die Wurzeln hinkommen. Sie ist Deko mit Tiefe — irgendwann
       wird sie der Eingang.
-- [ ] **Verborgene Essenz-Vorräte und eine Hive-Ökonomie.** Unter der Erde
+- [x] **Verborgene Essenz-Vorräte und eine Hive-Ökonomie.** Unter der Erde
       liegen Cluster aus ein bis drei Feldern mit je höchstens hundert Essenz,
       stets isoliert; spürbar wird ein Vorrat nur, wenn die Wurzeln ein
       Nachbarfeld einnehmen, offen erst, wenn der Abbau sein eigenes Feld
@@ -46,15 +46,38 @@ Grund, ihn zu haben.
       folgt dem Grabfortschritt und ist im letzten Takt leer, damit das
       Todessignal überhaupt erreichbar ist. Die vier Verhaltensweisen und drei
       Sättigungsstufen sind gezeichnet, `lastHarvest` wird vom echten Reducer
-      gesetzt und über `check-deposit-flow.mjs` geprüft. Offen bleibt die
-      zweite Entscheidung, fällt der Abbaupreis auf alle Erde oder nur auf
-      Vorratsfelder, und der Hive produziert als Motor noch nicht weiter.
-      Beim Speichern gehört `deposit` nur auf die Felder, die wirklich eins
-      haben.
+      gesetzt und über `check-deposit-flow.mjs` geprüft. **Die zweite
+      Entscheidung ist gefallen: der Preis fällt auf alle Erde, nicht nur auf
+      Vorratsfelder.** Jeder abgearbeitete Erdblock kostet genau eine Essenz,
+      und bei null Essenz wird der Auftrag abgelehnt — `canAffordMining()` in
+      `src/domain/actions/mining.js` ist die einzige Stelle, die das entscheidet.
+      Der Hive presst passiv eine Essenz je zehn Sekunden, gedeckelt auf
+      fünfundzwanzig für das ganze Spiel; diese Obergrenze macht ihn zum Puffer
+      und zum Endgame ausgeschlossen. Der Startvorrat ist entsprechend
+      `COST.extractor + 6 * miningCost`, damit der Startraum bezahlbar bleibt und
+      danach genau ein Extraktor übrig ist. Beides prüft
+      `check-economy.mjs` gegen den echten Reducer. Beim Speichern gehört
+      `deposit` nur auf die Felder, die wirklich eins haben.
 - [ ] **Der Brutlord tut etwas.** Er wird gebaut, er kostet, er wartet — und er
-      ist die Senke für einen Vorrat, den erst das System darüber erzeugt. Was
-      er ausbrütet, ist noch nicht entschieden; ohne Cluster ist er ein teurer
-      Platzhalter mit Panzer.
+      ist die Senke für einen Vorrat, den erst das System darüber erzeugt.
+      **Ein Stein kostet vier Essenz und wird aus einem beim Kauf erzeugten
+      Seed gewürfelt — kein `Math.random()`, damit Neuladen kein Losgriff ist
+      und die Prüfung reproduzierbar bleibt.** Der Hash dafür lebt in
+      `src/domain/brutelord/stone-seed.js` und ist absichtlich eine eigene
+      Instanz neben `tileSeed`: die Schichtgrenze wiegt hier schwerer als
+      Wiederverwendung. Seltenheit, Fähigkeiten und Trait fallen alle aus diesem
+      Seed; der Pity-Timer zählt Fehlschläge, hebt die Legende-Chance unsichtbar
+      an und garantiert sie nach dreißig. **Die Optik folgt der Formel
+      Stein-Seed plus Slot:** derselbe Stein in den Armen wird zur Faust, im
+      Bein zum Schneckenfuß, bei identischem Effekt und identischen Werten. Der
+      Gegenpol drückt die schwächeren Stellen zurück, damit das Monster lesbar
+      bleibt. Das Labor öffnet sich am fertigen Brutlord, das Inventar maskiert
+      jeden unverbauten Stein als `???` und gibt die Seltenheit nur über die
+      Farbe preis. **Offen bleibt der eigentliche Zweck:** die drei Traits
+      stehen bisher nur als Daten in `stone-config.js` und wirken sich auf keinen
+      Takt aus. Gierig soll Bauaufträge verweigern, Motivator eine Aura geben,
+      Schleimig eine Kriechspur — das ist Arbeit an `work-tick.js`, nicht am
+      Labor.
 - [x] **Die Regeln nachgeschärft.** Hard Caps messen jetzt nur Code — Leer- und
       Kommentarzeilen fallen aus dem LOC-Cap heraus —, und Kommentare selbst
       sind auf fünf Zeilen pro Datei gedeckelt: global für alles unter `src/`

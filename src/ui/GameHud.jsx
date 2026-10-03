@@ -7,14 +7,19 @@ import { OnboardingHint } from './OnboardingHint.jsx';
  * freien Boden) und die Hinweiszeile. Alle drei lesen nur, was im Reducer
  * passiert ist — keiner von ihnen entscheidet etwas.
  */
-function SelectedBuilding({ building, freeWorkers, actions }) {
+function SelectedBuilding({ building, game, actions }) {
   return (
     <div className="pointer-events-auto">
       <BuildingPanel
         building={building}
-        freeWorkers={freeWorkers}
+        lab={game.lab}
+        essence={game.essence}
+        freeWorkers={game.dunglings.filter((worker) => !worker.job).length}
         onAssign={() => actions.assignWorker(building.id)}
         onRelease={() => actions.releaseWorker(building.id)}
+        onOpenLab={actions.openLab}
+        onBuyStone={actions.buyStone}
+        onPlaceStone={actions.placeStone}
         onClose={actions.clearBuilding}
       />
     </div>
@@ -37,13 +42,10 @@ function BuildMenuSlot({ game, actions }) {
 
 export function GameHud({ game, actions }) {
   const selected = game.buildings.find((building) => building.id === game.selectedBuildingId) ?? null;
-  const freeWorkers = game.dunglings.filter((worker) => !worker.job).length;
 
   return (
     <div className="pointer-events-none relative z-10 flex w-full flex-col items-center gap-2 px-3 pb-3">
-      {selected ? (
-        <SelectedBuilding building={selected} freeWorkers={freeWorkers} actions={actions} />
-      ) : null}
+      {selected ? <SelectedBuilding building={selected} game={game} actions={actions} /> : null}
       {game.buildMenuVisible ? <BuildMenuSlot game={game} actions={actions} /> : null}
       <div className="pointer-events-auto">
         <OnboardingHint

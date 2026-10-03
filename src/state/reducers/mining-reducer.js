@@ -1,5 +1,14 @@
 /** Abbau-Domäne: Befehl, Laufweg, Takt, Ernte, Abschluss. */
-import { MINING_PHASE, advanceMiningJob, canMineTile, createMiningJob, earthHealthForProgress, mineTile } from '../../domain/actions/mining.js';
+import {
+  MINING_PHASE,
+  advanceMiningJob,
+  canAffordMining,
+  canMineTile,
+  createMiningJob,
+  earthHealthForProgress,
+  miningCost,
+  mineTile,
+} from '../../domain/actions/mining.js';
 import { exposeDeposit, harvestTick } from '../../domain/deposits/deposit-state.js';
 import { getTile, replaceTile } from '../../domain/world/grid.js';
 import { withEarthHealth } from '../../domain/world/tile.js';
@@ -37,11 +46,12 @@ function order(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.ACTION_MENU) return state;
   const targetId = state.selectedTileId;
   const worker = freeWorker(state);
-  if (!targetId || !worker || !canMineTile(state.world, targetId)) return state;
+  if (!targetId || !worker || !canAffordMining(state.world, targetId, state.essence)) return state;
   const next = withWorker(state, worker.id, (entry) => walkTo(entry, getTile(state.world, targetId)));
   return {
     ...next,
     mining: { ...createMiningJob(targetId), workerId: worker.id },
+    essence: state.essence - miningCost(),
     selectedTileId: null,
     highlightedTileId: null,
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.MOVING_TO_TILE),

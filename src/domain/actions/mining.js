@@ -10,6 +10,7 @@ import {
 } from '../world/tile.js';
 import { getTile, neighborIds, replaceTile } from '../world/grid.js';
 import { exposeDeposit } from '../deposits/deposit-state.js';
+import { canPayForMining, ESSENCE_ECONOMY } from '../economy/essence-economy.js';
 
 export const MINING_PHASE = Object.freeze({
   IDLE: 'IDLE',
@@ -20,6 +21,10 @@ export const MINING_PHASE = Object.freeze({
 
 export function miningTotalTicks(config = ONBOARDING_CONFIG) {
   return Math.max(1, Math.round(config.miningDurationMs / config.miningTickMs));
+}
+
+export function miningCost() {
+  return ESSENCE_ECONOMY.miningCost;
 }
 
 export function earthHealthForProgress(progress, config = ONBOARDING_CONFIG) {
@@ -64,6 +69,11 @@ export function touchesUsableSpace(world, id) {
 
 export function canMineTile(world, id) {
   return isMineableEarth(world, id) && touchesUsableSpace(world, id);
+}
+
+/** Der Abbau kostet — die einzige Stelle, die entscheidet, ob er bezahlt ist. */
+export function canAffordMining(world, id, essence) {
+  return canMineTile(world, id) && canPayForMining(essence);
 }
 
 export function mineableFrontierIds(world) {

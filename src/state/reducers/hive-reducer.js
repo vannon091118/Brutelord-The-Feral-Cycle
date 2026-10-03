@@ -3,6 +3,7 @@
  * es gibt keine Event-Kette, die weitere Befehle auslöst.
  */
 import { HIVE_PHASE, canMutate, settleHive, startMutation } from '../../domain/entities/hive.js';
+import { hiveRemainderMs, hiveYieldFor } from '../../domain/economy/essence-economy.js';
 import { ONBOARDING_STATE, enterOnboarding } from '../../domain/onboarding/onboarding-state.js';
 import { ACTION } from '../../domain/actions/action-types.js';
 
@@ -14,6 +15,8 @@ export function reduceHive(state, action) {
       return mutating(state);
     case ACTION.HIVE_MUTATION_SETTLED:
       return settled(state);
+    case ACTION.HIVE_TICK:
+      return pressed(state, action.dtMs);
     default:
       return state;
   }
@@ -42,5 +45,16 @@ function settled(state) {
     ...state,
     hive: settleHive(state.hive),
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.WAITING_FOR_DUNGLING),
+  };
+}
+
+// Der Fortschritt wächst auch ohne Ertrag, sonst käme die Uhr nie an ihre Schwelle.
+function pressed(state, dtMs) {
+  const elapsed = state.hive.progressMs + Math.max(0, dtMs);
+  const gained = hiveYieldFor(state.hive, elapsed);
+  return {
+    ...state,
+    hive: { ...state.hive, pressed: state.hive.pressed + gained, progressMs: hiveRemainderMs(elapsed) },
+    essence: state.essence + gained,
   };
 }

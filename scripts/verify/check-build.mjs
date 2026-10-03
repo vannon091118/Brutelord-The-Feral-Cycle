@@ -19,12 +19,16 @@ const def = (type) => BUILDING_DEFS[type];
 function checkSites(run) {
   section('Bauen: Bauplatz, Essenz und Fertigstellung');
   check('Sechs Felder abgebaut, sieben nutzbar', run.mined.usableTileCount === 7);
-  check('Der Brutlord ist mit dem Startvorrat nicht bezahlbar', run.bruteLordRefused);
+  check('Der Startvorrat reicht nicht für den teuersten Bau', run.bruteLordRefused);
   check('Der Bauplatz verlangt den Preis des Baus', run.extractor.required === def(BUILDING_TYPE.ESSENCE_EXTRACTOR).cost);
   check('Vor der Lieferung steht nur der Bauplatz', run.extractor.stateBefore === BUILDING_STATE.SITE);
   check('Nach der Lieferung steht das Bauwerk', run.extractor.state === BUILDING_STATE.READY);
-  check('Der Vorrat deckt genau einen Extraktor', run.extractor.essenceStart === def(BUILDING_TYPE.ESSENCE_EXTRACTOR).cost);
-  check('Die Essenz ist danach verbraucht', run.extractor.essenceAfter === 0);
+  check(
+    'Nach dem Abbau bleibt genau ein Extraktor übrig',
+    run.extractor.essenceStart === def(BUILDING_TYPE.ESSENCE_EXTRACTOR).cost,
+    `${run.extractor.essenceStart}Essenz`,
+  );
+  check('Die Essenz ist danach verbraucht', run.extractor.essenceAfter === 0, `${run.extractor.essenceAfter} übrig`);
   check('Auf belegtem Boden wird nicht gebaut', run.occupiedRefused);
   check('Auf unberührter Erde wird nicht gebaut', run.earthRefused);
   check(

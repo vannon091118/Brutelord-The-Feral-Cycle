@@ -2,20 +2,12 @@
 import { reduceHive } from './reducers/hive-reducer.js';
 import { reduceDungling } from './reducers/dungling-reducer.js';
 import { reduceSelection } from './reducers/selection-reducer.js';
-import { reduceMining } from './reducers/mining-reducer.js';
-import { reduceExpansion } from './reducers/expansion-reducer.js';
-import { reduceRooting } from './reducers/rooting-reducer.js';
+import { reduceLab } from './reducers/lab-reducer.js';
+import { reduceWorld } from './reducers/world-reducer.js';
 import { reduceColony } from './reducers/colony-reducer.js';
 
-const DOMAIN_REDUCERS = [
-  reduceHive,
-  reduceDungling,
-  reduceSelection,
-  reduceMining,
-  reduceExpansion,
-  reduceRooting,
-  reduceColony,
-];
+/** Welt-Themen (Abbau, Ausbau, Verwurzelung) teilen sich eine Kette. */
+const DOMAIN_REDUCERS = [reduceHive, reduceDungling, reduceSelection, reduceLab, reduceWorld, reduceColony];
 
 export function gameReducer(state, action) {
   for (const reduce of DOMAIN_REDUCERS) {

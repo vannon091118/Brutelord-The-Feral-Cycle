@@ -66,6 +66,7 @@ export function createWorld({
     hiveSize: { ...HIVE_SIZE },
     spawnTileId: spawnTile ? tileId(spawnTile.x, spawnTile.y) : null,
     entrance: { ...LADDER_TILE },
+    rootingWorkIds: [],
     tiles,
   };
 
