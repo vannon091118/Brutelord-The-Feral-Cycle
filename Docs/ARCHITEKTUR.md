@@ -26,7 +26,7 @@ damit ist jede Prüfung wiederholbar.
 | `JOB_CONFIG` | `tickMs 200`, `travelMsPerTile 420`, `workMs 300`, `cycleMs 15000`, `popupLifetimeMs 1600` | Ein Träger läuft 420 ms pro Feld; ein Extraktor presst für jeden zugewiesenen Dungling eine Essenz pro 15 s. Die Prüfungen rechnen gegen diese Werte, nicht gegen 15.000. |
 | `ROOTING_CONFIG` | `claimDurationMs 10000`, `cooldownMs 5000`, `tickMs 100` | Ein Feld fadet 10 s lang ins Hive-Farbige, ruht 5 s, erst dann stoßen die Tentakel weiter. |
 | `ONBOARDING_CONFIG` | `hiveHitDurationMs 320`, `hiveMutationDurationMs 900`, `dunglingSpawnDelayMs 5000`, `dunglingEmergeMs 600`, `dunglingSettleMs 500`, `workerMoveDurationMs 500`, `miningDurationMs 3500`, `miningTickMs 100`, `tileDestructionMs 700`, `gridExpansionMs 600` | Der Dungling erscheint exakt 5 s nach dem Hive-Klick; der Abbau ist in 35 Ticks à 100 ms zerlegt, damit die Erde sichtbar verwittert statt zu springen. |
-| `BUILDING_DEFS` | Schwarmhort 6 Essenz (brütet alle 20 s), Extraktor 5 Essenz (max. drei Dunglinge), Brutlord 10 Essenz auf 2 × 2 | Jeder Bau ist erst ein Bauplatz und wird dann Stück für Stück bezahlt. Der Startvorrat `START_ESSENCE` deckt genau einen Extraktor — ohne ihn käme die Kolonie nie in Gang. |
+| `BUILDING_DEFS` | Schwarmhort 6 Essenz (brütet alle 20 s), Extraktor 5 Essenz (max. drei Dunglinge), Brutlord 10 Essenz auf 2 × 2 | Jeder Bau ist erst ein Bauplatz und wird dann Stück für Stück bezahlt. Der Startvorrat `START_ESSENCE` ist `COST.extractor + 6 * miningCost` — er deckt den Startraum und danach genau einen Extraktor. |
 | `MAX_DUNGLINGS 6` | Obergrenze des Schwarms | Der Schwarmhort brütet bis dahin, danach wartet er. |
 | `world-config.js` | Raster 64 × 64, Hive 2 × 2 bei 31/31, Sichtfeld 13 Tiles, `REVEAL_RADIUS 2`, Leiter bei 47/47 | Sichtbar bleibt ein Fenster; der Rest ist Dunkelheit, bis die Wurzeln hinkommen. |
 
@@ -63,19 +63,58 @@ eigenen kleinen `wobbleAt`-Hashfunktion. Sie ist bewusst nicht `tileSeed` aus
 
 `src/state/game-reducer.js` verteilt auf eine Liste von Domänen-Reducern; der
 erste, der den Zustand verändert, gewinnt. Ein Befehl ändert genau einen
-Bereich. `colony-reducer.js` trägt zwei Verantwortungen — Bau-Befehle und
-Arbeitstakt —, weil die Importgrenze von sieben Zeilen keine zwei Module in der
-Kette zulässt. Getrennt bleiben sie in der Datei trotzdem.
+Bereich. Aus Import- und LOC-Notgründen teilen sich einige Reducer die Datei:
+`colony-reducer.js` trägt Bau-Befehle und Arbeitstakt, `world-reducer.js`
+verdrahtet Abbau, Ausbau und Verwurzelung, `lab-reducer.js` die Brutlord-Befehle.
 
-Drei Uhren halten die Simulation in Bewegung, alle ohne eigenen Zustand:
+### Die Importmatrix, gemessen
+
+Jede Kante zählt einen relativen Specifier über alle Dateien in `src/`:
+
+| Von \ Nach | domain | state | ui | world |
+| --- | --- | --- | --- | --- |
+| `domain` | 54 | — | — | — |
+| `state` | 54 | 21 | — | — |
+| `ui` | 13 | — | 17 | 3 |
+| `world` | 34 | 1 | — | 75 |
+
+`domain` importiert ausschließlich sich selbst — 54 Kanten, null heraus. Das ist
+die eine Eigenschaft, die das Gate nicht erzwingt und die trotzdem jeder neue
+Ordner unter `src/domain/` aufreßen würde.
+
+Zwei Kanten zeigen entgegen der Schichtkette und sind so gewollt:
+`src/ui/GameStage.jsx` importiert `world` (es rendert die Szene), und
+`src/world/world-view.js` importiert `state/selectors.js` (die Kamera liest den
+Zustand). Es gibt keine einzige Kante `world → ui` oder `state → ui`.
+
+React steht in 20 Dateien: sechs Hooks in `src/state/`, drei in `src/ui/` und
+elf in `src/world/`. `src/domain/` und `src/app/` sind frei.
+
+Die Kette ist **Konvention, nicht Gate**. `check-architecture.mjs` prüft genau
+drei Dinge: `src/domain/` zieht weder `react` noch `document`/`window`, in ganz
+`src/` gibt es kein `Math.random(` und kein `Date.now(`, und `src/domain/`
+enthält kein `<svg>`-Markup. Die Importrichtung prüft er nicht — wer
+`src/domain/` etwas aus `src/world/` importieren lässt, fällt durch keine dieser
+drei Zeilen.
+
+Vier Uhren halten die Simulation in Bewegung, alle ohne eigenen Zustand.
+`use-colony-clock.js` ruft die drei Daueruhren zusammen, weil
+`use-game-engine.js` sonst am Import-Cap steht; jede behält ihre eigene Datei
+und ihre eigene Bedingung.
 
 - `use-schedule-runner.js` führt den Onboarding-Plan aus `onboarding-schedule.js`
   aus. Timer verfallen bei jedem Phasenwechsel — deshalb liegt der Abbau in
   einem Plan und nicht in einer Kette.
 - `use-rooting-runner.js` tickt die Verwurzelung unabhängig, weil die Wurzeln
-  weiterkriechen, während der Spieler nichts tut.
-- `use-work-runner.js` tickt die Arbeit. Alle drei schweigen, wenn es nichts zu
-  tun gibt; sie lesen den Zustand, sie besitzen ihn nicht.
+  weiterkriechen, während der Spieler nichts tut. Sie fragt `rootingWorkCount()`
+  und läuft damit über einer Liste aktiver Felder statt über alle 4.096 Kacheln.
+- `use-work-runner.js` tickt die Arbeit.
+- `use-hive-runner.js` presst die Essenz des Hive.
+
+Alle drei schweigen, wenn es nichts zu tun gibt; sie lesen den Zustand, sie
+besitzen ihn nicht. Die Hive-Uhr ist die Ausnahme: sie läuft auch im Leerlauf
+weiter, weil ein Motor, der an einem Idle-Stopp hängt, keiner wäre. Nachdem
+das Budget aufgebraucht ist, schweigt auch sie.
 
 Der Schwarm ist eine Liste. Der erste Dungling trägt das Onboarding, der Abbau
 bedient den ersten freien Arbeiter.
@@ -153,14 +192,90 @@ und `MINING_COMPLETED` durch `reduceMining`. Geprüft werden der sinkende Pool,
 `lastHarvest` mit echtem Ziel in jedem Takt, `depleted` und der Endzustand
 `SPENT`. Das ist der Test, der den toten `harvestTick` gefunden hat.
 
-Noch offen und bewusst nicht entschieden: fällt der Abbaupreis auf alle Erde
-oder nur auf Vorratsfelder. Das gehört zur Wirtschaft, nicht zur Ernte.
+Noch offen und bewusst nicht entschieden: ob die Baurate der Extraktoren
+steigt, wenn mehrere Kolonien an einem Vorrat arbeiten. Das gehört zur
+Wirtschaft, nicht zur Ernte.
+
+## Essenz-Ökonomie
+
+Essenz hat einen Preis und eine Quelle, und beides steht in
+`src/domain/economy/essence-economy.js`.
+
+**Der Abbau kostet.** Jeder abgearbeitete Erdblock nimmt genau eine Essenz, und
+der Abzug passiert bei der Auftragserteilung — nicht nach dem Grabenerfolg.
+`canAffordMining()` in `src/domain/actions/mining.js` ist die einzige Stelle im
+Spiel, die über Bezahlung entscheidet; bei null Vorrat wird der Auftrag
+abgelehnt. Diese Regel wirkt auf **alle** Erde, nicht nur auf Vorratsfelder —
+das war die offene Entscheidung, sie ist gefallen.
+
+**Der Hive presst.** Eine Essenz alle zehn Sekunden, gedeckelt auf fünfundzwanzig
+für das ganze Spiel. Die Obergrenze ist das, was ihn zum Puffer macht und zum
+Endgame-Farm ausschließt. Der Hive merkt sich zwei Zahlen: `pressed` (wie oft
+er schon gedrückt hat) und `progressMs` (wie weit seine Uhr steht). Beide sind
+notwendig, weil der Fortschritt auch dann wachsen muss, wenn noch kein Druck
+fällig ist — sonst käme die Uhr nie an ihre Schwelle und der Hive presste nie.
+
+Der Startvorrat ist kein Literal, sondern `COST.extractor + 6 * miningCost`:
+die sechs Abbaue des Startraums plus ein Extraktor. Wer die Raumgröße im
+Onboarding ändert, muss diese Zahl mitziehen.
+
+Die Simulation brauchte dafür eine Ergänzung: `virtual-clock.mjs` presst den
+Hive nur, solange der Zeitplan die Uhr am Laufen hält. Ohne diese Bedingung
+verbrauchte die Simulationsuhr das ganze Budget in 250 Sekunden, während das
+Onboarding fünf Sekunden dauert — der Hive-Takt darf die Testuhr nicht
+antreiben.
+
+## Der Brutlord als Labor
+
+Der Brutlord ist die Senke: vier Essenz gegen einen Stein, dessen Inhalt der
+Spieler erst einmal nicht kennt.
+
+**Determinismus ist die Regel, nicht der Zufall.** Ein Stein entsteht aus einem
+beim Kauf erzeugten Seed — nie aus `Math.random()`. Aus demselben Seed kommt
+immer derselbe Stein, damit Neuladen kein Losgriff ist und die Prüfung
+reproduzierbar bleibt. Der Hash liegt in `src/domain/brutelord/stone-seed.js`
+und ist bewusst eine dritte eigene Instanz neben `tileSeed` und `deposit-hash`:
+die Schichtgrenze wiegt hier schwerer als Wiederverwendung.
+
+Seltenheit, Fähigkeiten und Trait fallen alle aus diesem einen Seed.
+`STONE_SALT` trennt die Kanäle, damit Seltenheit und Trait nicht
+zwangsläufig aneinander hängen.
+
+**Der Pity-Timer zählt Fehlschläge.** Jeder Wurf unterhalb der Legende erhöht
+den Zähler, die Legende-Chance steigt um zwei Prozentpunkte je Fehlschlag und
+ist bei fünfzig Prozent gedeckelt. Bei dreißig Fehlschlägen ist die Legende
+garantiert, und der Zähler springt auf null zurück. Der Spieler sieht davon
+nichts — genau deshalb ist es ein Timer und kein sichtbarer Zähler.
+
+**Die Optik folgt der Formel Stein-Seed plus Slot, der Effekt nicht.**
+`mutation-formula.js` leitet aus Slot und Variante eine Form ab: derselbe Stein
+in den Armen wird zur Faust, im Bein zum Schneckenfuß. Seltenheit, Trait und
+Fähigkeiten bleiben dabei bitgleich — das ist der ganze Reiz des Experiments.
+
+**Der Gegenpol verhindert Pixel-Müll.** `counterScales()` vergleicht die stärkste
+Stelle mit dem Rest und drückt die schwächeren zurück. Ohne das sähe ein
+Monster mit vier mächtigen Steinen aus wie vier mächtige Steine nebeneinander
+statt wie ein Körper. Gleiche Seltenheit bedeutet gleiche Waage — ein stärkerer
+Stein braucht also tatsächlich einen schwächeren daneben, damit sichtbar wird,
+dass er stärker ist.
+
+**Die Maskierung ist der eigentliche Reiz.** Ein frischer Stein heißt `???`;
+erst das Einbauen in einen Slot lüftet seinen Namen. Die Seltenheit gibt das
+UI trotzdem über die Farbe preis. Ein Stein, der einmal verbaut wurde, gilt als
+entdeckt — das Flag hängt am Stein, nicht am Inventarplatz.
+
+Noch offen und bewusst nicht entschieden: die drei Verhaltens-Traits stehen
+als Daten in `stone-config.js` und wirken sich auf **keinen** Takt aus. Gierig
+soll Bauaufträge verweigern, Motivator eine Aura geben, Schleimig eine
+Kriechspur hinterlassen. Das gehört in `work-tick.js` und ist die nächste
+Stufe — ein Labor ohne Effekt ist ein Inventarspiel.
 
 ## Welt und Darstellung
 
-`src/world/TileLayer.jsx` zeichnet in vier Durchgängen: Erde, fertiger Boden,
-Verwurzelung, Bauten. Ein Bauwerk steht damit sichtbar über den Wurzeln, und
-die Hive-Felder verschwinden unter dem Hive selbst.
+`src/world/TileLayer.jsx` zeichnet in fünf Durchgängen: Erde, fertiger Boden,
+Verwurzelung, Vorräte, Bauten. Die Vorräte stehen damit über den Wurzeln und
+unter den Bauten — der `RootingVeil` malt mit 78 Prozent deckend und würde den
+Hinweis sonst begraben, genau auf den Feldern, für die er steht.
 
 `soilBlob()` in `tile-shapes.js` zieht mit positivem `jitter` nach innen;
 Überlappung zwischen Nachbarfeldern entsteht nur über `outward`. Die vier Ecken
@@ -177,6 +292,44 @@ Die Leiter bei 47/47 wird erst gezeichnet, wenn die Kamera sie erreicht.
 
 Die Darstellung liest den Auftrag, nicht die Uhr: `jobTrip()` liefert die
 Zwischenposition zwischen zwei Feldern, damit ein Träger läuft statt zu springen.
+
+## Werkzeuge
+
+**Vorschau im echten Browser** läuft über `tools/preview/`, nicht über eine
+temporäre `lab.html`. Ein Befehl bringt alles hoch und hält es am Leben:
+`node tools/preview/up.mjs` ist ein Supervisor für das sichtbare Chrome, den
+Inbox-Server und den Marker-Daemon. Er startet Chrome nur neu, wenn **Chrome
+wirklich weg ist** — schließt man das Fenster, räumt er auf, statt es sofort
+wieder aufzureißen. `node tools/preview/down.mjs` sagt ihm dasselbe von der
+Konsole aus. Der Daemon hängt sich per CDP an und injiziert `marker.js` nach
+jedem Reload neu.
+
+Im Fenster markiert `m` ein Element, `p` blendet das Panel ein, `Esc` beendet
+den Modus; jeder Klick vergibt eine ID `m1`, `m2`, … Das Panel listet die Marks
+als Bullet-Liste mit Kommentarfeld. **Senden -> Chat** legt die Liste in die
+Zwischenablage **und** in die Inbox auf `127.0.0.1:9333`;
+`node tools/preview/pull.mjs` liefert sie zurück, `--clear` leert. Damit ist
+„m2 ist zu blau" im Chat eine Zeile mit Selektor und Rechteck, kein Raten.
+
+Der Supervisor ist der trickste Teil, und drei Fehler steckten darin, die alle
+drei schon ein Fenster aufgerissen haben:
+
+- Der Health-Check darf **kein HTTP-`fetch`** sein: Node hält Keep-Alive-Sockets,
+  die Chrome nach kurzer Zeit schließt; der nächste `fetch` landet auf einem
+  toten Socket und meldet „Chrome tot", während `curl` in 11 ms mit 200
+  antwortet. Ein `net.connect` kann das nicht.
+- Er muss **Chrome und Port getrennt** prüfen — gibt es den Prozess noch, aber
+  der Port ist zu, ist das kein Grund für ein zweites Fenster.
+- Er muss ein geschlossenes Fenster von einem Absturz unterscheiden, sonst wird
+  jedes normale Schließen zum Neustart.
+
+Weitere Fallstricke: `Page.addScriptToEvaluateOnNewDocument` gilt nur für die
+offene CDP-Session, ein Kurzskript verliert die Registrierung beim Schließen
+(deshalb der Daemon). Der Marker darf bei `document-start` kein DOM anfassen,
+`document.body` ist dort noch `null`, der Mount hängt am `readyState`. Die
+Tastatur-Handler laufen in der Capture-Phase, ein Kind kann sie nicht stoppen —
+die Tipp-Prüfung muss **vor** jeder Taste stehen, sonst schluckt ein `Esc` im
+Kommentar-Feld den Fokus und der Rest des Satzes verschwindet.
 
 ## Prüfungen
 
