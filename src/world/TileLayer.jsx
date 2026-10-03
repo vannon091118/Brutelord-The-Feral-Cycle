@@ -1,10 +1,16 @@
 import { EarthTile } from './EarthTile.jsx';
 import { DungeonFloorTile } from './DungeonFloorTile.jsx';
+import { RootingVeil } from './rooting/RootingVeil.jsx';
 import { TILE_KIND } from '../domain/world/tile.js';
+import { ROOTING_PHASE } from '../domain/world/rooting.js';
 
 /**
  * Das Feld: Erde und fertiger Boden. Hive-Tiles werden vom Hive selbst
  * überdeckt. Kein Tile kennt seinen Zustand doppelt — er kommt aus der Welt.
+ *
+ * Drei Durchgänge, ein Aufbau: erst die Masse, dann der Boden, zuletzt die
+ * Verwurzelung darüber. So überlagert sich Erde nicht mit dem, was bereits
+ * freigelegt ist, und die Wurzeln liegen immer oben.
  */
 function EarthCell({ tile, view, tileSize, selectedTileId, highlightedTileId, onSelect }) {
   return (
@@ -22,31 +28,38 @@ function EarthCell({ tile, view, tileSize, selectedTileId, highlightedTileId, on
   );
 }
 
+function earthTiles(view, props) {
+  return view.tiles
+    .filter((tile) => tile.kind === TILE_KIND.EARTH)
+    .map((tile) => <EarthCell key={tile.id} tile={tile} view={view} {...props} />);
+}
+
+function floorTiles(view, tileSize) {
+  return view.tiles
+    .filter((tile) => tile.kind === TILE_KIND.DUNGEON_FLOOR)
+    .map((tile) => (
+      <DungeonFloorTile
+        key={tile.id}
+        tile={tile}
+        size={tileSize}
+        isNew={view.showArrival && view.newFloorTileId === tile.id}
+      />
+    ));
+}
+
+function rootedTiles(view, tileSize) {
+  return view.tiles
+    .filter((tile) => tile.rooting.phase !== ROOTING_PHASE.DARK)
+    .map((tile) => <RootingVeil key={`root-${tile.id}`} tile={tile} size={tileSize} />);
+}
+
 export function TileLayer({ view, tileSize, selectedTileId, highlightedTileId, onSelect }) {
-  return view.tiles.map((tile) => {
-    if (tile.kind === TILE_KIND.EARTH) {
-      return (
-        <EarthCell
-          key={tile.id}
-          tile={tile}
-          view={view}
-          tileSize={tileSize}
-          selectedTileId={selectedTileId}
-          highlightedTileId={highlightedTileId}
-          onSelect={onSelect}
-        />
-      );
-    }
-    if (tile.kind === TILE_KIND.DUNGEON_FLOOR) {
-      return (
-        <DungeonFloorTile
-          key={tile.id}
-          tile={tile}
-          size={tileSize}
-          isNew={view.showArrival && view.newFloorTileId === tile.id}
-        />
-      );
-    }
-    return null;
-  });
+  const shared = { tileSize, selectedTileId, highlightedTileId, onSelect };
+  return (
+    <>
+      {earthTiles(view, shared)}
+      {floorTiles(view, tileSize)}
+      {rootedTiles(view, tileSize)}
+    </>
+  );
 }

@@ -18,6 +18,14 @@
   --color-moss-600: #55632f;
   --color-moss-500: #6c7c3e;
 
+  /* Untergrund abgebauter Felder: heller Stein */
+  --color-rock-800: #2c313d;
+  --color-rock-700: #3b4251;
+  --color-rock-600: #4e5666;
+  --color-rock-500: #697285;
+  --color-rock-400: #8b95a8;
+  --color-rock-300: #a4acbb;
+
   --color-hive-800: #2b1a33;
   --color-hive-700: #43254d;
   --color-hive-600: #5b3163;

@@ -1,18 +1,3 @@
-function EarthFaces({ geometry }) {
-  return (
-    <>
-      <path
-        d={geometry.crust}
-        transform={`translate(0 ${geometry.underEdgeOffset})`}
-        fill="var(--color-soil-950)"
-        opacity="0.55"
-      />
-      <path d={geometry.crust} fill="url(#dl-crust)" />
-      <path d={geometry.topFace} fill="url(#dl-crustTop)" opacity="0.92" />
-    </>
-  );
-}
-
 function EarthDetails({ lines, speckles }) {
   return (
     <>
@@ -41,10 +26,14 @@ function EarthDetails({ lines, speckles }) {
   );
 }
 
+/**
+ * Die Masse selbst: eine einzige Fläche, die über die Nachbarn hinausragt.
+ * Kein Sockel, keine Kante — dadurch verschwindet das Raster.
+ */
 export function EarthSlab({ geometry }) {
   return (
     <>
-      <EarthFaces geometry={geometry} />
+      <path d={geometry.mass} fill="url(#dl-earthMass)" />
       <EarthDetails lines={geometry.handLines} speckles={geometry.speckles} />
     </>
   );

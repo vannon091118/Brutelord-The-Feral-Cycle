@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { TILE_SIZE, computeWorldScale, worldPixelSize } from '../domain/world/world-config.js';
+import { TILE_SIZE, computeWorldScale, viewportPixelSize } from '../domain/world/world-config.js';
 
 /**
- * Messt die verfügbare Spielfläche und liefert den Skalierungsfaktor.
- * Auf Desktop bleiben die Tiles 64px, auf schmalen Geräten schrumpft die Welt
- * proportional (Tiles landen bei etwa 48–56px). Keine horizontale Scrollbar.
+ * Misst die verfügbare Spielfläche und liefert Skalierung und Sichtfeld.
+ * Auf Desktop bleiben die Tiles 64px, auf schmalen Geräten schrumpft das
+ * Sichtfeld proportional (Tiles landen bei etwa 48–56px). Keine Scrollbar.
  */
 export function useStageScale(tileSize = TILE_SIZE) {
   const [node, setNode] = useState(null);
@@ -30,5 +30,5 @@ export function useStageScale(tileSize = TILE_SIZE) {
     tileSize,
   });
 
-  return { attach, scale, tileSize, world: worldPixelSize(tileSize) };
+  return { attach, scale, tileSize, stage: viewportPixelSize(tileSize) };
 }

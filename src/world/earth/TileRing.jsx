@@ -6,15 +6,11 @@ function ringAppearance({ highlighted, selected, working, interactive, hovered, 
   return softHint ? { stroke: 'var(--color-bone-300)', opacity: 0.16, width: 1.2, dashed: false } : null;
 }
 
-function PulseRing({ geometry, side }) {
+function PulseRing({ geometry }) {
   return (
-    <rect
+    <path
       className="dl-anim dl-ring-pulse"
-      x={geometry.x + 1}
-      y={geometry.y + 1}
-      width={side}
-      height={side}
-      rx="7"
+      d={geometry.mass}
       fill="none"
       stroke="var(--color-core-400)"
       strokeWidth="1.5"
@@ -23,14 +19,10 @@ function PulseRing({ geometry, side }) {
   );
 }
 
-function StaticRing({ geometry, side, appearance }) {
+function StaticRing({ geometry, appearance }) {
   return (
-    <rect
-      x={geometry.x + 1}
-      y={geometry.y + 1}
-      width={side}
-      height={side}
-      rx="7"
+    <path
+      d={geometry.mass}
       fill="none"
       stroke={appearance.stroke}
       strokeWidth={appearance.width}
@@ -56,11 +48,10 @@ function GlowHalo({ geometry, working }) {
 export function TileRing({ geometry, state }) {
   const appearance = ringAppearance(state);
   if (!appearance) return null;
-  const side = geometry.size - 2;
   return (
     <>
-      {state.highlighted ? <PulseRing geometry={geometry} side={side} /> : null}
-      <StaticRing geometry={geometry} side={side} appearance={appearance} />
+      {state.highlighted ? <PulseRing geometry={geometry} /> : null}
+      <StaticRing geometry={geometry} appearance={appearance} />
       {state.highlighted || state.working ? <GlowHalo geometry={geometry} working={state.working} /> : null}
     </>
   );

@@ -10,6 +10,9 @@ import { HitArea } from './earth/HitArea.jsx';
  * blockiert, bis es abgebaut ist. Die drei Zustände erzählen den Abbau ohne
  * Balken und ohne Zahlen: HEALTHY geschlossen, TOUCHED angekerbt,
  * CRITICAL rissig und instabil.
+ *
+ * Der Block ist keine Kachel, sondern ein Stück Gestein: Die Fläche ragt über
+ * die Grenzen hinweg und verschmilzt mit den Nachbarn.
  */
 export const EarthTile = memo(function EarthTile({ tile, size, highlighted, selected, working, interactive, softHint, onSelect }) {
   const [hovered, setHovered] = useState(false);
@@ -18,9 +21,6 @@ export const EarthTile = memo(function EarthTile({ tile, size, highlighted, sele
 
   return (
     <g>
-      {/* Sockel: schließt Fugen zwischen den Erdschollen */}
-      <rect x={geometry.x} y={geometry.y} width={size} height={size} fill="var(--color-soil-850)" />
-
       <g className={geometry.shiver ? 'dl-anim dl-shiver' : undefined}>
         <EarthSlab geometry={geometry} />
         <EarthDamage geometry={geometry} />

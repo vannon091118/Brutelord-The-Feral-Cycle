@@ -41,10 +41,10 @@ export const ONBOARDING_CONFIG = Object.freeze({
   earthStateThresholds: Object.freeze({ touched: 0.45, critical: 0.8 }),
 
   /** Startposition des ersten Dunglings: freigeschobener Hive-Eingang. */
-  dunglingSpawnTile: Object.freeze({ x: 2, y: 4 }),
+  dunglingSpawnTile: Object.freeze({ x: 31, y: 33 }),
 
   /** Blöcke in Sichtweite des Hive, die zuerst hervorgehoben werden. */
-  firstEarthBlock: Object.freeze({ x: 3, y: 4 }),
+  firstEarthBlock: Object.freeze({ x: 32, y: 33 }),
 
   /** Rein visuelle Partikelwerte (beeinflussen keinen Spielzustand). */
   particleBurstIntervalMs: 240,

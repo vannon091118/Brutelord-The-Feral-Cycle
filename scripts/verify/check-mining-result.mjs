@@ -7,13 +7,14 @@ import { check, section } from './expect.mjs';
 import { checkNextMine } from './check-next-mine.mjs';
 
 function checkHudAndWorker(state) {
+  const target = ONBOARDING_CONFIG.firstEarthBlock;
   check('Baumenü erst nach freiem Boden', state.buildMenuVisible && state.onboarding.state === ONBOARDING_STATE.BUILD_MENU_VISIBLE);
-  check('Dungling wartet auf neuem Boden', state.dungling.state === DUNGLING_STATE.IDLE && state.dungling.tile.x === 3 && state.dungling.tile.y === 4);
+  check('Dungling wartet auf neuem Boden', state.dungling.state === DUNGLING_STATE.IDLE && state.dungling.tile.x === target.x && state.dungling.tile.y === target.y);
 }
 
 export function checkMiningResult(run) {
   section('Freier Boden und Grid-Ausbau');
-  checkMinedTile(run.state, run.targetTileId);
+  checkMinedTile(run.state, run.targetTileId, run.earthBefore);
   checkHudAndWorker(run.state);
   check('Grid-Aufbau folgt der konfigurierten Pause', run.reachedAt.get(ONBOARDING_STATE.BUILD_MENU_VISIBLE) - run.reachedAt.get(ONBOARDING_STATE.TILE_DESTROYED) === ONBOARDING_CONFIG.tileDestructionMs + ONBOARDING_CONFIG.gridExpansionMs);
   checkNextMine(run.state);

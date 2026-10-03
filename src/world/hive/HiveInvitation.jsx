@@ -1,32 +1,47 @@
 /**
  * Die Einladung: solange der Hive noch nichts geboren hat, lädt er sichtbar
- * zum Klick ein — ohne Pfeil, ohne Text.
+ * zum Klick ein — ohne Pfeil, ohne Text. Auch sie pulst als Ring, aber rund:
+ * nichts in dieser Welt markiert eine Kachel.
  */
+function InvitationGlow({ cx, cy, tileSize }) {
+  return (
+    <circle
+      className="dl-anim dl-glow-pulse"
+      cx={cx}
+      cy={cy}
+      r={tileSize * 1.15}
+      fill="url(#dl-coreHalo)"
+      opacity="0.55"
+      style={{ pointerEvents: 'none' }}
+    />
+  );
+}
+
+function InvitationRing({ cx, cy, radius }) {
+  return (
+    <ellipse
+      className="dl-anim dl-ring-pulse"
+      cx={cx}
+      cy={cy}
+      rx={radius}
+      ry={radius * 0.86}
+      fill="none"
+      stroke="var(--color-core-400)"
+      strokeWidth="1.6"
+      opacity="0.5"
+      style={{ pointerEvents: 'none' }}
+    />
+  );
+}
+
 export function HiveInvitation({ hive, tileSize }) {
+  const cx = (hive.origin.x + hive.size.width / 2) * tileSize;
+  const cy = (hive.origin.y + hive.size.height / 2) * tileSize;
+
   return (
     <>
-      <circle
-        className="dl-anim dl-glow-pulse"
-        cx={(hive.origin.x + hive.size.width / 2) * tileSize}
-        cy={(hive.origin.y + hive.size.height / 2) * tileSize}
-        r={tileSize * 1.15}
-        fill="url(#dl-coreHalo)"
-        opacity="0.55"
-        style={{ pointerEvents: 'none' }}
-      />
-      <rect
-        className="dl-anim dl-ring-pulse"
-        x={hive.origin.x * tileSize - 6}
-        y={hive.origin.y * tileSize - 6}
-        width={tileSize * hive.size.width + 12}
-        height={tileSize * hive.size.height + 12}
-        rx="20"
-        fill="none"
-        stroke="var(--color-core-400)"
-        strokeWidth="1.6"
-        opacity="0.5"
-        style={{ pointerEvents: 'none' }}
-      />
+      <InvitationGlow cx={cx} cy={cy} tileSize={tileSize} />
+      <InvitationRing cx={cx} cy={cy} radius={tileSize * hive.size.width * 0.92} />
     </>
   );
 }

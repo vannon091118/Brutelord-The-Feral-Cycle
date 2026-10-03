@@ -56,32 +56,39 @@ function perimeterPoint({ t, minX, minY, maxX, maxY }) {
 }
 
 /**
+ * Die vier Ecken sind feste Stützpunkte. Ohne sie schneidet die weiche Kurve
+ * genau dort ein — und vier benachbarte Flächen lassen zwischen sich ein
+ * Loch in Form einer Raute.
+ */
+function blobPlaces(points) {
+  const corners = [0, 0.25, 0.5, 0.75];
+  const alongEdge = Array.from({ length: points }, (_, index) => (index + 0.5) / points);
+  return [...corners, ...alongEdge].sort((left, right) => left - right);
+}
+
+function blobPoint({ place, rng, inset, jitter, wobble, outward }, { x, y, size }) {
+  const t = place + (rng() - 0.5) * 0.03;
+  const p = perimeterPoint({
+    t,
+    minX: x + inset,
+    minY: y + inset,
+    maxX: x + size - inset,
+    maxY: y + size - inset,
+  });
+  const inward = jitter * (0.35 + rng() * 0.65) + wobble * rng() - outward;
+  return { x: p.x + p.nx * inward, y: p.y + p.ny * inward };
+}
+
+/**
  * Rundliche Erdfläche: ein Rechteck, dessen Rand unregelmäßig nach innen
  * gezogen wird. `inset` bestimmt, wie viel Rand bleibt, `jitter` wie wild.
+ * `outward` schiebt den Rand zusätzlich nach außen — damit wachsen Flächen
+ * über ihre Kachel hinaus und verschmelzen ohne Fuge mit den Nachbarn.
  */
-export function soilBlob({
-  x,
-  y,
-  size,
-  inset = 3,
-  jitter = 3.2,
-  points = 7,
-  seed = 1,
-  wobble = 0,
-}) {
+export function soilBlob({ x, y, size, inset = 3, jitter = 3.2, points = 7, seed = 1, wobble = 0, outward = 0 }) {
   const rng = makeRng(seed);
-  const minX = x + inset;
-  const minY = y + inset;
-  const maxX = x + size - inset;
-  const maxY = y + size - inset;
-  const pts = [];
-  for (let i = 0; i < points; i += 1) {
-    const t = i / points + (rng() - 0.5) * 0.04;
-    const p = perimeterPoint({ t, minX, minY, maxX, maxY });
-    const inward = jitter * (0.35 + rng() * 0.65) + wobble * rng();
-    pts.push({ x: p.x + p.nx * inward, y: p.y + p.ny * inward });
-  }
-  return smoothClosedPath(pts);
+  const tuning = { rng, inset, jitter, wobble, outward };
+  return smoothClosedPath(blobPlaces(points).map((place) => blobPoint({ place, ...tuning }, { x, y, size })));
 }
 
 /** Kleine Körner und Kiesel im Erdblock. */

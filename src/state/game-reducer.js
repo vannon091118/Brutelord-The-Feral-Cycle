@@ -10,6 +10,7 @@ import { reduceDungling } from './reducers/dungling-reducer.js';
 import { reduceSelection } from './reducers/selection-reducer.js';
 import { reduceMining } from './reducers/mining-reducer.js';
 import { reduceExpansion } from './reducers/expansion-reducer.js';
+import { reduceRooting } from './reducers/rooting-reducer.js';
 
 const DOMAIN_REDUCERS = [
   reduceHive,
@@ -17,6 +18,7 @@ const DOMAIN_REDUCERS = [
   reduceSelection,
   reduceMining,
   reduceExpansion,
+  reduceRooting,
 ];
 
 export function gameReducer(state, action) {

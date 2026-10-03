@@ -3,12 +3,19 @@
  * Dungling-Zustände, Erd-Fortschritt und Ticks werden mitgeschrieben.
  */
 import { ACTION } from '../../src/domain/actions/action-types.js';
+import { ONBOARDING_CONFIG } from '../../src/domain/onboarding/onboarding-config.js';
 import { ONBOARDING_STATE } from '../../src/domain/onboarding/onboarding-state.js';
-import { getTile } from '../../src/domain/world/grid.js';
-import { TILE_KIND } from '../../src/domain/world/tile.js';
+import { allTiles, getTile } from '../../src/domain/world/grid.js';
+import { TILE_KIND, tileId } from '../../src/domain/world/tile.js';
 import { VirtualClock } from './virtual-clock.mjs';
 
-const TARGET_TILE = '3,4';
+/** Das Zielfeld kommt aus der Config — verschiebt sich der Hive, wandert es mit. */
+const TARGET_TILE = tileId(ONBOARDING_CONFIG.firstEarthBlock.x, ONBOARDING_CONFIG.firstEarthBlock.y);
+
+/** Erdblöcke im Startzustand — unabhängig von der Größe des Rasters. */
+function countEarth(world) {
+  return allTiles(world).filter((tile) => tile.kind === TILE_KIND.EARTH).length;
+}
 
 function makeObserver(records) {
   return {
@@ -37,6 +44,7 @@ function observeDispatch(state, now, records) {
 export function runSlice() {
   const records = { reachedAt: new Map(), dunglingStates: [], earthHealth: [], ticks: [] };
   const clock = new VirtualClock(makeObserver(records));
+  const earthBefore = countEarth(clock.state.world);
 
   clock.dispatch(ACTION.HIVE_CLICKED);
   const readyForPlayer = clock.runUntil(ONBOARDING_STATE.TILE_SELECTION);
@@ -46,5 +54,5 @@ export function runSlice() {
   clock.dispatch(ACTION.MINING_ORDERED);
   clock.run();
 
-  return { clock, state: clock.state, targetTileId: TARGET_TILE, readyForPlayer, highlightedTileId, ...records };
+  return { clock, state: clock.state, targetTileId: TARGET_TILE, readyForPlayer, highlightedTileId, earthBefore, ...records };
 }

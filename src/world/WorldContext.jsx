@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import { scatterRocks } from './tile-shapes.js';
+import { WorldDefs } from './WorldDefs.jsx';
 
 function RockField({ rocks }) {
   return rocks.map((rock) => (
@@ -16,29 +16,24 @@ function RockField({ rocks }) {
   ));
 }
 
-function GridFrame({ width, height }) {
+/** Unerforschte Masse: dunkel, körnig, ohne Kanten. */
+function UnchartedRock({ camera }) {
   return (
-    <rect
-      x="-3"
-      y="-3"
-      width={width + 6}
-      height={height + 6}
-      rx="16"
-      fill="none"
-      stroke="var(--color-soil-950)"
-      strokeWidth="10"
-      opacity="0.4"
-    />
+    <>
+      <rect x={camera.x} y={camera.y} width={camera.width} height={camera.height} fill="var(--color-soil-950)" />
+      <rect x={camera.x} y={camera.y} width={camera.width} height={camera.height} fill="url(#dl-grit)" opacity="0.45" />
+      <RockField rocks={scatterRocks({ seed: 0x51a3b7, minX: camera.x + 8, minY: camera.y + 8, maxX: camera.x + camera.width - 8, maxY: camera.y + camera.height - 8, count: 34 })} />
+    </>
   );
 }
 
-function BackgroundHitArea({ bleed, width, height, onClick }) {
+function BackgroundHitArea({ camera, onClick }) {
   return (
     <rect
-      x={-bleed}
-      y={-bleed}
-      width={width}
-      height={height}
+      x={camera.x}
+      y={camera.y}
+      width={camera.width}
+      height={camera.height}
       fill="transparent"
       onClick={onClick}
     />
@@ -47,28 +42,25 @@ function BackgroundHitArea({ bleed, width, height, onClick }) {
 
 /** Die unbearbeitete Erde, Kulisse und Auswahl-Hintergrund. */
 export function WorldContext({ view, onBackgroundClick }) {
-  const { bleed, width, height } = view.size;
-  const rocks = useMemo(() => makeWorldRocks(view), [view]);
-
   return (
     <>
-      <rect x={-bleed} y={-bleed} width={width} height={height} fill="url(#dl-rawSoil)" />
-      <rect x={-bleed} y={-bleed} width={width} height={height} fill="url(#dl-grit)" opacity="0.5" />
-      <RockField rocks={rocks} />
-      <GridFrame width={view.gridWidth} height={view.gridHeight} />
-      <BackgroundHitArea bleed={bleed} width={width} height={height} onClick={onBackgroundClick} />
+      <WorldDefs camera={view.camera} />
+      <UnchartedRock camera={view.camera} />
+      <BackgroundHitArea camera={view.camera} onClick={onBackgroundClick} />
     </>
   );
 }
 
-function makeWorldRocks(view) {
-  const { bleed } = view.size;
-  return scatterRocks({
-    seed: 0x51a3b7,
-    minX: -bleed + 5,
-    minY: -bleed + 5,
-    maxX: view.gridWidth + bleed - 5,
-    maxY: view.gridHeight + bleed - 5,
-    count: 26,
-  });
+/** Der Rand des Bildes: die Höhle verliert sich, das Sichtfeld ist begrenzt. */
+export function WorldVignette({ camera }) {
+  return (
+    <rect
+      x={camera.x}
+      y={camera.y}
+      width={camera.width}
+      height={camera.height}
+      fill="url(#dl-vignette)"
+      style={{ pointerEvents: 'none' }}
+    />
+  );
 }

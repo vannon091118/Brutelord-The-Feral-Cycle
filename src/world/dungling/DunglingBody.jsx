@@ -1,36 +1,67 @@
-function BodyShell() {
+/**
+ * Der Körper ist kein Arbeiter, sondern ein Geschwur: eine weiche, lappige
+ * Verdickung, die aus dem Hive wächst. Kein Gesicht, kein Lächeln — eine
+ * Narbe, ein paar Adern und ein Kern, der durch die Haut schimmert.
+ */
+function BudShell() {
   return (
-    <path d="M0,-17.4 C-7.6,-17.4 -12.3,-11.6 -12.6,-4 C-13,3.6 -7.7,9.8 0,9.8 C7.7,9.8 13,3.6 12.6,-4 C12.3,-11.6 7.6,-17.4 0,-17.4 Z" fill="url(#dl-body)" />
+    <path
+      d="M0,-19 C-9.4,-18.4 -14.2,-10.6 -13.4,-2.2 C-12.8,5.6 -7,11 0,11 C7,11 12.8,5.6 13.4,-2.2 C14.2,-10.6 9.4,-18.4 0,-19 Z"
+      fill="url(#dl-bud)"
+    />
   );
 }
 
-function BackPlates() {
+function BudLobes({ lobes }) {
+  return lobes.map((lobe) => (
+    <ellipse
+      key={`lobe-${lobe.cx}-${lobe.cy}`}
+      cx={lobe.cx}
+      cy={lobe.cy}
+      rx={lobe.r}
+      ry={lobe.r * 0.78}
+      fill="var(--color-hive-500)"
+      opacity={lobe.opacity}
+    />
+  ));
+}
+
+function BudVeins() {
+  return (
+    <g stroke="var(--color-hive-400)" strokeWidth="1.1" fill="none" opacity="0.55" strokeLinecap="round">
+      <path d="M-1.4,-15.4 C-3.6,-11 -2.6,-7.4 -4.4,-3.4" />
+      <path d="M3.2,-14.2 C5.6,-10.4 4.2,-6.6 6.6,-2.8" />
+      <path d="M-7.6,-9.4 C-4.6,-8.2 -2.2,-7.4 0.6,-6.2" />
+    </g>
+  );
+}
+
+function BudCore() {
   return (
     <>
-      <path d="M-11.4,-9 C-13.6,-10.4 -14,-13.4 -12.2,-14.6 C-10.4,-15.8 -8.4,-14.4 -8.6,-12.2 Z" fill="var(--color-soil-700)" opacity="0.55" />
-      <path d="M11.4,-9 C13.6,-10.4 14,-13.4 12.2,-14.6 C10.4,-15.8 8.4,-14.4 8.6,-12.2 Z" fill="var(--color-soil-700)" opacity="0.45" />
+      <ellipse cx="0.4" cy="-1.6" rx="4.6" ry="5.2" fill="url(#dl-coreHalo)" opacity="0.9" />
+      <ellipse cx="0.4" cy="-1.6" rx="2" ry="2.4" fill="var(--color-core-400)" opacity="0.85" />
     </>
   );
 }
 
-function BellyAndGlint() {
+function BudSkin() {
   return (
     <>
-      <path d="M0,-2.4 C-7.8,-2.4 -10.2,2 -8.2,6 C-6.2,9.6 6.2,9.6 8.2,6 C10.2,2 7.8,-2.4 0,-2.4 Z" fill="var(--color-bone-200)" opacity="0.24" />
-      <ellipse cx="-5" cy="-10.4" rx="4.4" ry="2.6" fill="var(--color-bone-100)" opacity="0.18" transform="rotate(-24 -5 -10.4)" />
+      <ellipse cx="-5.4" cy="-11" rx="4.2" ry="2.6" fill="var(--color-hive-300)" opacity="0.22" transform="rotate(-26 -5.4 -11)" />
+      <path d="M-11.4,-1.4 C-6.4,3.4 6.4,3.4 11.4,-1.4" fill="none" stroke="var(--color-hive-800)" strokeWidth="2" opacity="0.4" />
     </>
   );
 }
 
-function Arms() {
+export function DunglingBody({ lobes }) {
   return (
     <>
-      <path d="M-11.6,-2.4 C-14.6,-0.4 -15.2,2.6 -13.4,4.4" fill="none" stroke="var(--color-clay-600)" strokeWidth="3" strokeLinecap="round" />
-      <path d="M11.6,-2.4 C14.4,-0.8 15,1.6 13.6,3.4" fill="none" stroke="var(--color-clay-600)" strokeWidth="3" strokeLinecap="round" />
+      <BudShell />
+      <BudLobes lobes={lobes} />
+      <BudSkin />
+      <BudVeins />
+      <BudCore />
     </>
   );
-}
-
-export function DunglingBody() {
-  return <><BodyShell /><BackPlates /><BellyAndGlint /><Arms /></>;
 }

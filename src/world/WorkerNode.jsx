@@ -8,11 +8,12 @@ import { MiningParticles } from './MiningParticles.jsx';
  */
 export const WorkerNode = memo(function WorkerNode({ dungling, position, tileSize, mining, working }) {
   if (!dungling || !position) return null;
+  const step = mining?.tick ?? 0;
 
   return (
     <>
-      <DunglingSvg dungling={dungling} tileSize={tileSize} x={position.x} y={position.y} />
-      <MiningParticles origin={position} tick={mining?.tick ?? 0} active={working} />
+      <DunglingSvg dungling={dungling} tileSize={tileSize} x={position.x} y={position.y} step={step} />
+      <MiningParticles origin={position} tick={step} active={working} />
     </>
   );
 });

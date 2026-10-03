@@ -5,41 +5,35 @@ function Pebbles({ pebbles }) {
       cx={pebble.cx}
       cy={pebble.cy}
       r={pebble.r * 0.85}
-      fill={pebble.tone === 'light' ? 'var(--color-soil-400)' : 'var(--color-soil-950)'}
-      opacity="0.42"
+      fill={pebble.tone === 'light' ? 'var(--color-bone-100)' : 'var(--color-soil-950)'}
+      opacity="0.38"
     />
   ));
 }
 
-function FloorGlow({ geometry }) {
+function FloorLight({ geometry }) {
   return (
     <circle
       className="dl-anim dl-floor-light"
       cx={geometry.center.x}
       cy={geometry.center.y}
-      r={geometry.size * 0.38}
+      r={geometry.size * 0.46}
       fill="url(#dl-floorLight)"
-      opacity="0.4"
+      opacity={geometry.burrow ? 0.28 : 0.42}
     />
   );
 }
 
-function FloorBase({ geometry }) {
-  return (
-    <>
-      <rect x={geometry.x} y={geometry.y} width={geometry.size} height={geometry.size} fill="var(--color-soil-850)" />
-      <path d={geometry.pack} fill="url(#dl-floor)" />
-      <circle cx={geometry.center.x} cy={geometry.center.y} r={geometry.size * 0.44} fill="url(#dl-floorLight)" opacity={geometry.burrow ? 0.3 : 0.5} />
-    </>
-  );
-}
-
+/**
+ * Der freigelegte Boden. Eine einzige Fläche aus hellem Stein, die über die
+ * Nachbarn hinausragt — der Raum wächst als Höhle, nicht als Raster.
+ */
 export function FloorGround({ geometry }) {
   return (
     <>
-      <FloorBase geometry={geometry} />
-      <Pebbles pebbles={geometry.pebbles} />
-      {geometry.burrow ? null : <FloorGlow geometry={geometry} />}
+      <path d={geometry.mass} fill={geometry.fill} />
+      <Pebbles pebbles={geometry.grit} />
+      <FloorLight geometry={geometry} />
     </>
   );
 }

@@ -1,15 +1,18 @@
 /**
  * Das Grid ist ein 2D-Vogelblick-Raster. Ein Tile pro Koordinate — kein Tile
- * existiert doppelt, keines hat zwei Zustände.
+ * existiert doppelt, keines hat zwei Zustände. Das Raster ist groß und fein;
+ * sichtbar ist davon nur, was die Verwurzelung freigelegt hat.
  */
 import {
   GRID_HEIGHT,
   GRID_WIDTH,
   HIVE_ORIGIN,
   HIVE_SIZE,
+  LADDER_TILE,
 } from './world-config.js';
 import {
   FLOOR_ORIGIN,
+  TILE_VISIBILITY,
   createEarthTile,
   createFloorTile,
   createHiveTile,
@@ -17,6 +20,7 @@ import {
   parseTileId,
   tileId,
 } from './tile.js';
+import { revealWorld } from './reveal.js';
 import { ONBOARDING_CONFIG } from '../onboarding/onboarding-config.js';
 
 /**
@@ -47,7 +51,15 @@ function tileForCell({ x, y, hiveOrigin, spawnTile }) {
   if (spawnTile && x === spawnTile.x && y === spawnTile.y) {
     return createFloorTile(x, y, FLOOR_ORIGIN.HIVE_BURROW);
   }
-  return createEarthTile(x, y);
+  return { ...createEarthTile(x, y), visibility: TILE_VISIBILITY.HIDDEN };
+}
+
+function hiveAnchorIds(hiveOrigin) {
+  const ids = [];
+  for (let y = hiveOrigin.y; y < hiveOrigin.y + HIVE_SIZE.height; y += 1) {
+    for (let x = hiveOrigin.x; x < hiveOrigin.x + HIVE_SIZE.width; x += 1) ids.push({ x, y });
+  }
+  return ids;
 }
 
 export function createWorld({
@@ -64,13 +76,16 @@ export function createWorld({
     }
   }
 
-  return {
+  const world = {
     width,
     height,
     hiveOrigin: { ...hiveOrigin },
     spawnTileId: spawnTile ? tileId(spawnTile.x, spawnTile.y) : null,
+    entrance: { ...LADDER_TILE },
     tiles,
   };
+
+  return revealWorld(world, [...hiveAnchorIds(hiveOrigin), ...(spawnTile ? [spawnTile] : [])]);
 }
 
 export function getTile(world, id) {

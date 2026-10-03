@@ -19,4 +19,6 @@ export const ACTION = Object.freeze({
   MINING_COMPLETED: 'MINING_COMPLETED',
   GRID_EXPANDED: 'GRID_EXPANDED',
   BUILD_MENU_SHOWN: 'BUILD_MENU_SHOWN',
+  /** Takt der Verwurzelung: Farbe fadet, Tentakel kriechen, Felder werden frei. */
+  ROOTING_TICK: 'ROOTING_TICK',
 });

@@ -2,8 +2,9 @@
  * Ein Tile ist ein einziges, klar beschriebenes Datenobjekt.
  * Es gibt keine zweite Wahrheit: kein Tile liegt gleichzeitig in zwei Arrays
  * mit unterschiedlichem Zustand. Erde, Sichtbarkeit und Nutzbarkeit stehen
- * ausschließlich hier.
+ * ausschließlich hier — und die Verwurzelung, die der Hive darüber legt.
  */
+import { ROOTING_PHASE, createRooting } from './rooting.js';
 
 /** Was ist dieses Feld? */
 export const TILE_KIND = Object.freeze({
@@ -56,6 +57,7 @@ export function createEarthTile(x, y) {
     usability: TILE_USABILITY.UNUSABLE,
     earthHealth: EARTH_HEALTH.HEALTHY,
     floorOrigin: null,
+    rooting: createRooting(),
   };
 }
 
@@ -69,6 +71,8 @@ export function createHiveTile(x, y) {
     usability: TILE_USABILITY.USABLE,
     earthHealth: EARTH_HEALTH.DESTROYED,
     floorOrigin: null,
+    /** Der Hive selbst ist der Ursprung: seine Felder sind immer eingenommen. */
+    rooting: createRooting(ROOTING_PHASE.CLAIMED),
   };
 }
 
@@ -82,6 +86,8 @@ export function createFloorTile(x, y, origin = FLOOR_ORIGIN.MINED) {
     usability: TILE_USABILITY.USABLE,
     earthHealth: EARTH_HEALTH.DESTROYED,
     floorOrigin: origin,
+    /** Der Hive-Eingang gehört ihm von Anfang an. */
+    rooting: createRooting(origin === FLOOR_ORIGIN.HIVE_BURROW ? ROOTING_PHASE.CLAIMED : ROOTING_PHASE.DARK),
   };
 }
 
@@ -105,4 +111,8 @@ export function isBuildable(tile) {
 
 export function withEarthHealth(tile, earthHealth) {
   return { ...tile, earthHealth };
+}
+
+export function withRooting(tile, rooting) {
+  return { ...tile, rooting };
 }

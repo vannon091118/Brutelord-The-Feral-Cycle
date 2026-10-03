@@ -25,16 +25,7 @@ function LooseEarth({ pieces }) {
 }
 
 function DamageShade({ geometry, opacity }) {
-  return (
-    <rect
-      x={geometry.x}
-      y={geometry.y}
-      width={geometry.size}
-      height={geometry.size}
-      fill="var(--color-soil-950)"
-      opacity={opacity}
-    />
-  );
+  return <path d={geometry.mass} fill="var(--color-soil-950)" opacity={opacity} />;
 }
 
 export function EarthDamage({ geometry }) {

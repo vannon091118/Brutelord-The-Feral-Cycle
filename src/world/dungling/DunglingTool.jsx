@@ -4,20 +4,22 @@ const STEP_DUST = [
   { cx: 6, r: 2.8, delay: '240ms' },
 ];
 
-function ToolHead() {
+/** Wurzelspitzen statt Werkzeug: drei Zähne, die ins Gestein greifen. */
+function RootTeeth() {
   return (
-    <>
-      <path d="M0,0 l-5.6,5.4" fill="none" stroke="var(--color-soil-700)" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M-8.6,3.6 l4.6,-1.6 2.4,4.2 -5.2,1.4 z" fill="var(--color-bone-300)" />
-      <path d="M-8.6,3.6 l4.6,-1.6 0.9,1.6 -4.6,1.6 z" fill="var(--color-soil-300)" opacity="0.8" />
-    </>
+    <g>
+      <path d="M-9,1.6 C-6.6,2.4 -5.4,4.2 -4.6,6.4" fill="none" stroke="var(--color-hive-600)" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M-4.8,7 L-1.6,5.6 -1,9 -4.4,9.6 Z" fill="var(--color-bone-300)" />
+      <path d="M-11.4,5.2 L-8.8,4.4 -8.2,7.8 -11,8.4 Z" fill="var(--color-bone-200)" opacity="0.85" />
+      <path d="M-7.6,10 L-4.8,9.4 -4.4,12 -7.2,12.4 Z" fill="var(--color-bone-300)" opacity="0.7" />
+    </g>
   );
 }
 
 function Tool({ working }) {
   return (
-    <g className={working ? 'dl-anim dl-tool' : undefined} transform="translate(-14 3)" opacity={working ? 1 : 0.9}>
-      <ToolHead />
+    <g className={working ? 'dl-anim dl-tool' : undefined} transform="translate(-15 2)" opacity={working ? 1 : 0.85}>
+      <RootTeeth />
     </g>
   );
 }
@@ -38,7 +40,12 @@ function StepDust({ moving }) {
   ));
 }
 
-/** Knochen-Meißel und die kleine Staubspur beim Laufen. */
+/** Wurzelspitzen und die kleine Staubspur beim Kriechen. */
 export function DunglingTool({ working, moving }) {
-  return <><Tool working={working} /><StepDust moving={moving} /></>;
+  return (
+    <>
+      <Tool working={working} />
+      <StepDust moving={moving} />
+    </>
+  );
 }

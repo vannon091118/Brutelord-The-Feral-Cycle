@@ -21,6 +21,34 @@ function SoilGradients() {
   );
 }
 
+/**
+ * Erde und freigelegter Stein bekommen ihre Helligkeit aus einem einzigen
+ * Verlauf über das ganze Sichtfeld (userSpaceOnUse). Dadurch stoßen sich die
+ * Kacheln nicht mit sichtbaren Nähten ab — es bleibt eine durchgehende Masse.
+ */
+function CaveGradients({ camera }) {
+  const { x, y, width, height } = camera;
+  return (
+    <>
+      <linearGradient id="dl-earthMass" gradientUnits="userSpaceOnUse" x1={x} y1={y} x2={x} y2={y + height}>
+        <stop offset="0%" stopColor="var(--color-soil-800)" />
+        <stop offset="42%" stopColor="var(--color-soil-500)" />
+        <stop offset="100%" stopColor="var(--color-soil-800)" />
+      </linearGradient>
+      <linearGradient id="dl-bedStone" gradientUnits="userSpaceOnUse" x1={x} y1={y} x2={x} y2={y + height}>
+        <stop offset="0%" stopColor="var(--color-rock-500)" />
+        <stop offset="38%" stopColor="var(--color-rock-300)" />
+        <stop offset="100%" stopColor="var(--color-rock-600)" />
+      </linearGradient>
+      <linearGradient id="dl-hiveVeil" gradientUnits="userSpaceOnUse" x1={x} y1={y} x2={x} y2={y + height}>
+        <stop offset="0%" stopColor="var(--color-hive-500)" />
+        <stop offset="55%" stopColor="var(--color-hive-600)" />
+        <stop offset="100%" stopColor="var(--color-hive-800)" />
+      </linearGradient>
+    </>
+  );
+}
+
 function LightGradients() {
   return (
     <>
@@ -62,6 +90,11 @@ function CharacterGradients() {
         <stop offset="0%" stopColor="var(--color-clay-500)" />
         <stop offset="100%" stopColor="var(--color-clay-600)" />
       </linearGradient>
+      <linearGradient id="dl-bud" x1="0.25" y1="0" x2="0.6" y2="1">
+        <stop offset="0%" stopColor="var(--color-hive-400)" />
+        <stop offset="55%" stopColor="var(--color-hive-600)" />
+        <stop offset="100%" stopColor="var(--color-hive-800)" />
+      </linearGradient>
     </>
   );
 }
@@ -89,10 +122,11 @@ function AtmosphereDefs() {
 }
 
 /** Farbverläufe und Filter der SVG-Welt. */
-export function WorldDefs() {
+export function WorldDefs({ camera }) {
   return (
     <defs>
       <SoilGradients />
+      <CaveGradients camera={camera} />
       <LightGradients />
       <CharacterGradients />
       <AtmosphereDefs />
