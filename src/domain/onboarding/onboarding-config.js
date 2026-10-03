@@ -1,32 +1,53 @@
 /**
- * All timing of the slice is configuration.
- * Components must never invent durations - they read them from here.
+ * Alle Zeiten und Tuning-Werte des Onboardings an einem Ort.
+ * Keine Komponente darf eigene Magic Numbers für den Spielablauf benutzen —
+ * Reducer und Engine lesen ausschließlich hier.
  */
-export const ONBOARDING_CONFIG = {
-  /** Hive mutation reaction after the first click. */
-  hiveMutationMs: 1100,
+export const ONBOARDING_CONFIG = Object.freeze({
+  /** Kurze Reaktion direkt beim Klick: der Hive sackt zusammen, Klick sitzt. */
+  hiveHitDurationMs: 320,
 
-  /** The first dungling appears exactly this long after the hive finished mutating. */
+  /** Danach die große Mutationsphase: Puls, Kern öffnet sich, Partikel. */
+  hiveMutationDurationMs: 900,
+
+  /** Genau 5 Sekunden nach dem Klick erscheint der erste Dungling. */
   dunglingSpawnDelayMs: 5000,
 
-  /** The dungling walks to the selected tile. */
+  /** Wie lange der Dungling sichtbar aus dem Boden kriecht. */
+  dunglingEmergeMs: 600,
+
+  /** Kurze Ruhe, danach wird der nächste sinnvolle Erdblock hervorgehoben. */
+  dunglingSettleMs: 500,
+
+  /** Der Dungling läuft sichtbar zum gewählten Tile. */
   workerMoveDurationMs: 500,
 
-  /** How long the worker digs one earth block. */
+  /** Dauer des Abbaus (0 → 100 %). */
   miningDurationMs: 3500,
 
-  /** Simulation step used to advance mining. */
+  /** Sim-Uhr des Abbaus: jeder Tick ist ein definierter Fortschrittsschritt. */
   miningTickMs: 100,
 
-  /** The crumbled earth block falls apart... */
-  tileDestroyedPauseMs: 700,
+  /** Nach dem Zerfall liegt der neue Boden kurz still, bevor das Grid wächst. */
+  tileDestructionMs: 700,
 
-  /** ...before it counts as usable dungeon floor. */
-  gridExpandDelayMs: 260,
+  /** Das Grid wächst sichtbar, danach erscheint erst das Baumenü. */
+  gridExpansionMs: 600,
 
-  /** Small beat before the build menu slides in. */
-  buildMenuDelayMs: 420,
+  /**
+   * Erd-Zustände als Anteil des Fortschritts:
+   * 0–45 % HEALTHY, 45–80 % TOUCHED, 80–100 % CRITICAL.
+   */
+  earthStateThresholds: Object.freeze({ touched: 0.45, critical: 0.8 }),
 
-  /** Ambient life. */
-  idleLoopMs: 2600,
-};
+  /** Startposition des ersten Dunglings: freigeschobener Hive-Eingang. */
+  dunglingSpawnTile: Object.freeze({ x: 2, y: 4 }),
+
+  /** Blöcke in Sichtweite des Hive, die zuerst hervorgehoben werden. */
+  firstEarthBlock: Object.freeze({ x: 3, y: 4 }),
+
+  /** Rein visuelle Partikelwerte (beeinflussen keinen Spielzustand). */
+  particleBurstIntervalMs: 240,
+  particleLifetimeMs: 950,
+  particlesPerBurst: 4,
+});

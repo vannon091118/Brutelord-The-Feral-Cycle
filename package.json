@@ -3,20 +3,26 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Dungeon Lord - first playable slice: hive, dungling, mining, grid expansion, build menu.",
+  "description": "Dungeon Lord — erster spielbarer Slice: Hive, Dungling, Erde abbauen, Boden gewinnen.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify": "node scripts/verify-slice.mjs",
+    "gate": "node scripts/ci-gate.mjs",
+    "version:check": "node scripts/version.mjs check",
+    "version:bump": "node scripts/version.mjs bump",
+    "version:sync": "node scripts/version.mjs sync",
+    "verify:commits": "node scripts/verify-commit-gate.mjs"
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.14",
-    "@vitejs/plugin-react": "^5.0.4",
-    "tailwindcss": "^4.1.14",
-    "vite": "^7.1.9"
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.1.1",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.2"
   }
 }

@@ -1,65 +1,108 @@
-import { TILE_SIZE } from './world-config.js';
+/**
+ * Ein Tile ist ein einziges, klar beschriebenes Datenobjekt.
+ * Es gibt keine zweite Wahrheit: kein Tile liegt gleichzeitig in zwei Arrays
+ * mit unterschiedlichem Zustand. Erde, Sichtbarkeit und Nutzbarkeit stehen
+ * ausschließlich hier.
+ */
 
-export const TILE_KIND = {
-  EARTH: 'earth',
-  HIVE: 'hive',
-  FLOOR: 'floor',
-};
+/** Was ist dieses Feld? */
+export const TILE_KIND = Object.freeze({
+  EARTH: 'EARTH',
+  HIVE: 'HIVE',
+  DUNGEON_FLOOR: 'DUNGEON_FLOOR',
+});
 
-/** The three visible states of an earth block. */
-export const EARTH_PHASE = {
-  HEALTHY: 'healthy',
-  TOUCHED: 'touched',
-  CRITICAL: 'critical',
-};
+/** Sichtbar heißt nicht nutzbar. Erde ist sichtbar, aber kein Bauplatz. */
+export const TILE_VISIBILITY = Object.freeze({
+  VISIBLE: 'VISIBLE',
+  HIDDEN: 'HIDDEN',
+});
 
-/** Progress thresholds that map mining progress to a visible earth phase. */
-export const PHASE_THRESHOLDS = {
-  TOUCHED: 0.45,
-  CRITICAL: 0.8,
-};
+export const TILE_USABILITY = Object.freeze({
+  USABLE: 'USABLE',
+  UNUSABLE: 'UNUSABLE',
+});
 
-export function createTile(id, x, y, kind, variant) {
+/** Sichtbare Zustände eines Erdblocks. */
+export const EARTH_HEALTH = Object.freeze({
+  HEALTHY: 'HEALTHY',
+  TOUCHED: 'TOUCHED',
+  CRITICAL: 'CRITICAL',
+  DESTROYED: 'DESTROYED',
+});
+
+/** Woher kommt ein freier Boden? */
+export const FLOOR_ORIGIN = Object.freeze({
+  HIVE_BURROW: 'HIVE_BURROW',
+  MINED: 'MINED',
+});
+
+export function tileId(x, y) {
+  return `${x},${y}`;
+}
+
+export function parseTileId(id) {
+  const [x, y] = id.split(',').map(Number);
+  return { x, y };
+}
+
+export function createEarthTile(x, y) {
   return {
-    id,
+    id: tileId(x, y),
     x,
     y,
-    kind,
-    variant,
-    buildable: false,
-    mining: {
-      active: false,
-      progress: 0,
-      phase: EARTH_PHASE.HEALTHY,
-      collapsing: false,
-    },
+    kind: TILE_KIND.EARTH,
+    visibility: TILE_VISIBILITY.VISIBLE,
+    usability: TILE_USABILITY.UNUSABLE,
+    earthHealth: EARTH_HEALTH.HEALTHY,
+    floorOrigin: null,
   };
 }
 
-export function isEarthTile(tile) {
+export function createHiveTile(x, y) {
+  return {
+    id: tileId(x, y),
+    x,
+    y,
+    kind: TILE_KIND.HIVE,
+    visibility: TILE_VISIBILITY.VISIBLE,
+    usability: TILE_USABILITY.USABLE,
+    earthHealth: EARTH_HEALTH.DESTROYED,
+    floorOrigin: null,
+  };
+}
+
+export function createFloorTile(x, y, origin = FLOOR_ORIGIN.MINED) {
+  return {
+    id: tileId(x, y),
+    x,
+    y,
+    kind: TILE_KIND.DUNGEON_FLOOR,
+    visibility: TILE_VISIBILITY.VISIBLE,
+    usability: TILE_USABILITY.USABLE,
+    earthHealth: EARTH_HEALTH.DESTROYED,
+    floorOrigin: origin,
+  };
+}
+
+export function isEarth(tile) {
   return tile.kind === TILE_KIND.EARTH;
 }
 
-export function isFloorTile(tile) {
-  return tile.kind === TILE_KIND.FLOOR;
+export function isVisible(tile) {
+  return tile.visibility === TILE_VISIBILITY.VISIBLE;
 }
 
-export function isHiveTile(tile) {
-  return tile.kind === TILE_KIND.HIVE;
+/** Nutzbarer Raum: fertiger Boden oder der Hive selbst. */
+export function isUsable(tile) {
+  return tile.usability === TILE_USABILITY.USABLE;
 }
 
-/** Tile units (fractional) of the tile centre. */
-export function tileCenter(tile) {
-  return { x: tile.x + 0.5, y: tile.y + 0.5 };
+/** Nur fertiger Boden kann später ein Objekt aufnehmen. */
+export function isBuildable(tile) {
+  return tile.kind === TILE_KIND.DUNGEON_FLOOR;
 }
 
-/** SVG user units of the tile centre. */
-export function tileCenterPx(tile) {
-  return { x: (tile.x + 0.5) * TILE_SIZE, y: (tile.y + 0.5) * TILE_SIZE };
-}
-
-export function phaseForProgress(progress) {
-  if (progress >= PHASE_THRESHOLDS.CRITICAL) return EARTH_PHASE.CRITICAL;
-  if (progress >= PHASE_THRESHOLDS.TOUCHED) return EARTH_PHASE.TOUCHED;
-  return EARTH_PHASE.HEALTHY;
+export function withEarthHealth(tile, earthHealth) {
+  return { ...tile, earthHealth };
 }

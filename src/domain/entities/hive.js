@@ -1,25 +1,37 @@
-import { HIVE_ORIGIN, HIVE_SIZE, TILE_SIZE } from '../world/world-config.js';
-
 /**
- * The hive is the centre of the world. It occupies exactly 2x2 tiles
- * and is owned by the hive, never by the player.
+ * Der Hive: 2x2 Tiles, Herz der Szene, Quelle der Dunglinge.
+ * Reine Daten + Übergänge, keine Darstellung.
  */
+import { HIVE_ORIGIN, HIVE_SIZE } from '../world/world-config.js';
 
-export const HIVE_BOUNDS = {
-  x: HIVE_ORIGIN.x * TILE_SIZE,
-  y: HIVE_ORIGIN.y * TILE_SIZE,
-  size: HIVE_SIZE * TILE_SIZE,
-};
+export const HIVE_PHASE = Object.freeze({
+  DORMANT: 'DORMANT',
+  MUTATING: 'MUTATING',
+  SETTLED: 'SETTLED',
+});
 
-export const HIVE_CENTER_PX = {
-  x: (HIVE_ORIGIN.x + HIVE_SIZE / 2) * TILE_SIZE,
-  y: (HIVE_ORIGIN.y + HIVE_SIZE / 2) * TILE_SIZE,
-};
+export function createHive(origin = HIVE_ORIGIN) {
+  return {
+    id: 'hive-1',
+    origin: { ...origin },
+    size: { ...HIVE_SIZE },
+    phase: HIVE_PHASE.DORMANT,
+    spawned: 0,
+  };
+}
 
-/** Centre of the hive expressed in tile units. */
-export const HIVE_CENTER_TILES = {
-  x: HIVE_ORIGIN.x + HIVE_SIZE / 2,
-  y: HIVE_ORIGIN.y + HIVE_SIZE / 2,
-};
+export function canMutate(hive) {
+  return hive.phase === HIVE_PHASE.DORMANT;
+}
 
-export const HIVE_ID = 'hive';
+export function startMutation(hive) {
+  return canMutate(hive) ? { ...hive, phase: HIVE_PHASE.MUTATING } : hive;
+}
+
+export function settleHive(hive) {
+  return { ...hive, phase: HIVE_PHASE.SETTLED };
+}
+
+export function isSettled(hive) {
+  return hive.phase === HIVE_PHASE.SETTLED;
+}

@@ -1,16 +1,22 @@
-/** Every state transition in the slice goes through one of these actions. */
-
-export const ACTION_TYPES = {
+/**
+ * Die Aktionen, die der zentrale Reducer versteht.
+ * UI löst Aktionen aus — sie entscheidet nicht selbst über Spielzustand.
+ */
+export const ACTION = Object.freeze({
+  /** Spieleraktionen */
   HIVE_CLICKED: 'HIVE_CLICKED',
-  HIVE_MUTATION_DONE: 'HIVE_MUTATION_DONE',
-  DUNGLING_SPAWNED: 'DUNGLING_SPAWNED',
   TILE_SELECTED: 'TILE_SELECTED',
-  ACTION_MENU_CLOSED: 'ACTION_MENU_CLOSED',
-  MINING_COMMAND: 'MINING_COMMAND',
-  MINING_STARTED: 'MINING_STARTED',
-  MINING_TICK: 'MINING_TICK',
+  TILE_SELECTION_CLEARED: 'TILE_SELECTION_CLEARED',
+  MINING_ORDERED: 'MINING_ORDERED',
+
+  /** Von der Sim-Uhr ausgelöste Übergänge (Timings kommen aus der Config) */
+  HIVE_MUTATION_SETTLED: 'HIVE_MUTATION_SETTLED',
+  DUNGLING_SPAWNED: 'DUNGLING_SPAWNED',
+  DUNGLING_EMERGED: 'DUNGLING_EMERGED',
+  DUNGLING_READY: 'DUNGLING_READY',
+  DUNGLING_REACHED_TILE: 'DUNGLING_REACHED_TILE',
+  MINING_PROGRESS: 'MINING_PROGRESS',
+  MINING_COMPLETED: 'MINING_COMPLETED',
   GRID_EXPANDED: 'GRID_EXPANDED',
   BUILD_MENU_SHOWN: 'BUILD_MENU_SHOWN',
-  BUILD_MENU_CLOSED: 'BUILD_MENU_CLOSED',
-  RESET: 'RESET',
-};
+});

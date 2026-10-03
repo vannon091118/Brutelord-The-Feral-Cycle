@@ -1,350 +1,267 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
+/* ------------------------------------------------------------------ Palette */
 @theme {
-  --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --color-soil-950: #120d08;
+  --color-soil-900: #1b1310;
+  --color-soil-850: #241a12;
+  --color-soil-800: #2e2116;
+  --color-soil-700: #3d2c1c;
+  --color-soil-600: #503a24;
+  --color-soil-500: #674c2e;
+  --color-soil-400: #83603a;
+  --color-soil-300: #a37a4c;
+
+  --color-clay-600: #8a5a34;
+  --color-clay-500: #a86f42;
+
+  --color-moss-600: #55632f;
+  --color-moss-500: #6c7c3e;
+
+  --color-hive-800: #2b1a33;
+  --color-hive-700: #43254d;
+  --color-hive-600: #5b3163;
+  --color-hive-500: #77417e;
+  --color-hive-400: #9c5f9c;
+  --color-hive-300: #c08cb6;
+
+  --color-core-600: #b9762a;
+  --color-core-500: #e0983a;
+  --color-core-400: #f5bb63;
+  --color-core-300: #ffdca0;
+
+  --color-bone-100: #f4ead6;
+  --color-bone-200: #ded0b4;
+  --color-bone-300: #c3b294;
+  --color-bone-400: #9c8a6e;
 }
 
-:root {
-  color-scheme: dark;
-}
+/* --------------------------------------------------------------------- Base */
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
 
-html,
-body,
-#root {
-  height: 100%;
-}
+  html {
+    color-scheme: dark;
+  }
 
-body {
-  margin: 0;
-  background:
-    radial-gradient(120% 90% at 50% 12%, #1c150e 0%, #120d09 45%, #0a0806 100%);
-  color: #d9c7ad;
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
 
-/* ---------------------------------------------------------------- world fx */
+  body {
+    margin: 0;
+    overflow: hidden;
+    background:
+      radial-gradient(130% 95% at 50% 32%, #251a12 0%, #16100a 58%, #0a0705 100%);
+    color: var(--color-bone-100);
+    font-family:
+      ui-rounded, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system,
+      "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior: none;
+  }
 
-@keyframes dl-hive-breathe {
-  0%,
-  100% {
-    transform: scale(1) rotate(0deg);
+  button {
+    font: inherit;
+    color: inherit;
   }
-  50% {
-    transform: scale(1.022) rotate(-0.5deg);
-  }
-}
 
-@keyframes dl-hive-mutate {
-  0% {
-    transform: scale(1) rotate(0deg);
-  }
-  22% {
-    transform: scale(1.1) rotate(1.6deg);
-  }
-  45% {
-    transform: scale(1.02) rotate(-1.2deg);
-  }
-  70% {
-    transform: scale(1.07) rotate(0.8deg);
-  }
-  100% {
-    transform: scale(1.03) rotate(0deg);
-  }
-}
-
-@keyframes dl-core-open {
-  0% {
-    transform: scale(0.82);
-    opacity: 0.75;
-  }
-  45% {
-    transform: scale(1.55);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.12);
-    opacity: 0.95;
-  }
-}
-
-@keyframes dl-core-idle {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.85;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 1;
+  svg {
+    display: block;
   }
 }
 
-@keyframes dl-tile-hint {
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: scale(0.97);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.03);
-  }
-}
+/* --------------------------------------------------------------- Animationen
+   Alle Effekte sind rein visuell. Der Spielzustand entsteht im Reducer —
+   diese Timings bestimmen nichts, sie zeigen nur.                              */
 
-@keyframes dl-earth-tremor {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  25% {
-    transform: translate(-0.5px, 0.4px);
-  }
-  50% {
-    transform: translate(0.5px, -0.4px);
-  }
-  75% {
-    transform: translate(-0.3px, -0.3px);
-  }
-}
-
-@keyframes dl-tile-collapse {
-  0% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-  55% {
-    transform: scale(0.88) rotate(-3deg);
-    opacity: 0.75;
-  }
-  100% {
-    transform: scale(0.2) rotate(6deg);
-    opacity: 0;
-  }
-}
-
-@keyframes dl-floor-reveal {
-  0% {
-    transform: scale(0.55);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.08);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes dl-floor-ring {
-  0% {
-    transform: scale(0.4);
-    opacity: 0.75;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-/* ------------------------------------------------------------- dungling fx */
-
-@keyframes dl-dungling-bob {
-  0%,
-  100% {
-    transform: translateY(0) scaleY(1);
-  }
-  50% {
-    transform: translateY(-1.6px) scaleY(1.035);
-  }
-}
-
-@keyframes dl-dungling-breathe {
-  0%,
-  100% {
-    transform: scale(1, 1);
-  }
-  50% {
-    transform: scale(1.045, 0.965);
-  }
-}
-
-@keyframes dl-dungling-walk {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-2.5deg);
-  }
-  50% {
-    transform: translateY(-3.4px) rotate(2.5deg);
-  }
-}
-
-@keyframes dl-dungling-work {
-  0%,
-  100% {
-    transform: rotate(-9deg) translateY(0);
-  }
-  50% {
-    transform: rotate(11deg) translateY(-1.5px);
-  }
-}
-
-@keyframes dl-dungling-arm-work {
-  0%,
-  100% {
-    transform: rotate(24deg);
-  }
-  50% {
-    transform: rotate(-58deg);
-  }
-}
-
-@keyframes dl-dungling-lean-work {
-  0%,
-  100% {
-    transform: rotate(0deg) translateY(0);
-  }
-  50% {
-    transform: rotate(6deg) translateY(1.4px);
-  }
-}
-
-@keyframes dl-particle {
-  0% {
-    transform: translate(0, 0) scale(0.4);
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--dx), var(--dy)) scale(0.75);
-    opacity: 0;
-  }
-}
-
-@keyframes dl-debris {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--dx), var(--dy)) rotate(120deg);
-    opacity: 0;
-  }
-}
-
-@keyframes dl-dust {
-  0% {
-    transform: translate(0, 0);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translate(var(--dx), var(--dy));
-    opacity: 0;
-  }
-}
-
-@keyframes dl-spore-rise {
-  0% {
-    transform: translateY(0) scale(0.6);
-    opacity: 0;
-  }
-  25% {
-    opacity: 0.75;
-  }
-  100% {
-    transform: translateY(-22px) scale(1);
-    opacity: 0;
-  }
-}
-
-/* ------------------------------------------------------------- overlay ui  */
-
-@keyframes dl-overlay-in {
-  0% {
-    transform: translate(-50%, calc(-100% - 6px)) scale(0.92);
-    opacity: 0;
-  }
-  100% {
-    transform: translate(-50%, -100%) scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes dl-overlay-in-below {
-  0% {
-    transform: translate(-50%, 6px) scale(0.92);
-    opacity: 0;
-  }
-  100% {
-    transform: translate(-50%, 0) scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes dl-panel-in {
-  0% {
-    transform: translate(-50%, -50%) scale(0.9);
-    opacity: 0;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes dl-hint-in {
-  0% {
-    transform: translate(-50%, 10px);
-    opacity: 0;
-  }
-  100% {
-    transform: translate(-50%, 0);
-    opacity: 1;
-  }
-}
-
-.dl-world-surface {
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-/* SVG transforms on <g> elements work relative to the element's own box. */
-.dl-origin-center {
+.dl-anim {
   transform-box: fill-box;
   transform-origin: center;
 }
 
-.dl-origin-bottom {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
+@keyframes dl-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.018); }
 }
 
-.dl-origin-left {
-  transform-box: fill-box;
-  transform-origin: 0% 50%;
+@keyframes dl-hive-hit {
+  0% { transform: scale(1); }
+  32% { transform: scale(0.962); }
+  68% { transform: scale(1.022); }
+  100% { transform: scale(1); }
 }
 
-.dl-origin-right {
-  transform-box: fill-box;
-  transform-origin: 100% 50%;
+@keyframes dl-hive-mutate {
+  0% { transform: scale(1); }
+  20% { transform: scale(1.078) rotate(-1.1deg); }
+  46% { transform: scale(0.988) rotate(0.9deg); }
+  72% { transform: scale(1.045) rotate(-0.4deg); }
+  100% { transform: scale(1); }
 }
 
-.dl-cursor-action {
-  cursor: pointer;
+@keyframes dl-core-open {
+  0% { opacity: 0.22; transform: scale(0.45); }
+  42% { opacity: 1; transform: scale(1.3); }
+  100% { opacity: 0.55; transform: scale(1); }
+}
+
+@keyframes dl-core-pulse {
+  0%, 100% { opacity: 0.42; transform: scale(1); }
+  50% { opacity: 0.82; transform: scale(1.11); }
+}
+
+@keyframes dl-bulge {
+  0% { opacity: 0; transform: scale(0.12); }
+  30% { opacity: 0.95; }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes dl-dungle-emerge {
+  0% { opacity: 0; transform: translateY(9px) scale(0.35); }
+  55% { opacity: 1; }
+  78% { transform: translateY(-1.5px) scale(1.06); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes dl-dungle-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.7px); }
+}
+
+@keyframes dl-dungle-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  45% { transform: scale(1.025, 0.972); }
+}
+
+@keyframes dl-dungle-walk {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  25% { transform: translateY(-1.6px) rotate(0.5deg); }
+  50% { transform: translateY(0) rotate(3deg); }
+  75% { transform: translateY(-1.6px) rotate(-0.5deg); }
+}
+
+@keyframes dl-dungle-work {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  32% { transform: translateY(1.4px) rotate(3.6deg); }
+  56% { transform: translateY(-0.4px) rotate(-0.6deg); }
+}
+
+@keyframes dl-tool-swing {
+  0%, 100% { transform: rotate(-18deg); }
+  38% { transform: rotate(30deg); }
+}
+
+@keyframes dl-soft-glow-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.82; }
+}
+
+@keyframes dl-ring-pulse {
+  0% { transform: scale(0.94); opacity: 0.65; }
+  70% { transform: scale(1.05); opacity: 0.24; }
+  100% { transform: scale(1.14); opacity: 0; }
+}
+
+@keyframes dl-shiver {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-0.7px, 0.4px); }
+  40% { transform: translate(0.6px, -0.5px); }
+  60% { transform: translate(-0.5px, -0.35px); }
+  80% { transform: translate(0.45px, 0.5px); }
+}
+
+@keyframes dl-crumb {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  14% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dl-dx, 0px), var(--dl-dy, -20px)) scale(0.28)
+      rotate(var(--dl-rot, 90deg));
+  }
+}
+
+@keyframes dl-menu-in {
+  0% { opacity: 0; transform: translate(-50%, -6px) scale(0.95); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@keyframes dl-panel-in {
+  0% { opacity: 0; transform: translateY(16px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes dl-line-in {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dl-free-glow {
+  0% { opacity: 0; transform: scale(0.75); }
+  35% { opacity: 0.9; }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+
+@keyframes dl-floor-light {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes dl-puff {
+  0% { opacity: 0.85; transform: scale(0.35); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+
+.dl-breathe { animation: dl-breathe 4.6s ease-in-out infinite; }
+.dl-hive-hit { animation: dl-hive-hit 320ms ease-out 1; }
+.dl-hive-mutate { animation: dl-hive-mutate 900ms cubic-bezier(0.34, 1.4, 0.5, 1) 1; }
+.dl-core-open { animation: dl-core-open 900ms ease-out 1 forwards; }
+.dl-core-pulse { animation: dl-core-pulse 2.6s ease-in-out infinite; }
+.dl-bulge { animation: dl-bulge 3.6s cubic-bezier(0.4, 0, 0.5, 1) 1 forwards; }
+.dl-emerge { animation: dl-dungle-emerge 620ms cubic-bezier(0.24, 1.3, 0.4, 1) 1; }
+.dl-bob { animation: dl-dungle-bob 2.1s ease-in-out infinite; }
+.dl-dungle-breathe { animation: dl-dungle-breathe 2.6s ease-in-out infinite; }
+.dl-walk { animation: dl-dungle-walk 380ms ease-in-out infinite; }
+.dl-work { animation: dl-dungle-work 620ms ease-in-out infinite; }
+.dl-tool { animation: dl-tool-swing 620ms ease-in-out infinite; }
+.dl-glow-pulse { animation: dl-soft-glow-pulse 2.4s ease-in-out infinite; }
+.dl-ring-pulse { animation: dl-ring-pulse 2.2s ease-out infinite; }
+.dl-shiver { animation: dl-shiver 260ms linear infinite; }
+.dl-crumb { animation: dl-crumb var(--dl-life, 950ms) cubic-bezier(0.2, 0.7, 0.4, 1) forwards; }
+.dl-menu-in { animation: dl-menu-in 180ms ease-out 1; }
+.dl-panel-in { animation: dl-panel-in 320ms cubic-bezier(0.22, 1.1, 0.4, 1) 1; }
+.dl-line-in { animation: dl-line-in 260ms ease-out 1; }
+.dl-free-glow { animation: dl-free-glow 1100ms ease-out 1 forwards; }
+.dl-floor-light { animation: dl-floor-light 3.6s ease-in-out infinite; }
+.dl-puff { animation: dl-puff 620ms ease-out 1 forwards; }
+
+/* ------------------------------------------------------------------- Panels */
+.dl-panel {
+  background: linear-gradient(180deg, rgba(40, 29, 19, 0.95), rgba(23, 16, 11, 0.97));
+  border: 1px solid rgba(224, 152, 58, 0.22);
+  box-shadow:
+    0 18px 40px -18px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 220, 160, 0.07);
+  backdrop-filter: blur(7px);
+}
+
+.dl-inset {
+  box-shadow: inset 0 1px 0 rgba(255, 220, 160, 0.06);
+}
+
+.dl-root {
+  touch-action: manipulation;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dl-reduce-motion {
-    animation: none !important;
+  .dl-anim,
+  .dl-crumb {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

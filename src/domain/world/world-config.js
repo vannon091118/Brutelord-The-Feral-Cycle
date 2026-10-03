@@ -1,35 +1,53 @@
 /**
- * Static world constants. Presentation-independent, no React, no DOM.
+ * Welt-Konstanten. Reine Zahlen — keine React-, DOM- oder Stil-Abhängigkeit.
+ *
+ * Die Spielwelt ist ein direktes 2D-Vogelblick-Raster. Der Hive sitzt zentral,
+ * die sichtbare Fläche beginnt mit zwei Tiles Abstand rundherum.
  */
 
+/** Kantenlänge eines Tiles in CSS-Pixeln (Referenzgröße der Welt). */
 export const TILE_SIZE = 64;
 
-/** Visible playfield for the first slice: a compact 6x6 area around the hive. */
-export const GRID_SIZE = 6;
+/** Sichtbare Fläche des ersten Slices: 6 x 6 Tiles. */
+export const GRID_WIDTH = 6;
+export const GRID_HEIGHT = 6;
 
-/** The hive occupies exactly 2x2 tiles. */
-export const HIVE_SIZE = 2;
+/** Der Hive ist exakt 2 x 2 Tiles groß und sitzt zentral im Feld. */
+export const HIVE_ORIGIN = Object.freeze({ x: 2, y: 2 });
+export const HIVE_SIZE = Object.freeze({ width: 2, height: 2 });
 
-/** Top-left tile of the hive inside the 6x6 grid. */
-export const HIVE_ORIGIN = { x: 2, y: 2 };
+/**
+ * Die Welt endet nicht hart am Raster: außen liegt unbearbeitete Erde
+ * (Rendering-Rahmen), damit die Fläche wie ein Ausschnitt einer Welt wirkt.
+ * In Tiles gemessen.
+ */
+export const WORLD_BLEED_TILES = 0.75;
 
-/** Number of hand-drawn earth tile variations. */
-export const EARTH_VARIANT_COUNT = 5;
+/** Grenzen für die Skalierung auf kleinen Bildschirmen (Tiles werden ~48–56px). */
+export const MIN_WORLD_SCALE = 0.62;
+export const MAX_WORLD_SCALE = 1;
 
-/** Padding around the grid inside the SVG viewBox, so glows can bleed out. */
-export const VIEW_PADDING = 44;
+export function worldPixelSize(tileSize = TILE_SIZE) {
+  const bleed = WORLD_BLEED_TILES * tileSize;
+  return {
+    width: GRID_WIDTH * tileSize + bleed * 2,
+    height: GRID_HEIGHT * tileSize + bleed * 2,
+    bleed,
+  };
+}
 
-export const WORLD_WIDTH = GRID_SIZE * TILE_SIZE;
-export const WORLD_HEIGHT = GRID_SIZE * TILE_SIZE;
+export function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
 
-export const VIEWBOX = {
-  x: -VIEW_PADDING,
-  y: -VIEW_PADDING,
-  width: WORLD_WIDTH + VIEW_PADDING * 2,
-  height: WORLD_HEIGHT + VIEW_PADDING * 2,
-};
-
-/** Ratio of a position given in tile units to the percentage of the rendered world box. */
-export function tileUnitsToPercent(value) {
-  return ((value * TILE_SIZE + VIEW_PADDING) / VIEWBOX.width) * 100;
+/**
+ * Wie stark die komplette Welt skaliert wird, damit sie in den Viewport passt.
+ * Auf Desktop bleibt sie bei 1 (Tiles = 64px), auf schmalen Geräten schrumpft
+ * sie proportional — die Tiles landen dann im Bereich von etwa 48–56px.
+ */
+export function computeWorldScale({ availableWidth, availableHeight, tileSize = TILE_SIZE }) {
+  const world = worldPixelSize(tileSize);
+  if (!availableWidth || !availableHeight) return MAX_WORLD_SCALE;
+  const raw = Math.min(availableWidth / world.width, availableHeight / world.height);
+  return clamp(raw, MIN_WORLD_SCALE, MAX_WORLD_SCALE);
 }

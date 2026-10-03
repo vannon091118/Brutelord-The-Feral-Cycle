@@ -1,4 +1,4 @@
-name: CI
+name: ci
 
 on:
   push:
@@ -6,22 +6,58 @@ on:
   pull_request:
 
 jobs:
-  build:
-    name: Install and build
+  gate:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
+      - name: Abhängigkeiten
         run: npm ci
 
-      - name: Build
+      - name: Basisrevision ermitteln
+        id: baseline
+        shell: bash
+        run: |
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            BASE="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          fi
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+
+      - name: Globale Version und Hard Caps
+        env:
+          BASE: ${{ steps.baseline.outputs.base }}
+        run: |
+          if [ -n "$BASE" ]; then
+            npm run gate -- --version --base="$BASE"
+          else
+            npm run gate -- --version
+          fi
+          npm run gate -- --tree
+
+      - name: Commit-Regeln im Änderungsbereich
+        env:
+          BASE: ${{ steps.baseline.outputs.base }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if [ -n "$BASE" ]; then
+            npm run gate -- --commits="$BASE..$HEAD_SHA"
+          else
+            echo "Keine Basisrevision vorhanden; erster Commit wird nicht verglichen."
+          fi
+
+      - name: Commit-Gate-Regeln selbst prüfen
+        run: npm run verify:commits
+
+      - name: Slice-Prüfungen
+        run: npm run verify
+
+      - name: Produktionsbuild
         run: npm run build

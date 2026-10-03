@@ -1,9 +1,20 @@
-node_modules
-dist
-dist-ssr
-*.local
-.vite
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.vite/
+
+# Arbeitsstände der Agenten-Umgebung
+.freebuff/
+
+# Logs und lokale Geheimnisse
+*.log
 .env
 .env.*
 !.env.example
+
+# Editor- und OS-Reste
+.idea/
+*.swp
 .DS_Store
+Thumbs.db

@@ -1,0 +1,30 @@
+/** Prüft den Startzustand und die Wächter gegen unzulässige Befehle. */
+import { ACTION } from '../../src/domain/actions/action-types.js';
+import { HIVE_PHASE } from '../../src/domain/entities/hive.js';
+import { TILE_KIND, TILE_USABILITY } from '../../src/domain/world/tile.js';
+import { createInitialGameState } from '../../src/state/game-state.js';
+import { gameReducer } from '../../src/state/game-reducer.js';
+import { check, section } from './expect.mjs';
+
+export function checkStart() {
+  const initial = createInitialGameState();
+  section('Startzustand');
+  check('Onboarding beginnt in INITIAL', initial.onboarding.state === 'INITIAL');
+  check('Hive beginnt in DORMANT', initial.hive.phase === HIVE_PHASE.DORMANT);
+  check('Hive belegt exakt vier Tiles', Object.values(initial.world.tiles).filter((tile) => tile.kind === TILE_KIND.HIVE).length === 4);
+  check('Dungling-Start ist freier Hive-Eingang', initial.world.tiles['2,4'].kind === TILE_KIND.DUNGEON_FLOOR);
+  check('Erde sichtbar, aber nicht nutzbar', initial.world.tiles['3,4'].visibility === 'VISIBLE' && initial.world.tiles['3,4'].usability === TILE_USABILITY.UNUSABLE);
+  check('Ein nutzbares Feld, noch kein Baumenü', initial.usableTileCount === 1 && !initial.buildMenuVisible);
+  check('Dungling existiert vor dem Spawn nicht', initial.dungling === null);
+
+  section('Unzulässige Befehle bleiben wirkungslos');
+  const afterFarClick = gameReducer(initial, { type: ACTION.TILE_SELECTED, tileId: '0,0' });
+  check('Weit entfernte Erde nicht auswählbar', afterFarClick === initial);
+  const afterOrder = gameReducer(initial, { type: ACTION.MINING_ORDERED });
+  check('Abbau ohne Auswahl startet nicht', afterOrder === initial);
+  const afterEarlySpawn = gameReducer(initial, { type: ACTION.DUNGLING_SPAWNED });
+  check('Vorzeitiger Spawn wird abgewiesen', afterEarlySpawn === initial);
+  const afterClick = gameReducer(initial, { type: ACTION.HIVE_CLICKED });
+  check('Hive-Klick startet genau eine Mutation', afterClick.hive.phase === HIVE_PHASE.MUTATING);
+  check('Zweiter Hive-Klick wird ignoriert', gameReducer(afterClick, { type: ACTION.HIVE_CLICKED }) === afterClick);
+}
