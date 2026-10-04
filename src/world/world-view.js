@@ -19,7 +19,7 @@ import {
 const ARRIVAL_STATES = [ONBOARDING_STATE.GRID_EXPANDED, ONBOARDING_STATE.TILE_DESTROYED];
 
 /** Ohne Array: der Bauplatz zaehlt wenige Kacheln, das Raster hat viertausend. */
-export function builtCenterPx(world, tileSize) {
+function builtCenterPx(world, tileSize) {
   let count = 0;
   let sumX = 0;
   let sumY = 0;
