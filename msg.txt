@@ -1,0 +1,9 @@
+🧹 [Code Health] Fix checkout branch in GitHub Actions
+
+The auto-bump workflow was previously checking out the detached merge commit (refs/pull/*/merge) instead of the underlying PR branch. As a result, when it attempted to push the version bump commit using `git push`, it failed with a 'detached HEAD' error.
+
+By adding `ref: ${{ github.head_ref || github.ref_name }}` to the `actions/checkout@v4` step in `.github/workflows/auto-bump.yml`, we ensure the action checks out the correct branch directly. This allows subsequent git commands like `git commit` and `git push` to successfully update the branch without encountering detached HEAD states.
+
+The file `.github/workflows/auto-bump.yml` was changed.
+
+created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.
