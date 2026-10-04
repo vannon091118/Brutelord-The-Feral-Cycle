@@ -27,5 +27,7 @@ export function createInitialGameState() {
     lastHarvest: null,
     usableTileCount: countFloorTiles(world),
     buildMenuVisible: false,
+    raidTeam: [], // Array of Dungling IDs assigned to the raid team
+    activeRaid: null, // Holds raid state { world, stamina, maxStamina }
   };
 }

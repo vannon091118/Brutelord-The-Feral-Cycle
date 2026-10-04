@@ -298,9 +298,9 @@ Hinweis sonst begraben, genau auf den Feldern, für die er steht.
 weiche Kurve die Ecken ab, und zwischen vier Nachbarn bleibt eine Raute stehen —
 das sieht nach Abstand aus, ist aber eine fehlende Ecke.
 
-Der Untergrund bleibt bei einer Art: heller Stein (`src/world/floor/`). Nichts
+Der Untergrund für den normalen Ausbau bleibt bei einer Art: Erde (heller Stein) (`src/world/floor/`). Nichts
 darf als Kachel erkennbar sein — Erde und Boden sind zusammenhängende Massen,
-Auswahl und Effekte folgen der Fläche, nie dem Rechteck.
+Auswahl und Effekte folgen der Fläche, nie dem Rechteck. Stein und Obsidian wurden ursprünglich verworfen, finden nun aber im Raid-System als Hindernisse und Ressourcen Verwendung.
 
 Die Kamera (`src/world/world-view.js`) folgt dem Mittelpunkt alles Gebauten.
 Die Leiter bei 47/47 wird erst gezeichnet, wenn die Kamera sie erreicht.

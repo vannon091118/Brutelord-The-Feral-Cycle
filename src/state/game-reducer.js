@@ -7,8 +7,15 @@ import { reduceWorld } from './reducers/world-reducer.js';
 import { reduceColony } from './reducers/colony-reducer.js';
 import { reduceMutant } from './reducers/mutant-reducer.js';
 
-/** Welt-Themen (Abbau, Ausbau, Verwurzelung) teilen sich eine Kette. */
-const DOMAIN_REDUCERS = [reduceHive, reduceDungling, reduceSelection, reduceLab, reduceMutant, reduceWorld, reduceColony];
+const DOMAIN_REDUCERS = [
+  reduceHive,
+  reduceDungling,
+  reduceSelection,
+  reduceLab,
+  reduceMutant,
+  reduceWorld,
+  reduceColony,
+];
 
 export function gameReducer(state, action) {
   for (const reduce of DOMAIN_REDUCERS) {

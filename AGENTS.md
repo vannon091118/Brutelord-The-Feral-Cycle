@@ -187,8 +187,7 @@ Vom Auftraggeber gesetzt und nicht verhandelbar:
 - Nichts darf als Kachel erkennbar sein. Erde und Boden sind eine
   zusammenhängende Masse; Auswahlringe und Effekte folgen der Fläche, nie dem
   Rechteck.
-- Der Untergrund bleibt bei einer Art: heller Stein. Obsidian und Sand wurden
-  verworfen.
+- Der Untergrund für den normalen Dungeon-Ausbau bleibt bei einer Art: Erde (heller Stein). Obsidian und Sand wurden ursprünglich verworfen, jedoch wurden Obsidian und harter Stein für das Raid-System als unzerstörbare Begrenzungen und Hindernisse wieder eingeführt.
 - Die Welt ist auf 64 × 64 Felder gedeckelt, sichtbar bleibt ein 13 × 13-Fenster,
   das dem gebauten Raum folgt. Der Rest ist Dunkelheit.
 - Die Leiter steht außerhalb des Sichtfelds und wird erst gezeichnet, wenn die
