@@ -13,6 +13,7 @@
     "version:check": "node scripts/version.mjs check",
     "version:bump": "node scripts/version.mjs bump",
     "version:sync": "node scripts/version.mjs sync",
+    "verify:browser": "node scripts/run-browser.mjs",
     "verify:commits": "node scripts/verify-commit-gate.mjs",
     "purge": "node scripts/server/purge.mjs"
   },

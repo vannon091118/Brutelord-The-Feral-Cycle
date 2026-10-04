@@ -41,7 +41,7 @@ Grund, ihn zu haben.
       daraus (`#2`) war an beiden Punkten falsch und ist mit Begründung
       geschlossen; §8 in `AGENTS.md` ist im selben Zug an die zwei
       Steinsorten angepasst.
-- [ ] **Eine Abnahme für den Browser.** Die Onboarding-Kette ist jetzt geprüft,
+- [x] **Eine Abnahme für den Browser.** Die Onboarding-Kette ist jetzt geprüft,
       die Darstellung halb, die Browser-Uhr gar nicht: `scripts/` führt
       `use-schedule-runner.js` nie aus, weil dort kein Browser läuft. Damit ist
       ein Drittel des Ablaufs ungetestet — der Abbau-Takt im echten Browser ist
@@ -57,6 +57,17 @@ Grund, ihn zu haben.
       nach jedem Schliessen sofort neu aufzureissen. Was fehlt, ist die
       eigentliche Abnahme — eine Liste von
       Erwartungen, die der Durchlauf einhält oder nicht.
+      — [x] fertig: `npm run verify:browser` startet den echten Dev-Server als
+      Kindprozess, pinnt eine Sitzung und einen Seed und fährt die Kette unter
+      `page.clock` ab — also mit angehaltener Uhr, nicht mit Warten. Zwei Akte:
+      das Konto-Tor ohne Sitzung, dann das Onboarding in elf Schritten mit
+      Soll-Zustand, Zeitbudget und Bild pro Station. Abnahme ist hier ein
+      Urteil, kein Werkzeug: `scripts/browser/judge.mjs` meldet jeder
+      Abweichung Zeit und gelesenen Wert, und eine Station, die sich nicht
+      ausführen lässt, ist ein Fehlschlag, kein stiller Sprung. Zwanzig
+      Prüfungen, grün gegen Chromium 1.63; die Bilder liegen in `Docs/shots/`.
+      Der Lauf ist nicht im Gate — er braucht einen Browser und einen Port —
+      deshalb `npm run verify` für CI und `verify:browser` für Hand und Auge.
 - [ ] **Speichern.** Aktuell stirbt dein Hive beim Reload. Absicht für den
       Slice, unbrauchbar für alles darüber. Mit Essenz und Bauten im Zustand ist
       das jetzt mehr als eine Bequemlichkeit: wer zehn Minuten in einen Brutlord

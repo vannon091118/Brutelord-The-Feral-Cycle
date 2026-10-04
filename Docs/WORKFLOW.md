@@ -21,6 +21,7 @@ Es gibt **kein `npm test` und keinen Linter.** `gate` hat drei Modi, dazu kommen
 | `npm run gate -- --version --base=<sha>` | Monotonie der `revision`, Übereinstimmung von Lock und Spiegeln | CI |
 | `npm run verify` | Verhalten der Domäne: Onboarding, Abbau, Verwurzelung, Bau, Brutlord, Ökonomie, Konto | CI |
 | `npm run verify:commits` | Das Commit-Gate gegen sich selbst — Regressionstests der Regelprüfung | CI |
+| `npm run verify:browser` | Dieselbe Onboarding-Kette im echten Chromium, mit angehaltener Uhr — braucht einen Browser und den Port 5199 | Hand |
 | `npm run build` | Importauflösung über den echten Bundler | CI |
 
 ```sh
@@ -32,6 +33,7 @@ npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
 npm run verify                             # Abnahmesimulation des Slice in node
 npm run verify:commits                     # Regressionstests des Commit-Gates
+npm run verify:browser                      # Abnahme im echten Browser (einmal Chromium holen)
 npm run build                              # Production-Build
 npm run version:bump -- patch              # auch minor | major
 npm run version:check                      # Lock vs. Spiegel
