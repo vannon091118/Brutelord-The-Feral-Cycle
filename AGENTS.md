@@ -111,6 +111,13 @@ Bot, der sich als Mensch ausgibt, ist nicht prüfbar, sondern nur behauptet — 
 der persönliche Signaturschlüssel gehört nicht in `GITHUB_TOKEN`. Hand-Commits
 zeigen `G`.
 
+**Ausgenommen von der Signatur ist der Bot nicht von der Commit-Policy.** Er
+schreibt inzwischen regelkonform: Label in einer eigenen Zeile, die vier
+Spiegeldateien namentlich, genug Wörter. `scripts/verify/check-workflow.mjs`
+prüft das bei jedem `npm run verify`. Der Grund, warum das überhaupt auffiel:
+Bot-Commits lösen mit `GITHUB_TOKEN` keine CI aus, ein Verstoß bleibt also
+unentdeckt, bis jemand die Range über einen Bot-Commit zieht.
+
 ---
 
 ## 5. Versionierung

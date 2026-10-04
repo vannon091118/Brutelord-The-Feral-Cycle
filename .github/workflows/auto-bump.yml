@@ -103,23 +103,37 @@ jobs:
       - name: Commit bump
         if: steps.classify.outputs.code_changed == '1'
         shell: bash
+        env:
+          TRIGGERED: ${{ steps.files.outputs.changed }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          CHANGED="${{ steps.files.outputs.changed }}"
-          # Build a body with >100 words and file names in prose
-          INTRO="Diese automatische Versionserhöhung wird durch den GitHub CI Auto Bump ausgelöst um die Versionspolitik des Projekts konsequent umzusetzen. Der Workflow analysiert den Änderungsbereich zwischen Basis und Head und prüft ob Code Dateien unter src oder scripts betroffen sind. Dokumentations Dateien unter Docs sowie Repository Hygiene Dateien wie README LICENSE gitignore und GitHub Workflows führen bewusst nicht zu einem Versions Bump. Code Änderungen hingegen erfordern eine Patch Erhöhung damit die Versionierung die tatsächliche Funktionalität abbildet. Im Folgenden werden alle relevanten Code Dateien namentlich aufgeführt damit die Commit Policy erfüllt ist und die Nachvollziehbarkeit gewährleistet bleibt. Jede Datei wird hier explizit erwähnt und in den Kontext der Änderung gestellt. Der Bump erfolgt automatisch jedoch mit vollständiger Dokumentation im Commit Body und respektiert die vereinbarten Hard Caps und Gate Regeln. Alle Änderungen wurden vor dem Bump durch das Gate geprüft und sind grün."
-          BODY="$INTRO"
-          for f in $CHANGED; do
-            if [[ "$f" == src/* || "$f" == scripts/* ]]; then
-              BODY="$BODY Die Datei $f wurde verändert und ist Teil des Code Bumps der jetzt erfolgt."
-            fi
-          done
-          BODY="$BODY Abschließend wird bestätigt dass die Versionierung konsistent ist und die Spiegel Dateien korrekt synchronisiert wurden. created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe."
+          # Genau diese vier Dateien wandern in den Commit. Sie sind es, die das
+          # Gate im Body namentlich verlangt — nicht die Dateien, die den Bump
+          # ausgeloest haben.
+          MIRRORS="VERSION version.lock.json package.json package-lock.json"
+          INTRO="Diese automatische Erhoehung hebt die Patchstufe, weil der Aenderungsbereich unter src/ oder scripts/ Code beruehrt. Sie entsteht aus dem Versionierer und nicht von Hand, und sie folgt allein daraus, dass die Versionierung die tatsaechliche Funktionalitaet abbilden soll, nicht aus einer Bewertung einzelner Aenderungen. Der Versionsbot committet als github-actions[bot] und bleibt deshalb ohne Signatur, weil der persoenliche Schluessel nicht im GITHUB_TOKEN liegt; eine behauptete Identitaet waere nicht pruefbar."
           MSG_FILE=$(mktemp)
-          echo "chore: auto version bump for code changes" > $MSG_FILE
-          echo "" >> $MSG_FILE
-          echo "$BODY" >> $MSG_FILE
-          git add version.lock.json VERSION package.json package-lock.json
-          git diff --cached --quiet || git commit -F $MSG_FILE
+          {
+            echo "chore: auto version bump for code changes"
+            echo ""
+            echo "$INTRO"
+            echo ""
+            echo "Geaendert hat dieser Commit genau die Spiegeldateien der Versionsautoritaet."
+            for f in $MIRRORS; do
+              echo "Die Datei $f wurde vom Versionierer mitgezogen und ist hier nur ein Spiegel."
+            done
+            echo ""
+            echo "Den Bump ausgeloest haben die Code-Dateien des Commits davor, nicht dieser."
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              case "$f" in
+                src/*|scripts/*) echo "Die Datei $f liegt im ausloesenden Bereich." ;;
+              esac
+            done <<< "$TRIGGERED"
+            echo ""
+            echo "created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe."
+          } > "$MSG_FILE"
+          git add $MIRRORS
+          git diff --cached --quiet || git commit -q -F "$MSG_FILE"
           git push

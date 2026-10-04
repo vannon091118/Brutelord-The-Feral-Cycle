@@ -123,6 +123,17 @@ Grund, ihn zu haben.
       liefern zwischen Objekt- und Array-Raster byteweise dieselben 4.096
       Kacheln, Frontier, Vorräte, Bauten und Dunglinge, dazu unverändert 187
       Prüfungen.
+- [x] **Der Versions-Bot hält sich an die Commit-Policy.** Sein Body war eine
+      einzige Zeile, in der das VANNON-Label mitten im Text stand — das Gate
+      zählte deshalb null Wörter und meldete das fehlende Label am Ende.
+      Dazu nannte er die Code-Dateien, die den Bump ausgelöst hatten, statt der
+      vier Spiegeldateien, die er selbst ändert. Beide Fehler fielen nie auf,
+      weil Bot-Commits mit `GITHUB_TOKEN` keine CI auslösen. Jetzt steht das
+      Label allein in einer Zeile, `MIRRORS` nennt die vier Dateien, und
+      `scripts/verify/check-workflow.mjs` prüft bei jedem Lauf, dass das so
+      bleibt. Gegenprobe: der neue Check gegen die alte Workflow-Datei lässt
+      alle drei Prüfungen rot werden. Der Bot committet weiterhin ohne
+      Signatur — eine behauptete Identität bleibt nicht prüfbar.
 - [x] **Die Regeln nachgeschärft.** Hard Caps messen jetzt nur Code — Leer- und
       Kommentarzeilen fallen aus dem LOC-Cap heraus —, und Kommentare selbst
       sind auf fünf Zeilen pro Datei gedeckelt: global für alles unter `src/`
