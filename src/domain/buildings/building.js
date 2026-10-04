@@ -7,7 +7,7 @@ export function occupiedTileIds(buildings) {
   return new Set(buildings.flatMap((building) => building.tileIds));
 }
 
-export function footprintIds(type, anchor) {
+function footprintIds(type, anchor) {
   const def = buildingDef(type);
   if (!def) return [];
   const ids = [];
