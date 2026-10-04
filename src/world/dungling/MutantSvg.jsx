@@ -1,79 +1,54 @@
 /**
- * Der mutierte Dungling auf dem Arbeitstisch: die Steine blähen einzelne Stellen
- * auf, der Gegenpol hält den Körper lesbar. Reine Darstellung der Geometrie.
+ * Der mutierte Dungling: echte Basis-Grafik plus die Stein-Overlays aus
+ * `mutant-overlays.jsx`. Jede Instanz braucht einen eigenen Verlauf, sonst
+ * teilen sich zwei Mutanten eine Definition und der zweite färbt den ersten.
  */
-import { STONE_DEFS, STONE_SLOT } from '../../domain/brutelord/stone-config.js';
-import { bodyPlan, partFor } from './mutant-plan.js';
+import { memo } from 'react';
+import { DUNGLING_STATE } from '../../domain/entities/dungling.js';
+import { investedIn } from '../../domain/brutelord/mutant.js';
+import { DunglingSvg } from '../Dungling.svg.jsx';
+import { makeRng } from '../tile-shapes.js';
+import { bodyPlan } from './mutant-plan.js';
+import { ArmsOverlay, AuraLayer, HeadOverlay, LegsOverlay, TorsoOverlay } from './mutant-overlays.jsx';
 
-const TONE = Object.freeze({ grau: '#9aa0a6', blau: '#5aa9ff', lila: '#b06cff', gold: '#ffcf5a' });
+const VIEW_BOX = '-60 -60 120 110';
+const BASE_SIZE = 120;
+const BASE_SEED = 0x7a2b;
 
-function toneOf(rarity) {
-  return TONE[STONE_DEFS[rarity].tone];
+function baseDungling(stones) {
+  return {
+    id: 'mutant-base',
+    tile: { x: 0, y: 0 },
+    facing: 1,
+    state: DUNGLING_STATE.IDLE,
+    targetTileId: null,
+    job: null,
+    stones,
+    invested: investedIn(stones),
+    battleEp: 0,
+  };
 }
 
-function Head({ stones, plan }) {
-  const part = partFor(stones, STONE_SLOT.HEAD);
-  const r = plan.head;
-  return (
-    <g>
-      <ellipse cx="0" cy={-18 - r * 0.2} rx={r * 0.9} ry={r * 0.8} fill={part ? toneOf(part.stone.rarity) : 'var(--color-hive-600)'} />
-      {part && part.form === 'horn' ? <path d="M-3,-30 L0,-40 L3,-30 Z" fill={toneOf(part.stone.rarity)} /> : null}
-      {part && part.form === 'crown' ? <path d="M-8,-32 L0,-44 L8,-32 Z" fill={toneOf(part.stone.rarity)} opacity="0.9" /> : null}
-      {part && part.form === 'antenna' ? <path d="M0,-30 L2,-42" stroke={toneOf(part.stone.rarity)} strokeWidth="2" fill="none" /> : null}
-    </g>
-  );
-}
-
-function Torso({ stones, plan }) {
-  const part = partFor(stones, STONE_SLOT.TORSO);
-  const rx = plan.torsoWidth;
-  return (
-    <g>
-      <ellipse cx="0" cy="0" rx={rx} ry={rx * 0.92} fill={part ? toneOf(part.stone.rarity) : 'var(--color-hive-700)'} opacity="0.92" />
-      {part && part.form === 'hump' ? <ellipse cx="0" cy="-12" rx={rx * 0.5} ry="7" fill={toneOf(part.stone.rarity)} /> : null}
-    </g>
-  );
-}
-
-function Arms({ stones, plan }) {
-  const part = partFor(stones, STONE_SLOT.ARMS);
-  const len = plan.arms * 2.2;
-  const tone = part ? toneOf(part.stone.rarity) : 'var(--color-hive-600)';
-  return (
-    <g stroke={tone} strokeWidth={part ? 6 : 4} strokeLinecap="round" fill="none">
-      <path d={`M${-plan.torsoWidth * 0.7},-4 C${-plan.torsoWidth - len * 0.6},2 ${-plan.torsoWidth - len},10 ${-plan.torsoWidth - len * 1.2},16`} />
-      <path d={`M${plan.torsoWidth * 0.7},-4 C${plan.torsoWidth + len * 0.6},2 ${plan.torsoWidth + len},10 ${plan.torsoWidth + len * 1.2},16`} />
-      {part && part.form === 'fist' ? (
-        <>
-          <circle cx={-plan.torsoWidth - len * 1.2} cy="18" r="7" fill={tone} stroke="none" />
-          <circle cx={plan.torsoWidth + len * 1.2} cy="18" r="7" fill={tone} stroke="none" />
-        </>
-      ) : null}
-    </g>
-  );
-}
-
-function Legs({ stones, plan }) {
-  const part = partFor(stones, STONE_SLOT.LEGS);
-  const w = plan.legs * 1.6;
-  const tone = part ? toneOf(part.stone.rarity) : 'var(--color-hive-800)';
-  return (
-    <g fill={tone}>
-      <ellipse cx={-w * 0.5} cy="16" rx={w} ry={w * 0.5} />
-      <ellipse cx={w * 0.5} cy="16" rx={w} ry={w * 0.5} />
-      {part && part.form === 'snailfoot' ? <ellipse cx="0" cy="20" rx={w * 1.8} ry={w * 0.7} fill={tone} opacity="0.8" /> : null}
-    </g>
-  );
-}
-
-export function MutantSvg({ stones = [] }) {
+export const MutantSvg = memo(function MutantSvg({ stones = [], size = null, step = 0, id = 'lab' }) {
   const plan = bodyPlan(stones);
+  const rng = makeRng(BASE_SEED + stones.reduce((sum, stone) => sum + stone.seed, 0));
+  const box = size ? { width: size, height: size, x: -size / 2, y: -size / 2 } : {};
+  const auraId = `dl-mutant-aura-${id}`;
+
   return (
-    <svg viewBox="-60 -60 120 110" className="h-full w-full" aria-label="Mutierter Dungling">
-      <Legs stones={stones} plan={plan} />
-      <Arms stones={stones} plan={plan} />
-      <Torso stones={stones} plan={plan} />
-      <Head stones={stones} plan={plan} />
+    <svg viewBox={VIEW_BOX} className={size ? undefined : 'h-full w-full'} {...box} aria-label="Mutierter Dungling">
+      <defs>
+        <radialGradient id={auraId} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(176,108,255,0.15)" />
+          <stop offset="100%" stopColor="transparent" />
+        </radialGradient>
+      </defs>
+      <DunglingSvg dungling={baseDungling(stones)} tileSize={BASE_SIZE} x={0} y={10} step={step} />
+      <HeadOverlay stones={stones} plan={plan} />
+      <TorsoOverlay stones={stones} plan={plan} />
+      <ArmsOverlay stones={stones} plan={plan} rng={rng} />
+      <LegsOverlay stones={stones} plan={plan} />
+      <AuraLayer stones={stones} auraId={auraId} />
     </svg>
   );
-}
+});

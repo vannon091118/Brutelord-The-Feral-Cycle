@@ -16,7 +16,8 @@ export function checkStart() {
   section('Startzustand');
   check('Onboarding beginnt in INITIAL', initial.onboarding.state === 'INITIAL');
   check('Hive beginnt in DORMANT', initial.hive.phase === HIVE_PHASE.DORMANT);
-  check('Hive belegt exakt vier Tiles', Object.values(initial.world.tiles).filter((tile) => tile.kind === TILE_KIND.HIVE).length === 4);
+  const hiveSize = initial.world.hiveSize;
+  check('Hive belegt exakt seine konfigurierte Flaeche', Object.values(initial.world.tiles).filter((tile) => tile.kind === TILE_KIND.HIVE).length === hiveSize.width * hiveSize.height);
   check('Dungling-Start ist freier Hive-Eingang', initial.world.tiles[SPAWN_ID].kind === TILE_KIND.DUNGEON_FLOOR);
   check('Erde sichtbar, aber nicht nutzbar', firstEarth.visibility === 'VISIBLE' && firstEarth.usability === TILE_USABILITY.UNUSABLE);
   check('Ein nutzbares Feld, noch kein Baumenü', initial.usableTileCount === 1 && !initial.buildMenuVisible);

@@ -1,4 +1,4 @@
-/** Der Dungling: Zustand, Auftrag, Tile und Position. */
+/** Der Dungling: Zustand, Auftrag, Tile, Position und seine Fusionssteine. */
 import { TILE_SIZE } from '../world/world-config.js';
 import { jobTrip } from '../labour/jobs.js';
 
@@ -18,6 +18,9 @@ export function createDungling({ tile, facing = 1, id = 'dungling-1' }) {
     state: DUNGLING_STATE.NONE,
     targetTileId: null,
     job: null,
+    stones: [],
+    invested: 0,
+    battleEp: 0,
   };
 }
 

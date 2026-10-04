@@ -222,9 +222,9 @@ Vom Auftraggeber gesetzt und nicht verhandelbar:
 - **`run-slice.mjs` leitet sein Zielfeld aus `firstEarthBlock` ab**, es ist kein
   festes Raster verdrahtet. Verschiebt sich der Hive, wandert das Ziel mit —
   die abgeleiteten Erwartungen in den `check-*.mjs` aber nicht automatisch.
-  `check-start.mjs:19` prüft „exakt vier Hive-Tiles" als Literal `4` statt
-  `HIVE_SIZE`. Wer `HIVE_SIZE`, `firstEarthBlock` oder die Thresholds ändert,
-  muss die übrigen Literale mitziehen.
+  `check-start.mjs` liest die erwartete Hive-Fläche aus `world.hiveSize`, also
+  aus `HIVE_SIZE`. `firstEarthBlock` und die Thresholds tragen in den
+  `check-*.mjs` aber weiterhin Literale — wer sie ändert, muss die mitziehen.
 - **`soilBlob` zieht mit positivem `jitter` immer nach innen.** Überlappung
   entsteht nur über `outward`, und ohne die festen Eckpunkte schneidet
   `smoothClosedPath` die Ecken ab. Symptom sind dunkle Rauten im Raster — das

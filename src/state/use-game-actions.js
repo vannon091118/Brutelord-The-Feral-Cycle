@@ -22,6 +22,8 @@ export function useGameActions(dispatch) {
       closeLab: () => dispatch({ type: ACTION.LAB_CLOSED }),
       buyStone: () => dispatch({ type: ACTION.STONE_BOUGHT }),
       placeStone: (seed, slot) => dispatch({ type: ACTION.STONE_PLACED, seed, slot }),
+      createMutant: () => dispatch({ type: ACTION.MUTANT_CREATED }),
+      revertMutant: (workerId) => dispatch({ type: ACTION.MUTANT_REVERTED, workerId }),
     }),
     [dispatch],
   );

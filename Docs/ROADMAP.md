@@ -71,8 +71,8 @@ Grund, ihn zu haben.
       danach genau ein Extraktor übrig ist. Beides prüft
       `check-economy.mjs` gegen den echten Reducer. Beim Speichern gehört
       `deposit` nur auf die Felder, die wirklich eins haben.
-- [ ] **Der Brutlord tut etwas.** Er wird gebaut, er kostet, er wartet — und er
-      ist die Senke für einen Vorrat, den erst das System darüber erzeugt.
+- [x] **Der Brutlord tut etwas.** Er wird gebaut, er kostet, er wartet — und er ist
+      die Senke für einen Vorrat, den erst das System darüber erzeugt.
       **Ein Stein kostet vier Essenz und wird aus einem beim Kauf erzeugten
       Seed gewürfelt — kein `Math.random()`, damit Neuladen kein Losgriff ist
       und die Prüfung reproduzierbar bleibt.** Der Hash dafür lebt in
@@ -86,11 +86,15 @@ Grund, ihn zu haben.
       Gegenpol drückt die schwächeren Stellen zurück, damit das Monster lesbar
       bleibt. Das Labor öffnet sich am fertigen Brutlord, das Inventar maskiert
       jeden unverbauten Stein als `???` und gibt die Seltenheit nur über die
-      Farbe preis. **Offen bleibt der eigentliche Zweck:** die drei Traits
-      stehen bisher nur als Daten in `stone-config.js` und wirken sich auf keinen
-      Takt aus. Gierig soll Bauaufträge verweigern, Motivator eine Aura geben,
-      Schleimig eine Kriechspur — das ist Arbeit an `work-tick.js`, nicht am
-      Labor.
+      Farbe preis. **Erschaffen und Zurückentwickeln sind verdrahtet:**
+      `MUTANT_CREATED` schmilzt die Steine des Labors in den nächsten freien
+      Dungling, `MUTANT_REVERTED` löst sie wieder und zahlt die Hälfte der
+      Investition zurück, nach dem ersten Kampf-EP achtzig Prozent.
+      `check-mutant.mjs` fährt das über den echten Reducer, `check-traits.mjs`
+      misst die Wirkung im Takt statt an der Konfiguration. Beim Zeichnen ist
+      eine Lücke geblieben und wieder gefüllt: die Beinform `snailfoot`, die die
+      Formel als erstes liefert, hatte keine Zeichnung — ein Stein im Bein war
+      unsichtbar. Jetzt hat jede der zwanzig Formen genau eine.
 - [x] **Die Render-Kosten.** Vier Uhren ticken bis zu 20-mal pro Sekunde, und
       jeder Takt zog vorher das ganze 4.096-Kacheln-Raster durch die
       Ableitung: `tilesInView()` filterte `Object.values(world.tiles)`, um 56

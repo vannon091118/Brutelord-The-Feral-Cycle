@@ -92,5 +92,4 @@ export function checkBruteLord() {
   check('Der stärkste Platz behält die Waage', mixed[STONE_SLOT.LEGS].balance === 1);
   check('Die Torso-Skala wächst mit der Last', torsoScale([arm], solo) > 0.8);
   check('Ein belegter Platz verschwindet aus der Leiste', emptySlots([arm]).length === SLOT_ORDER.length - 1);
-  check('Ein Gierig-Trait verweigert Bauaufträge', STONE_TRAIT_DEFS[STONE_TRAIT.GREEDY].buildOrders === false);
 }

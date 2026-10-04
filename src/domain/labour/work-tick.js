@@ -16,6 +16,7 @@ import {
 } from '../buildings/building-config.js';
 import { deliverToSite, openSites, settleSite } from '../buildings/building.js';
 import { createDungling, idle, nextDunglingId, withJob } from '../entities/dungling.js';
+import { tickScale, unitEffects } from '../brutelord/stone-effects.js';
 
 export function advanceWork(work, dtMs, config = JOB_CONFIG) {
   const staffed = staffWorkers(work, config);
@@ -48,18 +49,18 @@ function isBusy(building) {
 function advanceWorkers(work, dtMs, config) {
   let context = work;
   const dunglings = work.dunglings.map((worker) => {
-    const step = advanceJob(worker.job, dtMs, config);
-    if (step.event) context = applyEvent(context, step.event, worker.job);
+    const step = advanceJob(worker.job, dtMs * tickScale(worker, work.dunglings), config);
+    if (step.event) context = applyEvent(context, step.event, { job: worker.job, worker });
     return withJob(worker, step.job);
   });
   return { ...context, dunglings };
 }
 
-function applyEvent(work, event, job) {
+function applyEvent(work, event, { job, worker }) {
   if (event === JOB_EVENT.PICKED) return { ...work, essence: Math.max(0, work.essence - 1) };
   if (event !== JOB_EVENT.DEPOSITED) return work;
   const landed = addPopup(work, job);
-  if (job.kind === JOB_KIND.EXTRACT) return { ...landed, essence: landed.essence + 1 };
+  if (job.kind === JOB_KIND.EXTRACT) return { ...landed, essence: landed.essence + 1 + unitEffects(worker).carryBonus };
   return {
     ...landed,
     buildings: landed.buildings.map((building) =>
@@ -98,8 +99,10 @@ function relievedWorker(work, worker) {
 }
 
 function nextJobFor(work, worker, config) {
-  const delivery = deliveryFor(work, config);
-  if (delivery) return delivery;
+  if (unitEffects(worker).buildOrders) {
+    const delivery = deliveryFor(work, config);
+    if (delivery) return delivery;
+  }
   return stationFor(work, worker, config);
 }
 

@@ -1,4 +1,5 @@
-/** Der Arbeitstisch: der nackte Dungling in der Mitte, vier Slots drumherum. */
+/** Der Arbeitstisch: der mutierte Dungling in der Mitte, vier Slots drumherum. */
+import { useState, useCallback } from 'react';
 import { SLOT_ORDER, STONE_DEFS, STONE_SLOT } from '../../domain/brutelord/stone-config.js';
 import { MutantSvg } from '../../world/dungling/MutantSvg.jsx';
 
@@ -17,20 +18,20 @@ const SLOT_POS = Object.freeze({
 });
 
 const SLOT_TONE = Object.freeze({
-  grau: 'border-bone-400/40 text-bone-300',
-  blau: 'border-core-400/60 text-core-300',
-  lila: 'border-violet-400/60 text-violet-300',
-  gold: 'border-amber-300/70 text-amber-200',
+  grau: 'border-[#9aa0a6]/40 text-[#9aa0a6]',
+  blau: 'border-[#5aa9ff]/40 text-[#5aa9ff]',
+  lila: 'border-[#b06cff]/40 text-[#b06cff]',
+  gold: 'border-[#ffcf5a]/40 text-[#ffcf5a]',
 });
 
-function StoneSlot({ slot, stone, onDrop }) {
+function StoneSlot({ slot, stone, onDropAction, isHovered }) {
   const filled = Boolean(stone);
-  const tone = filled ? SLOT_TONE[STONE_DEFS[stone.rarity].tone] : 'border-dashed border-bone-400/25 text-bone-400';
+  const tone = filled ? SLOT_TONE[STONE_DEFS[stone.rarity].tone] : 'border-[#e0983a]/20 text-[#9c8a6e]';
   return (
     <div
-      onDragOver={(event) => event.preventDefault()}
-      onDrop={() => onDrop(slot)}
-      className={`absolute ${SLOT_POS[slot]} flex h-12 w-12 items-center justify-center rounded-xl border bg-soil-950/80 px-1 text-center text-[9px] leading-tight ${tone}`}
+      onDragOver={(event) => { event.preventDefault(); }}
+      onDrop={(event) => { event.preventDefault(); onDropAction(slot, event.dataTransfer.getData('text/plain')); }}
+      className={`absolute ${SLOT_POS[slot]} flex h-12 w-12 items-center justify-center rounded-xl border bg-[#1a1008]/90 px-1 text-center text-[9px] leading-tight transition-all duration-200 ${tone} ${isHovered ? 'ring-2 ring-[#e0983a]/50 scale-105' : ''}`}
       aria-label={`Slot ${SLOT_LABEL[slot]}`}
     >
       {filled ? <span className="font-semibold">{STONE_DEFS[stone.rarity].label}</span> : SLOT_LABEL[slot]}
@@ -39,15 +40,26 @@ function StoneSlot({ slot, stone, onDrop }) {
 }
 
 export function LabBench({ placed, onDrop }) {
-  const stoneIn = (slot) => placed.find((entry) => entry.slot === slot) ?? null;
+  const handleDrop = useCallback((slot, seed) => {
+    onDrop(seed, slot);
+  }, [onDrop]);
+
   return (
-    <div className="relative mx-auto h-56 w-56">
-      {SLOT_ORDER.map((slot) => (
-        <StoneSlot key={slot} slot={slot} stone={stoneIn(slot)} onDrop={onDrop} />
-      ))}
-      <div className="absolute inset-7">
-        <MutantSvg stones={placed} />
+    <div className="relative mx-auto h-64 w-64">
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative w-40 h-40">
+          <MutantSvg stones={placed} size={160} id="lab" />
+        </div>
       </div>
+      {SLOT_ORDER.map((slot) => (
+        <StoneSlot
+          key={slot}
+          slot={slot}
+          stone={placed.find((entry) => entry.slot === slot) ?? null}
+          onDropAction={handleDrop}
+          isHovered={false}
+        />
+      ))}
     </div>
   );
 }

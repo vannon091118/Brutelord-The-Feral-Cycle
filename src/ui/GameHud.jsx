@@ -14,12 +14,15 @@ function SelectedBuilding({ building, game, actions }) {
         building={building}
         lab={game.lab}
         essence={game.essence}
+        dunglings={game.dunglings}
         freeWorkers={game.dunglings.filter((worker) => !worker.job).length}
         onAssign={() => actions.assignWorker(building.id)}
         onRelease={() => actions.releaseWorker(building.id)}
         onOpenLab={actions.openLab}
         onBuyStone={actions.buyStone}
         onPlaceStone={actions.placeStone}
+        onCreateMutant={actions.createMutant}
+        onRevertMutant={actions.revertMutant}
         onClose={actions.clearBuilding}
       />
     </div>

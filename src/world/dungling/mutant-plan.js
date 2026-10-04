@@ -24,5 +24,6 @@ export function bodyPlan(stones) {
 
 export function partFor(stones, slot) {
   const stone = stones.find((entry) => entry.slot === slot);
-  return stone ? { form: formFor(stone), stone } : null;
+  if (!stone) return null;
+  return { form: formFor(stone), stone };
 }

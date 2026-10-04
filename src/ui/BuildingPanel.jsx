@@ -89,30 +89,41 @@ function LabEntry({ open, onOpen }) {
   );
 }
 
-export function BuildingPanel({ building, lab, essence, onOpenLab, onBuyStone, onPlaceStone, freeWorkers, onAssign, onRelease, onClose }) {
+function LabView({ lab, essence, dunglings, onBuyStone, onPlaceStone, onCreateMutant, onRevertMutant, onClose }) {
+  return (
+    <LabPanel
+      lab={lab}
+      essence={essence}
+      dunglings={dunglings}
+      onBuy={onBuyStone}
+      onPlace={onPlaceStone}
+      onCreate={onCreateMutant}
+      onRevert={onRevertMutant}
+      onClose={onClose}
+    />
+  );
+}
+
+export function BuildingPanel(props) {
+  const { building, lab } = props;
   const def = buildingDef(building.type);
   const isLord = building.type === BUILDING_TYPE.BRUTE_LORD && building.state === BUILDING_STATE.READY;
-  const showLab = isLord && lab.open;
-
-  if (showLab) {
-    return <LabPanel lab={lab} essence={essence} onBuy={onBuyStone} onPlace={onPlaceStone} onClose={onClose} />;
-  }
-
+  if (isLord && lab.open) return <LabView {...props} />;
   return (
     <section
       className="dl-panel dl-panel-in w-[min(92vw,352px)] rounded-2xl px-3 pb-3 pt-2.5"
       aria-label={`Bauwerk: ${def.label}`}
     >
-      <PanelHeader def={def} onClose={onClose} />
+      <PanelHeader def={def} onClose={props.onClose} />
       <p className="px-0.5 text-[11px] text-bone-300">{stateText(building)}</p>
       <WorkerSection
         building={building}
         maxWorkers={def.maxWorkers ?? 0}
-        freeWorkers={freeWorkers}
-        onAssign={onAssign}
-        onRelease={onRelease}
+        freeWorkers={props.freeWorkers}
+        onAssign={props.onAssign}
+        onRelease={props.onRelease}
       />
-      {isLord ? <LabEntry open={lab.open} onOpen={onOpenLab} /> : null}
+      {isLord ? <LabEntry open={lab.open} onOpen={props.onOpenLab} /> : null}
     </section>
   );
 }

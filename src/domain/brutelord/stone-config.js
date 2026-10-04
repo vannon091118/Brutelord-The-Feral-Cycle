@@ -103,3 +103,10 @@ export const STONE_CONFIG = Object.freeze({
   cost: 4,
   inventoryMax: 12,
 });
+
+// Unbenutzt die Hälfte zurück, ab dem ersten Kampf-EP achtzig Prozent.
+export const MUTANT_CONFIG = Object.freeze({
+  refundUnused: 0.5,
+  refundVeteran: 0.8,
+  veteranEp: 1,
+});
