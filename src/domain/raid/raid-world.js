@@ -16,14 +16,10 @@ function generateTiles(width, height, hiveOrigin) {
         tiles[y * width + x] = createHiveTile(x, y);
       } else {
         const earthTile = createEarthTile(x, y);
-        // Deterministische Streuung statt Math.random():
-        // Da Math.random() in der Domaene durch die Architekturpruefung blockiert wird, nutzen wir
-        // eine einfache Hash-Funktion ueber die Koordinaten, um Stone und Obsidian zu platzieren.
         const pseudoRandom = Math.imul(x ^ (y << 5), 2654435761) >>> 0;
-        const normalized = pseudoRandom / 4294967296; // 0..1
+        const normalized = pseudoRandom / 4294967296;
 
         if (normalized < 0.1 && (Math.abs(x - hiveOrigin.x) > 5 || Math.abs(y - hiveOrigin.y) > 5)) {
-          // Zweiter Wert fuer den Typ
           const pseudoRandom2 = Math.imul(y ^ (x << 5), 2654435761) >>> 0;
           earthTile.kind = (pseudoRandom2 / 4294967296) < 0.2 ? TILE_KIND.OBSIDIAN : TILE_KIND.STONE;
         }
@@ -36,7 +32,6 @@ function generateTiles(width, height, hiveOrigin) {
 
 function findSpawnPoint(hiveOrigin, width, height) {
   for (let i = 0; i < 100; i++) {
-    // Deterministische Spawn-Platzierung fuer die CPU Map
     const pseudoRandom = Math.imul(i ^ 1337, 2654435761) >>> 0;
     const r = (pseudoRandom / 4294967296) * 20 + 10;
 
