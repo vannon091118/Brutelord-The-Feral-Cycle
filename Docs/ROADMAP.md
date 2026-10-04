@@ -42,17 +42,25 @@ Grund, ihn zu haben.
       [`PITFALLS.md`](PITFALLS.md).
 
 - [ ] **Das Raid-Feature: Entwurf steht, Bau nicht.** Angriffe zwischen zwei
-      Spielern, Ausdauer als Einsatz statt Timer, Stein und Obsidian nur aus
-      fremden Basen. Der Entwurf liegt vollständig in
-      [`RAID-PLAN.md`](RAID-PLAN.md) — mit den Entscheidungen, die schon
-      fallen, und den sieben offenen Fragen. **Zwei davon sind Bauauftrag,
-      nicht Balance:** die Ökonomie hat einen Kaltstart, der sich nicht durch
-      Tuning löst, und die Validierung gegen einen Client, der selbst rechnet,
-      ist nicht spezifizierbar, solange die Bedrohung nicht benannt ist. Beides
-      ist vor dem ersten Code zu entscheiden. Der geschlossene Pull Request
-      daraus (`#2`) war an beiden Punkten falsch und ist mit Begründung
-      geschlossen; §8 in `AGENTS.md` ist im selben Zug an die zwei
-      Steinsorten angepasst.
+      Spielern, Ausdauer als Einsatz statt Timer, ein rundenbasiertes
+      Gameplay gegen den gefrorenen Snapshot des Gegners. Der Entwurf liegt
+      vollständig in [`RAID-PLAN.md`](RAID-PLAN.md) — mit den Entscheidungen,
+      die gefallen sind, und den offenen Fragen. **Die beiden Bauaufträge von
+      damals sind entschieden.** Das Bedrohungsmodell ist benannt: gefälschtes
+      Ergebnis, aufgeblähte eigene Werte, beschleunigter Takt, manipulierte
+      Pending-Beute — gegen alle vier wird ein **RaidTicket** verwendet, das
+      Kader, Start-Ausdauer, Eintrittspunkt und gegnerischen Snapshot
+      einfriert und die Einreichung nur gegenReplay akzeptiert. Und das
+      Kaltstartproblem ist weg, weil das **Ressourcen-Monopol aufgehoben** ist:
+      Stein und Obsidian sind in jeder Welt vorhanden, aber begrenzt und an
+      ein Progressions-Gate gebunden — die Fähigkeit **Graben** aus dem
+      Mutationssystem. **Neu und dringlicher:** die Ausdauer ist jetzt die
+      *einzige* Schranke des Einmarsches, und ihre Rechnung steht noch aus.
+      Dazu kommt, dass **Speichern** zur Voraussetzung geworden ist: Snapshot,
+      Ticket und MMR schreiben in eine Tabelle, die es nicht gibt. Der
+      geschlossene Pull Request daraus (`#2`) war an beiden Punkten falsch und
+      ist mit Begründung geschlossen; §8 in `AGENTS.md` ist im selben Zug an
+      die zwei Steinsorten angepasst.
 - [x] **Eine Abnahme für den Browser.** Die Onboarding-Kette ist jetzt geprüft,
       die Darstellung halb, die Browser-Uhr gar nicht: `scripts/` führt
       `use-schedule-runner.js` nie aus, weil dort kein Browser läuft. Damit ist

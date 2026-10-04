@@ -2,15 +2,15 @@
 
 Der Entwurf liegt hier, **bevor** Code dazu entsteht. Grund ist nicht
 Ordnungsliebe: das Vorhaben berührt Vorgaben in `AGENTS.md` §8, die
-ausdrücklich vom Auftraggeber gesetzt und im selben Zug revidiert
-wurden, und es berührt den Untergrund, den §8 bisher auf genau eine
-Art festlegt. Solange das nicht entschieden und vermerkt ist, gehört
-es hierhin und nicht in den Code.
+ausdrücklich vom Auftraggeber gesetzt und im selben Zug revidiert wurden, und
+es berührt den Untergrund, den §8 bisher auf genau eine Art festlegt. Solange
+das nicht entschieden und vermerkt ist, gehört es hierhin und nicht in den
+Code.
 
 Alles Weitere zu diesem Feature steht in
-[`ROADMAP.md`](ROADMAP.md). Dieses Dokument trägt die **offenen Fragen
-und die getroffenen Entscheidungen** — und benennt ehrlich, was noch
-nicht weißbar ist.
+[`ROADMAP.md`](ROADMAP.md). Dieses Dokument trägt die **Regeln, die
+Entscheidungen und die offenen Fragen** — und benennt ehrlich, was noch nicht
+wissbar ist.
 
 ---
 
@@ -18,163 +18,334 @@ nicht weißbar ist.
 
 Ein Angriff zwischen zwei Spielern. Der Verteidiger verliert Material, wenn
 sein Hive fällt, und bekommt Material nur, wenn er selbst raidet. Es gibt
-keine Wartezeiten und keine Teilnahme-Währung: die Ausdauer des Teams
-*ist* der Einsatz, und sie wird aus den Mutationen der Monster berechnet.
-Wer sein Team losschickt, riskiert es — das ist der ganze Kern.
+keine Wartezeiten und keine Teilnahme-Währung: die Ausdauer des Teams *ist*
+der Einsatz, und sie wird aus den Mutationen der Monster berechnet. Wer sein
+Team losschickt, riskiert es — das ist der ganze Kern.
 
-## Die vier Blöcke
+## Das Regelwerk
 
-**Ökonomie und Risiko.** Stein und Obsidian lassen sich nicht passiv
-erzeugen, nur aus fremden Basen holen. Das zwingt zum Raiden, wenn man
-sich verteidigen will. Die Ausdauer ist ein globaler Pool je Team und
-ersetzt jeden Timer. Fällt der Pool, sind die Monster verloren oder schwer
-verletzt. Geht die Ausdauer vor dem Hive zur Neige, gibt es Rückzug oder
-das Opfer: ein Monster wird dauerhaft geopfert und gibt sofort Schub, und
-fällt der Hive, besteht eine 50-Prozent-Chance, dass es aus der Biomasse
-des Gegners zurückkommt.
+### Snapshot und Server
 
-**Angriffs-Ablauf.** Der Einstieg ist 60 Felder entfernt im unberührten
-Erdreich, das Sichtfeld zeigt nur die angrenzenden Felder. Jeder Schritt
-und jeder Abbau kostet Ausdauer: weiche Erde fast nichts, natürlicher Fels
-mehr und mit Gestein als Ertrag, Spielerwände am meisten.
+Die Basis eines Spielers wird beim Bauen oder Ausloggen eingefroren und als
+deterministischer Zustand im Backend gehalten. Der Client führt den Raid
+vollständig lokal aus und sendet am Ende ein schlankes Aktions-Log
+(`MOVE_N`, `DIG_E`, `SACRIFICE_01`) plus den finalen State-Hash. Der Server
+macht einen deterministischen Replay-Check und schreibt dann die Datenbank.
 
-**Verteidigungs-Aufbau.** Wände sitzen auf den Kanten eines Feldes, nicht
-darauf. Räume bleiben begehbar und werden nach außen gepanzert. Labyrinthe
-sind damit nutzlos, weil ein Angreifer sich eigene Wege gräbt — der
-Verteidiger staffelt den Hive in Schichten immer härterer Wände. Innen
-stehen Wächter, die bei einem Einbruch rundenbasiert aufwachen.
+**Der Client ist Ausführender, nicht Quelle.** Bei Ticketausstellung vergibt
+der Server ein **RaidTicket**, das Kader, Start-Ausdauer, Eintrittspunkt und
+den Snapshot der gegnerischen Basis einfriert. Eingereicht wird nur gegen
+dieses unveränderliche Ticket akzeptiert, und nur, wenn die Replay-Validierung
+exakt zum identischen Ergebnis führt.
 
-**Asynchrones Echo.** Beschädigte Gebäude sind Ruinen und produzieren
-nichts, bis sie repariert sind; die Reparatur kostet Basisressourcen und
-geschieht sofort, damit der Spieler weiterarbeiten kann. Nur ein Hive-Verlust
-nimmt harte Ressourcen aus dem Hauptspeicher. Jeder Angriff hinterlässt
-einen Riss mit den exakten Koordinaten für einen Rache-Raid mit
-Loot-Bonus; ein Rache-Raid erzeugt selbst keinen neuen Riss, damit kein
-endloses Wechsel-Handeln entsteht.
+Bei Verbindungsabbruch bleibt die Runde gültig. Erbeutetes geht in einen
+`Pending`-Zustand und wird beim nächsten Server-Connect synchronisiert.
+
+Es gibt **keine** künstlichen Wartezeiten und **keine** Teilnahme-Währung.
+
+### Einstieg und Sichtfeld
+
+Der Angreifer spawnt an einem unverbauten Feld im Umkreis von 60 Feldern um
+den gegnerischen Hive. Zu Beginn sind ausschließlich die direkten
+Nachbarfelder sichtbar; der Rest des Dungeons wird blind gegraben. Ziel ist
+die Zerstörung des gegnerischen Hives.
+
+Der Eintrittspunkt ist **kein clientseitiger Wurf**: der Server berechnet ihn
+bei Ticketausstellung und legt ihn in das Ticket.
+
+### Ausdauer und AP
+
+Zwei Ressourcen, zwei Achsen, und sie wachsen beide nicht nach:
+
+- **Ausdauer** ist das **Gesamtbudget** der Expedition. Sie skaliert linear
+  aus der Summe des `grit`-Wertes des Teams und wird beim Graben von Feldern
+  verbraucht. Sie erneuert sich während des Raids nicht.
+- **Aktionpunkte** sind die **Verbrauchsgrenze pro Runde**. Ihr Maximum pro
+  Runde ergibt sich aus `speed`; sie füllen sich zu Beginn jeder Kampf-Runde
+  auf den Basiswert des jeweiligen Monsters auf.
+
+**Bewegung ist gratis** — aber nur über bekanntes Gelände. Durch massiven
+Boden kommt man ausschließlich durch Graben, und das kostet Ausdauer. Damit ist
+das Ausdauerbudget die einzige Schranke des Einmarsches.
+
+Ein Angriff kostet immer denselben festen AP-Betrag. **Stats skalieren den
+Output, nicht die Kosten** — ein Angriff kostet nie mehr, wenn das Monster
+stärker ist.
+
+### Risiko und der Monster-Zyklus
+
+**Fail closed.** Fällt die Ausdauer auf null und der Spieler bricht ab, ist der
+gesamte Einsatz verloren und es gibt keine Belohnung.
+
+**Das Opfer.** Um ein „Fail closed" zu vermeiden, kann ein Monster aus dem Team
+permanent geopfert werden und gibt sofort Ausdauer. Fällt der Hive in diesem
+Raid, besteht eine Rückholchance für das geopferte Monster.
+
+**Der Zyklus.** Ausdauer regeneriert sich nur, während das Monster zu Hause
+„auf der Bank" sitzt. Stirbt ein Monster, hat der Spieler zwei Stunden, es mit
+Ressourcen wiederzubeleben; danach wandert der Seed in einen öffentlichen Pool.
+
+Die zwei Stunden sind ein **Lebenszyklus-Timer auf einem Monster**, kein Gate
+für die Teilnahme am Raid. Das ist der Unterschied, der §1 und §4 sonst
+widersprüchlich macht.
+
+### Bauen und Verteidigen
+
+**Kanten-Wände.** Wände blockieren keine ganzen Felder, sondern sitzen auf den
+Kanten (Nord, Ost, Süd, West) eines Feldes. Räume bleiben begehbar und werden
+nach außen gepanzert.
+
+**Wächter-Koma.** Verteidiger-Monster sterben bei einem feindlichen Raid nicht
+permanent. Sie gehen in einen Verwundet-Status, behalten ihren Seed und müssen
+mit Biomasse geheilt werden. Wächter nutzen eine Zone of Control, um Angreifer
+im Nahkampf zu binden — kein endloses Weglaufen.
+
+**Persistenter Schaden.** Zerstörte Gebäude sind Ruinen und produzieren nichts,
+bis der Verteidiger sie repariert.
+
+**Heimat-Ressourcen.** Natürliche Stein- und Obsidianblöcke geben im eigenen
+Dungeon keine Wandlaubnis. Ihr interner Abbau kostet keine Ausdauer, erfordert
+aber Zeit und zusätzliche Dunglinge — er läuft unverändert über `work-tick.js`
+und das normale Zuweisen von Arbeitern.
+
+### Beute, Rückzug und Zielwahl
+
+**Extraktion.** Beute ist erst gesichert, wenn das Team physisch zum
+Spawn-Punkt zurückkehrt. Ein abgebrochener Raid liefert deshalb nichts — das
+ist die andere Hälfte von „fail closed".
+
+**Der Lootling.** Bei einem Rückzug muss ein Lootling entsendet werden, der
+eine Essenz-Gebühr kostet (Grundkosten plus Gewicht) und zwei bis drei Raids
+bis zur Zustellung braucht.
+
+**Das Ressourcen-Monopol ist aufgehoben.** Stein und Obsidian sind in jeder
+Welt vorhanden und im eigenen Dungeon abbaubar. Sie sind deshalb **begrenzt**
+und ein Progressions-Gate: Der Abbau von Erde und Hartgestein hängt an der
+Fähigkeit **Graben**, die aus dem Mutationssystem kommt und zufällig mit hoher
+Wahrscheinlichkeit fällt. Der eigentliche Anreiz zum Raiden ist damit nicht
+der Rohstoff, sondern die **Beute**.
+
+**Keine Gegnerauswahl.** Der Spieler wählt sein Ziel nicht; ein MMR-System
+wählt. Ein Angriff hinterlässt einen Riss mit den exakten Koordinaten für einen
+Rache-Raid mit Loot-Bonus; ein Rache-Raid erzeugt selbst keinen neuen Riss.
 
 ---
 
-## Der Konflikt mit §8
+## Die Entscheidungen
 
-`AGENTS.md` §8 sagt wörtlich: *„Der Untergrund bleibt bei einer Art: heller
-Stein. Obsidian und Sand wurden verworfen."* Der Entwurf braucht beide
-Sorten, weil die harte Ausdauer-Wand sie unterscheidet und die Beute sie
-trägt. **§8 ist damit überholt und wird im selben Zug angepasst**, nicht
-stillschweigend umgangen.
+Jede mit dem Warum. Die ausführliche Begründung der Entscheidungen selbst
+gehört nach [`ARCHITEKTUR.md`](ARCHITEKTUR.md), sobald Code existiert.
 
-Was aus der Erweiterung folgt, und warum es technisch teuer ist:
+### Kosten und Fähigkeiten
 
-- **Stein und Obsidian brauchen eine eigene Art, kein Material.** Sie
-  unterscheiden sich darin, ob sie eine Wand tragen und ob sie Beute
-  einbringen. Ein reines Material auf vorhandenen Kacheln verliert diese
-  Unterscheidung im Kachelzustand, an dem Abbau und Verteidigung hängen.
-- **`isEarth()` bleibt unangetastet.** Stein und Obsidian sind abbaubares
-  Terrain, aber *nicht* Erdreich im Sinne der Mining-Regel. Würde man
-  `isEarth()` erweitern, akzeptiert `isMineableEarth()` in
-  `src/domain/actions/mining.js` jedes harte Feld als abbaubare Erde, und
-  die Abbaubarkeit verliert ihren Preisunterschied. Beide Abbauregeln
-  brauchen einen gemeinsamen Ort — ein Terrain-Typ-Feld neben `TILE_KIND`,
-  nicht eine Verbreiterung von `isEarth()`.
-- **Kantenwände sind ein zweites Objektmodell im selben Grid.** Vier
-  Wände pro Feld sind vier Sub-Entitäten pro Kachel, und das Raster kennt
-  bisher ausschließlich ganze Felder. Dazu §8: *„Nichts darf als Kachel
-  erkennbar sein."* Eine Wand auf der Kante muss die Fläche teilen und darf
-  sie nicht als Rechteck zeichnen. Das ist eigene Geometrie in
-  `src/world/`, keine Kachelvariante.
-- **Der Rundenmodus ist ein zweites Zeitmodell.** Vier Uhren ticken heute
-  bis zu zwanzigmal pro Sekunde. Wächter, die nach einem Einbruch
-  rundenbasiert aufwachen, brauchen eine eigene Zeitbasis im selben Spiel.
-  Das ist der teuerste Punkt des ganzen Vorhabens — teurer als die Wände.
+- **D1** Das Monopol ist aufgehoben: Stein und Obsidian sind in jeder Welt
+  vorhanden und im eigenen Dungeon abbaubar. Der Rohstoff ist damit begrenzt,
+  aber nicht an den Raid gebunden.
+- **D2** Erde und Hartgestein sind ein Progressions-Gate. Der Abbau hängt an
+  der Fähigkeit **Graben**.
+- **D3** Ausdauer zahlt Graben. Bewegung ist gratis, aber nur über bekanntes
+  Gelände; durch massiven Boden kommt man ausschließlich durch Graben. AP
+  zahlen jeden Angriff.
+- **D27** Weil das Budget nicht nachwächst, ist eine Taktbeschleunigung
+  wertlos: nicht das Tempo begrenzt den Raid, sondern die Summe.
+- **D28** Wände tragen einen einzigen Verteidigungswert. Der aggregierte
+  `atk`-Wert bestimmt, wie viel Schaden ein Schlag an Wächtern oder einer
+  Obsidianwand anrichtet.
+- **D29** **Aktionen haben Fixkosten, Stats skalieren den Output.** Wäre es
+  umgekehrt — stärkere Monster wären pro Schlag teurer —, würde das Spiel den
+  Fortschritt bestrafen und eine Meta erzeugen, in der Spieler absichtlich
+  schwache Billig-Monster züchten, um die Kosten zu drücken. `atk` bestimmt
+  also den Schaden pro Schlag, `speed` das AP-Maximum der Runde, und `grit`
+  skaliert als Team-Summe linear in den Ausdauerpool.
+- **D30** `RaidCapability` bekommt einen eigenen Kanal in `STONE_SALT`.
+  `trait`, `rarity`, `stat` und `visual` sind bewusst getrennt, damit Seltenheit
+  und Trait nicht zwangsläufig aneinander hängen; Graben käme sonst an der
+  Seltenheit zu hängen.
+
+### Die Stats der Steine
+
+- **D19** `RaidCapability` ist ein **viertes Feld am Stein**, neben Seltenheit,
+  Fähigkeiten und Trait. `fuse()` in `mutant.js` reist mit dem Dungling mit.
+  Traits bleiben Wirtschaft und Takt, Raid-Fähigkeiten sind Berechtigung —
+  `stone-effects.js` bleibt unberührt.
+- **D31** **Die Faltung der Stats ist die Summe, die der Traits ist `peak()`.**
+  Der Unterschied ist nicht Geschmack: Traits fallen mit `peak()`, weil ein
+  Monster nicht dreimal gierig sein kann — der zweite Stein bringt nichts. Stats
+  sind dagegen je Stein ein eigener Beitrag, und ein vollständiges Set aus
+  `HEAD`, `TORSO`, `ARMS` und `LEGS` ist damit die Addition seiner vier Steine.
+  Das belohnt vollständige Rüstungssets und macht leere Slots im Raid zu einem
+  spürbaren Nachteil, der über das reine Pathing hinausgeht.
+
+**Eine Folge, die gemessen gehört:** `statCount` skaliert mit der Seltenheit von
+`NORMAL` bis `LEGENDARY`. Mit der Summe aus D31 heißt ein voll bestücktes Set
+also nicht vier Stat-Punkte, sondern bis zu sechzehn, und die Seltenheit wirkt
+dadurch nicht linear. Das ist beabsichtigt — der Pity-Timer garantiert bei dreißig
+Fehlschlägen die Legende, und das ist der Fortschrittshebel des Raids —, aber es
+gehört als Konsequenz notiert und nicht als Überraschung bei der ersten
+Bilanzierung.
+
+### Snapshot, Server und Betrug
+
+- **D18** Der Eintrittspunkt steht im Ticket. Der Server berechnet ihn einmal
+  und legt ihn hinein; beide Seiten lesen ihn daraus.
+- **D20** Der Client führt den Raid lokal aus und sendet Aktions-Log plus
+  State-Hash.
+- **D21** Das Format ist **asynchron** — der Verteidiger spielt nicht live mit,
+  seine Basis ist ein Snapshot. Das Gameplay **in der Raid-Instanz des
+  Angreifers** ist **rundenbasiert**. Zwei verschiedene Dinge, zwei Wörter.
+- **D22** Das MMR wird mit **Feral Hives** gebootstrapt: serverseitig
+  deterministisch erzeugte CPU-Basen auf Basis des Spieler-Levels, bis der Pool
+  genug echte Snapshots enthält.
+- **D24** Das RaidTicket friert Kader, Start-Ausdauer, Eintrittspunkt und
+  gegnerischen Snapshot ein. Der Client wählt nichts, er führt aus.
+- **D25** Die Signatur ist der falsche Mechanismus. Der Schutz ist der
+  **Lookup**: bei Einreichung zählt die Ticket-ID, und der Server liest seine
+  eigene Zeile. Aus dem mitgelieferten Ticket-Objekt gelesen editiert der
+  Client es mit — ein manipulierter Client prüft nichts.
+- **D26** Ein Verb, zwei Währungen, ein Ort: `DIG` bleibt ein Verb und eine
+  Aktion, und die Währung wird nach Zustand gewählt. Der Heimatpreis von einer
+  Essenz je Block bleibt unangetastet.
+- **D28** **Anti-Aufkundschaffen durch Ticketbindung.** Die Vergabe des
+  Tickets sperrt das Team serverseitig. Schließt der Angreifer den Tab nach
+  dem blinden Aufdecken der ersten Felder, bleibt das Team in der Raid-Instanz
+  gefangen; reicht kein valides Log für einen legitimen Rückzug oder Sieg ein,
+  erklärt ein serverseitiger Timeout-Job den Raid zum Totalverlust. Die
+  Heimatbasis des Verteidigers bleibt unberührt, der Angreifer verliert seinen
+  Einsatz.
+
+### Struktur
+
+- **D23** Der Raid ist **streng additiv**. Graben mit Ausdauer existiert nur im
+  isolierten `RaidState`; die Heimat läuft unverändert über `work-tick.js`.
+  Das früheste Onboarding ist damit unangetastet.
+- **D4** Die eigene Welt steht während des Raids still.
+- **D7** Keine Zeit-Gates für die Teilnahme; ein Riss ist sofort sichtbar.
+- **D5** Keine Gegnerauswahl durch den Spieler; ein MMR-System wählt.
+- **D6** Alle vier Bedrohungen sind abzuwehren: gefälschtes Ergebnis,
+  aufgeblähte eigene Werte, beschleunigter Takt, manipulierte Pending-Beute.
+- **D8** Karten sind 64 × 64 **begehbare** Felder; alles darüber hinaus wird
+  über Etagen gelöst.
+- **D9** Fail closed bei Ausdauer null.
+- **D10** Das Opfer gibt sofort Ausdauer; bei Hive-Verlust besteht eine
+  Rückholchance.
+- **D11** Ausdauer regeneriert nur zu Hause; zwei Stunden bis zur Wiederbelebung,
+  danach wandert der Seed in einen öffentlichen Pool.
+- **D12** Extraktion erst am Spawn-Punkt.
+- **D13** Der Lootling kostet Essenz und braucht zwei bis drei Raids.
+- **D14** Wächter werden verwundet, nicht getötet, und binden Angreifer per
+  Zone of Control.
+- **D15** Natürliche Blöcke im eigenen Dungeon geben keine Wandlaubnis.
+- **D16** Disconnect lässt die Runde gültig; die Beute wird `Pending`.
+- **D17** Je weniger gebaut, desto näher spawnen Gegner. Das schneidet bewusst
+  gegen die Tendenz des MMR, schwache Konten zu schonen.
+
+---
+
+## Die Konflikte mit den Regeln dieses Repos
+
+Kein Punkt hier ist Kosmetik. Jeder bricht entweder ein Gate oder eine
+dokumentierte Entscheidung.
+
+- **Spawn und Zufall.** Ein clientseitig gewürfelter Eintrittspunkt fällt durch
+  `check-architecture.mjs`, das `Math.random(` in **ganz** `src/` verbietet. Die
+  Lösung ist D18: der Server liefert den Punkt mit dem Ticket, es braucht
+  überhaupt keine Ableitungsfunktion in `src/`.
+- **Reused Hashes sind eine Verschlechterung.** Der Vorschlag, den Eintritt aus
+  dem `deposit-hash` des Verteidigers und dem `tileSeed` der Infiltration zu
+  mischen, ist abgelehnt. `ARCHITEKTUR.md` begründet die getrennten Hash-Instanzen
+  mit „die Schichtgrenze wiegt schwerer als Wiederverwendung", und
+  `deposit-hash.js` nennt seinen Zweck selbst. Wer `skipPerMille` ändert,
+  verschiebt damit den Raid-Eintritt — die räumliche Form von „abgeschriebene
+  Zahlen bleiben grün, während die Regel kippt". Dazu weiß `blockHash(x, y, seed)`
+  nichts darüber, ob ein Feld unbebaut ist; das weiß nur der Snapshot, der es
+  ohnehin prüft.
+- **Der Grab-Kanal ist billiger als gedacht.** `STONE_SALT` führt bereits vier
+  benannte Kanäle. Graben ist ein fünfter Schlüssel, kein neuer Hash.
+- **Die Abfanglogik für zwei Währungen hat keinen Ort.** `game-reducer.js`
+  iteriert **eine** Kette, erster Reducer gewinnt. Ist `RaidState` isoliert, ist
+  er eine **zweite** Kette — ein Reducer kann kein Verb abfangen, das an einen
+  anderen Zustand dispatcht wurde. Die Dispatch-Schicht ist
+  `use-game-actions.js`, und `useGameActions` steht heute bei 23 von 30
+  LOC bei zwei von sieben belegten Importzeilen. Wer zwischen den Modulen
+  wählt, macht den Modus-Zweig **an der Aufrufstelle**.
+- **Der Ticket-Timeout muss in der Datenbank liegen.** Läuft er im Speicher,
+  nimmt ein Serverneustart das Team mit: gesperrt, kein Ablauf, kein Ausweg. Der
+  Ablauf gehört als Spalte an die Ticketzeile und wird über einen Scan
+  aufgelöst.
+- **Der Replay ist der billigste Anti-Missbrauchs-Baustein im ganzen
+  Vorhaben.** Er ist eine reine Domänenfunktion und mit `npm run verify`
+  **ohne** Server prüfbar. Nur der Datenbankschreibvorgang braucht den Server.
+  Deshalb gehört er in die Abnahme und nicht in den Server.
+- **„Streng additiv" gilt für den Spieler, nicht für die Codebasis.** Ein
+  isolierter `RaidState` ist eine zweite Instanz von allem: zweiter Zustand,
+  zweiter Reducer-Baum, zweites Mining mit eigener Kostenlogik, eigene
+  Sichtbarkeitsregel. `canMineTile()` ist dafür unbrauchbar, weil es
+  `touchesUsableSpace()` verlangt — im fremden Dungeon gibt es keinen eigenen
+  nutzbaren Boden. Die **Terrain-Klassifikation** muss geteilt bleiben, die
+  **Kostenlogik** darf es nicht.
+- **Etagen kollidieren mit §8.** „Nichts darf als Kachel erkennbar sein" und
+  das 13 × 13-Fenster sind für eine Ebene definiert.
 
 ---
 
 ## Die offenen Fragen
 
-Nach Wichtigkeit geordnet, nicht nach Aufwand.
+Nach Wichtigkeit geordnet. Die ersten beiden sind Bauauftrag, nicht Balance.
 
-### 1. Der Kaltstart ist strukturell, nicht justierbar
+### 1. Die Ausdauer-Rechnung
 
-Stein und Obsidian gibt es ausschließlich aus fremden Basen. Wer noch
-nicht erfolgreich geraidet hat, kann keine Wände bauen, kann also nicht
-verteidigen, wird leichter angegriffen und verliert Material, das er nie
-hatte. Ein neuer Account ist damit dauerhaft das beste Ziel.
+Der Einmarsch ist jetzt die **einzige** Schranke des Raids (D3, D27). Im
+Worst Case sind das rund 44 Felder bei einer 64 × 64-Karte — ein 60-Tile-Radius
+umfasst die **ganze** Karte und ist als Schranke hohl.
 
-Das ist keine Drop-Rate, die man drehen kann — es ist ein Zustand, in dem
-die Wirtschaft für eine ganze Spielerklasse nicht funktioniert. Es gibt
-drei Ausgänge, und keiner davon ist gratis:
+Weil `grit` als Team-Summe linear in den Ausdauerpool skaliert, ist die Rechnung
+keine absolute Zahl, sondern ein **Verhältnis**: Budget gegen Weg. Sie muss vom
+Weg ausgehen, nicht vom Hive. Ein Pool, der den Hinweg nicht überlebt, ist keine
+Balance-Frage.
 
-- eine Grundquelle für hartes Material, die das Monopol aufweicht,
-- ein Anfangsbestand plus eine Aufgabe, den ersten Angriff zu überleben,
-- oder Accounts ohne Besitz, die als Angriffsziel uninteressant sind.
+### 2. Der Angriffspreis und die Faltung
 
-**Entscheidung nötig, bevor Code entsteht.** Alles andere ist Kosmetik
-daneben.
+Zwei Lücken, beide klein und beide findbar:
 
-### 2. Reicht der Pool bis zum Hive?
+- **Die Stats brauchen eine Faltungsregel über mehrere Steine.** Traits haben
+  eine — `stone-effects.js` faltet mit `peak()`. Für `atk`, `speed` und `grit`
+  ist keine belegt; `mutation-formula.js` rechnet Form und Bild. D31 entscheidet
+  die **Summe**, aber es fehlt die Funktion, die daraus *einen* Angriffspreis je
+  Monster macht.
+- **Der feste AP-Preis eines Angriffs ist keine Zahl.** Ebenso der
+  Verteidigungswert einer Obsidianwand.
 
-60 Felder Weg, graben, dann die Sterne ausbluten lassen. Wenn der Rückweg
-allein den halben Pool frisst, ist der Raid vorher entschieden. Das ist
-eine Rechnung, keine Vermutung — sie muss **vor** dem Balancing laufen,
-sonst werden Verlustquoten an Zahlen optimiert, die das Problem nicht
-berühren.
+Die Zahlen gehören nach `stone-config.js` und erst **mit** der Abnahme. Sie
+sollen den Bau nicht blockieren, sondern beschreiben, was gemessen wurde.
 
-### 3. Was passiert mit einem Account ohne Ressourcen?
+### 3. Der Zeitpunkt des Verteidigers
 
-Wer nichts zu verlieren hat, ist ein kostenloser Angriff. Damit
-Zerstörung zum Vorteil wird, muss Absicht entgegenstehen. Bei diesem
-Perma-Death-Modell mit 50-Prozent-Rekonstruktion tut sie das nicht
-offensichtlich — ein frischer Account wäre damit ein Werkzeug.
+D24 friert den Snapshot bei Ticketausstellung ein. Was der Verteidiger danach
+baut, sieht der Raid nicht — er kann Wände nachziehen, die der Angreifer nie zu
+sehen bekommt, und Bauten reparieren, die der Raid für Ruinen hält. Entweder ist
+Snapshot-Moment gleich Raid-Moment, oder das Ergebnis wird gegen den späteren
+Stand reconciliert.
 
-### 4. Der Validierungsweg ist der eigentliche Bauauftrag
+### 4. Der Rache-Raid gegen das MMR
 
-Der ursprüngliche Entwurf sah vor: clientseitig deterministisch rechnen,
-serverseitig asynchron über maskierte Hashes validieren, und bei
-Verbindungsabbruch die Runde gültig lassen.
+D5 sagt: keine Gegnerauswahl. Der Riss gibt dem Verteidiger priorisierte
+Koordinaten. Der Rache-Raid braucht also eine Ausnahme, oder der Riss wird zu
+einem Koordinaten-Hinweis, den das MMR nach Gewichtung priorisiert.
 
-Der Teil, der offen bleibt, ist die Validierung. Ein Client, der alles
-lokal berechnet, ist per Definition nicht vertrauenswürdig, und asynchron
-gegen ihn zu prüfen bedeutet: die Daten für die Prüfung müssen im Voraus
-bekannt sein. Entweder
+### 5. Etagen
 
-- der Server vertraut dem Ergebnis (offen, und damit keine Anti-Cheat),
-- oder der Server bestimmt die Züge (und die lokale Rechnung ist nur noch
-  Animation),
-- oder es gibt einen dritten Weg, der nicht spezifiziert ist, solange die
-  Bedrohung nicht benannt ist.
+Vollständig unbestimmt. Der 64 × 64-Raster ist als begehbare Fläche entschieden,
+alles darüber nicht.
 
-**Die Bedrohung zuerst.** Erst steht fest, welcher Angriff abgewehrt
-werden soll, dann ist entscheidbar, wie viel Server nötig ist. Das ist die
-Frage mit den teuersten Folgen und die einzige, die vor dem Bauen
-beantwortet werden muss.
+### 6. Die Integration der Raid-Sichtbarkeit
 
-### 5. Der Sichtfeldkonflikt
+Die Sichtbarkeit selbst ist entschieden (nur direkte Nachbarfelder zu Beginn).
+Offen bleibt, wie sie in `reveal.js` und `REVEAL_RADIUS 2` aufgeht, ohne das
+Basisspiel zu verändern.
 
-§8 sieht ein 13 × 13-Fenster, das dem gebauten Raum folgt. Der Entwurf
-verlangt ein Sichtfeld aus angrenzenden Feldern. Beides ist „wenige
-Kacheln sichtbar", aber die Bedienung ist eine andere: der eine Auszug
-folgt einem Schwerpunkt, der andere steht an der Sichtgrenze. Der
-bestehende `reveal`-Pfad und sein Radius müssen entscheiden, welcher gilt.
+### 7. Die Rückholchance beim Opfer
 
-### 6. Der Widerspruch im Zeitverhalten
-
-Abschnitt 1 schließt Wartezeiten und Teilnahme-Währungen aus. Der
-Riss-Ordner zeigt dem Verteidiger den Angriff *am nächsten Tag*. Das ist
-ein Zeit-Gate. Es kann gewollt sein — ein Tag ist eine gute Runde, und
-es nimmt dem Koordinatenleck etwas Wirkung —, dann gehört es ins Regelwerk
-und der Widerspruch ist aufgelöst. Wenn es nicht gewollt ist, muss der
-Riss sofort sichtbar sein.
-
-### 7. Das Vendetta-Spiel steht auf
-
-Riss mit exakten Koordinaten, Rache-Raid mit Loot-Bonus, kein neuer Riss
-aus dem Rache-Raid. Das verhindert Wechsel-Handeln und erzeugt eine
-Endlosschleife zwischen zwei Spielern ohne Eskalationsventil. Dazu ist die
-Koordinate selbst das begehrte Gut: sie zu verbreiten ist damit ein
-Griefing-Angriff, und dagegen steht im Entwurf nichts.
-
-Ein Vorschlag, der die Schleife unterbricht: der Vorteil sinkt, wenn ein
-Paar sich zu oft gegenseitig angreift. Dann lohnt Wechsel-Handeln nicht
-mehr, und der Riss ist ein Hinweis statt eine Waffe.
+Der Entwurf sagt „eine Rückholchance", ohne eine Zahl.
 
 ---
 
@@ -182,24 +353,32 @@ mehr, und der Riss ist ein Hinweis statt eine Waffe.
 
 Nicht die Mechanik. Diese Reihenfolge:
 
-1. **Die Kaltstart-Frage entscheiden.** Ohne sie ist jede weitere Zahl
-   Arbeit auf einem System, das trägt oder nicht.
-2. **Die Bedrohung für die Validierung benennen.** Daraus folgt die
-   Serverlast, und die Serverlast entscheidet, ob der Entwurf überhaupt
-   in dieser Form geht.
-3. **Den Stamina-Haushalt rechnen**, ausgehend vom Weg und nicht vom Hive
-   aus. Ein Pool, der den Hinweg nicht überlebt, ist keine Balance-Frage.
-4. **Das Terrain-Feld neben `TILE_KIND`** einführen, mit eigener Abbauregel
-   und ohne `isEarth()` zu berühren.
-5. **Erst dann** die Mechanik. Der Kantenwall und der Rundenmodus kommen
-   zuletzt, weil beide ein neues Objekt- und Zeitmodell sind und beide
-   schichtweise gebaut werden können.
+1. **Speichern.** Snapshot, Ticket, `raid_id`, MMR-Aufzeichnung, Riss und
+   Pending brauchen eine Tabelle, die es nicht gibt. Aus einem unabhängigen
+   Roadmap-Punkt wird damit zur Voraussetzung.
+2. **Die Ausdauer-Rechnung**, ausgehend vom Weg.
+3. **Das Terrain-Feld neben `TILE_KIND`**, mit eigener Abbauregel und ohne
+   `isEarth()` zu berühren.
+4. **Ticket und Replay-Check.** Der Replay gehört in die Abnahme.
+5. **Der Feral-Hive-Seed**, damit testbar ist, ohne echte Gegner zu brauchen.
+6. **`RaidCapability` am Stein**, mit eigenem Kanal.
+7. **Erst dann die Mechanik.** Kantenwände, Rundenmodus und Wächter-Koma kommen
+   zuletzt, weil Kantenwände ein zweites Objektmodell im selben Grid sind und
+   das Rundenmodell ein zweites Zeitmodell neben vier Uhren mit je bis zu 20 Hz.
+
+**Ein Zirkel, der benannt gehört:** Das MMR-System verhindert Missbrauch,
+braucht aber aufgezeichnete Raid-Ergebnisse und liegt damit **nach** dem ersten
+funktionierenden Raid. Für die ersten Testangriffe tritt an seine Stelle die
+Feral-Hive-Regel (D22).
 
 ## Was der Entwurf nicht löst
 
-Der Umfang, der hier steht, ist ein Nebenpfad neben dem Slice, kein
-Feature für den nächsten Release. Das Spiel ist bis heute ein Abbauspiel
-ohne Gegner; das hier setzt zwei Spieler, einen persistenten Snapshot
-und eine Server-Autorität voraus. Das ist ein eigener Bauabschnitt mit
-eigenem Testbedarf, und der Preis dafür ist die Zeit, die nicht in die
-Kachelgeometrie geht.
+Der Umfang, der hier steht, ist ein Nebenpfad neben dem Slice, kein Feature für
+den nächsten Release. Das Spiel ist bis heute ein Abbauspiel ohne Gegner; das
+hier setzt zwei Spieler, einen persistenten Snapshot und eine Server-Autorität
+voraus. Das ist ein eigener Bauabschnitt mit eigenem Testbedarf, und der Preis
+dafür ist die Zeit, die nicht in die Kachelgeometrie geht.
+
+Und der Spielstand fehlt bis heute. Das hier schreibt in eine Tabelle, die es
+nicht gibt — der Roadmap-Punkt **Speichern** ist keine Nebensache mehr,
+sondern die erste Zeile der Bauordnung.
