@@ -95,6 +95,27 @@ Grund, ihn zu haben.
       eine Lücke geblieben und wieder gefüllt: die Beinform `snailfoot`, die die
       Formel als erstes liefert, hatte keine Zeichnung — ein Stein im Bein war
       unsichtbar. Jetzt hat jede der zwanzig Formen genau eine.
+- [x] **Konto und Spielerseed.** Registrierung mit Name und Passwort, daraus
+      entsteht ein Seed, aus dem Seed die Welt — jeder bekommt eine eigene.
+      **Passwörter werden nie gespeichert**, sondern mit scrypt und eigenem Salz
+      pro Konto gestreut; ein einziger Aufruf liefert Prüfsumme und Seed. Der
+      Seed wird bei jeder Anmeldung neu abgeleitet, also gilt: gleiche
+      Zugangsdaten, gleiche Welt, auch nach dem Reload. Der Seed verändert die
+      Kontur der Höhle (39 bis 52 sichtbare Felder statt immer 56) und die
+      ganze Vorratskarte. `worldSeed()` ist die einzige Tür vom Hex zur Zahl,
+      und das ist keine Formalie: als Zeichenkette eingereicht wird ein Seed aus
+      Buchstaben zu NaN und damit zu null, während ein Seed aus reinen Ziffern
+      zu einer Riesenzahl wird — vor dieser Tür teilten sich alle Buchstaben-
+      Seeds eine Welt. Aus demselben Grund nimmt das Wackeln nicht das niedrigste
+      Hash-Bit; das ist linear im Seed und liefert zwei Formen statt 24.
+      Das Backend ist ein Vite-Plugin mit `node:sqlite` — kein zweiter Prozess,
+      keine neue Abhängigkeit. `npm run purge` löscht `.data/`, und `verify`
+      arbeitet in einem eigenen Temporärverzeichnis, fasst die
+      Entwicklungsdatenbank also nicht an. Sichtbar geprüft: fünf Konten über das
+      Formular angelegt, fünf Seeds, fünf verschiedene Startbilder (45 bis 52
+      Erdfelder), Abmelden und Anmelden liefert denselben Seed zurück.
+      **Offen bleibt der Spielstand** — der gehört als Spalte in dieselbe
+      Tabelle, sobald er drankommt.
 - [x] **Die Render-Kosten.** Vier Uhren ticken bis zu 20-mal pro Sekunde, und
       jeder Takt zog vorher das ganze 4.096-Kacheln-Raster durch die
       Ableitung: `tilesInView()` filterte `Object.values(world.tiles)`, um 56

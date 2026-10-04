@@ -4,7 +4,7 @@ import {
   CLUSTER_COUNT_MIN,
   DEPOSIT_CONFIG,
   DEPOSIT_PHASE,
-  WORLD_ESSENCE_BUDGET,
+  essenceBudget,
   hiveDistance,
 } from '../../src/domain/deposits/deposit-config.js';
 import { touchingTiles } from '../../src/domain/deposits/deposit-hint.js';
@@ -85,9 +85,10 @@ function checkDeterminism() {
 function checkBudget(world) {
   const list = clusterList(world);
   const total = list.reduce((sum, deposit) => sum + deposit.pool, 0);
+  const band = essenceBudget();
   section('Vorräte: Weltbudget');
   check('Die Clusterzahl liegt im Band', list.length >= CLUSTER_COUNT_MIN && list.length <= CLUSTER_COUNT_MAX, `${list.length} Cluster`);
-  check('Die Essenz der Welt entspricht dem Budget', total === WORLD_ESSENCE_BUDGET, `${total} statt ${WORLD_ESSENCE_BUDGET}`);
+  check('Die Essenz der Welt liegt im Budgetband', total >= band.floor && total <= band.ceiling, `${total} statt ${band.floor} bis ${band.ceiling}`);
 }
 
 function checkCapacity(world) {

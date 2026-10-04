@@ -17,6 +17,7 @@ import {
   tileId,
 } from './tile.js';
 import { revealWorld } from './reveal.js';
+import { worldSeed } from './world-seed.js';
 import { ONBOARDING_CONFIG } from '../onboarding/onboarding-config.js';
 import { createDeposits } from '../deposits/deposit-placement.js';
 
@@ -50,27 +51,30 @@ export function createWorld({
   height = GRID_HEIGHT,
   hiveOrigin = HIVE_ORIGIN,
   spawnTile = ONBOARDING_CONFIG.dunglingSpawnTile,
+  playerseed,
 } = {}) {
-  const context = { hiveOrigin, spawnTile };
-  const tiles = new Array(width * height);
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      tiles[y * width + x] = tileForCell({ x, y, ...context });
-    }
-  }
-
+  const seed = worldSeed(playerseed);
   const world = {
     width,
     height,
+    seed,
     hiveOrigin: { ...hiveOrigin },
     hiveSize: { ...HIVE_SIZE },
     spawnTileId: spawnTile ? tileId(spawnTile.x, spawnTile.y) : null,
     entrance: { ...LADDER_TILE },
     rootingWorkIds: [],
-    tiles,
+    tiles: fillTiles({ width, height, hiveOrigin, spawnTile }),
   };
 
   return revealWorld(withDeposits(world, spawnTile), [...hiveAnchorIds(hiveOrigin), ...(spawnTile ? [spawnTile] : [])]);
+}
+
+function fillTiles({ width, height, hiveOrigin, spawnTile }) {
+  const tiles = new Array(width * height);
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) tiles[y * width + x] = tileForCell({ x, y, hiveOrigin, spawnTile });
+  }
+  return tiles;
 }
 
 function withDeposits(world, spawnTile) {
@@ -79,6 +83,7 @@ function withDeposits(world, spawnTile) {
     height: world.height,
     hiveOrigin: world.hiveOrigin,
     spawnTile,
+    seed: world.seed,
   });
   const tiles = world.tiles.slice();
   for (const deposit of Object.values(deposits)) {

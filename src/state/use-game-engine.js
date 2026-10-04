@@ -9,8 +9,8 @@ import { useScheduleRunner } from './use-schedule-runner.js';
 import { useColonyClock } from './use-colony-clock.js';
 import { useGameActions } from './use-game-actions.js';
 
-export function useGameEngine() {
-  const [state, dispatch] = useReducer(gameReducer, undefined, createInitialGameState);
+export function useGameEngine(playerseed) {
+  const [state, dispatch] = useReducer(gameReducer, playerseed, createInitialGameState);
 
   /** Die Uhren fragen den Zustand, sie besitzen ihn nicht. */
   const latest = useRef(state);
