@@ -92,7 +92,9 @@ function withDeposits(world, spawnTile) {
 
 /** Die eine Stelle, die aus einer Kachel-Id einen Platz im Raster macht. */
 function cellIndex(world, id) {
-  const { x, y } = parseTileId(id);
+  const commaIndex = id.indexOf(',');
+  const x = +(id.substring(0, commaIndex));
+  const y = +(id.substring(commaIndex + 1));
   return y * world.width + x;
 }
 

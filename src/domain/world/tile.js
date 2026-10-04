@@ -34,7 +34,9 @@ export function tileId(x, y) {
 }
 
 export function parseTileId(id) {
-  const [x, y] = id.split(',').map(Number);
+  const commaIndex = id.indexOf(',');
+  const x = +(id.substring(0, commaIndex));
+  const y = +(id.substring(commaIndex + 1));
   return { x, y };
 }
 
