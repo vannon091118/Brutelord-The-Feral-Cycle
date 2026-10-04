@@ -56,7 +56,7 @@ export function isMiningFinished(job) {
   return job.tick >= job.totalTicks || job.progress >= 1;
 }
 
-export function isMineableEarth(world, id) {
+function isMineableEarth(world, id) {
   const tile = getTile(world, id);
   return Boolean(tile) && isEarth(tile) && isVisible(tile);
 }
