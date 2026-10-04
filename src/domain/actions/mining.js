@@ -61,7 +61,7 @@ export function isMineableEarth(world, id) {
   return Boolean(tile) && isEarth(tile) && isVisible(tile);
 }
 
-export function touchesUsableSpace(world, id) {
+function touchesUsableSpace(world, id) {
   const { x, y } = parseTileId(id);
   return (
     isUsable(tileAt(world, x + 1, y)) ||
