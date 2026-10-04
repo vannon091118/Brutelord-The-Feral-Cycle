@@ -7,6 +7,7 @@ function toHero(hero) {
     name: hero.name,
     atk: hero.atk,
     grit: hero.grit,
+    dig: hero.dig === true,
     apMax: hero.speed,
     ap: hero.speed,
   };
@@ -17,7 +18,7 @@ export function teamGritOf(ticket) {
 }
 
 export function createRaidState(ticket, config = RAID_CONFIG) {
-  const stamina = teamStamina(teamGritOf(ticket));
+  const stamina = teamStamina(teamGritOf(ticket), config);
   return {
     ticketId: ticket.id,
     entry: { ...ticket.entry },
@@ -27,6 +28,7 @@ export function createRaidState(ticket, config = RAID_CONFIG) {
     staminaMax: stamina,
     round: 1,
     heroes: ticket.heroes.map(toHero),
+    dug: {},
     log: [],
   };
 }

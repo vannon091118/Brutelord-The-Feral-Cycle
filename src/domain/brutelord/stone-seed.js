@@ -33,4 +33,5 @@ export const STONE_SALT = Object.freeze({
   rarity: 3313,
   stat: 9091,
   visual: 4423,
+  capability: 5501,
 });

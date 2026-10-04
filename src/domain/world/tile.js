@@ -7,6 +7,13 @@ export const TILE_KIND = Object.freeze({
   DUNGEON_FLOOR: 'DUNGEON_FLOOR',
 });
 
+/** Neben TILE_KIND, nicht darin: Hartgestein ist Terrain und kein Erdreich. */
+export const TILE_TERRAIN = Object.freeze({
+  EARTH: 'EARTH',
+  STONE: 'STONE',
+  OBSIDIAN: 'OBSIDIAN',
+});
+
 export const TILE_VISIBILITY = Object.freeze({
   VISIBLE: 'VISIBLE',
   HIDDEN: 'HIDDEN',
@@ -38,12 +45,13 @@ export function parseTileId(id) {
   return { x: +id.substring(0, comma), y: +id.substring(comma + 1) };
 }
 
-export function createEarthTile(x, y) {
+export function createEarthTile(x, y, terrain = TILE_TERRAIN.EARTH) {
   return {
     id: tileId(x, y),
     x,
     y,
     kind: TILE_KIND.EARTH,
+    terrain,
     visibility: TILE_VISIBILITY.VISIBLE,
     usability: TILE_USABILITY.UNUSABLE,
     earthHealth: EARTH_HEALTH.HEALTHY,
@@ -82,6 +90,11 @@ export function createFloorTile(x, y, origin = FLOOR_ORIGIN.MINED) {
 
 export function isEarth(tile) {
   return tile.kind === TILE_KIND.EARTH;
+}
+
+/** Die Heimat kennt nur Erdreich; Stein und Obsidian setzt der Raid daneben. */
+export function terrainOf(tile) {
+  return tile.kind === TILE_KIND.EARTH ? tile.terrain : null;
 }
 
 export function isVisible(tile) {

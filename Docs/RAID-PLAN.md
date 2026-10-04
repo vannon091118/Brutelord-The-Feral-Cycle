@@ -176,6 +176,40 @@ gehört nach [`ARCHITEKTUR.md`](ARCHITEKTUR.md), sobald Code existiert.
   `trait`, `rarity`, `stat` und `visual` sind bewusst getrennt, damit Seltenheit
   und Trait nicht zwangsläufig aneinander hängen; Graben käme sonst an der
   Seltenheit zu hängen.
+- **D32** **Der Raid liest Berechtigung, nicht Charakter.** Traits sind
+  entitätsgebunden: `SLIMY` ist eine Kriechspur auf dem Boden, den ein
+  Dungling in der Kolonie hinterlässt, `MOTIVATOR` eine Aura auf andere
+  Arbeiter, `GREEDY` eine Weigerung bei Bauaufträgen. Alle drei hängen an
+  `jobTrip()` und an Arbeitstakten, die es in der Raid-Instanz nicht gibt.
+  Wäre eine Raid-Semantik nötig, wäre das ein zweites Trait-System ohne
+  Wirkung — D27 hat die Taktgeschwindigkeit schon als wertlos gestrichen,
+  und dieselbe Begründung trifft jede Verlangsamung im Raid.
+  Die Übersetzung wäre auch doppelt gezählt: die Berechtigung `GRABEN` ist
+  ein eigenes Feld am Stein und kein Trait, sie antwortet auf eine andere
+  Frage. Deshalb ist `capability` das vierte Stein-Feld neben Seltenheit,
+  Fähigkeiten und Trait, und `raid-state.js` reist mit genau einem Feld
+  daraus in die Instanz: `dig`.
+- **D33** **Die Basis-Ausdauer trägt genau den Erdeweg — und genau den.**
+  `entryRadius` 60 heißt: der längste Einmarschweg ist 60 Felder, nicht
+  64, und zu 60 je Ausdauer bleiben vier übrig. Ein einziger Steinblock im
+  Pfad kostet 59 + 6 = 65 und reißt das Budget. Das ist kein Rundungsfehler,
+  sondern die Rechnung hinter D2: **ohne `GRABEN` ist der Einmarsch an
+  Hartgestein zu, und mit `GRABEN` zahlt der Kader den Aufpreis.** Das
+  Nackte-Team-Versprechen aus dem Regelwerk gilt damit für eine reine
+  Erdreich-Karte und für nichts darüber — die Basis-Ausdauer ist eine
+  Zusage über die Kartenart, nicht über die Welt.
+  Ohne die Fähigkeit kostet der Weg nichts, weil er nicht geht
+  (`pathCost` liefert `null`): Bezahlen kann man keinen Weg, den man nicht
+  gehen darf.
+- **D34** **Man betritt den Hive, man gräbt ihn nicht.** Der Hive ist kein
+  Erdreich und damit kein Grabfeld; er ist aber bekannter Bau, also gilt für
+  ihn die Bewegungsregel und nicht die Grabregel. Die Anordnung folgt aus
+  D3: Bewegung ist gratis, aber nur über bekanntes Gelände — und ein Hive, den
+  niemand betreten dürfte, wäre kein Ziel, sondern eine Wand.
+  **Jede abgesetzte Aktion landet im Log, jede abgewiesene nicht.** Das ist
+  der Unterschied zwischen „der Client hat es versucht" und „der Client hat es
+  behauptet", und es ist der Grund, warum der Server das Log selbst
+  abarbeitet, statt die Aussage des Clients zu übernehmen.
 
 ### Die Stats der Steine
 
@@ -322,6 +356,16 @@ Zwei Lücken, beide klein und beide findbar:
 Die Zahlen gehören nach `stone-config.js` und erst **mit** der Abnahme. Sie
 sollen den Bau nicht blockieren, sondern beschreiben, was gemessen wurde.
 
+**Was inzwischen gemessen ist und hierher gehört:** die Chance auf `GRABEN`
+steht als `capabilityChance` je Seltenheitsstufe in `stone-config.js` — hoch
+genug, dass die Fähigkeit der Regelfall des Fortgeschrittenen ist, und an die
+Seltenheit gebunden, damit das Siegel sie überhaupt tragen kann. Sie ist eine
+Eigenmessung, keine Hochrechnung aus den Trait-Chancen; beide Kanäle fallen
+unabhängig voneinander und beide Werte kommen in derselben Karte vor. Die
+**Ausdauerfrage zu diesem Feld ist beantwortet** und steht als D33: die
+Basis-Ausdauer deckt den reinen Erdeweg, ein Steinblock im Pfad reißt sie, und
+damit ist `GRABEN` die Rechnung und nicht eine Nebensache.
+
 **Die Ausdauerrechnung ist beantwortet** und steht im Regelwerk. Sie war die
 letzte offene Zahl vor dem Bau und ist jetzt gemessen.
 
@@ -365,21 +409,41 @@ Nicht die Mechanik. Diese Reihenfolge:
    Roadmap-Punkt wird damit zur Voraussetzung.
 2. ~~**Die Ausdauer-Rechnung**, ausgehend vom Weg.~~ **Erledigt.** Sie steht im
    Regelwerk und in `raid-config.js`; die Zahlen sind gemessen, nicht gesetzt.
-3. **Das Terrain-Feld neben `TILE_KIND`**, mit eigener Abbauregel und ohne
-   `isEarth()` zu berühren.
-4. **Ticket und Replay-Check.** Der Replay gehört in die Abnahme.
+3. ~~**Das Terrain-Feld neben `TILE_KIND`**.~~ **Erledigt.** `TILE_TERRAIN`
+   steht in `tile.js` neben `TILE_KIND` und nicht darin, `terrainOf()`
+   lässt `isEarth()` unberührt, und die Heimat führt weiterhin kein
+   Hartgestein (§8). Das Vorkommen erzeugt `raid-terrain.js` mit eigener
+   Hash-Instanz; die Abbauregel `canDig()` und `pathCost()` stehen in
+   `raid-config.js`.
+4. ~~**Ticket und Replay-Check.**~~ **Der Replay-Check ist gebaut, die Ausstellung nicht.**
+   `replayRaid()` rechnet ein eingereichtes Log gegen das Ticket nach und
+   `replayMatches()` vergleicht den eigenen Endzustand mit dem behaupteten —
+   beides reine Domänenfunktion ohne Server, beides in der Abnahme. Ticket
+   **ausstellen** kann nur der Server; dieser Repo-Baum führt die Instanz
+   aus, er vergibt sie nicht.
 5. **Der Feral-Hive-Seed**, damit testbar ist, ohne echte Gegner zu brauchen.
-6. **`RaidCapability` am Stein**, mit eigenem Kanal.
+6. ~~**`RaidCapability` am Stein, mit eigenem Kanal.**~~ **Erledigt.**
+   `capability` ist das vierte Feld an `createStone()`, gewürfelt über den
+   fünften Kanal `STONE_SALT.capability`; `GRABEN` ist eine Berechtigung
+   und wird im Kader gefaltet, nicht addiert — ein Stein genügt, vier sind
+   kein Vorteil.
 7. **Erst dann die Mechanik.** Kantenwände, Rundenmodus und Wächter-Koma kommen
    zuletzt, weil Kantenwände ein zweites Objektmodell im selben Grid sind und
    das Rundenmodus ein zweites Zeitmodell neben vier Uhren mit je bis zu 20 Hz.
 
 **Was bereits steht:** `src/domain/raid/` trägt `raid-config.js` mit der
-Ausdauerrechnung und den Grabkosten, `raid-spawn-seed.js` mit dem Einmarsch aus
-dem Ticket und `raid-state.js` mit der zweiten Zustandsinstanz. Das Gerüst ist
+Ausdauerrechnung, den Grabkosten und der Grabregel, `raid-spawn-seed.js` mit dem
+Einmarsch aus dem Ticket, `raid-state.js` mit der zweiten Zustandsinstanz,
+`raid-terrain.js` mit dem Hartgestein des fremden Dungeons, `raid-actions.js` mit
+den Aktionstypen, `raid-steps.js` mit den Übergängen und `raid-replay.js` mit dem
+Replay-Check. Dazu kommt am Stein das vierte Feld `capability`. Das Gerüst ist
 bewusst vor der Mechanik gebaut, weil die Zahlen sonst gegen eine Annahme
-programmiert worden wären. **Nicht gebaut** ist davon die Abnahme: es gibt noch
-keinen `check-raid-*.mjs`, und ein ungeprüfter Replay ist eine Behauptung.
+programmiert worden wären. **Die Abnahme steht auch:**
+`check-raid.mjs`, `check-raid-terrain.mjs` und `check-raid-replay.mjs` prüfen es
+gegen die echten Module. **Von der Mechanik steht:** gehen, graben und die
+Ankunft am Hive. **Nicht gebaut** sind Angriff, Opfer, Extraktion, Wächter-Koma
+und Kantenwände — die Phase `EXTRACTING` und `RESOLVED` werden heute nur
+verhindert, nicht erreicht.
 
 **Ein Zirkel, der benannt gehört:** Das MMR-System verhindert Missbrauch,
 braucht aber aufgezeichnete Raid-Ergebnisse und liegt damit **nach** dem ersten
