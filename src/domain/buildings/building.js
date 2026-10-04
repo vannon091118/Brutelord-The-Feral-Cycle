@@ -43,7 +43,7 @@ export function createBuildingSite({ id, type, anchor }) {
   };
 }
 
-export function isDelivered(building) {
+function isDelivered(building) {
   return building.delivered >= building.required;
 }
 
