@@ -1,7 +1,7 @@
 /** Die Sonde des Hive: Sichtbarkeit folgt dem gewachsenen Raum. */
 import { REVEAL_RADIUS } from './world-config.js';
 import { TILE_VISIBILITY, isVisible, tileId } from './tile.js';
-import { getTile, isInsideGrid, replaceTile } from './grid.js';
+import { applyTiles, getTile, isInsideGrid } from './grid.js';
 
 function wobbleAt(x, y) {
   const hash = Math.imul(x + 7919, 73856093) ^ Math.imul(y + 104729, 19349663);
@@ -22,12 +22,15 @@ export function areaIds(world, { x, y }) {
 }
 
 function revealed(world, ids) {
-  let next = world;
+  const updates = {};
+  let changed = 0;
   for (const id of ids) {
-    const tile = getTile(next, id);
-    if (tile && !isVisible(tile)) next = replaceTile(next, { ...tile, visibility: TILE_VISIBILITY.VISIBLE });
+    const tile = getTile(world, id);
+    if (!tile || isVisible(tile)) continue;
+    updates[id] = { ...tile, visibility: TILE_VISIBILITY.VISIBLE };
+    changed += 1;
   }
-  return next;
+  return changed === 0 ? world : applyTiles(world, updates);
 }
 
 export function revealWorld(world, anchors) {

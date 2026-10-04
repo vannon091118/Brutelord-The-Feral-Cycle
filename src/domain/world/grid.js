@@ -105,6 +105,13 @@ export function replaceTile(world, nextTile) {
   return { ...world, tiles: { ...world.tiles, [nextTile.id]: nextTile } };
 }
 
+/** Mehrere Kacheln in einem Zug: ein Streuen statt eines je Kachel. */
+export function applyTiles(world, updates) {
+  const ids = Object.keys(updates);
+  if (ids.length === 0) return world;
+  return { ...world, tiles: { ...world.tiles, ...updates } };
+}
+
 export function neighborIds(world, id) {
   const { x, y } = parseTileId(id);
   return [

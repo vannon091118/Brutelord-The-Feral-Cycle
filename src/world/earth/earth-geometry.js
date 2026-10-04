@@ -46,7 +46,21 @@ function damageOf({ x, y, size, seed, health }) {
   };
 }
 
+/** Geometrie haengt an Koordinate, Groesse und Zustand — also merkt sie sich das. */
+const CACHE_LIMIT = 512;
+const geometryCache = new Map();
+
 export function earthGeometry({ tile, size }) {
+  const key = `${tile.x},${tile.y}|${size}|${tile.earthHealth}`;
+  const cached = geometryCache.get(key);
+  if (cached) return cached;
+  const geometry = buildGeometry({ tile, size });
+  if (geometryCache.size >= CACHE_LIMIT) geometryCache.clear();
+  geometryCache.set(key, geometry);
+  return geometry;
+}
+
+function buildGeometry({ tile, size }) {
   const seed = tileSeed(tile.x, tile.y);
   const x = tile.x * size;
   const y = tile.y * size;

@@ -1,7 +1,7 @@
 /** Ableitung für die Darstellung: Ausschnitt, Schwarm, Popups, Bauten. */
-import { TILE_KIND, isVisible } from '../domain/world/tile.js';
-import { allTiles } from '../domain/world/grid.js';
-import { MINING_PHASE, mineableFrontierIds } from '../domain/actions/mining.js';
+import { TILE_KIND, isVisible, tileId } from '../domain/world/tile.js';
+import { getTile } from '../domain/world/grid.js';
+import { MINING_PHASE, canMineTile } from '../domain/actions/mining.js';
 import { tilePositionPx, workerPositionPx } from '../domain/entities/dungling.js';
 import {
   TILE_SIZE,
@@ -18,12 +18,22 @@ import {
 
 const ARRIVAL_STATES = [ONBOARDING_STATE.GRID_EXPANDED, ONBOARDING_STATE.TILE_DESTROYED];
 
+/** Ohne Array: der Bauplatz zaehlt wenige Kacheln, das Raster hat viertausend. */
 export function builtCenterPx(world, tileSize) {
-  const built = allTiles(world).filter((tile) => tile.kind !== TILE_KIND.EARTH);
-  const source = built.length > 0 ? built : [{ x: world.hiveOrigin.x, y: world.hiveOrigin.y }];
-  const sumX = source.reduce((sum, tile) => sum + (tile.x + 0.5) * tileSize, 0);
-  const sumY = source.reduce((sum, tile) => sum + (tile.y + 0.5) * tileSize, 0);
-  return { x: sumX / source.length, y: sumY / source.length };
+  let count = 0;
+  let sumX = 0;
+  let sumY = 0;
+  for (const id in world.tiles) {
+    const tile = world.tiles[id];
+    if (tile.kind === TILE_KIND.EARTH) continue;
+    count += 1;
+    sumX += (tile.x + 0.5) * tileSize;
+    sumY += (tile.y + 0.5) * tileSize;
+  }
+  if (count === 0) {
+    return { x: (world.hiveOrigin.x + 0.5) * tileSize, y: (world.hiveOrigin.y + 0.5) * tileSize };
+  }
+  return { x: sumX / count, y: sumY / count };
 }
 
 export function cameraBox({ world, tileSize, viewport }) {
@@ -37,13 +47,24 @@ export function cameraBox({ world, tileSize, viewport }) {
   };
 }
 
+function insideCamera(tile, camera, tileSize) {
+  const x = tile.x * tileSize;
+  const y = tile.y * tileSize;
+  return x + tileSize > camera.x && x < camera.x + camera.width && y + tileSize > camera.y && y < camera.y + camera.height;
+}
+
+/** Der Ausschnitt wird koordinatenweise abgegangen, nicht das ganze Raster. */
 function tilesInView(world, camera, tileSize) {
-  return allTiles(world).filter((tile) => {
-    if (!isVisible(tile)) return false;
-    const x = tile.x * tileSize;
-    const y = tile.y * tileSize;
-    return x + tileSize > camera.x && x < camera.x + camera.width && y + tileSize > camera.y && y < camera.y + camera.height;
-  });
+  const seen = [];
+  const from = (start) => Math.max(0, Math.floor(start / tileSize) - 1);
+  const to = (start, extent, limit) => Math.min(limit, Math.floor((start + extent) / tileSize));
+  for (let y = from(camera.y); y <= to(camera.y, camera.height, world.height - 1); y += 1) {
+    for (let x = from(camera.x); x <= to(camera.x, camera.width, world.width - 1); x += 1) {
+      const tile = getTile(world, tileId(x, y));
+      if (tile && isVisible(tile) && insideCamera(tile, camera, tileSize)) seen.push(tile);
+    }
+  }
+  return seen;
 }
 
 function workerViews(game, tileSize) {
@@ -63,8 +84,16 @@ function popupViews(game, tileSize) {
   return game.popups.map((popup) => ({ id: popup.id, position: tilePositionPx(popup, tileSize) }));
 }
 
+/** Nur Kacheln mit Vorrat werden kopiert — sonst bliebe die Objektidentitaet. */
 function depositsOf(world, tiles) {
-  return tiles.map((tile) => ({ ...tile, deposit: tile.depositId ? world.deposits?.[tile.depositId] ?? null : null }));
+  return tiles.map((tile) => (tile.depositId ? { ...tile, deposit: world.deposits?.[tile.depositId] ?? null } : tile));
+}
+
+/** Die Frontier zaehlt nur, was der Ausschnitt zeigen kann. */
+function frontierOf(world, tiles) {
+  const frontier = new Set();
+  for (const tile of tiles) if (canMineTile(world, tile.id)) frontier.add(tile.id);
+  return frontier;
 }
 
 export function worldView({ game, tileSize = TILE_SIZE }) {
@@ -76,7 +105,7 @@ export function worldView({ game, tileSize = TILE_SIZE }) {
     viewport,
     camera,
     tiles: depositsOf(game.world, visible),
-    frontier: new Set(mineableFrontierIds(game.world)),
+    frontier: frontierOf(game.world, visible),
     canSelect: selectMaySelectTiles(game),
     softHint: selectSoftHintVisible(game),
     workingTileId: selectWorkingTileId(game),

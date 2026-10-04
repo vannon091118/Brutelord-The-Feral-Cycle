@@ -12,9 +12,11 @@ import { menuPositionFor } from './menu-position.js';
  */
 export function GameStage({ game, actions }) {
   const { attach, scale, stage } = useStageScale(TILE_SIZE);
-  const camera = cameraBox({ world: game.world, tileSize: TILE_SIZE, viewport: viewportPixelSize(TILE_SIZE) });
   const menuOpen =
     game.onboarding.state === ONBOARDING_STATE.ACTION_MENU && Boolean(game.selectedTileId);
+  const camera = menuOpen
+    ? cameraBox({ world: game.world, tileSize: TILE_SIZE, viewport: viewportPixelSize(TILE_SIZE) })
+    : null;
 
   return (
     <div ref={attach} className="relative flex min-h-0 w-full flex-1 items-center justify-center p-2">

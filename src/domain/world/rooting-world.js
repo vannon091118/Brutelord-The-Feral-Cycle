@@ -1,5 +1,5 @@
 /** Verwurzelung auf Weltebene: wachsen, ruhen, nur abgebauten Boden beanspruchen. */
-import { getTile, neighborIds, replaceTile } from './grid.js';
+import { applyTiles, getTile, neighborIds, replaceTile } from './grid.js';
 import { TILE_KIND } from './tile.js';
 import { ROOTING_PHASE, advanceRooting, beginRooting, createRooting, isRootingBusy } from './rooting.js';
 import { ROOTING_CONFIG } from './rooting-config.js';
@@ -55,15 +55,22 @@ export function spreadToNeighbors(world, ids) {
     if (!anchor) continue;
     next = revealAround(next, anchor);
     next = hintAround(next, anchor);
-    for (const neighborId of neighborIds(next, id)) {
-      const neighbor = getTile(next, neighborId);
-      if (neighbor && isClaimable(neighbor)) {
-        next = replaceTile(next, { ...neighbor, rooting: createRooting(ROOTING_PHASE.GROWING) });
-        activeIds.add(neighborId);
-      }
-    }
+    const claims = claimsOf(next, id);
+    for (const claimedId of Object.keys(claims)) activeIds.add(claimedId);
+    next = applyTiles(next, claims);
   }
   return { ...next, rootingWorkIds: [...activeIds] };
+}
+
+function claimsOf(world, id) {
+  const updates = {};
+  for (const neighborId of neighborIds(world, id)) {
+    const neighbor = getTile(world, neighborId);
+    if (neighbor && isClaimable(neighbor)) {
+      updates[neighborId] = { ...neighbor, rooting: createRooting(ROOTING_PHASE.GROWING) };
+    }
+  }
+  return updates;
 }
 
 function isClaimable(tile) {

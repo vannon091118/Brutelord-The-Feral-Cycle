@@ -38,6 +38,19 @@ Grund, ihn zu haben.
 - [ ] **Die Leiter bei 47,47.** Steht als `LADDER_TILE` in der Config und wird
       gerendert, sobald die Wurzeln hinkommen. Sie ist Deko mit Tiefe — irgendwann
       wird sie der Eingang.
+- [x] **Die Traits wirken auf den Arbeitstakt.** Gierig verweigert Bauaufträge
+      und verdoppelt die getragene Essenz, Motivator beschleunigt alles in
+      dreifeldrigem Umkreis, Schleimig verlangsamt jeden auf seiner Grundfläche.
+      `stone-effects.js` faltet die verbauten Steine zu einem Bündel,
+      `work-tick.js` fragt es je Einheit ab. `check-traits.mjs` misst die
+      Takte bis zum Essenz-Popup mit dem echten Reducer — nicht an einem
+      Konfigurationsliteral, das sich selbst vergleicht.
+- [x] **Die Hive-Fläche aus der Config ableiten.** `check-start.mjs` prüfte
+      „exakt vier Hive-Tiles" als Literal `4`. Die Erwartung kommt jetzt aus
+      `world.hiveSize`; wer `HIVE_SIZE` in `world-config.js` vergrößert, muss
+      die Prüfung nicht mehr mitziehen, sonst prüft sie nichts mehr. Gegenprobe
+      gelaufen: mit hartkodiertem Raster im `grid.js` und `HIVE_SIZE` auf 3 × 2
+      fällt genau diese eine Prüfung rot.
 - [x] **Verborgene Essenz-Vorräte und eine Hive-Ökonomie.** Unter der Erde
       liegen Cluster aus ein bis drei Feldern mit je höchstens hundert Essenz,
       stets isoliert; spürbar wird ein Vorrat nur, wenn die Wurzeln ein
@@ -78,6 +91,24 @@ Grund, ihn zu haben.
       Takt aus. Gierig soll Bauaufträge verweigern, Motivator eine Aura geben,
       Schleimig eine Kriechspur — das ist Arbeit an `work-tick.js`, nicht am
       Labor.
+- [x] **Die Render-Kosten.** Vier Uhren ticken bis zu 20-mal pro Sekunde, und
+      jeder Takt zog vorher das ganze 4.096-Kacheln-Raster durch die
+      Ableitung: `tilesInView()` filterte `Object.values(world.tiles)`, um 56
+      Kacheln zu finden, `builtCenterPx()` lief zweimal pro Render, weil
+      `GameStage.jsx` die Kamera für ein Menü berechnete, das meistens zu ist,
+      und die Frontier zählte das gesamte Raster für eine Karte, die ohnehin
+      nur im Ausschnitt gelesen wird. `revealAround()` streute das
+      `tiles`-Objekt 37-mal für einen einzigen abgeräumten Block — 78 ms in
+      einem Reducer-Schritt, mitten im Spiel. Und `depositsOf()` gab jeder
+      Kachel pro Render ein neues Objekt, wodurch `React.memo` auf `EarthTile`
+      nie traf. Jetzt: Ausschnitt koordinatenweise statt Raster filtern,
+      `applyTiles()` bündelt mehrere Kacheln in ein Streuen,
+      `earthGeometry()` cached nach Koordinate, Größe und Zustand, Kopie nur
+      bei Kacheln mit Vorrat. Gemessen gegen die echten Module, alt gegen neu
+      im selben Lauf: Ableitung pro Render 16,2 → 3,5 ms, ein abgeräumter
+      Block 182 → 8 ms. Ohne Bildänderung, bewiesen über 34 Zustandsvergleiche
+      mit identischer Kamera, identischer Kachelreihenfolge und identischer
+      Frontier, plus unveränderten 187 Prüfungen.
 - [x] **Die Regeln nachgeschärft.** Hard Caps messen jetzt nur Code — Leer- und
       Kommentarzeilen fallen aus dem LOC-Cap heraus —, und Kommentare selbst
       sind auf fünf Zeilen pro Datei gedeckelt: global für alles unter `src/`

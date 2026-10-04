@@ -264,11 +264,26 @@ erst das Einbauen in einen Slot lüftet seinen Namen. Die Seltenheit gibt das
 UI trotzdem über die Farbe preis. Ein Stein, der einmal verbaut wurde, gilt als
 entdeckt — das Flag hängt am Stein, nicht am Inventarplatz.
 
-Noch offen und bewusst nicht entschieden: die drei Verhaltens-Traits stehen
-als Daten in `stone-config.js` und wirken sich auf **keinen** Takt aus. Gierig
-soll Bauaufträge verweigern, Motivator eine Aura geben, Schleimig eine
-Kriechspur hinterlassen. Das gehört in `work-tick.js` und ist die nächste
-Stufe — ein Labor ohne Effekt ist ein Inventarspiel.
+**Die Traits wirken auf den Takt.** `stone-effects.js` faltet die verbauten
+Steine zu einem Bündel — `buildOrders`, `auraRadius`, `speedBonus`, `trailSlow`,
+`carryBonus` —, und `work-tick.js` fragt es pro Einheit ab. Ohne verbauten Stein
+ist das Bündel neutral, der Takt läuft also unverändert; das ist der Grund, warum
+es `NEUTRAL_EFFECTS` gibt und nicht eine Reihe von Sonderfällen je Trait.
+
+Die Wirkung sitzt an genau zwei Stellen. Die Bauverweigerung greift in
+`nextJobFor()`: ein gieriger Brutlord lässt `deliveryFor()` aus, der Dungling
+geht stattdessen an den Extraktor. Das Tempo sitzt in `advanceWorkers()`, das
+je Einheit einen eigenen Takt bekommt — `dtFor()` rechnet Aura und Spur
+zusammen, damit eine Einheit nicht zweimal durch dieselbe Prüfung muss. Die
+Schleimspur ist die Grundfläche des Brutlords; wer darüber läuft, verliert die
+Hälfte seines Takts. Ein gieriger Stein verdoppelt die abgelieferte Essenz.
+
+Gemessen wird das nicht an Konfigurationsliteralen, sondern am echten Reducer:
+`check-traits.mjs` baut eine Kolonie mit fertigem Brutlord und offenem Bauplatz,
+baut einen Stein mit bekanntem Trait ein und zählt die Takte bis zum
+Essenz-Popup — einmal über den Brutlord, einmal daneben vorbei. Der
+Gegenbeweis: neutralisiert man die Verdrahtung in `work-tick.js`, fallen genau
+drei Prüfungen rot und die restlichen 165 bleiben grün.
 
 ## Welt und Darstellung
 
@@ -292,6 +307,42 @@ Die Leiter bei 47/47 wird erst gezeichnet, wenn die Kamera sie erreicht.
 
 Die Darstellung liest den Auftrag, nicht die Uhr: `jobTrip()` liefert die
 Zwischenposition zwischen zwei Feldern, damit ein Träger läuft statt zu springen.
+
+### Was ein Render kostet
+
+Vier Uhren ticken bis zu 20-mal pro Sekunde, und jeder Takt ist ein vollständiger
+Durchlauf durch `App`. Was pro Durchlauf teuer war, stand an drei Stellen:
+
+**Das Raster wurde durchsucht, um 13 × 13 Kacheln zu finden.** `tilesInView()`
+geht den Ausschnitt jetzt koordinatenweise ab und liest `world.tiles[tileId(x, y)]`
+— 169 Zugriffe statt 4.096. `builtCenterPx()` zählt ohne `Object.values()`
+zu, weil das Array über 4.096 Elemente allein mehr kostet als der Durchgang.
+Die Frontier zählt nur, was im Ausschnitt liegt; sie wird ausschließlich dort
+gelesen (`TileLayer.jsx`), also ändert das nichts am Bild. `GameStage.jsx`
+berechnet die Kamera nur noch, wenn das Kontextmenü offen ist — sonst stand
+derselbe Kasten zweimal pro Render im Bild, mit identischen Argumenten.
+
+**Mehrere Kacheln werden in einem Zug geschrieben.** `replaceTile()` streut das
+ganze `tiles`-Objekt, und das sind 4.096 Keys. `revealAround()` tat das 37-mal
+für einen einzigen Block — 78 ms in einem Reducer-Schritt. `applyTiles()` in
+`grid.js` ist die Stelle, die mehrere Änderungen in *ein* Streuen packt;
+`reveal.js` und `spreadToNeighbors()` benutzen sie. Einzelne Kacheln bleiben bei
+`replaceTile()`.
+
+**Geometrie hängt an Koordinate, Größe und Zustand.** `earthGeometry()`
+cached darum nach genau diesen drei Dingen (`earth-geometry.js`) und baut die
+Pfade nur beim ersten Mal. Das ist sicher, weil die Form aus `tileSeed(x, y)`
+und dem Seed des Zustands kommt — nicht aus der Zeit.
+
+Und: `depositsOf()` kopiert nur noch Kacheln, die wirklich einen Vorrat tragen.
+Vorher bekam jede Kachel pro Render ein neues Objekt, damit traf `React.memo`
+auf `EarthTile` nie zu und die Geometrie wurde für alle 56 sichtbaren Felder neu
+gebaut, obwohl sich 55 davon nicht bewegt hatten.
+
+Gemessen wurde das in `node` gegen die echten Module und im Browser per
+CPU-Profil im Production-Build: die Ableitung pro Render fiel von 16,2 auf
+3,5 ms, ein abgeräumter Block von 182 auf 8 ms. Bild und Bedienung sind
+unverändert — dieselben 187 Prüfungen, dieselbe Reihenfolge der Kacheln.
 
 ## Werkzeuge
 
@@ -339,7 +390,8 @@ wenn eine `check-*.mjs` sie aufruft; die echten Module aus `src/` werden
 importiert, nicht nachgebaut.
 
 - `check-colony.mjs` bündelt Bauen und Beanspruchung, weil `verify-slice.mjs` an
-  der Importgrenze steht.
+  der Importgrenze steht. Dort hängen auch `check-traits.mjs` und sein Aufbau
+  `lab-run.mjs`, das eine Kolonie mit verbautem Stein und offenem Bauplatz stellt.
 - `check-deposits.mjs` hängt an `checkRooting()`, weil der Einstiegspunkt mit
   sieben Importzeilen am Cap steht und der Hinweis ohnehin Verwurzelung ist.
   Beim Nachtreiben von Hand: `startRooting(world, tile)` nimmt die Welt und die
@@ -350,10 +402,10 @@ importiert, nicht nachgebaut.
 - `virtual-clock.mjs` führt denselben Zeitplan wie der Browser aus, nur ohne
   Wartezeit. Der Arbeitstakt wird als `WORK_TICK` mit festem `dtMs` getaktet —
   auch hier gibt es keine Systemzeit.
-- `check-mining-progress.mjs` prüft `totalMiningTicks() === 35` als Literal,
-  `check-start.mjs` „exakt vier Hive-Tiles" statt `HIVE_SIZE`. Wer
-  `miningDurationMs`, `earthStateThresholds` oder `HIVE_SIZE` ändert, muss
-  diese Zahlen mitziehen.
+- `check-mining-progress.mjs` prüft `totalMiningTicks() === 35` als Literal.
+  Wer `miningDurationMs` oder `earthStateThresholds` ändert, muss diese Zahl
+  mitziehen. Die Hive-Fläche in `check-start.mjs` liest dagegen aus
+  `world.hiveSize` und ist damit von `HIVE_SIZE` abgeleitet.
 - `expect.mjs` zählt global über den ganzen Lauf und `summary()` ist nur einmal
   aufrufbar; deshalb liegt die Reihenfolge fest.
 
