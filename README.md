@@ -7,7 +7,9 @@ sich reinzufressen. Wurzeln stoßen in die Nachbarfelder. Und das war's fürs Er
 
 Mehr Spiel gibt es nicht. Nicht jetzt.
 
-![Status](https://img.shields.io/badge/Version-0.0.1-c8a45b5) ![Lizenz](https://img.shields.io/badge/Lizenz-MIT-c8a45b5) ![Node](https://img.shields.io/badge/Node-22-c8a45b5)
+![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fvannon091118%2FDungeon-Breaker-Lord-of-the-Evil%2Fmain%2Fversion.lock.json&query=%24.version&label=Version)
+![Lizenz](https://img.shields.io/badge/Lizenz-MIT-c8a45b5)
+![Node](https://img.shields.io/badge/Node-22-c8a45b5)
 
 ## Was hier wirklich drin ist
 
@@ -24,13 +26,19 @@ Mehr Spiel gibt es nicht. Nicht jetzt.
   eine Essenz pro Zyklus; der Träger bringt sie zum Hive, wo sie als `+1` aufblitzt
 - Ein **Schwarmhort** brütet neue Arbeiter, bis der Schwarm sechs Dunglinge trägt
 - Der **Brutlord** braucht 2 × 2 Felder und zehn Essenz — und wartet danach
-- 13×13-Tile-Kamera folgt dem Raum, 64×64-Welt drumherum (4.096 Felder, davon sind 4 Hive)
-- Eine Leiter steht bei 47,47 draußen im Nirgendwo und wird erst sichtbar, wenn die Wurzeln hinkommen
+- Unter der Erde liegen Vorräte: ein Cluster ist **ein Schlag, kein fließender
+  Vorrat**. Der Abbau kostet Essenz, auf *jede* Erde, und bei null wird der
+  Auftrag abgelehnt. Der Hive presst passiv, gedeckelt auf fünfundzwanzig
+- 13×13-Tile-Kamera folgt dem Raum, 64×64-Welt drumherum (4.096 Felder, davon
+  sind 4 Hive). Jeder Account bekommt aus Name und Passwort eine eigene Welt
+- Eine Leiter steht bei 47,47 draußen im Nirgendwo und wird erst sichtbar, wenn
+  die Wurzeln hinkommen
 
 **Ist noch Attrappe — bitte nicht verwechseln:**
 
-- Der **Brutlord** steht, kostet und tut sonst nichts. Was er ausbrütet, ist
-  noch nicht entschieden; bis dahin ist er ein sehr teurer Platzhalter mit Panzer.
+- Der **Brutlord** steht, kostet, brütet Mutanten — und was ein Stein im Kampf
+  anrichtet, ist noch nicht entschieden.
+- Der **Spielstand fehlt**. Wer sich abmeldet, verliert Hive, Vorräte und Bauten.
 - Es gibt **kein `npm test`**. Null. Null Zeilen. Was hier prüft, ist `npm run verify`.
 - Kein Linter, kein Formatter. Wer sich im Repo einbaut, hält sich an den
   bestehenden Stil oder wird vom Review zerschossen.
@@ -47,34 +55,29 @@ rein, das ist Absicht und keine Bug.
 
 ## Das Gate ist der eigentliche Projektleiter
 
-Hier wird nicht diskutiert, hier wird gemessen. `npm run gate` ist der Boss:
-
-| Cap | Wert |
-| --- | --- |
-| LOC pro Modul | 300 |
-| LOC pro benannter Funktion | 30 |
-| Parameter pro Funktion | 3 |
-| Imports pro Datei | 7 |
-
-Und ja, das ist absurd. **Absichtlich.** Kein Refactoring-Zyklus, kein
-"Spawn-Manager mit 40 Feldern und einem Interface, das keiner braucht" — der
-Code wächst in kleine, ehrliche Module. Jede neue Datei, die du anfasst, muss
-unter 300 Zeilen bleiben, und `scripts/lib/source-metrics.mjs` zählt das als
-Textanalyse auf, ohne Parser. Heißt: anonyme Callbacks zählen nicht als
+Hier wird nicht diskutiert, hier wird gemessen. `npm run gate` prüft Form,
+Version und Commit-Regeln; `npm run verify` prüft, ob das Spiel noch das tut,
+was es soll. Und ja, die Obergrenzen sind absurd. **Absichtlich.** Kein
+Refactoring-Zyklus, kein „Spawn-Manager mit 40 Feldern und einem Interface, das
+keiner braucht" — der Code wächst in kleine, ehrliche Module. `scripts/lib/source-metrics.mjs`
+zählt das als Textanalyse, ohne Parser. Heißt: anonyme Callbacks zählen nicht als
 Funktionen, aber zwei getrennte `import`-Statements sind zwei Imports. Wer clever
 sein will, wird vom Gate erwischt.
 
 ```sh
-npm run gate            # alles: Hard Caps, Version, Commits
-npm run verify          # die Abnahmesimulation, 121 Prüfungen
+npm run gate            # Form, Version, Commits
+npm run verify          # die Abnahmesimulation: der Slice, deterministisch durchgespielt
 npm run verify:commits  # Regressionstests des Commit-Gates selbst
+npm run build           # der einzige, der einen fehlenden Import bemerkt
 ```
 
 `npm run verify` spielt den Slice mit einer virtuellen Uhr deterministisch
-durch — kein Browser, keine Flakiness, kein "works on my machine". Es prüft
+durch — kein Browser, keine Flakiness, kein „works on my machine". Es prüft
 Onboarding-Zeiten, Abbau-Ergebnis, Verwurzelungs-Phasen, den kompletten
-Bauablauf bis zum Brutlord und dass die Domäne sauber bleibt. **121 Prüfungen,
-alle grün.** Die Domäne unter `src/domain/` darf
+Bauablauf bis zum Brutlord, die Essenz-Ökonomie, die Konto-Kette und dass die
+Domäne sauber bleibt. Wie viele Prüfungen das sind, sagt dir der Lauf selbst —
+die Zahl wird hier bewusst nicht abgeschrieben, denn eine Zahl im Text ist ab
+dem nächsten Commit still falsch. Die Domäne unter `src/domain/` darf
 kein React, kein DOM, kein SVG, kein `Math.random()` und kein `Date.now()`
 anfassen — Spielwahrheit ist reines JS und bleibt es.
 
@@ -83,21 +86,19 @@ anfassen — Spielwahrheit ist reines JS und bleibt es.
 **Der Hive ist die Autorität.** `version.lock.json` führt, `VERSION`,
 `package.json` und `package-lock.json` sind Spiegel. Nur über
 `npm run version:bump -- patch` anfassbar. Wer den Lock von Hand editiert, hat
-im Gate verloren — außer er nimmt eine Fehlbenennung zurück und schreibt die
-korrigierte Nummer samt `amends` in den Lock. Diese eine Ausnahme kennt das
-Gate ausdrücklich; jede andere Rücknahme fällt durch.
+im Gate verloren.
 
-**Commit-Bodies sind romanlang.** 100 bis 1.000 Wörter. Jede geänderte Datei
-muss namentlich im Body stehen. Letzte Zeile exakt einmal
-`created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice,
-Never Average Vibe.`. Verboten: `Co-Authored-By`, `Signed-off-by`,
-`Reviewed-by`, `Generated with …`, Footer-Trenner und jedes `Key: value` als
-Trailer.
-
-Klingt übertrieben. Ist es auch. Aber: Du wirst nicht an einem Tag arbeiten, an
-dem du dich erinnerst, warum du diese eine Zeile in `rooting.js` geändert hast.
-Der Body ist das Memory, und das Gate zwingt dich, es zu schreiben. Wer
+**Commit-Bodies sind romanlang.** Jede geänderte Datei namentlich, ein
+festgeschriebener Schlusssatz, und der Body muss erklären, **warum**. Klingt
+übertrieben. Ist es auch. Aber: Du wirst nicht an einem Tag arbeiten, an dem du
+dich erinnerst, warum du diese eine Zeile in `rooting.js` geändert hast. Der
+Body ist das Memory, und das Gate zwingt dich, es zu schreiben. Wer
 `git commit -m "fix"` tippt, bekommt die volle Härte — und die ist verdient.
+
+Der **genaue Wortlaut** aller Regeln — Commit-Policy, Versionierung, Caps,
+Dokumentationspflicht, Sorgfaltspflicht — steht einmal in
+[`Docs/GOVERNANCE.md`](Docs/GOVERNANCE.md) und wird hier bewusst nicht
+abgeschrieben.
 
 **Sprache:** Commit-Nachrichten und Code-Kommentare auf Deutsch, Bezeichner
 englisch. Klingt widersprüchlich, funktioniert aber: Der Kommentar erklärt das
@@ -119,23 +120,22 @@ Selektoren kennen. Wer hier die Richtung auf den Kopf stellt, baut umsonst.
 
 Fakten liegen als eingefrorene Konstanten (`TILE_KIND`, `DUNGLING_STATE`,
 `HARD_CAPS`) in `*-config.js`. Keine Magic Strings, keine Zahlen in
-Komponenten — jede Zeit und jedes Tuning steht an genau einer Stelle, damit die
-Simulation auf die Config prüfen kann statt auf gerundete Zahlen.
+Komponenten — jede Zeit und jedes Tuning steht an genau einer Stelle, damit
+die Simulation auf die Config prüfen kann statt auf gerundete Zahlen.
 
-## Stand der Dinge
+## Doku
 
-- [x] Hive → Dungling → Abbau → Boden
-- [x] Verwurzelung mit vier Phasen (DARK → GROWING → RESTING → CLAIMED)
-- [x] Bauen: Bauplatz, Essenz-Lieferung, Extraktor, Schwarmhort, Brutlord
-- [x] Mehrere Dunglinge: der Schwarmhort brütet sie, der Extraktor beschäftigt sie
-- [x] Gate für Hard Caps, Version, Commits — läuft in CI auf jedem PR
-- [x] Deterministische Slice-Simulation ohne Browser
+Eine Aussage über dieses Projekt steht genau einmal. Diese Seite erzählt dir,
+was das Spiel ist; die fünf Dateien darunter sagen, wie es gebaut wird.
 
-## Roadmap
-
-Steht in [`Docs/ROADMAP.md`](Docs/ROADMAP.md) — versionsgebunden, wird nach
-jedem Task im selben Commit nachgezogen. Kurzfassung: **Bauen steht** (Bauplatz,
-Essenz, Schwarm), als Nächstes kommen Speichern und der Eingang bei 47,47.
+| Frage | Datei |
+| --- | --- |
+| Was muss ich vor jedem Commit wissen? | [`AGENTS.md`](AGENTS.md) |
+| Wie laufen Gate, Abnahme, Version, CI? | [`Docs/WORKFLOW.md`](Docs/WORKFLOW.md) |
+| Welche Regeln und Pflichten gelten? | [`Docs/GOVERNANCE.md`](Docs/GOVERNANCE.md) |
+| Welche Fehler schon einmal zugeschlagen haben? | [`Docs/PITFALLS.md`](Docs/PITFALLS.md) |
+| Warum steht eine Sache so und nicht anders? | [`Docs/ARCHITEKTUR.md`](Docs/ARCHITEKTUR.md) |
+| Was wird als Nächstes gebaut? | [`Docs/ROADMAP.md`](Docs/ROADMAP.md) |
 
 ## Ehrliche Einschätzung
 

@@ -13,7 +13,7 @@ const FORM_BY_SLOT = Object.freeze({
   LEGS: ['snailfoot', 'stilt', 'root', 'talon', 'column'],
 });
 
-export function slotPower(stone) {
+function slotPower(stone) {
   return STONE_DEFS[stone.rarity].power;
 }
 

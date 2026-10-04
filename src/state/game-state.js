@@ -4,7 +4,6 @@ import { createHive } from '../domain/entities/hive.js';
 import { createOnboarding } from '../domain/onboarding/onboarding-state.js';
 import { createLab } from '../domain/brutelord/lab-state.js';
 import { START_ESSENCE } from '../domain/buildings/building-config.js';
-import { worldSeed } from '../domain/world/world-seed.js';
 
 export function createInitialGameState(playerseed) {
   const world = createWorld({ playerseed });

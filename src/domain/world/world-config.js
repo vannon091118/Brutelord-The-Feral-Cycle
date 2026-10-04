@@ -11,16 +11,16 @@ export const REVEAL_RADIUS = 2;
 /** Der Kern um eine Sonde bleibt immer frei, alles davor wackelt pro Seed. */
 export const REVEAL_GUARANTEED = 1;
 
-export const VIEW_TILES = 13;
+const VIEW_TILES = 13;
 
 export const LADDER_TILE = Object.freeze({ x: 47, y: 47 });
 
-export const WORLD_BLEED_TILES = 0.75;
+const WORLD_BLEED_TILES = 0.75;
 
 export const DEPTH_RADIUS_TILES = 14;
 
-export const MIN_WORLD_SCALE = 0.4;
-export const MAX_WORLD_SCALE = 1;
+const MIN_WORLD_SCALE = 0.4;
+const MAX_WORLD_SCALE = 1;
 
 /** Die Welt ohne Konto: der Start, den npm run verify und der Offline-Bau bekommen. */
 export const WORLD_SEED = Object.freeze({
@@ -55,14 +55,4 @@ export function computeWorldScale({ availableWidth, availableHeight, tileSize = 
   if (!availableWidth || !availableHeight) return MAX_WORLD_SCALE;
   const raw = Math.min(availableWidth / view.width, availableHeight / view.height);
   return clamp(raw, MIN_WORLD_SCALE, MAX_WORLD_SCALE);
-}
-
-export function isInsideView({ center, x, y }, tileSize = TILE_SIZE) {
-  const half = (VIEW_TILES / 2) * tileSize;
-  return (
-    (x + 0.5) * tileSize >= center.x - half &&
-    (x + 0.5) * tileSize < center.x + half &&
-    (y + 0.5) * tileSize >= center.y - half &&
-    (y + 0.5) * tileSize < center.y + half
-  );
 }

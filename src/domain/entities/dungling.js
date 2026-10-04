@@ -32,10 +32,6 @@ export function tilePositionPx(tile, tileSize = TILE_SIZE) {
   return { x: (tile.x + 0.5) * tileSize, y: (tile.y + 0.5) * tileSize };
 }
 
-export function dunglingPositionPx(dungling, tileSize = TILE_SIZE) {
-  return tilePositionPx(dungling.tile, tileSize);
-}
-
 export function workerPositionPx(worker, tileSize = TILE_SIZE) {
   const trip = jobTrip(worker.job);
   if (!trip) return tilePositionPx(worker.tile, tileSize);

@@ -3,7 +3,6 @@ import {
   MINING_PHASE,
   advanceMiningJob,
   canAffordMining,
-  canMineTile,
   createMiningJob,
   earthHealthForProgress,
   miningCost,

@@ -3,7 +3,6 @@ import { applyTiles, getTile, neighborIds, replaceTile } from './grid.js';
 import { TILE_KIND } from './tile.js';
 import { ROOTING_PHASE, advanceRooting, beginRooting, createRooting, isRootingBusy } from './rooting.js';
 import { ROOTING_CONFIG } from './rooting-config.js';
-import { ACTION } from '../actions/action-types.js';
 import { revealAround } from './reveal.js';
 import { hintAround } from '../deposits/deposit-hint.js';
 
@@ -13,14 +12,6 @@ export function startRooting(world, tile) {
     ...replaceTile(world, { ...tile, rooting: beginRooting() }),
     rootingWorkIds: [...world.rootingWorkIds, tile.id],
   };
-}
-
-function stepTile(world, id, dtMs) {
-  const tile = getTile(world, id);
-  if (!tile) return { world, spread: false };
-  const { rooting, spread } = advanceRooting(tile.rooting, dtMs);
-  if (rooting === tile.rooting && !spread) return { world, spread: false };
-  return { world: replaceTile(world, { ...tile, rooting }), spread };
 }
 
 export function tickRooting(world, dtMs = ROOTING_CONFIG.tickMs) {

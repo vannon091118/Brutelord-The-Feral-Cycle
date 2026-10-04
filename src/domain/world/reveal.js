@@ -14,7 +14,7 @@ function wobbleAt(x, y, seed) {
   return ((h >>> 8) & 255) / 256;
 }
 
-export function areaIds(world, { x, y }) {
+function areaIds(world, { x, y }) {
   const outer = REVEAL_RADIUS + 1;
   const ids = [];
   for (let dy = -outer; dy <= outer; dy += 1) {

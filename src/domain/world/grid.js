@@ -144,7 +144,7 @@ export function neighborIds(world, id) {
     .map((p) => tileId(p.x, p.y));
 }
 
-export function floorTiles(world) {
+function floorTiles(world) {
   return allTiles(world).filter(isBuildable);
 }
 

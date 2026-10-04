@@ -34,10 +34,10 @@ export const STAGE_MIN_SHARE = Object.freeze({
 
 export const CLUSTER_COUNT_MIN = 120;
 export const CLUSTER_COUNT_MAX = 200;
-export const WORLD_ESSENCE_BUDGET = 8860;
+const WORLD_ESSENCE_BUDGET = 8860;
 /** Der Seed verstreut die Welt: über 300 Seeds lagen 7360 bis 10500 bei einem
  *  Mittel von 9091. Die Toleranz ist aus der Messung abgeleitet, nicht geraten. */
-export const WORLD_ESSENCE_TOLERANCE = 0.25;
+const WORLD_ESSENCE_TOLERANCE = 0.25;
 
 export function essenceBudget() {
   return {

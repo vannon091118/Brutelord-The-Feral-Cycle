@@ -69,61 +69,51 @@ Die ausführliche Fassung mit der Commit-Vorprüfung steht in
 
 ## 3. Hard Caps (blockieren CI)
 
-Jede Datei unter `src/` und `scripts/` — `.js`, `.jsx`, `.mjs` **und `.css`**:
-
-| Cap | Wert |
-| --- | --- |
-| Codezeilen pro Datei | 300 (Kommentar- und Leerzeilen fallen heraus) |
-| Importzeilen pro Datei | 7 |
-| Parameter pro benannter Funktion | 3 |
-| LOC pro benannter Funktion | 30 |
-| Kommentarzeilen pro Datei | 5 |
-
-Zwei Details, die man kennen muss:
+Jede Datei unter `src/` und `scripts/` — `.js`, `.jsx`, `.mjs` **und `.css`** —
+hat fünf Obergrenzen. **Die Werte stehen einmal in
+[`Docs/GOVERNANCE.md`](Docs/GOVERNANCE.md).** Was man beim Schreiben wissen
+muss, ist der Rest:
 
 - **Imports zählen als Zeilen**, nicht als Symbole. Ein mehrzeiliger
   `import { … }`-Block ist eine Zeile; zwei getrennte Statements sind zwei.
 - **Die Parameter-Grenze zählt Kommas auf oberster Ebene.** `f(a, b, c, d)`
   fällt durch, `f({ a, b, c, d })` nicht. Der Ausweg ist ein Objekt-Parameter.
-
-Wer mehr erklären will, schreibt es nach `Docs/ARCHITEKTUR.md`. Fünf Zeilen
-bedeuten keine Zensur, sondern einen Indikator: Wer für drei Datenbauten
-fünfzehn Kommentarzeilen braucht, hat zu viel Logik in eine Datei gelegt.
+- **Kommentarzeilen sind knapp.** Wer mehr erklären will, schreibt es nach
+  `Docs/ARCHITEKTUR.md`. Fünf Zeilen bedeuten keine Zensur, sondern einen
+  Indikator: Wer für drei Datenbauten fünfzehn Kommentarzeilen braucht, hat zu
+  viel Logik in eine Datei gelegt.
 
 ## 4. Commit-Policy (hart, per Gate erzwungen)
 
-- Betreff max. 72 Zeichen.
-- Body **100–1000 Wörter**, ohne das Label.
-- **Jede geänderte Datei muss namentlich im Body vorkommen** — vollständiger
-  Pfad, nicht der Ordnername. `src/x.js` zählt, `src/` nicht.
-- Letzte nichtleere Body-Zeile, exakt einmal:
-  `created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.`
-- Verboten: `Co-Authored-By`, `Signed-off-by`, `Reviewed-by`, `Generated with …`,
-  Footer-Trenner (`---`) und generische `Key: value`-Trailer. Dateien also in
-  Prosa nennen, selbst wenn das den Body länger macht.
-- Zeilen, die auf `codebuff`, `copilot`, `claude` oder `cursor` enden, gelten als
-  Bot-Signatur.
+Die Regeln **und ihr exakter Wortlaut** stehen in
+[`Docs/GOVERNANCE.md`](Docs/GOVERNANCE.md). Was man vor dem Commit mitnehmen
+muss:
+
+- **Jede geänderte Datei namentlich im Body** — vollständiger Pfad, nicht der
+  Ordnername. `src/x.js` zählt, `src/` nicht.
+- **Der Body ist romanlang**, und seine letzte nichtleere Zeile ist exakt
+  einmal das VANNON-Label. Betrefflänge und Wortlaut: `GOVERNANCE.md`.
+- **Keine generischen Trailer**: `Co-Authored-By`, `Signed-off-by`,
+  `Reviewed-by`, `Generated with …`, Footer-Trenner (`---`) und jedes
+  `Key: value` fallen durch. Dateien also in Prosa nennen, selbst wenn das den
+  Body länger macht.
+- **Zeilen, die auf `codebuff`, `copilot`, `claude` oder `cursor` enden, gelten
+  als Bot-Signatur.**
+- **Die Signaturpflicht gilt für Hand-Commits, nicht für den Versions-Bot.**
+  `.github/workflows/auto-bump.yml` committet als `github-actions[bot]` und ist
+  deshalb unsigniert; `git log --show-signature -1` zeigt `N`, Hand-Commits `G`.
+  Das bleibt so: Ein Bot, der sich als Mensch ausgibt, ist nicht prüfbar,
+  sondern nur behauptet — und der persönliche Signaturschlüssel gehört nicht
+  in `GITHUB_TOKEN`. Ausgenommen von der Signatur ist der Bot nicht von der
+  Policy: `scripts/verify/check-workflow.mjs` prüft das bei jedem
+  `npm run verify`, weil Bot-Commits mit `GITHUB_TOKEN` keine CI auslösen.
 
 **Vorprüfung ohne Commit** — billiger als ein Commit, der am Gate scheitert.
 `commitViolations({ sha, message, paths })` aus `scripts/lib/commit-rules.mjs`
-mit `git diff --cached --name-only` als `paths`. Message nach
-`/tmp/commit-msg.txt` schreiben, darauf prüfen, dann
-`git commit -F /tmp/commit-msg.txt` — Vorprüfung und Commit müssen dieselben
-Bytes sehen.
-
-**Die Signaturpflicht gilt für Hand-Commits, nicht für den Versions-Bot.**
-`.github/workflows/auto-bump.yml` committet als `github-actions[bot]` und ist
-deshalb unsigniert; `git log --show-signature -1` zeigt `N`. Das bleibt so: Ein
-Bot, der sich als Mensch ausgibt, ist nicht prüfbar, sondern nur behauptet — und
-der persönliche Signaturschlüssel gehört nicht in `GITHUB_TOKEN`. Hand-Commits
-zeigen `G`.
-
-Ausgenommen von der Signatur ist der Bot nicht von der Commit-Policy. Er
-schreibt regelkonform: Label in einer eigenen Zeile, die vier Spiegeldateien
-namentlich, genug Wörter. `scripts/verify/check-workflow.mjs` prüft das bei
-jedem `npm run verify`. Der Grund: Bot-Commits lösen mit `GITHUB_TOKEN` keine
-CI aus, ein Verstoß bleibt also unentdeckt, bis jemand die Range über einen
-Bot-Commit zieht.
+mit `git diff --cached --name-only` als `paths`, Message nach
+`/tmp/commit-msg.txt`, dann `git commit -F /tmp/commit-msg.txt`. Den fertigen
+Aufruf samt Erklärung gibt `Docs/WORKFLOW.md`. Vorprüfung und Commit müssen
+dieselben Bytes sehen.
 
 ## 5. Versionierung
 

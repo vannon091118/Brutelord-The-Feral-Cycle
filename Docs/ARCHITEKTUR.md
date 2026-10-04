@@ -24,6 +24,19 @@ ohne sie nicht sinnvoll: `src/domain/` (Spielwahrheit) → `src/state/` (Zustand
 → `src/ui/` (liest, entscheidet nichts) → `src/world/` (Geometrie). Die
 Begründung für diese Kette steht im Kapitel *Zustand*.
 
+## Wo was steht
+
+| Wenn du fragst … | dann lies |
+| --- | --- |
+| Welche Zeit, welcher Preis, welcher Vorrat? | [Domäne](#domäne), [Essenz-Ökonomie](#essenz-ökonomie) |
+| Wie fließt der Zustand, wer darf ihn ändern? | [Zustand](#zustand), [Die Importmatrix](#die-importmatrix-gemessen) |
+| Wie funktionieren die Vorräte unterm Boden? | [Vorräte unter der Erde](#vorräte-unter-der-erde) |
+| Wie züchte ich Steine, was tun Traits? | [Der Brutlord als Labor](#der-brutlord-als-labor) |
+| Wie wird gezeichnet, was kostet ein Render? | [Welt und Darstellung](#welt-und-darstellung), [Was ein Render kostet](#was-ein-render-kostet) |
+| Woher kommt die Welt eines Kontos? | [Konto und Spielerseed](#konto-und-spielerseed) |
+| Welche Prüfung prüft was? | [Prüfungen](#prüfungen), und die Fallen in [`PITFALLS.md`](PITFALLS.md) |
+| Wie arbeite ich hier? | [`WORKFLOW.md`](WORKFLOW.md) |
+
 ---
 
 ## Domäne

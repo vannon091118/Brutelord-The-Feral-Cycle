@@ -3,6 +3,11 @@
 Jeder Eintrag nennt, was sich geändert hat und warum. Die Versionsnummer steht in
 `version.lock.json` und ist die Autorität; hier steht, was in ihr passiert ist.
 
+Die Regeln und Pflichten stehen in [`GOVERNANCE.md`](GOVERNANCE.md), der Ablauf in
+[`WORKFLOW.md`](WORKFLOW.md). Zahlen in diesem Dokument sind Vergangenheitsform
+und beziehen sich auf den Stand der jeweiligen Version — wer den aktuellen Stand
+sucht, führt das Kommando aus, das sie erzeugt hat.
+
 ---
 
 ## 0.0.2 — Onboarding-Kette geprüft statt behauptet
@@ -43,7 +48,9 @@ Umgesetzt:
 - **Ungenutzte Prüfmodule fallen auf.** Ein `check-*.mjs`, das niemand aufruft,
   prüft nichts und fällt in einem grünen Lauf nicht auf.
 
-`npm run verify` prüft jetzt 122 Zusicherungen (vorher 116).
+`npm run verify` prüfte zu diesem Zeitpunkt 122 Zusicherungen (vorher 116). Die Zahl
+ist hier bewusst Vergangenheitsform — sie ist der Stand von damals, und die
+laufende Zahl schreibt `npm run verify` selbst in seine letzte Zeile.
 
 ### Offen geblieben
 

@@ -31,7 +31,7 @@ function fold(effects, stone) {
   };
 }
 
-export function tileUnder(worker) {
+function tileUnder(worker) {
   const trip = jobTrip(worker.job);
   if (!trip) return worker.tile;
   return {

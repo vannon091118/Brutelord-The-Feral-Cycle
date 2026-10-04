@@ -15,7 +15,7 @@ export function firstMineableTileId(world) {
   return canMineTile(world, id) ? id : null;
 }
 
-export function selectMiningActive(state) {
+function selectMiningActive(state) {
   return Boolean(state.mining) && state.mining.phase !== MINING_PHASE.COMPLETE;
 }
 

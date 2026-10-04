@@ -1,8 +1,6 @@
 import { AccountField } from './AccountField.jsx';
 import { ACCOUNT_UI } from './account-ui.js';
 
-const FIELD_CLASS = 'rounded border border-bone-700/50 bg-soil-950/70 px-2 py-1.5 text-sm text-bone-100 outline-none focus:border-core-400';
-
 export function AccountForm({ mode, credentials, error, busy, onChange, onSubmit, onSwitch }) {
   return (
     <form onSubmit={onSubmit} className="relative flex w-80 flex-col gap-3 rounded-lg border border-bone-700/40 bg-soil-900/80 p-6">
@@ -30,5 +28,3 @@ export function AccountForm({ mode, credentials, error, busy, onChange, onSubmit
     </form>
   );
 }
-
-export { FIELD_CLASS };

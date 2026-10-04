@@ -33,7 +33,3 @@ export function startMutation(hive) {
 export function settleHive(hive) {
   return { ...hive, phase: HIVE_PHASE.SETTLED };
 }
-
-export function isSettled(hive) {
-  return hive.phase === HIVE_PHASE.SETTLED;
-}
