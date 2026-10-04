@@ -276,6 +276,29 @@ fällt so etwas nicht auf, weil der Zustand im Test gesetzt wird. Deshalb gehör
 Nichts davon in `package.json`. Einrückungsfehler bleiben unentdeckt, bis
 jemand die Datei liest.
 
+### `git rev-parse --verify` bestätigt eine erfundene SHA
+
+`hasRef()` in `scripts/ci-gate.mjs` sollte sagen, ob eine Referenz wirklich
+existiert. Mit `rev-parse --verify --quiet <sha>` stimmt das nicht: git gibt
+einen vierzigstelligen Hex-String **unaufgelöst** zurück und beendet mit 0 —
+jede erfundene SHA gilt als „gefunden". Nur `^{commit}` erzwingt die Auflösung.
+Der Wächter hat die Basis also nie geprüft und ist daran erst gescheitert, als
+ein Force-Push `github.event.before` auf einen Commit zeigte, den es nicht mehr
+gibt: `fatal: Invalid revision range`, Abbruch mit Status 128 statt eines
+Befunds.
+
+Die Gegenprobe steht in `verify-commit-gate.mjs` — drei Zeilen, eine davon mit
+`deadbeef`. Ein Wächter, der nach einem Fehler *prinzipiell* nichts prüft, ist
+schlimmer als keiner, weil er grün meldet.
+
+### Nach einem Force-Push ist `main` bis zum nächsten Push rot
+
+`ci.yml` nimmt `github.event.before` als Basis. Der SHA gehört zu der
+History, die der Force-Push gerade weggeworfen hat, also läuft der Job ins
+Leere. Das ist kein Fehler im Code, sondern eine Folge des Umschreibens — und
+es bleibt stehen, bis ein weiterer Push eine gültige Basis mitbringt. Wer nach
+einem Force-Push `main` auf grün wartet, wartet auf sich selbst.
+
 ---
 
 ## Was daraus folgt

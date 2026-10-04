@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /** Offline regression tests for the commit-gate policy. */
 import { commitViolations, REQUIRED_LABEL } from './lib/commit-rules.mjs';
+import { hasRef } from './ci-gate.mjs';
 
 const paths = ['src/domain/world/grid.js', 'src/ui/GameStage.jsx'];
 const explanation = [
@@ -30,6 +31,9 @@ const checks = [
   ['VANNON-Label ist genau einmal die letzte Zeile', repeatedLabel.some((item) => item.rule.includes('VANNON-Label'))],
   ['Nicht erklärte Dateien werden abgewiesen', missingScope.some((item) => item.rule.includes('Datei erklären'))],
   ['Zu kurzer Body wird abgewiesen', tooShort.some((item) => item.rule.includes('100–1000'))],
+  ['HEAD gilt als vorhandene Referenz', hasRef('HEAD')],
+  ['Ein erfundener SHA gilt nicht als vorhanden', !hasRef('deadbeefdeadbeefdeadbeefdeadbeefdeadbeef')],
+  ['Unsinn gilt nicht als vorhanden', !hasRef('kaputt')],
 ];
 
 for (const [label, passed] of checks) console.log(`${passed ? '  ok  ' : ' FAIL '} ${label}`);

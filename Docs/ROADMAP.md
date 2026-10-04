@@ -29,6 +29,18 @@ genau einmal stehen soll:
 Der Bau steht, der Schwarm arbeitet. Was jetzt fehlt, ist Bestand — und ein
 Grund, ihn zu haben.
 
+- [x] **Der Wächter prüft seine Basis nicht.** `hasRef()` sollte sagen, ob eine
+      Referenz existiert, und tat es nicht: `git rev-parse --verify` gibt einen
+      vierzigstelligen Hex-String unaufgelöst zurück und endet mit 0. Nach dem
+      Force-Push, der die History der Branches aufräumen sollte, zeigte
+      `github.event.before` auf einen Commit, den es nicht mehr gab — der
+      Commit-Gate brach mit `fatal: Invalid revision range` ab und meldete einen
+      Absturz statt eines Befunds. Jetzt erzwingt `^{commit}` die Auflösung,
+      `runCommitCheck()` überspringt eine verschwundene Basis, statt zu sterben,
+      und drei Zeilen in `verify-commit-gate.mjs` sichern das ab. Eine davon
+      benutzt `deadbeef`. Befund und Gegenprobe stehen in
+      [`PITFALLS.md`](PITFALLS.md).
+
 - [ ] **Das Raid-Feature: Entwurf steht, Bau nicht.** Angriffe zwischen zwei
       Spielern, Ausdauer als Einsatz statt Timer, Stein und Obsidian nur aus
       fremden Basen. Der Entwurf liegt vollständig in

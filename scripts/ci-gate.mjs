@@ -18,12 +18,14 @@ const TREE_ROOTS = ['src', 'scripts'];
 
 function hasRef(ref) {
   try {
-    execFileSync('git', ['rev-parse', '--verify', '--quiet', ref], { stdio: 'ignore' });
+    execFileSync('git', ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`], { stdio: 'ignore' });
     return true;
   } catch {
     return false;
   }
 }
+
+export { hasRef };
 
 function currentBranch() {
   try {
@@ -87,6 +89,13 @@ function runCommitCheck(range) {
     console.log('Commit-Regeln: keine Basislinie gefunden, übersprungen.');
     return [];
   }
+  // Nach einem Force-Push zeigt die gemeldete Basis auf einen Commit, den es
+  // nicht mehr gibt; ohne diese Pruefung bricht listCommits hart ab.
+  if (!hasRef(range.split('..')[0])) {
+    const head = range.split('..').at(-1);
+    console.log(`Commit-Regeln: Basis ${range.split('..')[0]} existiert nicht mehr, übersprungen.`);
+    return head === range.split('..')[0] ? [] : runCommitCheck(`${head}^..${head}`);
+  }
   const shas = listCommits(range);
   if (shas.length === 0) {
     console.log(`Commit-Regeln: keine neuen Commits in ${range}.`);
@@ -139,4 +148,6 @@ function main() {
   console.log('\nGate: alles grün.');
 }
 
-main();
+// Der Einstiegspunkt laeuft nur, wenn diese Datei das Ziel ist — sonst
+// feuert jeder Import (verify-commit-gate.mjs) das Gate ein zweites Mal ab.
+if (process.argv[1]?.endsWith('ci-gate.mjs')) main();
