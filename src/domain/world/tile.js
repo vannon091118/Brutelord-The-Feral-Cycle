@@ -3,6 +3,8 @@ import { ROOTING_PHASE, createRooting } from './rooting.js';
 
 export const TILE_KIND = Object.freeze({
   EARTH: 'EARTH',
+  STONE: 'STONE',
+  OBSIDIAN: 'OBSIDIAN',
   HIVE: 'HIVE',
   DUNGEON_FLOOR: 'DUNGEON_FLOOR',
 });
@@ -81,7 +83,15 @@ export function createFloorTile(x, y, origin = FLOOR_ORIGIN.MINED) {
 }
 
 export function isEarth(tile) {
-  return tile.kind === TILE_KIND.EARTH;
+  return tile.kind === TILE_KIND.EARTH || tile.kind === TILE_KIND.STONE || tile.kind === TILE_KIND.OBSIDIAN;
+}
+
+export function isStone(tile) {
+  return tile.kind === TILE_KIND.STONE;
+}
+
+export function isObsidian(tile) {
+  return tile.kind === TILE_KIND.OBSIDIAN;
 }
 
 export function isVisible(tile) {
