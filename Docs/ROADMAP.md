@@ -188,6 +188,41 @@ Grund, ihn zu haben.
       Erdfelder), Abmelden und Anmelden liefert denselben Seed zurück.
       **Offen bleibt der Spielstand** — der gehört als Spalte in dieselbe
       Tabelle, sobald er drankommt.
+- [x] **Die Konto-API hält Angriffe aus.** Sie war gewachsen, ohne je einen
+      Angreifer gesehen zu haben. **Bremse:** Fehlversuche je Name und Herkunft
+      zählen in einem gleitenden Fenster, ab fünf Versuchen ist die Tür eine
+      Minute zu (429 statt 401) — vorher hat *ein* Fehlklick das Konto gesperrt,
+      weil der Zähler lief, die Schranke aber schon beim ersten Eintrag zuschnappte.
+      **Keine Namensaufklärung:** ein unbekannter Name lief ohne scrypt zurück und
+      verriet über die Antwortzeit, ob es das Konto gibt; jetzt laufen beide Wege
+      durch denselben Hash und geben denselben Text. **Obergrenzen:**
+      `passwordMax` gilt auch beim Anmelden, und der Rumpf wird nach Bytes
+      gezählt — nach Zeichen passiert eine Mehrbyte-Schrift das Limit, und die
+      Antwort 413 kam gar nicht erst heraus, weil `request.destroy()` die
+      Verbindung vor dem Flush schloss. **Herkunft und Antwort:** `Origin` muss
+      zum `Host` passen, jede Antwort trägt `nosniff`, `DENY`, `no-referrer` und
+      `no-store`, und ein Serverfehler landet als `console.error` auf der Konsole
+      statt als Meldung im Spielerfenster. **Sitzung:** `localStorage` prüft den
+      Seed jetzt gegen genau 16 Hex-Ziffern und schreibt nur Identität, nicht
+      Fremdfelder — ein eingeschleuster Eintrag mit einem beliebigen Objekt als
+      Seed kam vorher bis in die Weltberechnung. **Und zwei Werkzeugschranken:**
+      `npm run purge` verweigert das rekursive Löschen von Wurzel, Home und
+      Projektverzeichnis, und der Versions-Bump läuft nur noch auf Pushes nach
+      `main` — auf einem Pull Request hat er denselben `version.lock.json`
+      konkurrierend zu beiden Zweigen geschrieben.      Messbar in `check-account-brake.mjs` und `check-account-http.mjs`;
+      Begründung in [`ARCHITEKTUR.md`](ARCHITEKTUR.md), die Fehlerbilder in
+      [`PITFALLS.md`](PITFALLS.md).
+- [ ] **Der Konto-Server fehlt im Production-Build.** Das Backend hängt als
+      Vite-Plugin im Dev-Server, also gibt es in `dist/` keine `/api/login` —
+      das ausgelieferte Spiel scheitert am Konto-Tor. `accountApi()` registriert
+      nur `configureServer` — es gibt keinen `configurePreviewServer`-Haken, also
+      fehlt die Route auch im Vorschau-Server und auf jedem statischen Hosting;
+      der Client bekommt dort HTML statt JSON und meldet es jetzt mit einem
+      verständlichen Satz statt mit einem stillen `Failed to fetch`. **Offen ist
+      die Entscheidung**, wohin das Backend wandert (derselbe Node-Prozess neben
+      dem Build, eine D1-Datenbank, oder ein Dienst) — `account-store.mjs` ist
+      dafür schon plain SQL, aber die Wahl ist nicht getroffen. Gehört vor den
+      Code in ein eigenes Plan-Dokument.
 - [x] **Die Render-Kosten.** Vier Uhren ticken bis zu 20-mal pro Sekunde, und
       jeder Takt zog vorher das ganze 4.096-Kacheln-Raster durch die
       Ableitung. **Der eigentliche Brocken: `world.tiles` war ein Objekt mit

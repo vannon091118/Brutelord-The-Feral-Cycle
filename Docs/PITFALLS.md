@@ -186,7 +186,9 @@ ist, wo sie hingehört, fällt im Bild sofort auf und in keiner Prüfung.
 
 ### `npm run dev` bindet auf 127.0.0.1
 
-Aus einem Container nicht erreichbar. Das ist Absicht.
+Aus einem Container nicht erreichbar. Das ist Absicht — der Dev-Server bringt die
+Kontodatenbank mit und soll nicht im Netz stehen. Wer ihn von aussen braucht
+(Container, getunnelte Vorschau), sagt es ausdrücklich: `DL_HOST=0.0.0.0 npm run dev`.
 
 ### Port 5173 kann belegt sein
 
@@ -213,6 +215,68 @@ Absicherung des Hard-Cap-Scans heranzieht.
 > **Regel:** `git status` ist kein Beweis, dass etwas nicht da ist.
 
 `dist/` ist Build-Ausgabe und nicht versioniert — nicht von Hand editieren.
+
+---
+
+## Die Konto-API
+
+### `request.destroy()` schickt die eigene Antwort nicht mehr ab
+
+Gemessen, nicht vermutet: als der Rumpf-Wächter ein zu grosses Paket erkannte, rief
+er `request.destroy()` auf — und `curl` bekam **HTTP 000**, also gar nichts. Der
+Fehler war nicht die Absicht (die war richtig), sondern die Reihenfolge: die
+Verbindung ist weg, bevor `response.end()` den Puffer leert.
+
+> **Symptom:** ein Wächter ist grün im `npm run verify` und liefert im Browser
+> `Failed to fetch`, ohne dass irgendein Statuscode zu sehen ist.
+
+> **Gegenprobe:** `curl -s -o /dev/null -w "%{http_code}" -X POST … --data-binary @6kb.txt`
+> muss **413** liefern, nicht `000`. Und die nächste Anfrage muss trotzdem
+> funktionieren — der Server darf an der zu grossen nicht hängen bleiben.
+
+### `DL_DATA_DIR=..` löscht den Elternordner, und die erste Schranke sah das nicht
+
+Gemessen, nicht vermutet. `purge.mjs` löscht rekursiv in `DL_DATA_DIR`, und die
+Schranke prüfte nur, ob der Pfad *gleich* Wurzel, Home oder Arbeitsordner ist.
+`..` ist keines davon — also lief der Löschlauf und hat den Inhalt des
+Elternordners entfernt, bevor `rmSync` an einem belegten Verzeichnis scheiterte.
+
+> **Gegenprobe:** `DL_DATA_DIR=..` muss **mit Exit 1 abbrechen**, und die Datei
+> neben dem Arbeitsordner muss danach noch da sein. Beides wird heute in einer
+> Sandbox geprüft — im Repo selbst wäre das der letzte Test, den man schreibt.
+
+**Regel für jeden rekursiven Löschlauf:** nicht fragen „ist das ein geschützter
+Pfad?", sondern „was liegt **in** diesem Pfad, das ich nicht löschen will?".
+Alles, was den Arbeitsordner enthält, ist tabu.
+
+### Eine asynchrone Prüfgruppe, die nicht abgewartet wird, meldet sich nie
+
+`checkAccount()` gab ein Promise zurück, `checkWorldViews()` rief es ohne `await`
+auf, und `verify-slice.mjs` rief `summary()`, bevor der Server stand. Der Lauf
+blieb grün — **und die Prüfzahl blieb exakt dieselbe**, was das einzige verräterische
+Merkmal war.
+
+> **Symptom:** eine neue Prüfgruppe erscheint in keiner Ausgabe, und die
+> Prüfungszahl bewegt sich nicht. „Grün" und „nie gelaufen" sehen gleich aus.
+
+> **Gegenprobe:** nach jeder neuen Prüfgruppe muss die Zahl aus
+> `npm run verify` steigen. Bewacht wird das hier nicht durch eine Regel, sondern
+> dadurch, dass `verify-slice.mjs` am Ende `await` schreibt — und ein `fetch`,
+> das scheitert, wirft nicht, sondern gibt einen Befund zurück (`status: 0`).
+> Sonst beendet sich der ganze Lauf mit einem Sockelfehler statt mit einem
+> roten Befund, und wer das für einen Absturz hält, sucht im Server.
+
+### Eine Bremse, die beim ersten Fehlversuch auslöst, ist kein Fehlschutz
+
+Der Zähler zählte zuerst, aber `isLocked()` fragte nur noch, ob ein Eintrag
+existierte — der erste falsche Login sperrte das Konto für eine Minute. Der Test
+sah das als „nach fünf Versuchen gesperrt" und blieb grün, weil fünf Versuche
+eben vier 401 und ein 429 sind. **Ein Test, der das Fenster prüft statt der
+Schwelle, prüft die Bremse nicht.**
+
+> **Gegenprobe:** `attempts - 1` Fehlversuche müssen **frei** bleiben, erst der
+> letzte sperrt. Steht diese Zahl in der Prüfung oder ist sie im Skript fest
+> verdrahtet, ist sie beim Umstellen von `attempts` schon wieder eine Abschreibung.
 
 ---
 

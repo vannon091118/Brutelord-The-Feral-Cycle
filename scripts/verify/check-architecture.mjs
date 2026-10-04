@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { checkAccountHttp } from './check-account-http.mjs';
 import { checkWorkflow } from './check-workflow.mjs';
 import { check, section } from './expect.mjs';
 
@@ -39,4 +40,5 @@ export function checkArchitecture() {
   check('Domäne rendert kein SVG-Markup', !/<(svg|path|circle|g[ >])/.test(domain));
   check('Jedes Prüfmodul ist verdrahtet', waisen.length === 0, waisen.join(', '));
   checkWorkflow();
+  return checkAccountHttp();
 }

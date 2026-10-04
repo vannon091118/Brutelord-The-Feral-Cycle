@@ -1,26 +1,14 @@
 /** Die Konto-Schicht gegen eine eigene Datenbank: fünf Konten, gleiche
  *  Zugangsdaten ergeben denselben Seed, fremde Passwörter werden abgewiesen.
  *  Läuft ohne Browser und rührt die Entwicklungsdatenbank nicht an. */
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { login, register } from '../server/account-api.mjs';
-import { countAccounts, openAccounts } from '../server/account-store.mjs';
+import { countAccounts } from '../server/account-store.mjs';
 import { ACCOUNT_CONFIG } from '../server/account-config.mjs';
+import { checkAccountBrake, withTempDb } from './check-account-brake.mjs';
 import { check, section } from './expect.mjs';
 
 const PASSWORD = 'knochenmehl42';
 const NAMES = ['trash-1', 'trash-2', 'trash-3', 'trash-4', 'trash-5'];
-
-function withTempDb(run) {
-  const dir = mkdtempSync(tmpdir() + '/dl-konto-');
-  process.env.DL_DATA_DIR = dir;
-  try {
-    return run(openAccounts(dir + '/test.db'));
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-    delete process.env.DL_DATA_DIR;
-  }
-}
 
 function checkRegister() {
   withTempDb((db) => {
@@ -72,4 +60,5 @@ export function checkAccount() {
   checkRegister();
   checkLogin();
   checkSameLoginSameSeed();
+  checkAccountBrake();
 }

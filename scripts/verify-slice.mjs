@@ -8,11 +8,18 @@ import { checkColony } from './verify/check-colony.mjs';
 import { checkArchitecture } from './verify/check-architecture.mjs';
 import { summary } from './verify/expect.mjs';
 
-checkStart();
-const run = makeOnboardingRun();
-checkOnboarding(run);
-checkMining(run);
-checkRooting(run);
-checkColony(run);
-checkArchitecture();
-process.exitCode = summary();
+/** Die HTTP-Prüfungen am Ende brauchen einen laufenden Server und werden
+ *  abgewartet — sonst zählt `summary()` vorher und der Lauf meldet grün,
+ *  ohne dass diese Gruppe je gelaufen ist. */
+async function main() {
+  checkStart();
+  const run = makeOnboardingRun();
+  checkOnboarding(run);
+  checkMining(run);
+  checkRooting(run);
+  checkColony(run);
+  await checkArchitecture();
+  process.exitCode = summary();
+}
+
+main();

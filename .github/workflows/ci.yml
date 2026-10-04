@@ -5,6 +5,14 @@ on:
     branches: [main]
   pull_request:
 
+# Das Gate liest nur; keine der beiden Workflows braucht Schreibrechte.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   gate:
     runs-on: ubuntu-latest

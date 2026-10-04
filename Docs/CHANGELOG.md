@@ -10,6 +10,49 @@ sucht, führt das Kommando aus, das sie erzeugt hat.
 
 ---
 
+## 0.0.15 — Die Konto-API hält Angriffe aus
+
+Der Auftrag war, Schwachstellen zu finden, und die gefundene Stelle war nicht
+irgendwo im Spiel, sondern in den zwei Funktionen, die ein Konto annehmen.
+`register()` und `login()` waren korrekt im Sinne von *richtig*, aber sie waren
+gegen niemanden geprüft: eine Bremse gab es nicht, ein unbekannter Name lief
+ohne scrypt zurück, ein Passwort hatte nach unten keine Grenze, und die
+Antwort trug vier Kopfzeilen nicht, die sie hätte tragen sollen.
+
+**Was drin ist.** Eine Bremse je Name und Herkunft mit gleitendem Fenster, die
+ab dem fünften Fehlversuch für eine Minute mit 429 antwortet. Ein Attrappenpfad,
+sodass die Antwortzeit nicht mehr verrät, ob ein Name vergeben ist — beide Wege
+kosten jetzt denselben Hash. `passwordMax` auch beim Anmelden. Ein nach **Bytes**
+gezähltes Rumpf-Limit mit einer 413, die den Client auch erreicht. Eine
+Herkunftsprüfung und vier Sicherheitskopfdaten auf jeder Antwort. Ein
+Serverfehler, der als Meldung im Spielerfenster landete, ist einer in der
+Konsolenausgabe. Eine Sitzung im `localStorage`, die den Seed gegen genau 16
+Hex-Ziffern prüft und nur Identität zurückschreibt.
+
+**Und zwei Werkzeugschranken.** `npm run purge` verweigert das rekursive Löschen
+von Wurzel, Home und Projektverzeichnis — `DL_DATA_DIR` kommt aus der Umgebung,
+und ein leeres Variable löschte genau das, was es nicht sollte. Der Versions-Bump
+läuft nur noch auf Pushes nach `main`; auf einem Pull Request hat er denselben
+`version.lock.json` zu beiden Zweigen geschrieben, und genau diesen Konflikt
+beschreibt die Governance als gewollt.
+
+**Was das nicht ist.** Es gibt weiterhin kein Token. Der Seed *ist* die
+Identität, also genügt die Kennung, um in diese Welt zu gelangen — für einen
+Slice ohne Spielstand richtig, mit Spielstand eine Baustelle, die dort aufträgt,
+wo der Spielstand hingehört.
+
+Geprüft in `scripts/verify/check-account-brake.mjs` und über die laufende API:
+201, 200, 401, 409, 413, 403, 405, 429 und die vier Kopfdaten.
+
+**Und eine Abnahme, die es vorher nicht gab.** `check-account-http.mjs` startet
+einen echten Node-Server, fährt die Connect-Middleware des Vite-Plugins darauf
+und prüft den Purse als Skript in einer Sandbox. Beide Fixes der ersten Fassung
+sind genau dort entstanden, wo vorher niemand gemessen hatte — darunter ein
+Schrankenfehler, der `DL_DATA_DIR=..` durchließ und den Elternordner geleert
+hat. Jede der neuen Prüfungen wurde einmal kaputtgeschaltet und sieht rot aus,
+bevor sie hier stand: **eine Prüfung, die beim Sabotage-Versuch grün bleibt,
+prüft nichts.**
+
 ## 0.0.2 — Onboarding-Kette geprüft statt behauptet
 
 Eine Strukturanalyse kam zu zwölf Beanstandungen am Onboarding. Geprüft wurden sie

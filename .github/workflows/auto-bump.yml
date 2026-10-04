@@ -3,8 +3,6 @@ name: auto-version-bump
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 concurrency:
   group: auto-bump-${{ github.ref }}
@@ -37,13 +35,8 @@ jobs:
         id: range
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE="${{ github.event.pull_request.base.sha }}"
-            HEAD="${{ github.event.pull_request.head.sha }}"
-          else
-            BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "")"
-            HEAD="$(git rev-parse HEAD)"
-          fi
+          BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "")"
+          HEAD="$(git rev-parse HEAD)"
           echo "base=$BASE" >> $GITHUB_OUTPUT
           echo "head=$HEAD" >> $GITHUB_OUTPUT
 
@@ -83,10 +76,6 @@ jobs:
                 ;;
             esac
           done <<< "$CHANGED"
-          # For PRs from feature branches always treat as code-relevant
-          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.head_ref }}" != "main" ]; then
-            CODE=1
-          fi
           echo "code_changed=$CODE" >> $GITHUB_OUTPUT
           echo "docs_changed=$DOCS" >> $GITHUB_OUTPUT
           echo "hygiene_changed=$HYGIENE" >> $GITHUB_OUTPUT

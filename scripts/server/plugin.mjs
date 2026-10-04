@@ -1,6 +1,7 @@
-/** Das Konto-Backend hängt sich in den Vite-Dev-Server: ein zweiter Befehl,
- *  kein zweiter Prozess. POST /api/register und POST /api/login, sonst nichts. */
+/** Das Konto-Backend haengt sich in den Vite-Dev-Server: ein zweiter Befehl,
+ *  kein zweiter Prozess. Begründung der Schranken in ARCHITEKTUR.md. */
 import { login, register } from './account-api.mjs';
+import { ACCOUNT_CONFIG } from './account-config.mjs';
 import { openAccounts } from './account-store.mjs';
 
 const ROUTES = {
@@ -8,29 +9,60 @@ const ROUTES = {
   '/api/login': login,
 };
 
-const LIMIT = 4096;
+const SECURITY_HEADERS = Object.freeze({
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Cache-Control': 'no-store',
+});
 
+/** `null` heisst: zu gross nach Bytes oder abgebrochen — der Aufrufer antwortet 413. */
 function readBody(request) {
   return new Promise((resolve) => {
-    let raw = '';
+    const chunks = [];
+    let size = 0;
+    let settled = false;
+    const finish = (value) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
     request.on('data', (chunk) => {
-      raw += chunk;
-      if (raw.length > LIMIT) request.destroy();
-    });
-    request.on('end', () => {
-      try {
-        resolve(JSON.parse(raw || '{}'));
-      } catch {
-        resolve({});
+      size += chunk.length;
+      if (size > ACCOUNT_CONFIG.bodyLimitBytes) {
+        finish(null);
+        return;
       }
+      chunks.push(chunk);
     });
+    request.on('end', () => finish(Buffer.concat(chunks).toString('utf8')));
+    request.on('error', () => finish(null));
   });
 }
 
 function send(response, status, payload) {
   response.statusCode = status;
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) response.setHeader(name, value);
   response.end(JSON.stringify(payload));
+}
+
+function sameOrigin(request) {
+  const origin = request.headers.origin;
+  if (!origin) return true;
+  try {
+    return new URL(origin).host === request.headers.host;
+  } catch {
+    return false;
+  }
+}
+
+function parseBody(raw) {
+  try {
+    return JSON.parse(raw || '{}') ?? {};
+  } catch {
+    return {};
+  }
 }
 
 async function handle(request, response) {
@@ -40,8 +72,20 @@ async function handle(request, response) {
     send(response, 405, { error: 'Nur POST.' });
     return true;
   }
-  const body = await readBody(request);
-  const result = route(openAccounts(), { name: body.name, password: body.password });
+  if (!sameOrigin(request)) {
+    send(response, 403, { error: 'Fremde Herkunft.' });
+    return true;
+  }
+  const raw = await readBody(request);
+  if (raw === null) {
+    response.setHeader('Connection', 'close');
+    send(response, 413, { error: 'Anfrage zu gross.' });
+    response.on('finish', () => request.destroy());
+    return true;
+  }
+  const body = parseBody(raw);
+  const remote = request.socket.remoteAddress ?? '';
+  const result = route(openAccounts(), { name: body.name, password: body.password, remote });
   const { error, ...rest } = result;
   send(response, result.status, error ? { error } : rest);
   return true;
@@ -57,7 +101,8 @@ export function accountApi() {
         try {
           if (!(await handle(request, response))) next();
         } catch (error) {
-          send(response, 500, { error: String(error?.message ?? error) });
+          console.error('[konto-api]', error);
+          send(response, 500, { error: 'Der Server hat einen Fehler.' });
         }
       });
     },

@@ -30,6 +30,15 @@ export function passwordMatches({ password, salt, verifier }) {
   return stored.length === fresh.length && timingSafeEqual(stored, fresh);
 }
 
+const DECOY = Object.freeze({
+  salt: '00'.repeat(ACCOUNT_CONFIG.saltBytes),
+  verifier: '00'.repeat(ACCOUNT_CONFIG.keyBytes),
+});
+
+export function decoyMatches(password) {
+  return passwordMatches({ password, salt: DECOY.salt, verifier: DECOY.verifier });
+}
+
 /** Die PlayerID ist der Seed, verkürzt und markiert — keine zweite Identität. */
 export function playerIdOf(playerseed) {
   return `${ACCOUNT_CONFIG.idPrefix}${String(playerseed).slice(0, 8)}`;

@@ -456,6 +456,52 @@ Passwörter und Seeds dürfen nicht ins Repo. `npm run verify` fasst die
 Entwicklungsdatenbank nicht an: `check-account.mjs` legt sein eigenes
 Temporärverzeichnis an und räumt es ab.
 
+### Die Konto-API nimmt Angriffe an
+
+`scripts/server/account-api.mjs` ist die einzige Tür zum Konto, und sie hat vier
+Schranken bekommen, weil eine API ohne sie nur auf den Angriff wartet:
+
+**Die Bremse.** `account-throttle.mjs` zählt Fehlversuche je Name *und* Herkunft in
+einem gleitenden Fenster; ab `ACCOUNT_CONFIG.throttle.attempts` Versuchen antwortet
+die Tür eine Minute lang mit 429 statt mit 401. Sie liegt im Speicher und nicht in
+der Tabelle, weil ein Dev-Server ein Prozess ist und die Bremse nach dem Neustart
+neu sein darf. Ein Erfolg löscht den Zähler, sonst wäre ein legitimer Tippfehler
+nach dem Fenster unbezahlbar. Zwei Namen aus derselben Adresse teilen die Bremse
+nicht — sonst wäre ein Angreifer mit einem Konto ein DoS für alle anderen.
+
+**Der Attrappenpfad.** Ein unbekannter Name lief vorher direkt aus `login()`
+zurück, ohne scrypt — die Antwortzeit verriet, ob es das Konto gibt. Jetzt läuft
+beide Wege durch denselben teuren Hash (`decoyMatches()`), und die Antwort ist in
+beiden Fällen 401 mit demselben Text.
+
+**Die Obergrenzen.** `passwordMax` gilt beim Anmelden genauso wie beim Anlegen: ein
+unbegrenztes Passwort ist ein unbegrenzter scrypt-Eingang. Und die Anfrage wird nach
+**Bytes** gezählt, nicht nach Zeichen — nach Zeichen passiert eine Mehrbyte-Schrift
+das Limit und der Wächter antwortet gar nicht, weil die Verbindung schon weg ist.
+
+**Der Ursprung und die Antwort.** `sameOrigin()` lehnt eine Anfrage ab, deren
+`Origin` nicht zum `Host` passt; fehlt der Kopf, kam sie nicht aus dem Browser. Jede
+Antwort trägt `nosniff`, `DENY`, `no-referrer` und `no-store`, damit ein Seed im
+Cache eines Zwischenwegs hängen bleibt. Und ein Fehler im Server landet als
+`console.error` auf der Konsole, nicht als Meldung im Fenster des Spielers.
+
+Was das **nicht** ist: es gibt weiterhin kein Token. Die Sitzung im Browser ist
+`localStorage` und der Seed ist die Identität — dieselbe Kennung genügt also schon dem
+Wissen um den Seed. Das ist für den Slice richtig (es gibt nichts zu stehlen außer
+einer Welt) und wird mit dem Spielstand zu einer echten Baustelle; der Weg dorthin
+steht bei *Noch nicht Teil dieser Fassung* unten.
+
+### Der Purge schützt nicht Pfade, sondern seinen Inhalt
+
+`purge.mjs` löscht rekursiv in `DL_DATA_DIR`, und das Verzeichnis kommt aus der
+Umgebung. Die erste Schranke fragte, ob der Pfad *gleich* Wurzel, Home oder
+Arbeitsordner ist — `..` ist keines davon, und der Elternordner war leer. Jetzt
+gilt die andere Frage: **was liegt in diesem Pfad, das ich nicht löschen will?**
+Tabu ist jeder Pfad, der den Arbeitsordner enthält, plus Wurzel und Home.
+
+Die Gegenprobe läuft in einer Sandbox (`check-account-http.mjs`), weil ein Loch
+in dieser Schranke im Repo verheerender wäre als in einer Wegwerfmappe.
+
 **Noch nicht Teil dieser Fassung:** der Spielstand. Wer sich abmeldet, verliert
 Hive, Vorräte und Bauten. Das ist der offene Roadmap-Punkt, und die Konto-Schicht
 ist so gebaut, dass der Spielstand später als eine Spalte in derselben Tabelle
