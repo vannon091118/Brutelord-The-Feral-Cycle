@@ -1,7 +1,7 @@
 {
   "name": "dungeon-lord",
   "private": true,
-  "version": "0.0.16",
+  "version": "0.0.17",
   "type": "module",
   "description": "Dungeon Lord — erster spielbarer Slice: Hive, Dungling, Erde abbauen, Boden gewinnen.",
   "scripts": {
