@@ -266,6 +266,39 @@ Merkmal war.
 > Sonst beendet sich der ganze Lauf mit einem Sockelfehler statt mit einem
 > roten Befund, und wer das für einen Absturz hält, sucht im Server.
 
+### Ein Helfer, der mehr Takte laufen lässt als der Pfad lang ist, misst die Erkundung
+
+Gemessen beim Bau des Raids. `digTo()` im Aufbau `raid-fixture.mjs` lief mit
+fester Tickzahl (40). Der Pfad zum Grabfeld ist nach zwei Schritten zu Ende —
+und die Gruppe hat, ohne Befehl, **aus eigenem Antrieb weitergerbaut**. Die
+Prüfung „zwei Grabfelder kosten zwei Ausdauer“ schlug deshalb fehl, obwohl der
+Preis stimmte.
+
+> **Symptom:** eine Kostenprüfung schlägt fehl, obwohl die Mechanik rechnet; im
+> Log stehen mehr Grabfelder als Felder auf dem Pfad.
+
+> **Gegenprobe:** `digTo()` läuft `ordered.path.length` Takte, nicht „genug“.
+> Wer einen Helfer mit fester Tickzahl schreibt, prüft ab dem zweiten Aufruf den
+> Idle-Takt statt des Befehls — und der ist per Bauabsicht ein anderer.
+
+### Die Reihenfolge einer Kandidatenliste ist Teil des Replay-Formats
+
+`entryPointFor()` wählt den Einmarsch mit `index = hash * list.length` aus
+`candidates()`. Sortiert jemand diese Liste um — um eine Schleife lesbarer zu
+machen —, verschiebt sich der Einmarsch **jedes laufenden Tickets**, ohne dass
+eine Regel gekippt wäre: Kein Feld ändert seine Bedeutung, kein Test schlägt
+fehl, und der Replay des Clients passt nicht mehr zu dem, was der Server gegen
+dasselbe Ticket gerechnet hat.
+
+> **Symptom:** keines. Genau das ist das Problem — es gibt keinen Befund, den man
+> suchen könnte.
+
+> **Gegenprobe:** `check-raid-format.mjs` friert Länge, ersten und letzten Punkt
+> der Liste ein, und `RAID_FORMAT_VERSION` steht in `stateHashInput()`. Umdrehen
+> wird damit rot statt still. Das Muster ist das aus „Abschriebene Zahlen in
+> `check-*.mjs`“: Was das Replay-Format bestimmt, gehört als Konstante in eine
+> Prüfung.
+
 ### Eine Bremse, die beim ersten Fehlversuch auslöst, ist kein Fehlschutz
 
 Der Zähler zählte zuerst, aber `isLocked()` fragte nur noch, ob ein Eintrag

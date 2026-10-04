@@ -555,6 +555,24 @@ die fünf entferntesten Felder unerreichbar.
 Mit 64 erreicht ein nacktes Team den Hive von **allen 4096 Feldern** der Karte.
 Mit den zunächst angenommenen 62 wären es 99,9 Prozent gewesen.
 
+**Und derselbe Satz für den Radius.** Zwei Zahlen, die sich nie begegnet sind:
+`entryRadius` 60 und `baseStamina` 64. `worstEntryDistance()` rechnet den
+schlimmsten Einmarsch als `min(entryRadius, MAX_APPROACH)` — der schlimmste
+Einmarsch ist der fernste Punkt des **Rings**, nicht die Kartenecke, denn der
+Ring bei 60 bietet auf einem 64 × 64-Raster keinen Punkt in 64 Schritten. Die
+Basis-Ausdauer liegt damit mit 4 über dem Wert, den sie tragen muss. Die
+Reserve ist gewollt, eine zu kleine Basis-Ausdauer wäre es nicht, und genau
+darum prüft `check-raid-format.mjs` zusätzlich, dass der Wert im Ring auch
+**erreichbar** ist: eine reine Obergrenze hätte einen zu kleinen Wert nicht
+auffallen lassen.
+
+**Die Kandidatenliste ist Teil des Formats.** `entryPointFor()` wählt mit
+`index = hash * list.length` aus `candidates()` — wer die Liste umsortiert,
+verschiebt jedes laufende Ticket und kippt dabei keine einzige Regel. Deshalb
+trägt `RAID_FORMAT_VERSION` den Zustand mit in `stateHashInput()`, und die
+Abnahme friert Länge, ersten und letzten Punkt der Liste als Konstante ein.
+Wer die Reihenfolge ändern will, hebt die Fassung an.
+
 ### Der Einmarschspunkt zählt die Kandidaten, nicht die Ringe
 
 `raid-spawn-seed.js` streut über einen eigenen Hash aus dem Ticket. Der erste
@@ -596,6 +614,68 @@ die Ausdauerrechnung an erster Stelle der Bauordnung.
 
 `spend()` lässt den Zustand unverändert, wenn die Ausdauer nicht reicht. Das ist
 das Fail closed aus dem Plan: kein Phasenwechsel, keine Rettung.
+
+### Die Gruppe hat einen Cursor
+
+`state.at` gehört der **Gruppe**, und `state.heroes` trägt **keine** Position.
+Der Grund ist nicht Bequemlichkeit: In der Kolonie ist die Position je Dungling
+Spielwahrheit, weil sie sich Kacheln teilen. Im Raid entscheidet sie nichts —
+gegen einen eingefrorenen Snapshot gibt es keine Zugsorge — und sie verdoppelt
+Zustand, Hash und Replay-Format, ohne einen Vorteil zu erkaufen.
+
+Die Bedienung ist dafür **halbautomatisch**, und das ist eine echte Entscheidung
+mit drei Teilen:
+
+- **Ein Befehl setzt den Pfad.** `orderFrom()` ruft `planPath()` auf und legt
+  den Weg ab, nicht das Ziel. Die Pfadfindung ist **Dijkstra über Ausdauer**,
+  nicht BFS über Schritte: `cellCost()` ist 0 für bekannten Boden, der
+  `digCost()`-Wert für ungegrabenen und `Infinity` für Wand, und ein Weg, dessen
+  Summe `state.stamina` übersteigt, wird gar nicht erst ausgegeben. Ein
+  kürzester Weg durch Stein wäre der falsche.
+- **Im Idle erkundet die Gruppe selbst.** `frontierOf()` sammelt die grabbaren
+  Felder am Rand des gelaufenen Bereichs, der Seed daraus kommt aus dem Ticket
+  mit eigener Salze. Der Idle-Takt **gräbt** — das ist Bewegung durch
+  Erdreich —, führt aber keine Aktion aus: kein Angriff, kein Zielwechsel. Er
+  kostet Ausdauer statt AP, und das ist der Preis des eigenen Explorierens.
+- **Ein toter Befehl ist ein neuer Befehl.** Wird ein Befehl unerfüllbar, fällt
+  die Gruppe auf die Erkundung zurück, statt zu blockieren. Die Frontlinie wird
+  jeden Takt neu gebildet, deshalb gehört jeder selbst gegrabene Tunnel sofort
+  zum Erkundungsraum.
+
+Die Trennung in `raid-path.js` (Kosten und Weggrafik), `raid-verbs.js` (DIG,
+ATTACK, die Berechtigung) und `raid-move.js` (Befehl, Takt, Ankunft) ist am Cap
+erzwingen: eine Datei dafür wäre über 300 Zeilen geworden.
+
+### Die Traits in der Währung des Raids
+
+`raid-traits.js` faltet mit `peak()`, weil dasselbe gilt wie bei den Stats: Ein
+Team ist nicht zweimal gierig. Die Werte sind dabei **aus der Kolonie-Semantik
+gerechnet**, nicht daneben abgeschrieben:
+
+```
+lootScale = 1 + carryBonus            // Gierig trägt doppelt
+apScale   = 1 + speedBonus            // Motivator beschleunigt
+digScale  = 1 / (1 - trailSlow)       // Schleim halbiert das Tempo
+```
+
+Die Bezeichnungen sind der Punkt: Im Raid gibt es keine Bauaufträge, keine
+fremden Dunglinge und keine geteilten Kacheln. `buildOrders` aus der Kolonie
+fällt ersatzlos weg, `auraRadius` wird bedingungslos — die Gruppe ist eine
+Einheit, die Aura umfasst sie immer —, und aus `trailSlow` wird ein **Preis**:
+Ein Grabfeld, das an ein vom Team bereits gegrabenes Feld grenzt, kostet das
+Doppelte. Dieselbe Aussage, andere Stelle: Man zahlt für die eigene Bequemlichkeit.
+
+### Graben: Mechanik und Berechtigung
+
+Das sind zwei Dinge, und der Versuch, sie in einem zu führen, hat die Fähigkeit
+einmal zur Erfindung gemacht. Der **Mechanismus** ist ein Verb mit eigener
+Kostenlogik (`digCost()`, Ausdauer im Raid) und braucht keine Stein-Semantik.
+Die **Berechtigung** ist `STONE_CAPABILITY.GRABEN` in `stone-config.js` — sie
+gehört zum Stein, weil sie **in beiden Welten** dasselbe ist, und sie reist mit
+dem Kader ins Ticket, wo `canDigTeam()` sie fail closed auswertet. Die
+Konstante steht bewusst beim Entity und nicht in `src/domain/raid/`: Wer sie
+dort kopiert, baut zwei Fähigkeiten mit demselben Namen, und die Basis gräbt
+mit der einen, der Raid mit der anderen.
 
 ## Werkzeuge
 
@@ -642,6 +722,15 @@ importiert, nicht nachgebaut.
   sieben Importzeilen am Cap steht und der Hinweis ohnehin Verwurzelung ist.
   Beim Nachtreiben von Hand: `startRooting(world, tile)` nimmt die Welt **und**
   die Kachel, nicht nur die Kachel.
+- `scripts/verify/index.mjs` listet die Gruppen an **einer** Kante, weil
+  `verify-slice.mjs` mit dem Raid an der Importgrenze stand. Der Runner kennt
+  seitdem eine Datei statt acht, und eine neue Gruppe kommt in genau einer Zeile
+  dort hin — statt in einem Modul, das inhaltlich nichts mit ihr zu tun hat.
+- `check-raid.mjs` bündelt Bewegung, Traits und Format. `raid-fixture.mjs`
+  stellt das eingefrorene Ticket gegen einen festen Snapshot und die zwei
+  Bewegungshelfer (`runTicks`, `digTo`), weil drei Prüfgruppen denselben Aufbau
+  brauchen und `digTo` **genau so viele Takte laufen lässt, wie der Pfad lang
+  ist** — ein Tick mehr und die Gruppe gräbt schon wieder aus eigenem Antrieb.
 - `build-run.mjs` spielt den kompletten Bau-Durchlauf mit der virtuellen Uhr
   durch; die Beobachtungen sind Material, die Behauptungen stehen in
   `check-build.mjs`.

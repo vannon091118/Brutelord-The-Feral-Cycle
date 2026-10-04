@@ -48,6 +48,13 @@ export const RAID_CAPABILITY = Object.freeze({
   DIG: 'DIG',
 });
 
+export const RAID_CAPABILITY_DEFS = Object.freeze({
+  [RAID_CAPABILITY.DIG]: Object.freeze({
+    label: 'Graben',
+    text: 'Bricht durch Stein und Obsidian, im eigenen Dungeon wie im Raid.',
+  }),
+});
+
 export const RARITY_ORDER = Object.freeze([
   STONE_RARITY.NORMAL,
   STONE_RARITY.RARE,

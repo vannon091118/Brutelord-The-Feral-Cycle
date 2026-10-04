@@ -1,16 +1,11 @@
 /** Der Raid-Zustand: eine zweite Instanz, isoliert vom Heimat-Zustand. */
-import { RAID_PHASE, RAID_CONFIG, teamStamina } from './raid-config.js';
+import { RAID_PHASE, RAID_CONFIG, RAID_FORMAT_VERSION, teamStamina } from './raid-config.js';
+import { teamTraitProfile } from './raid-traits.js';
 
-function toHero(hero) {
-  return {
-    id: hero.id,
-    name: hero.name,
-    atk: hero.atk,
-    grit: hero.grit,
-    dig: hero.dig === true,
-    apMax: hero.speed,
-    ap: hero.speed,
-  };
+/** Helden tragen keine Position: `at` gehört der Gruppe (D32). */
+function toHero(hero, apScale) {
+  const ap = Math.round(hero.speed * apScale);
+  return { id: hero.id, name: hero.name, atk: hero.atk, grit: hero.grit, dig: hero.dig === true, apMax: ap, ap };
 }
 
 export function teamGritOf(ticket) {
@@ -19,15 +14,21 @@ export function teamGritOf(ticket) {
 
 export function createRaidState(ticket, config = RAID_CONFIG) {
   const stamina = teamStamina(teamGritOf(ticket), config);
+  const traits = teamTraitProfile(ticket.heroes);
   return {
+    format: RAID_FORMAT_VERSION,
     ticketId: ticket.id,
     entry: { ...ticket.entry },
     at: { ...ticket.entry },
+    order: null,
+    target: null,
+    path: [],
     phase: RAID_PHASE.INFILTRATING,
     stamina,
     staminaMax: stamina,
     round: 1,
-    heroes: ticket.heroes.map(toHero),
+    heroes: ticket.heroes.map((hero) => toHero(hero, traits.apScale)),
+    traits,
     dug: {},
     log: [],
   };
@@ -56,9 +57,13 @@ export function record(state, entry) {
 
 export function stateHashInput(state) {
   return {
+    format: state.format,
     at: state.at,
+    order: state.order?.verb ?? null,
+    path: state.path.length,
     stamina: state.stamina,
     phase: state.phase,
     heroes: state.heroes.map((hero) => ({ id: hero.id, ap: hero.ap })),
+    dug: Object.keys(state.dug).length,
   };
 }

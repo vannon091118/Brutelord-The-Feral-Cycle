@@ -1,0 +1,72 @@
+/** Die halbautomatische Gruppe: Befehl setzt den Pfad, Idle erkundet, nichts blockiert. */
+import { tileId } from '../world/tile.js';
+import { mixRaid, unitOf } from './raid-spawn-seed.js';
+import { RAID_ACTION, neighborOf } from './raid-actions.js';
+import { applyAction } from './raid-steps.js';
+import { cellCost, planPath, frontierOf } from './raid-path.js';
+import { RAID_VERB, attackStep } from './raid-verbs.js';
+
+/** Die Erkundung würfelt aus demselben Ticket-Strom, nur mit eigener Salze. */
+const SALT_EXPLORE = 1103515245;
+
+function exploreGoal(state, world) {
+  const frontier = frontierOf(state, world);
+  if (frontier.length === 0) return null;
+  const stream = mixRaid(`${state.ticketId}|${state.round}|${tileId(state.at.x, state.at.y)}`, SALT_EXPLORE);
+  return frontier[Math.floor(unitOf(stream) * frontier.length)];
+}
+
+/** Der Schritt entsteht aus dem Vokabular des Replays, nicht aus einer zweiten Regel. */
+function actionToward(state, world, id) {
+  for (const type of Object.values(RAID_ACTION)) {
+    const point = neighborOf(state.at, { type });
+    if (tileId(point.x, point.y) !== id) continue;
+    return { type: cellCost(state, world, id) > 0 ? type.replace('MOVE', 'DIG') : type };
+  }
+  return null;
+}
+
+function approachTile(state, world, order) {
+  const here = tileId(state.at.x, state.at.y);
+  for (const step of [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }]) {
+    const point = { x: order.x + step.x, y: order.y + step.y };
+    if (tileId(point.x, point.y) !== here && planPath(state, world, point) !== null) return point;
+  }
+  return null;
+}
+
+/** Angenommen wird nur, was das Budget trägt; sonst bleibt der Zustand (D9). */
+export function orderFrom(state, world, order) {
+  if (!order) return state;
+  const here = tileId(state.at.x, state.at.y);
+  const goal = order.verb === RAID_VERB.ATTACK ? approachTile(state, world, order) : order;
+  if (!goal) return state;
+  const path = planPath(state, world, goal);
+  if (path === null || tileId(goal.x, goal.y) === here) return state;
+  return { ...state, order, target: { x: order.x, y: order.y }, path };
+}
+
+function arrived(state) {
+  if (!state.order || state.path.length > 0) return state;
+  const cleared = { ...state, order: null, path: [], target: null };
+  return state.order.verb === RAID_VERB.ATTACK ? attackStep(cleared, state.target) : cleared;
+}
+
+function exploreOrder(state, world) {
+  const goal = exploreGoal(state, world);
+  return goal === null ? state : orderFrom(state, world, { verb: RAID_VERB.DIG, ...parseGoal(goal) });
+}
+
+function parseGoal(id) {
+  const [x, y] = id.split(',').map(Number);
+  return { x, y };
+}
+
+export function tickMove(state, world) {
+  const ordered = state.order && state.path.length > 0 ? state : exploreOrder(state, world);
+  if (!ordered.order) return ordered;
+  const action = actionToward(ordered, world, ordered.path[0]);
+  const moved = action === null ? ordered : applyAction(ordered, world, action);
+  if (moved === ordered) return { ...ordered, order: null, path: [], target: null };
+  return arrived({ ...moved, path: moved.path.slice(1) });
+}

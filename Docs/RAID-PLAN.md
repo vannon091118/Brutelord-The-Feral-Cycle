@@ -290,6 +290,52 @@ Bilanzierung.
 
 ---
 
+### Die Gruppe, die Traits und das Graben-Tor
+
+Diese Entscheidungen kamen nach dem Gerüst aus PR #13 und ändern daran nichts,
+was dort steht — sie sagen, **wie** sich die Gruppe im fremden Dungeon bewegt.
+
+- **D32** **Ein Cursor ist die Position der Gruppe.** `state.at` gehört der
+  Gruppe, und `state.heroes` trägt **keine** eigene Position. In der Kolonie ist
+  die Position je Dungling Spielwahrheit, weil sie sich Kacheln teilen; im Raid
+  entscheidet sie nichts, gegen einen eingefrorenen Snapshot gibt es keine
+  Zugsorge. Zwei Helden einzeln zu setzen erzeugt eine Zugverschiebung, die
+  nichts entscheidet, dafür aber Zustand, Hash und Replay-Format verdoppelt.
+- **D33** **Im Idle erkundet die Gruppe von selbst und handelt nicht.** Ohne
+  Befehl zieht sie in die **Frontlinie** — grabbare Felder am Rand des
+  gelaufenen Bereichs, gewählt aus dem Seed im Ticket. Sie **gräbt** dabei, denn
+  Graben ist Bewegung durch Erdreich, führt aber **keine** Aktion aus: kein
+  Angriff, kein Zielwechsel. Der Idle-Takt kostet damit Ausdauer statt AP, und
+  das ist der Preis des eigenen Explorierens.
+- **D34** **Ein Befehl setzt den Pfad, nicht das Ziel.** Die Pfadfindung ist
+  **Dijkstra über Ausdauer**, nicht BFS über Schritte: bekannter Boden ist
+  gratis, ungegrabener kostet `digCost()`, und ein Weg, dessen Summe das Budget
+  übersteigt, wird nicht ausgegeben. Die Schritte selbst bleiben die Verbote des
+  Replays (`DIG_S`, `MOVE_N`), damit Replay und Erkundung dieselbe Sprache
+  reden. **Wege, die frei werden, werden weiter erkundet**, und ein unerfüllbarer
+  Befehl fällt auf die Erkundung zurück, statt zu blockieren.
+- **D35** **Alle drei Traits sind in der Währung des Raids gerechnet**, nicht
+  abgeschrieben: `lootScale = 1 + carryBonus`, `apScale = 1 + speedBonus`,
+  `digScale = 1 / (1 - trailSlow)`. Im Raid gibt es keine Bauaufträge und keine
+  fremden Dunglinge, also fällt `buildOrders` weg, die Aura wird bedingungslos,
+  weil die Gruppe eine Einheit ist, und aus der Schleimspur wird ein **Preis für
+  das Grabfeld am eigenen Tunnel**. Gefaltet wird mit `peak()`.
+- **D36** **Das Graben-Tor: Erde ist immer offen, Hartgestein nur mit der
+  Fähigkeit.** `canDig(terrain, heroes)` ist genau das und `raid-steps.js`
+  prüft es fail closed. Die Berechtigung ist `RAID_CAPABILITY.DIG` aus dem
+  Mutationssystem und gilt **in beiden Welten**: dasselbe Team, das im eigenen
+  Dungeon kein Hartgestein abbaut, baut im Raid keinen Tunnel durch Stein.
+  Mechanismus (ein Verb mit eigener Kostenlogik) und Berechtigung (ein Kanal in
+  `STONE_SALT`) sind zwei Dinge; D2 bleibt damit unangetastet, denn Erde bleibt
+  grabbar und nur das Hartgestein ist das Gate.
+- **D37** `entryRadius` und `baseStamina` werden gegeneinander gerechnet:
+  `worstEntryDistance()` ist `min(entryRadius, MAX_APPROACH)` — der schlimmste
+  Einmarsch ist der Ring, nicht die Kartenecke.
+- **D38** Die Reihenfolge von `candidates()` ist Teil des Replay-Formats, weil
+  `entryPointFor()` mit `index = hash * list.length` daraus wählt. Deshalb trägt
+  `RAID_FORMAT_VERSION` den Zustand mit in `stateHashInput()`, und die Abnahme
+  friert Länge, ersten und letzten Punkt ein.
+
 ## Die Konflikte mit den Regeln dieses Repos
 
 Kein Punkt hier ist Kosmetik. Jeder bricht entweder ein Gate oder eine

@@ -93,6 +93,24 @@ Grund, ihn zu haben.
       `verify-slice.mjs` mit sieben von sieben erlaubten Imports an der
       Importgrenze steht und der Raid genau dort forkt: die
       Terrain-Klassifikation ist geteilt, die Kostenlogik nicht.
+      — [x] **Die Gruppe hat einen Cursor, alle drei Traits sind übersetzt.**
+      Der Einmarsch wird **halbautomatisch**: `at` gehört der Gruppe, Helden
+      tragen keine Position, ein Befehl setzt einen Pfad (Dijkstra über
+      Ausdauer, nicht über Schritte) und im Idle erkundet die Gruppe die
+      Frontlinie von selbst, ohne eine Aktion auszuführen; ein unerfüllbarer
+      Befehl fällt auf die Erkundung zurück, und die Schritte bleiben die
+      Verbote des Replays, damit beide dieselbe Sprache reden. **Alle drei
+      Traits** sind in der Währung des Raids gerechnet: Gierig verdoppelt die
+      Beute, der Motivator gibt dem ganzen Team ein Viertel mehr AP, und der
+      Schleimige zahlt das Doppelte für jedes Grabfeld an seinem eigenen Tunnel —
+      dieser Preis kommt jetzt aus **derselben** Funktion wie die Pfadplanung,
+      damit Plan und Schritt nicht zwei Preise nennen. **Das Graben-Tor bleibt,
+      wie D2 es sagt:** Erde ist immer offen, Hartgestein nur mit der Fähigkeit
+      aus den Mutationen, und die gilt in Basis und Raid gleich. Zwei Zahlen
+      sind gegeneinander gerechnet (`entryRadius` gegen `baseStamina`), und die
+      Kandidatenliste trägt eine Fassungsmarke, weil ihre Reihenfolge Teil des
+      Replay-Formats ist. **Noch nicht gebaut** ist der Schaden eines Angriffs
+      an Wächtern.
       — [x] **Das Terrainfeld und die Berechtigung.** `TILE_TERRAIN` steht in
       `tile.js` **neben** `TILE_KIND` und nicht darin, `terrainOf()` lässt
       `isEarth()` unberührt, und §8 hält: über alle 4.096 Kacheln der Heimat

@@ -30,7 +30,9 @@ function isFree(world, x, y) {
   return Boolean(tile) && tile.kind === TILE_KIND.EARTH;
 }
 
-/** Nur Felder, die wirklich auf der Karte liegen und unverbaut sind. */
+/** Nur Felder, die wirklich auf der Karte liegen und unverbaut sind.
+ *  Die Reihenfolge dieser Liste ist Teil des Replay-Formats (D38): sie ist
+ *  Rasterreihenfolge und darf ohne eine Fassungserhöhung nicht umsortiert werden. */
 export function candidates(world, { origin, radius = RAID_CONFIG.entryRadius } = {}) {
   const list = [];
   for (let y = Math.max(0, origin.y - radius); y <= Math.min(GRID_HEIGHT - 1, origin.y + radius); y += 1) {

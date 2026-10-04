@@ -70,7 +70,7 @@ function checkHash() {
   const input = stateHashInput(state);
   const mitLog = stateHashInput(record(record(state, { type: 'MOVE_N' }), { type: 'DIG_E' }));
   check('Ein zusaetzliches Log aendert den Hash-Eingang nicht', JSON.stringify(input) === JSON.stringify(mitLog));
-  check('Der Hash kennt genau vier Felder', Object.keys(input).join(',') === 'at,stamina,phase,heroes');
+  check('Der Hash kennt genau die abgemachten Felder', Object.keys(input).join(',') === 'format,at,order,path,stamina,phase,heroes,dug');
   check('Am Helden hasht er nur id und ap', input.heroes.every((held) => Object.keys(held).join(',') === 'id,ap'));
   check('Die aktuellen AP stehen darin', input.heroes[0].ap === state.heroes[0].ap);
   const blind = [['stamina', { ...state, stamina: state.stamina - 1 }], ['phase', { ...state, phase: RAID_PHASE.EXTRACTING }], ['at', { ...state, at: { x: state.at.x + 1, y: state.at.y } }]]
