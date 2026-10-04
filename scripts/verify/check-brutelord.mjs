@@ -11,7 +11,7 @@ import {
   STONE_TRAIT,
   STONE_TRAIT_DEFS,
 } from '../../src/domain/brutelord/stone-config.js';
-import { createStone, pityBonus, rarityFor } from '../../src/domain/brutelord/stone-roll.js';
+import { createStone, rarityWeights, rarityFor } from '../../src/domain/brutelord/stone-roll.js';
 import { buyStone, createLab, isDiscovered, labStoneCount, nextSeed, placeStone, stoneLabel } from '../../src/domain/brutelord/lab-state.js';
 import { counterScales, emptySlots, formFor, torsoScale } from '../../src/domain/brutelord/mutation-formula.js';
 import { check, section } from './expect.mjs';
@@ -47,8 +47,8 @@ function checkDeterminism() {
 
 function checkPity() {
   section('Brutlord: der Pity-Timer');
-  check('Der Pity-Bonus wächst mit den Fehlschlägen', pityBonus(10) > pityBonus(0) && pityBonus(0) === 0);
-  check('Der Pity-Bonus ist gedeckelt', pityBonus(1000) <= STONE_CONFIG.pityMaxBonus);
+  check('Der Pity-Bonus wächst mit den Fehlschlägen', rarityWeights(10)[3] > rarityWeights(0)[3]);
+  check('Der Pity-Bonus ist gedeckelt', rarityWeights(1000)[3] <= rarityWeights(0)[3] * (1 + STONE_CONFIG.pityMaxBonus));
   check('Die Legende wird am Grenzwert häufiger', legendaryShare(200, 0) < legendaryShare(200, STONE_CONFIG.pityLimit - 1));
 
   const atLimit = STONE_CONFIG.pityLimit;
