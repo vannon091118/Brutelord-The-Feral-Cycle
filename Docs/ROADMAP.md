@@ -73,9 +73,82 @@ Grund, ihn zu haben.
       zweimal falsch gerechnet, bis die Kandidatenliste am Raster geklemmt war;
       über 600 Tickets sind es jetzt 561 verschiedene Punkte, alle reproduzierbar.
       Messungen und Begründung stehen in [`ARCHITEKTUR.md`](ARCHITEKTUR.md),
-      Kapitel *Der Eco-Stakes-Raid*. **Was fehlt, ist die Abnahme:** es gibt
-      noch keinen `check-raid-*.mjs`, und ein ungeprüfter Replay ist eine
-      Behauptung.
+      Kapitel *Der Eco-Stakes-Raid*.
+      — [x] **Und damit die Abnahme.** `scripts/verify/check-raid.mjs` prüft
+      das Gerüst gegen die echten Module statt gegen sich selbst: die Ausdauer
+      folgt dem `grit` des Kaders und der `RAID_CONFIG` — 64 für ein nacktes
+      Team, 180 am Ende der Skala —; `spend()` ist fail-closed und lässt den
+      Zustand samt Log unangetastet; `stateHashInput()` hasht genau `at`,
+      `stamina`, `phase` und `heroes[id+ap]`, nicht das Log, und der Gegenbeweis
+      läuft mit: Ausdauer, Phase, Standort und AP müssen es hineinverändern;
+      und über 600 Ticket-Seeds ist der Einmarschspunkt zweimal gleich, über
+      eine frisch erzeugte Welt genauso, während ein anderer Verteidiger ihn
+      verschiebt. **Die Abnahme hat beim ersten Lauf einen echten Fehler
+      gefunden:** `createRaidState()` nahm einen `config`-Parameter an und gab
+      ihn nicht an `teamStamina()` weiter — eine andere Konfiguration änderte an
+      der Ausdauer nichts, der Parameter war eine Fassade. Der Übergabeweg ist
+      verdrahtet, und die Prüfung, die das verhindert, heißt so. Gegenprobe zum
+      neuen Modul: `spend()` ohne Fail-closed und ein Hash mit Log lassen genau
+      vier Prüfungen um. **Verdrahtet** ist sie an `checkMining()`, weil
+      `verify-slice.mjs` mit sieben von sieben erlaubten Imports an der
+      Importgrenze steht und der Raid genau dort forkt: die
+      Terrain-Klassifikation ist geteilt, die Kostenlogik nicht.
+      — [x] **Das Terrainfeld und die Berechtigung.** `TILE_TERRAIN` steht in
+      `tile.js` **neben** `TILE_KIND` und nicht darin, `terrainOf()` lässt
+      `isEarth()` unberührt, und §8 hält: über alle 4.096 Kacheln der Heimat
+      führt kein einziges Hartgestein. Das Vorkommen erzeugt `raid-terrain.js`
+      mit eigener Hash-Instanz — Stein überall, Obsidian nur im Umkreis von
+      sechs Feldern um den Hive, weil er dessen Schale ist. Und am Stein steht
+      jetzt das vierte Feld: `capability`, gewürfelt über den fünften Kanal
+      `STONE_SALT.capability`, damit die Fähigkeit nicht am Trait hängt.
+      **Die Traits blieben unangetastet, und das ist die Entscheidung, nicht der
+      Zufall:** `SLIMY`, `MOTIVATOR` und `GREEDY` hängen an `jobTrip()` und an
+      Arbeitstakten, die es in der Raid-Instanz nicht gibt; sie sind
+      entitätsgebundener Charakter, und der Raid führt eine Zahleninstanz, kein
+      Objekt. Der Kader reist deshalb mit genau einem Feld daraus — `dig` — und
+      die Abnahme prüft, dass der Raid-Held kein weiteres bekommt.
+      **Und die offene Rechnung ist geschlossen:** der längste Einmarschweg ist
+      60 Felder, nicht 64, also bleiben bei reiner Erde vier Ausdauer übrig —
+      ein Steinblock im Pfad kostet 59 + 6 = **65** und reißt das Budget.
+      `canDig()` und `pathCost()` machen daraus die Regel: ohne `GRABEN` ist
+      Hartgestein zu, mit `GRABEN` zahlt der Kader 6 oder 12. Das
+      Nackte-Team-Versprechen gilt damit für eine reine Erdreich-Karte, und die
+      Basis-Ausdauer ist als das ausgewiesen, was sie ist: eine Zusage über die
+      Kartenart, nicht über die Welt. Gemessen: 18,8 Prozent Stein gegen 18
+      konfiguriert, 113 von 400 Steinen mit `GRABEN`, 23 davon **mit** Trait —
+      die beiden Kanäle sind unabhängig, wie D30 verlangt.
+      Gegenprobe: `canDig()` ohne die Berechtigung und ein `terrainAt()`, das
+      immer Erde liefert, lassen fünf Prüfungen um. Dabei fiel eine eigene
+      Fehlzusage auf: „Obsidian liegt nur am Hive" war bei null Blöcken
+      vakuum-wahr und damit ein grünes Nichts — jetzt verlangt sie, dass
+      welche da sind.
+      — [x] **Der Replay-Check, und die Mechanik, die er prüft.** Der Plan
+      stellt den Replay ausdrücklich vor die Mechanik, weil ein Replay ohne
+      Mechanik nichts nachrechnet — also standen `raid-actions.js`,
+      `raid-steps.js` und `raid-replay.js` am Ende doch vor der Tür.
+      Gehen ist gratis und nur über bekanntes Gelände, Graben kostet den
+      Terrainpreis und braucht für Hartgestein die Berechtigung, und alles
+      andere bleibt wirkungslos. `replayMatches()` rechnet das eingereichte
+      Log gegen das Ticket nach und vergleicht den eigenen Endzustand mit dem
+      behaupteten: aufgeblähte Ausdauer, versetztes Team, behaupteter Sieg und
+      geleerte AP kommen alle durch dasselbe Loch wieder heraus, ebenso ein
+      gekürztes Log und ein fremdes Ticket. **Zwei Fehler hat der Bau selbst
+      gefunden, beide in der Mechanik und nicht im Test:** Der Hive war
+      **unerreichbar** — graben ging nicht, weil er kein Erdreich ist, gehen
+      ging nicht, weil er kein bekanntes Gelände ist; er wird betreten, nicht
+      ausgegraben (D34). Und **Bewegungen landeten nicht im Log** — der
+      Client konnte behaupten, gelaufen zu sein, ohne dass es aufschrieb.
+      Beides fiel nur auf, weil die Abnahme den echten Einmarsch bis zum Hive
+      fährt statt eine Zustandskopie zu vergleichen. Ein dritter Fehlschlag
+      war der Plan selbst in der Abnahme: ein nacktes Team kommt über diese
+      Karte nicht durch, weil ein Steinblock das Budget reißt. Genau D33,
+      und es gehört in den Test statt in eine Fußnote.
+      Gegenprobe: eine `replayMatches()`, die nur die Position vergleicht, und
+      ein `dig()` ohne Berechtigungsprüfung lassen genau zwei Prüfungen um.
+      **Weiterhin nicht gebaut:** Angriff, Opfer, Extraktion, Wächter-Koma und
+      Kantenwände. `EXTRACTING` und `RESOLVED` werden heute verhindert, nicht
+      erreicht — und das Ticket **auszustellen** kann nur der Server, dieser
+      Baum führt die Instanz aus, er vergibt sie nicht.
 - [x] **Eine Abnahme für den Browser.** Die Onboarding-Kette ist jetzt geprüft,
       die Darstellung halb, die Browser-Uhr gar nicht: `scripts/` führt
       `use-schedule-runner.js` nie aus, weil dort kein Browser läuft. Damit ist

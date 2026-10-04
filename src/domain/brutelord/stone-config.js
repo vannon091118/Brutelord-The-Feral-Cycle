@@ -15,6 +15,7 @@ export const STONE_DEFS = Object.freeze({
     tone: 'grau',
     statCount: 1,
     traitChance: 0.05,
+    capabilityChance: 0.15,
     power: 1,
   }),
   [STONE_RARITY.RARE]: Object.freeze({
@@ -22,6 +23,7 @@ export const STONE_DEFS = Object.freeze({
     tone: 'blau',
     statCount: 2,
     traitChance: 0.15,
+    capabilityChance: 0.35,
     power: 2,
   }),
   [STONE_RARITY.EPIC]: Object.freeze({
@@ -29,6 +31,7 @@ export const STONE_DEFS = Object.freeze({
     tone: 'lila',
     statCount: 3,
     traitChance: 0.35,
+    capabilityChance: 0.6,
     power: 3,
   }),
   [STONE_RARITY.LEGENDARY]: Object.freeze({
@@ -36,8 +39,13 @@ export const STONE_DEFS = Object.freeze({
     tone: 'gold',
     statCount: 4,
     traitChance: 0.75,
+    capabilityChance: 0.9,
     power: 4,
   }),
+});
+
+export const RAID_CAPABILITY = Object.freeze({
+  DIG: 'DIG',
 });
 
 export const RARITY_ORDER = Object.freeze([

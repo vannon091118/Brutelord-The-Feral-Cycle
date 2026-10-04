@@ -5,6 +5,7 @@
 import {
   RARITY_ORDER,
   RARITY_WEIGHTS,
+  RAID_CAPABILITY,
   SLOT_ORDER,
   STONE_CONFIG,
   STONE_DEFS,
@@ -69,12 +70,22 @@ export function traitFor(seed, rarity) {
   return TRAIT_ORDER[pickFrom(seed, STONE_SALT.trait + 1, TRAIT_ORDER.length)];
 }
 
+export function capabilityFor(seed, rarity) {
+  if (unitOf(mixSeed(seed, STONE_SALT.capability)) >= STONE_DEFS[rarity].capabilityChance) return null;
+  return RAID_CAPABILITY.DIG;
+}
+
+export function carriesCapability(stones, capability = RAID_CAPABILITY.DIG) {
+  return stones.some((stone) => stone?.capability === capability);
+}
+
 export function createStone({ seed, pityMisses: misses = 0, slot = null }) {
   const rarity = hasPity(seed, misses) ? RARITY_ORDER[LEGENDARY_INDEX] : rarityFor(seed, misses);
   return {
     seed,
     rarity,
     trait: traitFor(seed, rarity),
+    capability: capabilityFor(seed, rarity),
     stats: statsFor(seed, rarity),
     visual: visualFor(seed, slot),
     slot,
