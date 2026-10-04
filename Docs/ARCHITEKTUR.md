@@ -374,6 +374,61 @@ sind der Ausschnitt, die Frontier und Reacts eigene Abstimmung. Die Frontier
 noch weiter zu bringen hieße, `canMineTile()` in der Ansicht zu duplizieren —
 das wäre ein Regelbruch für ein halbes Prozent des Taktbudgets.
 
+## Konto und Spielerseed
+
+Ein Konto ist ein Name und ein Passwort. Daraus entsteht ein **Spielerseed**, und
+der Seed ist die Welt. Die Kette steht bewusst in dieser Reihenfolge:
+
+```
+Name + Passwort  →  scrypt  →  32 Byte Prüfsumme + 32 Byte Seed
+                                     ↓                        ↓
+                              accounts.verifier        playerseed (Hex)
+                                                            ↓
+                                            worldSeed() → uint32 → world.seed
+```
+
+`scrypt` läuft **einmal** pro Konto und liefert beide Ausgaben aus einem Aufruf —
+ein teurer Hash statt zweier. Jedes Konto hat sein eigenes Salz; gespeichert
+werden nur Salz und Prüfsumme, **nie** das Passwort. Der Seed wird nicht
+gespeichert, sondern bei jeder Anmeldung aus denselben Zugangsdaten neu
+abgeleitet. Deshalb gilt: gleiche Zugangsdaten, gleiche Welt — auch nach einem
+Reload, und ohne dass irgendwo ein Welt-Schnappschuss liegen müsste.
+
+Der Seed ist Hex, `worldSeed()` in `src/domain/world/world-seed.js` ist die
+**einzige** Tür zur Zahl. Das ist keine Formalie: `createWorld()` rechnet den
+Seed in `Math.imul(seed + SALT, MIX)` ein, und ein Seed, der als Zeichenkette
+ankommt, wird dabei zu `NaN` — außer er besteht nur aus Ziffern, denn
+`'12345678' + 3266489917` ist eine parsebare Zahl und `'a1b2c3d4' + 3266489917`
+nicht. Vor dieser einen Tür teilten sich alle Buchstaben-Seeds eine Welt.
+
+Was der Seed verändert, ist genau zwei Dinge, und beide sind sofort sichtbar:
+die **Kontur der Höhle** um den Hive und die **Vorratskarte**. Für die Kontur
+gibt es `REVEAL_GUARANTEED` in `world-config.js`: der Kern um eine Sonde bleibt
+immer frei, alles davor wackelt pro Seed. Das Wackeln selbst nimmt **nicht** das
+niedrigste Hash-Bit — `parity(x) XOR parity(y) XOR parity(seed)` ist linear, also
+kippt ein Seed damit alle Entscheidungen oder keine und die Welt bekommt genau
+zwei Formen. Erst zwei Mix-Runden und dann Bits 8 bis 15 ergeben pro Feld eine
+eigene Entscheidung (gemessen: 24 von 24 Mustern statt 2 von 24).
+
+Die `PlayerID` ist keine zweite Identität, sondern der Seed, verkürzt und
+markiert: `p-` plus die ersten acht Hex-Ziffern.
+
+Das Backend hängt als Vite-Plugin im Dev-Server (`scripts/server/plugin.mjs`),
+also gibt es keinen zweiten Prozess. SQLite kommt aus `node:sqlite` — keine neue
+Abhängigkeit. Die Datenbank wird pro Anfrage geöffnet, nicht einmal beim Start:
+sonst hält ein laufender Server eine Datei offen, die `npm run purge` gerade
+gelöscht hat, und antwortet danach mit `readonly database`.
+
+`npm run purge` löscht `.data/` samt Datenbank. `.data/` steht in `.gitignore` —
+Passwörter und Seeds dürfen nicht ins Repo. `npm run verify` fasst die
+Entwicklungsdatenbank nicht an: `check-account.mjs` legt sein eigenes
+Temporärverzeichnis an und räumt es ab.
+
+**Noch nicht Teil dieser Fassung:** der Spielstand. Wer sich abmeldet, verliert
+Hive, Vorräte und Bauten. Das ist der offene Roadmap-Punkt, und die Konto-Schicht
+ist so gebaut, dass der Spielstand später als eine Spalte in derselben Tabelle
+dazukommt, ohne das Passwortmodell anzufassen.
+
 ## Werkzeuge
 
 **Vorschau im echten Browser** läuft über `tools/preview/`, nicht über eine

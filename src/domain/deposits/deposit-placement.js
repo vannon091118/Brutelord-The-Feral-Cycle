@@ -9,10 +9,11 @@ export function createDeposits(context = {}) {
   const width = context.width ?? GRID_WIDTH;
   const height = context.height ?? GRID_HEIGHT;
   const hiveOrigin = context.hiveOrigin ?? HIVE_ORIGIN;
+  const seed = context.seed ?? 0;
   const blocked = blockedCells({ width, height, hiveOrigin, conf, spawnTile: context.spawnTile ?? null });
   const deposits = {};
   blockOrigins({ width, height, conf }).forEach((origin, index) => {
-    const deposit = clusterAt({ ...origin, index, conf, blocked });
+    const deposit = clusterAt({ ...origin, index, conf, blocked, seed });
     if (deposit) deposits[deposit.id] = deposit;
   });
   return deposits;
@@ -26,8 +27,8 @@ function blockOrigins({ width, height, conf }) {
   return origins;
 }
 
-function clusterAt({ x, y, index, conf, blocked }) {
-  const hash = blockHash(x, y);
+function clusterAt({ x, y, index, conf, blocked, seed }) {
+  const hash = blockHash(x, y, seed);
   if (!keepBlock(hash, conf.skipPerMille)) return null;
   const size = sizeFor(hash, conf);
   const cells = cellsFor({ x, y, hash, size, conf, blocked });

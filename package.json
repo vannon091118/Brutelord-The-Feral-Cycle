@@ -1,7 +1,7 @@
 {
   "name": "dungeon-lord",
   "private": true,
-  "version": "0.0.9",
+  "version": "0.0.10",
   "type": "module",
   "description": "Dungeon Lord — erster spielbarer Slice: Hive, Dungling, Erde abbauen, Boden gewinnen.",
   "scripts": {
@@ -13,7 +13,8 @@
     "version:check": "node scripts/version.mjs check",
     "version:bump": "node scripts/version.mjs bump",
     "version:sync": "node scripts/version.mjs sync",
-    "verify:commits": "node scripts/verify-commit-gate.mjs"
+    "verify:commits": "node scripts/verify-commit-gate.mjs",
+    "purge": "node scripts/server/purge.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",

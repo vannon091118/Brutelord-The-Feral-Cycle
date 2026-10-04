@@ -1,12 +1,13 @@
 /**
- * Die Darstellung liest Onboarding- und Dungling-Zustände. Diese Module sind
- * reines JS ohne React und damit direkt aufrufbar — ihre Abdeckung lässt sich
- * prüfen, statt sie zu vermuten.
+ * Was der Spieler bekommt: die Darstellung liest Onboarding- und Dungling-
+ * Zustände, der Spielerseed entscheidet die Welt, das Konto trägt den Seed.
  */
 import { DUNGLING_STATE } from '../../src/domain/entities/dungling.js';
 import { ONBOARDING_ORDER, ONBOARDING_STATE } from '../../src/domain/onboarding/onboarding-state.js';
 import { dunglingAnimation } from '../../src/world/dungling/dungling-anim.js';
 import { hiveVisualState } from '../../src/world/hive/hive-state.js';
+import { checkAccount } from './check-account.mjs';
+import { checkSeed } from './check-seed.mjs';
 import { check, section } from './expect.mjs';
 
 const DUNGLING_STATES = Object.values(DUNGLING_STATE).filter((state) => state !== DUNGLING_STATE.NONE);
@@ -30,4 +31,6 @@ function checkHiveWaiting() {
 export function checkWorldViews() {
   checkDunglingAnimations();
   checkHiveWaiting();
+  checkSeed();
+  checkAccount();
 }

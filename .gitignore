@@ -14,6 +14,9 @@ coverage/
 .env.*
 !.env.example
 
+# Konten der Spieler: Passwörter und Seeds gehören nie ins Repo
+.data/
+
 # Editor- und OS-Reste
 .idea/
 *.swp

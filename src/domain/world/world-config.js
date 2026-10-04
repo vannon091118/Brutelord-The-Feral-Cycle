@@ -8,6 +8,8 @@ export const HIVE_ORIGIN = Object.freeze({ x: 31, y: 31 });
 export const HIVE_SIZE = Object.freeze({ width: 2, height: 2 });
 
 export const REVEAL_RADIUS = 2;
+/** Der Kern um eine Sonde bleibt immer frei, alles davor wackelt pro Seed. */
+export const REVEAL_GUARANTEED = 1;
 
 export const VIEW_TILES = 13;
 
@@ -19,6 +21,12 @@ export const DEPTH_RADIUS_TILES = 14;
 
 export const MIN_WORLD_SCALE = 0.4;
 export const MAX_WORLD_SCALE = 1;
+
+/** Die Welt ohne Konto: der Start, den npm run verify und der Offline-Bau bekommen. */
+export const WORLD_SEED = Object.freeze({
+  anonymous: 0xc0ffee,
+  hexLength: 8,
+});
 
 export function worldPixelSize(tileSize = TILE_SIZE) {
   const bleed = WORLD_BLEED_TILES * tileSize;
