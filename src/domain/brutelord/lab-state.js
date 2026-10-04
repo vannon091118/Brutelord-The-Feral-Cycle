@@ -10,7 +10,7 @@ export function createLab() {
   return { stones: [], pityMisses: 0, purchased: 0, open: false };
 }
 
-export function stoneOf(lab, seed) {
+function stoneOf(lab, seed) {
   return lab.stones.find((stone) => stone.seed === seed) ?? null;
 }
 
@@ -39,7 +39,7 @@ export function nextSeed(lab) {
   return (lab.purchased + 1) * 2654435761 % 4294967296;
 }
 
-export function isDiscovered(lab, seed) {
+function isDiscovered(lab, seed) {
   return Boolean(stoneOf(lab, seed)?.discovered);
 }
 

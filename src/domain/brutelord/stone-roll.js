@@ -22,7 +22,7 @@ export function pityMisses(lab) {
 }
 
 // Die Legende-Chance steigt unsichtbar mit jedem Fehlschlag.
-export function pityBonus(misses, config = STONE_CONFIG) {
+function pityBonus(misses, config = STONE_CONFIG) {
   return Math.min(config.pityMaxBonus, misses * config.pityStep);
 }
 

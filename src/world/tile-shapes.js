@@ -18,7 +18,7 @@ function round(value) {
   return Math.round(value * 100) / 100;
 }
 
-export function smoothClosedPath(points) {
+function smoothClosedPath(points) {
   const n = points.length;
   if (n < 3) return '';
   const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });

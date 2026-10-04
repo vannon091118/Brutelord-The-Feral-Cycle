@@ -56,12 +56,12 @@ export function isMiningFinished(job) {
   return job.tick >= job.totalTicks || job.progress >= 1;
 }
 
-export function isMineableEarth(world, id) {
+function isMineableEarth(world, id) {
   const tile = getTile(world, id);
   return Boolean(tile) && isEarth(tile) && isVisible(tile);
 }
 
-export function touchesUsableSpace(world, id) {
+function touchesUsableSpace(world, id) {
   const { x, y } = parseTileId(id);
   return (
     isUsable(tileAt(world, x + 1, y)) ||
@@ -80,7 +80,7 @@ export function canAffordMining(world, id, essence) {
   return canMineTile(world, id) && canPayForMining(essence);
 }
 
-export function mineableFrontierIds(world) {
+function mineableFrontierIds(world) {
   return world.tiles
     .filter((tile) => tile && isEarth(tile) && isVisible(tile) && touchesUsableSpace(world, tile.id))
     .map((tile) => tile.id);

@@ -3,11 +3,11 @@ import { BUILDING_STATE, buildingDef } from './building-config.js';
 import { getTile, isInsideGrid } from '../world/grid.js';
 import { isBuildable, tileId } from '../world/tile.js';
 
-export function occupiedTileIds(buildings) {
+function occupiedTileIds(buildings) {
   return new Set(buildings.flatMap((building) => building.tileIds));
 }
 
-export function footprintIds(type, anchor) {
+function footprintIds(type, anchor) {
   const def = buildingDef(type);
   if (!def) return [];
   const ids = [];
@@ -43,7 +43,7 @@ export function createBuildingSite({ id, type, anchor }) {
   };
 }
 
-export function isDelivered(building) {
+function isDelivered(building) {
   return building.delivered >= building.required;
 }
 

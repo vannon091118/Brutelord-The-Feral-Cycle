@@ -18,21 +18,31 @@ import {
 
 const ARRIVAL_STATES = [ONBOARDING_STATE.GRID_EXPANDED, ONBOARDING_STATE.TILE_DESTROYED];
 
+const centerCache = new WeakMap();
+
 /** Ohne Array: der Bauplatz zaehlt wenige Kacheln, das Raster hat viertausend. */
-export function builtCenterPx(world, tileSize) {
+function builtCenterTile(world) {
+  const cached = centerCache.get(world.tiles);
+  if (cached) return cached;
   let count = 0;
   let sumX = 0;
   let sumY = 0;
   for (const tile of world.tiles) {
     if (!tile || tile.kind === TILE_KIND.EARTH) continue;
     count += 1;
-    sumX += (tile.x + 0.5) * tileSize;
-    sumY += (tile.y + 0.5) * tileSize;
+    sumX += tile.x + 0.5;
+    sumY += tile.y + 0.5;
   }
-  if (count === 0) {
-    return { x: (world.hiveOrigin.x + 0.5) * tileSize, y: (world.hiveOrigin.y + 0.5) * tileSize };
-  }
-  return { x: sumX / count, y: sumY / count };
+  const center = count === 0
+    ? { x: world.hiveOrigin.x + 0.5, y: world.hiveOrigin.y + 0.5 }
+    : { x: sumX / count, y: sumY / count };
+  centerCache.set(world.tiles, center);
+  return center;
+}
+
+function builtCenterPx(world, tileSize) {
+  const center = builtCenterTile(world);
+  return { x: center.x * tileSize, y: center.y * tileSize };
 }
 
 export function cameraBox({ world, tileSize, viewport }) {

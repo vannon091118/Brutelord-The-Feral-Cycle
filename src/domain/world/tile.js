@@ -34,8 +34,8 @@ export function tileId(x, y) {
 }
 
 export function parseTileId(id) {
-  const [x, y] = id.split(',').map(Number);
-  return { x, y };
+  const comma = id.indexOf(',');
+  return { x: +id.substring(0, comma), y: +id.substring(comma + 1) };
 }
 
 export function createEarthTile(x, y) {

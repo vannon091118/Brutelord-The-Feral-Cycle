@@ -155,6 +155,34 @@ Grund, ihn zu haben.
       bleibt. Gegenprobe: der neue Check gegen die alte Workflow-Datei lässt
       alle drei Prüfungen rot werden. Der Bot committet weiterhin ohne
       Signatur — eine behauptete Identität bleibt nicht prüfbar.
+- [x] **Die Kameramitte wird gepuffert.** `builtCenterPx()` ging bei jedem Render
+      durch alle 4.096 Kacheln, obwohl sich das Ergebnis nur aendert, wenn sich
+      das Raster aendert. Jetzt liegt der Mittelwert in einem `WeakMap`, der am
+      Raster-Array klebt. **Der Puffer ist nur so gut wie die Invariante, auf
+      der er steht, und die stand nirgends.** `applyTiles()` kopiert das Array
+      mit `slice()` und gibt ein neues zurueck, deshalb stimmt der Eintrag bei
+      jeder Aenderung. Genau diese Kopie ist die Voraussetzung, und sie war
+      nirgends festgeschrieben, nirgends geprueft und an drei Stellen
+      verteilt. **Ich habe den Fall gemessen, in dem sie faellt:** aendert
+      jemand `applyTiles()` auf In-place um, liefert der Puffer weiter den
+      alten Wert, die Kamera bleibt stehen, waehrend der Boden weiterwaechst.
+      Kein Fehler, kein Absturz, nur ein eingefrorenes Bild — die teuerste
+      Sorte Fehler. Deshalb liegt die Invariante jetzt in
+      `check-camera.mjs`: der Check rechnet die Mitte unabhaengig nach,
+      vergleicht sie mit dem gepufferten Ergebnis und stellt sicher, dass
+      wiederholte Aufrufe dasselbe liefern und eine Rasterkopie den Eintrag
+      nicht erbt. Gegenprobe gelaufen, `applyTiles()` auf In-place umgebaut:
+      zwei Pruefungen fallen rot.
+      **Nebenbei hat sich das Import-Cap gestellt.** `check-colony.mjs` stand
+      mit sieben Imports schon am Limit, ein achtes waere ein Verstoess
+      gewesen. Loesen laesst sich das nur, indem echte Zusammengehoerigkeit
+      benutzt wird: Traits sind Steineffekte und damit Brutlord-Domaene, also
+      ruft `checkBruteLord()` das Trait-Modul jetzt mit auf, und fuer die
+      Kamera bleibt in `check-colony.mjs` eine Zeile frei. 216 Pruefungen
+      wurden daraus 222, ohne dass eine einzige verloren ging — daran habe ich
+      bei zwei Fehlversuchen fast die Trait-Pruefung geopfert, weil ich
+      Namen aus verschiedenen Dateien in eine Importzeile gepackt habe.
+
 - [x] **Die Regeln nachgeschärft.** Hard Caps messen jetzt nur Code — Leer- und
       Kommentarzeilen fallen aus dem LOC-Cap heraus —, und Kommentare selbst
       sind auf fünf Zeilen pro Datei gedeckelt: global für alles unter `src/`
