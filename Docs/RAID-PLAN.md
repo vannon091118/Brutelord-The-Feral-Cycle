@@ -72,6 +72,21 @@ Ein Angriff kostet immer denselben festen AP-Betrag. **Stats skalieren den
 Output, nicht die Kosten** — ein Angriff kostet nie mehr, wenn das Monster
 stärker ist.
 
+**Die Zahlen, gemessen statt gesetzt.** Der Einmarsch gräbt orthogonal, und die
+ferne Ecke einer 64 × 64-Karte ist bei einem Hive auf (31,31) das Feld (63,63)
+mit 64 Schritten. Das ist die Basis-Ausdauer: damit erreicht ein nacktes Team
+den Hive von **allen 4096 Feldern**. Der Endwert folgt aus `MAX_DUNGLINGS` (6),
+`SLOT_ORDER` (4) und der Seltenheitsstufe — 24 Steine, je Stein höchstens
+`5 × 4 = 20` grit, also ein Maximum von 480.
+
+```
+teamGritShare = teamGrit / 480           // 0 bis 1
+Ausdauer      = 64 + 116 * teamGritShare
+```
+
+Gemessen: nacktes Team 64, ein Team mit halbem Anteil 122, voll ausgestattet
+180. Graben kostet 1 für weiche Erde, 6 für Stein und 12 für Obsidian.
+
 ### Risiko und der Monster-Zyklus
 
 **Fail closed.** Fällt die Ausdauer auf null und der Spieler bricht ab, ist der
@@ -290,20 +305,9 @@ dokumentierte Entscheidung.
 
 ## Die offenen Fragen
 
-Nach Wichtigkeit geordnet. Die ersten beiden sind Bauauftrag, nicht Balance.
+Nach Wichtigkeit geordnet. Die erste ist ein Bauauftrag, keine Balance.
 
-### 1. Die Ausdauer-Rechnung
-
-Der Einmarsch ist jetzt die **einzige** Schranke des Raids (D3, D27). Im
-Worst Case sind das rund 44 Felder bei einer 64 × 64-Karte — ein 60-Tile-Radius
-umfasst die **ganze** Karte und ist als Schranke hohl.
-
-Weil `grit` als Team-Summe linear in den Ausdauerpool skaliert, ist die Rechnung
-keine absolute Zahl, sondern ein **Verhältnis**: Budget gegen Weg. Sie muss vom
-Weg ausgehen, nicht vom Hive. Ein Pool, der den Hinweg nicht überlebt, ist keine
-Balance-Frage.
-
-### 2. Der Angriffspreis und die Faltung
+### 1. Der Angriffspreis und die Faltung
 
 Zwei Lücken, beide klein und beide findbar:
 
@@ -318,7 +322,10 @@ Zwei Lücken, beide klein und beide findbar:
 Die Zahlen gehören nach `stone-config.js` und erst **mit** der Abnahme. Sie
 sollen den Bau nicht blockieren, sondern beschreiben, was gemessen wurde.
 
-### 3. Der Zeitpunkt des Verteidigers
+**Die Ausdauerrechnung ist beantwortet** und steht im Regelwerk. Sie war die
+letzte offene Zahl vor dem Bau und ist jetzt gemessen.
+
+### 2. Der Zeitpunkt des Verteidigers
 
 D24 friert den Snapshot bei Ticketausstellung ein. Was der Verteidiger danach
 baut, sieht der Raid nicht — er kann Wände nachziehen, die der Angreifer nie zu
@@ -326,24 +333,24 @@ sehen bekommt, und Bauten reparieren, die der Raid für Ruinen hält. Entweder i
 Snapshot-Moment gleich Raid-Moment, oder das Ergebnis wird gegen den späteren
 Stand reconciliert.
 
-### 4. Der Rache-Raid gegen das MMR
+### 3. Der Rache-Raid gegen das MMR
 
 D5 sagt: keine Gegnerauswahl. Der Riss gibt dem Verteidiger priorisierte
 Koordinaten. Der Rache-Raid braucht also eine Ausnahme, oder der Riss wird zu
 einem Koordinaten-Hinweis, den das MMR nach Gewichtung priorisiert.
 
-### 5. Etagen
+### 4. Etagen
 
 Vollständig unbestimmt. Der 64 × 64-Raster ist als begehbare Fläche entschieden,
 alles darüber nicht.
 
-### 6. Die Integration der Raid-Sichtbarkeit
+### 5. Die Integration der Raid-Sichtbarkeit
 
 Die Sichtbarkeit selbst ist entschieden (nur direkte Nachbarfelder zu Beginn).
 Offen bleibt, wie sie in `reveal.js` und `REVEAL_RADIUS 2` aufgeht, ohne das
 Basisspiel zu verändern.
 
-### 7. Die Rückholchance beim Opfer
+### 6. Die Rückholchance beim Opfer
 
 Der Entwurf sagt „eine Rückholchance", ohne eine Zahl.
 
@@ -356,7 +363,8 @@ Nicht die Mechanik. Diese Reihenfolge:
 1. **Speichern.** Snapshot, Ticket, `raid_id`, MMR-Aufzeichnung, Riss und
    Pending brauchen eine Tabelle, die es nicht gibt. Aus einem unabhängigen
    Roadmap-Punkt wird damit zur Voraussetzung.
-2. **Die Ausdauer-Rechnung**, ausgehend vom Weg.
+2. ~~**Die Ausdauer-Rechnung**, ausgehend vom Weg.~~ **Erledigt.** Sie steht im
+   Regelwerk und in `raid-config.js`; die Zahlen sind gemessen, nicht gesetzt.
 3. **Das Terrain-Feld neben `TILE_KIND`**, mit eigener Abbauregel und ohne
    `isEarth()` zu berühren.
 4. **Ticket und Replay-Check.** Der Replay gehört in die Abnahme.
@@ -364,7 +372,14 @@ Nicht die Mechanik. Diese Reihenfolge:
 6. **`RaidCapability` am Stein**, mit eigenem Kanal.
 7. **Erst dann die Mechanik.** Kantenwände, Rundenmodus und Wächter-Koma kommen
    zuletzt, weil Kantenwände ein zweites Objektmodell im selben Grid sind und
-   das Rundenmodell ein zweites Zeitmodell neben vier Uhren mit je bis zu 20 Hz.
+   das Rundenmodus ein zweites Zeitmodell neben vier Uhren mit je bis zu 20 Hz.
+
+**Was bereits steht:** `src/domain/raid/` trägt `raid-config.js` mit der
+Ausdauerrechnung und den Grabkosten, `raid-spawn-seed.js` mit dem Einmarsch aus
+dem Ticket und `raid-state.js` mit der zweiten Zustandsinstanz. Das Gerüst ist
+bewusst vor der Mechanik gebaut, weil die Zahlen sonst gegen eine Annahme
+programmiert worden wären. **Nicht gebaut** ist davon die Abnahme: es gibt noch
+keinen `check-raid-*.mjs`, und ein ungeprüfter Replay ist eine Behauptung.
 
 **Ein Zirkel, der benannt gehört:** Das MMR-System verhindert Missbrauch,
 braucht aber aufgezeichnete Raid-Ergebnisse und liegt damit **nach** dem ersten

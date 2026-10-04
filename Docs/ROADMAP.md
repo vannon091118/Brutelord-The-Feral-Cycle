@@ -61,6 +61,21 @@ Grund, ihn zu haben.
       geschlossene Pull Request daraus (`#2`) war an beiden Punkten falsch und
       ist mit Begründung geschlossen; §8 in `AGENTS.md` ist im selben Zug an
       die zwei Steinsorten angepasst.
+      — [x] **Das Gerüst steht, die Rechnung ist gemessen.**
+      `src/domain/raid/` trägt `raid-config.js` mit Ausdauerpool und Grabkosten,
+      `raid-spawn-seed.js` mit dem Einmarsch aus dem Ticket und `raid-state.js`
+      mit der zweiten Zustandsinstanz. Zwei Annahmen haben nicht gehalten und
+      sind gegen die Config gerechnet worden: Der Einmarsch gräbt orthogonal,
+      also sind es **64** Felder von der fernen Ecke bis zum Hive und nicht 44 —
+      und `grit` steht ausschließlich auf Legenden-Steinen, weshalb der Pool
+      über den **Anteil** rechnet und nicht über die Roheit, sonst wäre die
+      Verteilung über ein Team binär statt stufenlos. Der Einmarschspunkt war
+      zweimal falsch gerechnet, bis die Kandidatenliste am Raster geklemmt war;
+      über 600 Tickets sind es jetzt 561 verschiedene Punkte, alle reproduzierbar.
+      Messungen und Begründung stehen in [`ARCHITEKTUR.md`](ARCHITEKTUR.md),
+      Kapitel *Der Eco-Stakes-Raid*. **Was fehlt, ist die Abnahme:** es gibt
+      noch keinen `check-raid-*.mjs`, und ein ungeprüfter Replay ist eine
+      Behauptung.
 - [x] **Eine Abnahme für den Browser.** Die Onboarding-Kette ist jetzt geprüft,
       die Darstellung halb, die Browser-Uhr gar nicht: `scripts/` führt
       `use-schedule-runner.js` nie aus, weil dort kein Browser läuft. Damit ist

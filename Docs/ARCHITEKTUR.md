@@ -34,6 +34,7 @@ Begründung für diese Kette steht im Kapitel *Zustand*.
 | Wie züchte ich Steine, was tun Traits? | [Der Brutlord als Labor](#der-brutlord-als-labor) |
 | Wie wird gezeichnet, was kostet ein Render? | [Welt und Darstellung](#welt-und-darstellung), [Was ein Render kostet](#was-ein-render-kostet) |
 | Woher kommt die Welt eines Kontos? | [Konto und Spielerseed](#konto-und-spielerseed) |
+| Wie hängen Ausdauer und Steinwerte zusammen? | [Der Eco-Stakes-Raid](#der-eco-stakes-raid) |
 | Welche Prüfung prüft was? | [Prüfungen](#prüfungen), und die Fallen in [`PITFALLS.md`](PITFALLS.md) |
 | Wie arbeite ich hier? | [`WORKFLOW.md`](WORKFLOW.md) |
 
@@ -459,6 +460,96 @@ Temporärverzeichnis an und räumt es ab.
 Hive, Vorräte und Bauten. Das ist der offene Roadmap-Punkt, und die Konto-Schicht
 ist so gebaut, dass der Spielstand später als eine Spalte in derselben Tabelle
 dazukommt, ohne das Passwortmodell anzufassen.
+
+## Der Eco-Stakes-Raid
+
+Der Plan steht vollständig in [`RAID-PLAN.md`](RAID-PLAN.md). Hier trägt, was
+der Code beim Bauen entschieden hat und im Kommentar keinen Platz mehr findet.
+
+### Der Anteil statt der Roheit
+
+Der Ausdauerpool hängt an `grit`, und `grit` ist der vierte Eintrag von
+`STAT_KEYS`. Das ist die Entscheidung, an der die Ökonomie hängt: **der Anteil
+zählt, nicht der Rohwert.**
+
+`grit` steht ausschließlich auf LEGENDARY-Steinen. `statsFor()` in
+`stone-roll.js` vergibt `STAT_KEYS[index % 4]`, und `statCount` skaliert mit der
+Seltenheit — NORMAL liefert nur `atk`, RARE `atk` und `speed`, EPIC zusätzlich
+`haul`, und erst LEGENDARY kommt auf vier Schlüssel. Ein Team aus 23 Epics und
+einer Legende hat deshalb `grit` 20 und nicht 480: Die Verteilung über ein Team
+ist **binär**, nicht stufenlos. Wer die Roheit selbst in den Multiplikator gibt,
+kodiert diesen Sprung mit in die Zahl und muss die Kurve später von Hand
+glätten.
+
+Deshalb rechnet `raid-config.js` über den Anteil:
+
+```
+teamGritShare = teamGrit / maxTeamGrit        // 0 bis 1
+Ausdauer      = base + bonus * teamGritShare
+```
+
+`maxTeamGrit()` liest `MAX_DUNGLINGS` (6), `SLOT_ORDER` (4) und
+`STONE_DEFS.LEGENDARY.power` (4) aus den Configs statt sie zu wiederholen:
+sechs Monster, 24 Steine, je Stein höchstens `5 × 4 = 20`. Der Multiplikator
+ist damit dimensionslos und muss den Wertebereich der Stats nicht mitkodieren.
+
+**Gemessen, nicht gesetzt:** `maxTeamGrit()` liefert 480. Ein Team mit 240 grit
+hat 122 Ausdauer, ein nacktes 64, ein voll ausgestattetes 180.
+
+### Der Einmarsch misst orthogonal
+
+Der Anmarsch ist **Manhattan**, nicht euklidisch. Graben geht in vier
+Richtungen, die Zahl der Felder auf dem Weg entscheidet die Ausdauer. Und die
+ferne Ecke ist nicht (0,0): `HIVE_ORIGIN` steht bei 31,31 auf einer Karte mit
+Indizes 0 bis 63, also ist die ferne Ecke (63,63) mit 32 + 32 = **64** Feldern.
+`baseStamina` ist deshalb aus `Math.max(origin, size - 1 - origin)` gebaut und
+nicht aus `Math.abs(origin)` — die zweite Form misst die falsche Ecke und lässt
+die fünf entferntesten Felder unerreichbar.
+
+Mit 64 erreicht ein nacktes Team den Hive von **allen 4096 Feldern** der Karte.
+Mit den zunächst angenommenen 62 wären es 99,9 Prozent gewesen.
+
+### Der Einmarschspunkt zählt die Kandidaten, nicht die Ringe
+
+`raid-spawn-seed.js` streut über einen eigenen Hash aus dem Ticket. Der erste
+Wurf teilte die Ringe von innen nach außen in `8r` Felder und suchte vorwärts
+nach dem ersten freien. Das ist falsch an zwei Stellen:
+
+- Der Umkreis von 60 Feldern ist ein **121 × 121-Quadrat**, von dem nur
+  64 × 64 auf der Karte liegen. 72 Prozent der Indizes zeigten auf Felder wie
+  (-11, 86), der Scan lief über zweitausend Schritte ins Leere und kam bei
+  288 von 400 Tickets auf demselben Feld an der Hive-Tür heraus.
+- Ein Ring hat `8r` Felder, nicht `4r` — `4r` zählt die vier Seiten ohne die
+  Zwischenpunkte.
+
+`candidates()` klemmt die Schleife stattdessen ans Raster und liefert nur
+unbebaute Felder, `entryPointFor()` wählt daraus per Hash. Der Umkreis ist
+Manhattan, damit `entryRadius` dasselbe misst wie `baseStamina`.
+
+**Gemessen:** 4066 Kandidaten (99,3 Prozent der Karte), Weg zwischen 1 und 60.
+Über 600 Tickets sind 561 verschiedene Punkte entstanden, der häufigste genau
+dreimal, und alle 600 sind reproduzierbar.
+
+### Zwei Instanzen, ein Verb
+
+`raid-state.js` ist eine **zweite** Zustandsinstanz, kein Reducer-Zweig.
+`game-reducer.js` iteriert eine Kette, erster Reducer gewinnt — ein Reducer kann
+kein Verb abfangen, das an einen anderen Zustand ging. Ein isolierter `RaidState`
+ist damit eine eigene Kette mit eigenem Zustand, und der Modus-Zweig liegt an
+der Aufrufstelle, nicht in der Domäne.
+
+`use-game-actions.js` ist die Dispatch-Schicht und steht bei **23 von 30 LOC** bei
+zwei von sieben belegten Importzeilen. Sechs Raid-Aktionen passen dort nicht
+hinein und brauchen ein eigenes Modul.
+
+Die Ausdauer ist ein Pool ohne Nachwachsen, AP füllen sich pro Runde auf. Ein
+Taktbeschleuniger kommt deshalb nicht weiter: Nicht das Tempo begrenzt den
+Raid, sondern die Summe. Bewegung über bekanntes Gelände kostet nichts —
+dadurch ist das Graben die einzige Schranke des Einmarsches, und deshalb steht
+die Ausdauerrechnung an erster Stelle der Bauordnung.
+
+`spend()` lässt den Zustand unverändert, wenn die Ausdauer nicht reicht. Das ist
+das Fail closed aus dem Plan: kein Phasenwechsel, keine Rettung.
 
 ## Werkzeuge
 
