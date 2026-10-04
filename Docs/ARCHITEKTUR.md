@@ -1,13 +1,28 @@
 # Architektur
 
-Dieses Dokument trägt, was im Code keinen Platz mehr hat. Kommentare sind dort
-auf **fünf Zeilen pro Datei** begrenzt und dienen nur noch der Orientierung;
-die Zahlen, Regeln und Begründungen stehen hier. Wer eine Entscheidung ändert,
-ändert sie hier mit — sonst weiß in drei Monaten niemand mehr, warum die Dinge
-so liegen.
+Dieses Dokument trägt die **Entscheidungen und ihr Warum** — alles, was im Code
+keinen Platz mehr hat. Kommentare sind dort auf **fünf Zeilen pro Datei**
+begrenzt und dienen nur noch der Orientierung. Wer eine Entscheidung ändert,
+ändert sie hier im selben Commit mit; das ist die Dokumentationspflicht aus
+[`GOVERNANCE.md`](GOVERNANCE.md), und sie ist keine Formalie — sonst weiß in
+drei Monaten niemand mehr, warum die Dinge so liegen.
 
-Die verbindlichen Regeln (Gate, Version, Commits) stehen in `AGENTS.md`, die
-Absicht in `Docs/ROADMAP.md`.
+Was hier **nicht** steht, steht anderswo und wird von hier verwiesen:
+
+| Frage | Datei |
+| --- | --- |
+| Welche Regeln und Pflichten gelten? | [`GOVERNANCE.md`](GOVERNANCE.md) |
+| Wie laufen Gate, Abnahme, Version, CI? | [`WORKFLOW.md`](WORKFLOW.md) |
+| Welche Fehler schon einmal zugeschlagen haben? | [`PITFALLS.md`](PITFALLS.md) |
+| Was muss ich vor jedem Commit wissen? | [`AGENTS.md`](../AGENTS.md) |
+| Was wird als Nächstes gebaut? | [`ROADMAP.md`](ROADMAP.md) |
+| Wie sieht das Raid-Feature aus und was ist offen? | [`RAID-PLAN.md`](RAID-PLAN.md) |
+| Was hat sich in einer Version geändert? | [`CHANGELOG.md`](CHANGELOG.md) |
+
+**Lesereihenfolge für den Code** — jede Ebene setzt die vorige voraus und ist
+ohne sie nicht sinnvoll: `src/domain/` (Spielwahrheit) → `src/state/` (Zustand)
+→ `src/ui/` (liest, entscheidet nichts) → `src/world/` (Geometrie). Die
+Begründung für diese Kette steht im Kapitel *Zustand*.
 
 ---
 
@@ -158,11 +173,10 @@ leer ist. `DepositLayer.jsx` führt die Ebenen zusammen und hängt in
 deckend und würde den Hinweis sonst begraben — genau auf den Feldern, für die
 er steht.
 
-Zwei Fallen, die beide gemessen wurden: das `transform`-Attribut einer SVG-Form
-wird von der CSS-`transform`-Eigenschaft der Animation überschrieben, die
-Platzierung der Splitter liegt deshalb in einer umschließenden Gruppe; und ein
-gemeinsamer Radialverlauf für alle Vorräte zwingt allen Kacheln die Helligkeit
-des ersten auf, also hat jetzt jeder Vorrat einen eigenen.
+Die Fallstricke beim Zeichnen — das `transform`-Attribut, das von der
+CSS-`transform`-Eigenschaft der Animation überschrieben wird, der gemeinsame
+Radialverlauf, der allen Kacheln die Helligkeit der ersten aufzwingt, und die
+Ebenenreihenfolge — stehen in [`PITFALLS.md`](PITFALLS.md).
 
 Die Platzierung ist deterministisch und ohne Zufall: `deposit-hash.js` streut
 über einen eigenen `Math.imul`-Hash, bewusst nicht über `tileSeed` aus
@@ -283,7 +297,11 @@ Gemessen wird das nicht an Konfigurationsliteralen, sondern am echten Reducer:
 baut einen Stein mit bekanntem Trait ein und zählt die Takte bis zum
 Essenz-Popup — einmal über den Brutlord, einmal daneben vorbei. Der
 Gegenbeweis: neutralisiert man die Verdrahtung in `work-tick.js`, fallen genau
-drei Prüfungen rot und die restlichen 165 bleiben grün.
+drei Prüfungen rot und der Rest bleibt grün. **Wie viele Prüfungen das sind,
+steht absichtlich nirgends in diesem Dokument** — die letzte Zeile von
+`npm run verify` schreibt sie, und eine abgeschriebene Zahl in einem Text wäre
+ab dem nächsten Commit still falsch. Siehe *Messe, bevor du behauptest* in
+`GOVERNANCE.md`.
 
 ## Welt und Darstellung
 
@@ -367,7 +385,7 @@ Bild und Bedienung sind unverändert. Das ist nicht behauptet, sondern geprüft:
 58 Zustände über den ganzen Ablauf — Start, Onboarding, Abbau, Aufdecken, 240
 Rooting-Ticks, Hive- und Arbeitstakte — liefern zwischen Objekt- und
 Array-Raster dieselben 4.096 Kacheln, dieselbe Frontier, dieselben Vorräte,
-dieselben Bauten und Dunglinge, byteweise. Dazu die 187 Prüfungen.
+dieselben Bauten und Dunglinge, byteweise. Dazu die unveränderte Abnahme.
 
 Was bleibt, ist ehrlich gesagt Rest: die verbleibenden rund 1 ms pro Render
 sind der Ausschnitt, die Frontier und Reacts eigene Abstimmung. Die Frontier
@@ -448,24 +466,17 @@ Zwischenablage **und** in die Inbox auf `127.0.0.1:9333`;
 „m2 ist zu blau" im Chat eine Zeile mit Selektor und Rechteck, kein Raten.
 
 Der Supervisor ist der trickste Teil, und drei Fehler steckten darin, die alle
-drei schon ein Fenster aufgerissen haben:
+drei schon ein Fenster aufgerissen haben: Der Health-Check darf **kein
+HTTP-`fetch`** sein (Node hält Keep-Alive-Sockets, die Chrome nach kurzer Zeit
+schließt — der nächste `fetch` meldet „Chrome tot", während `curl` in 11 ms mit
+200 antwortet; ein `net.connect` kann das nicht), er muss **Chrome und Port
+getrennt** prüfen — gibt es den Prozess noch, aber der Port ist zu, ist das kein
+Grund für ein zweites Fenster —, und er muss ein geschlossenes Fenster von einem
+Absturz unterscheiden, sonst wird jedes normale Schließen zum Neustart.
 
-- Der Health-Check darf **kein HTTP-`fetch`** sein: Node hält Keep-Alive-Sockets,
-  die Chrome nach kurzer Zeit schließt; der nächste `fetch` landet auf einem
-  toten Socket und meldet „Chrome tot", während `curl` in 11 ms mit 200
-  antwortet. Ein `net.connect` kann das nicht.
-- Er muss **Chrome und Port getrennt** prüfen — gibt es den Prozess noch, aber
-  der Port ist zu, ist das kein Grund für ein zweites Fenster.
-- Er muss ein geschlossenes Fenster von einem Absturz unterscheiden, sonst wird
-  jedes normale Schließen zum Neustart.
-
-Weitere Fallstricke: `Page.addScriptToEvaluateOnNewDocument` gilt nur für die
-offene CDP-Session, ein Kurzskript verliert die Registrierung beim Schließen
-(deshalb der Daemon). Der Marker darf bei `document-start` kein DOM anfassen,
-`document.body` ist dort noch `null`, der Mount hängt am `readyState`. Die
-Tastatur-Handler laufen in der Capture-Phase, ein Kind kann sie nicht stoppen —
-die Tipp-Prüfung muss **vor** jeder Taste stehen, sonst schluckt ein `Esc` im
-Kommentar-Feld den Fokus und der Rest des Satzes verschwindet.
+Die Fallstricke dahinter — Registrierung des Markers über die CDP-Session, das
+`null` im `document-start`, die Capture-Phase der Tastatur-Handler — stehen in
+[`PITFALLS.md`](PITFALLS.md).
 
 ## Prüfungen
 
@@ -479,36 +490,35 @@ importiert, nicht nachgebaut.
   `lab-run.mjs`, das eine Kolonie mit verbautem Stein und offenem Bauplatz stellt.
 - `check-deposits.mjs` hängt an `checkRooting()`, weil der Einstiegspunkt mit
   sieben Importzeilen am Cap steht und der Hinweis ohnehin Verwurzelung ist.
-  Beim Nachtreiben von Hand: `startRooting(world, tile)` nimmt die Welt und die
-  Kachel, nicht nur die Kachel.
+  Beim Nachtreiben von Hand: `startRooting(world, tile)` nimmt die Welt **und**
+  die Kachel, nicht nur die Kachel.
 - `build-run.mjs` spielt den kompletten Bau-Durchlauf mit der virtuellen Uhr
   durch; die Beobachtungen sind Material, die Behauptungen stehen in
   `check-build.mjs`.
 - `virtual-clock.mjs` führt denselben Zeitplan wie der Browser aus, nur ohne
   Wartezeit. Der Arbeitstakt wird als `WORK_TICK` mit festem `dtMs` getaktet —
   auch hier gibt es keine Systemzeit.
-- `check-mining-progress.mjs` prüft `totalMiningTicks() === 35` als Literal.
-  Wer `miningDurationMs` oder `earthStateThresholds` ändert, muss diese Zahl
-  mitziehen. Die Hive-Fläche in `check-start.mjs` liest dagegen aus
-  `world.hiveSize` und ist damit von `HIVE_SIZE` abgeleitet.
-- `expect.mjs` zählt global über den ganzen Lauf und `summary()` ist nur einmal
-  aufrufbar; deshalb liegt die Reihenfolge fest.
+- Erwartungen werden aus den Configs **abgeleitet**, nicht als Literale neben
+  sie geschrieben: `check-start.mjs` liest die erwartete Hive-Fläche aus
+  `world.hiveSize`. Wo ein Literal unvermeidbar ist — `check-mining-progress.mjs`
+  prüft `totalMiningTicks() === 35` — muss es mitgezogen werden, wenn sich
+  `miningDurationMs` oder `earthStateThresholds` ändern. Die vollständige Liste
+  solcher Stellen und die Gegenprobe steht in
+  [`PITFALLS.md`](PITFALLS.md).
 
-Die Hard Caps prüft `scripts/lib/source-metrics.mjs` als Textanalyse: 300
-Codezeilen (Kommentar- und Leerzeilen zählen nicht), höchstens fünf
-Kommentarzeilen pro Datei, 30 LOC pro benannter Funktion, drei Parameter,
-sieben Importzeilen — für `.js`, `.jsx`, `.mjs` und `.css`. Dokumentation ist
-ausgenommen.
+Die Hard Caps prüft `scripts/lib/source-metrics.mjs` als Textanalyse, ohne
+Parser — für `.js`, `.jsx`, `.mjs` und `.css`, Dokumentation ausgenommen. Die
+Werte selbst stehen in `AGENTS.md` §3 und in `GOVERNANCE.md`; sie stehen hier
+nicht, damit es nur eine Wahrheit gibt.
 
 ## Version und Commits
 
-`version.lock.json` ist die Autorität; `VERSION`, `package.json` und
-`package-lock.json` sind Spiegel, geschrieben nur über `scripts/version.mjs`.
-Die Revision steigt bei jeder Versionsänderung um eins. Ein Rückschritt ist
-verboten — außer als ausdrückliche Rücknahme einer Fehlbenennung mit `amends:
-"<alte Version>"` im Lock; `src/version-authority.mjs` lässt genau diesen Fall
-durch und jeden anderen nicht.
-
-Jeder Commit nennt jede geänderte Datei im Body, erklärt warum, bleibt zwischen
-100 und 1.000 Wörtern und endet mit dem VANNON-Label. Die Regeln prüft
-`scripts/lib/commit-rules.mjs`, durchgesetzt wird es von `scripts/ci-gate.mjs`.
+Die Regeln stehen in [`GOVERNANCE.md`](GOVERNANCE.md), der Ablauf in
+[`WORKFLOW.md`](WORKFLOW.md). Zwei Dinge, die dort keinen Platz haben, weil sie
+Entscheidungen sind: Die Monotonie ist technisch eingebaut — `revision` steigt
+pro Versionsänderung um eins, und `src/version-authority.mjs` lässt nur einen
+Rückschritt durch, nämlich die ausdrückliche Rücknahme einer Fehlbenennung mit
+`amends: "<alte Version>"` im Lock. Und die Warum-Begründung der Commit-Policy
+selbst ist die, dass ein Commit-Body das einzige Memory ist, das in drei Monaten
+noch da ist: niemand erinnert sich, warum diese eine Zeile in `rooting.js`
+geändert wurde.

@@ -3,12 +3,22 @@
 Vite + React 19 + Tailwind 4. Ein Spiel-Slice: Hive anklicken, Erde abbauen,
 Bauten errichten, Essenz sammeln, Steine züchten. Spielwahrheit ist reines JS
 unter `src/domain/` — ohne React, DOM, SVG, `Math.random()` und `Date.now()`.
-Das Gate erzwingt drei Dinge, und es läuft in CI genauso wie lokal: Hard Caps,
-globale Versionierung, Commit-Policy.
 
-Die ausführlichen Regeln, Messzahlen und Begründungen stehen in
-`Docs/ARCHITEKTUR.md`. Die Absicht steht in `Docs/ROADMAP.md`. Dieses Dokument
-trägt nur, was man vor **jedem** Commit wissen muss.
+Dieses Dokument trägt **nur**, was man vor **jedem** Commit wissen muss, plus
+die Lesereihenfolge. Alles andere liegt in genau einer Datei und wird von hier
+verwiesen, nicht abgeschrieben:
+
+| Frage | Datei |
+| --- | --- |
+| Wie laufen Gate, Abnahme, Version, CI? | [`Docs/WORKFLOW.md`](Docs/WORKFLOW.md) |
+| Welche Regeln und Pflichten gelten? | [`Docs/GOVERNANCE.md`](Docs/GOVERNANCE.md) |
+| Welche Fehler schon einmal zugeschlagen haben? | [`Docs/PITFALLS.md`](Docs/PITFALLS.md) |
+| Warum steht eine Sache so und nicht anders? | [`Docs/ARCHITEKTUR.md`](Docs/ARCHITEKTUR.md) |
+| Was wird als Nächstes gebaut? | [`Docs/ROADMAP.md`](Docs/ROADMAP.md) |
+
+**Keine Kopie dieser Regeln in `CLAUDE.md`, `README.md` oder woanders.** Eine
+zweite Kopie läuft still auseinander, und die CI prüft immer nur das Original —
+die Kopie verfällt zu Folklore, die irgendwann jemand für bare Münze nimmt.
 
 ---
 
@@ -34,9 +44,9 @@ den Slice deterministisch mit einer virtuellen Uhr durch und importiert die
 echten Module aus `src/`.
 
 **Gate und verify lesen Pfade relativ zum CWD** — immer aus dem
-Repo-Wurzelverzeichnis starten.
-
----
+Repo-Wurzelverzeichnis starten. Das Gate prüft Commits **ohne** `--commits`
+nur gegen eine Basisrevision: auf `main` ohne neue Commits meldet es „keine
+neuen Commits" und übersieht Regelverstöße.
 
 ## 2. Workflow (nicht verhandelbar)
 
@@ -46,8 +56,6 @@ Nach **jedem** abgeschlossenen Task, in dieser Reihenfolge:
    Pflichtdoku und wandert im selben Commit mit. Fertiges bekommt ein Häkchen,
    der Eintrag bleibt stehen — Erledigtes wird nie gelöscht.
 2. **`npm run gate -- --commits=<base>..<head>`** — explizit, mit echter Range.
-   Auf `main` ohne neue Commits meldet das Gate „keine neuen Commits" und
-   übersieht Regelverstöße. Nach dem Push ist die Pflichtprüfung Formsache.
 3. **`npm run verify`**, dann **`npm run build`**. Ein Fehlpfad fällt nur hier
    auf, nicht im Gate.
 4. **Commit**, dann **Push auf `main`**. Kein PR, kein Branch-Zirkus.
@@ -56,7 +64,8 @@ Bleibt die Version stehen, muss auch die `revision` stehen bleiben. Regel- und
 Doku-Commits brauchen deshalb keinen Bump, ihr Roadmap-Eintrag darf trotzdem
 als erledigt unter der nächsten Section stehen.
 
----
+Die ausführliche Fassung mit der Commit-Vorprüfung steht in
+[`Docs/WORKFLOW.md`](Docs/WORKFLOW.md).
 
 ## 3. Hard Caps (blockieren CI)
 
@@ -80,8 +89,6 @@ Zwei Details, die man kennen muss:
 Wer mehr erklären will, schreibt es nach `Docs/ARCHITEKTUR.md`. Fünf Zeilen
 bedeuten keine Zensur, sondern einen Indikator: Wer für drei Datenbauten
 fünfzehn Kommentarzeilen braucht, hat zu viel Logik in eine Datei gelegt.
-
----
 
 ## 4. Commit-Policy (hart, per Gate erzwungen)
 
@@ -111,14 +118,12 @@ Bot, der sich als Mensch ausgibt, ist nicht prüfbar, sondern nur behauptet — 
 der persönliche Signaturschlüssel gehört nicht in `GITHUB_TOKEN`. Hand-Commits
 zeigen `G`.
 
-**Ausgenommen von der Signatur ist der Bot nicht von der Commit-Policy.** Er
-schreibt inzwischen regelkonform: Label in einer eigenen Zeile, die vier
-Spiegeldateien namentlich, genug Wörter. `scripts/verify/check-workflow.mjs`
-prüft das bei jedem `npm run verify`. Der Grund, warum das überhaupt auffiel:
-Bot-Commits lösen mit `GITHUB_TOKEN` keine CI aus, ein Verstoß bleibt also
-unentdeckt, bis jemand die Range über einen Bot-Commit zieht.
-
----
+Ausgenommen von der Signatur ist der Bot nicht von der Commit-Policy. Er
+schreibt regelkonform: Label in einer eigenen Zeile, die vier Spiegeldateien
+namentlich, genug Wörter. `scripts/verify/check-workflow.mjs` prüft das bei
+jedem `npm run verify`. Der Grund: Bot-Commits lösen mit `GITHUB_TOKEN` keine
+CI aus, ein Verstoß bleibt also unentdeckt, bis jemand die Range über einen
+Bot-Commit zieht.
 
 ## 5. Versionierung
 
@@ -129,8 +134,6 @@ geändert. Die `revision` steigt pro Versionserhöhung um genau 1.
 Eine einzige Ausnahme von der Monotonie gibt es: eine ausdrückliche Rücknahme
 einer Fehlbenennung, als `amends` im Lock. `versionTransitionViolations` lässt
 einen Rückschritt nur durch, wenn `amends` exakt der Basisstand ist.
-
----
 
 ## 6. Lesereihenfolge
 
@@ -148,8 +151,6 @@ vorige voraus und ist ohne sie nicht sinnvoll:
 Für die Prüfungen: `scripts/verify-slice.mjs` ist der Einstiegspunkt,
 `scripts/verify/expect.mjs` das Gerüst.
 
----
-
 ## 7. Konventionen
 
 - 2 Leerzeichen, kein Semikolon am Zeilenende, einfache Quotes — folgt dem
@@ -157,8 +158,9 @@ Für die Prüfungen: `scripts/verify-slice.mjs` ist der Einstiegspunkt,
 - Commit-Bodies und Code-Kommentare auf Deutsch, Code-Bezeichner englisch.
 - Fakten liegen als eingefrorene Konstanten-Objekte (`TILE_KIND`,
   `STONE_RARITY`, `HARD_CAPS`, …) in `*-config.js` beim Entity — nie als
-  Magic Strings. `check-start.mjs:21` reißt das: dort steht das Literal
-  `'VISIBLE'`. Wer eine Konstante umbenennt, lässt diese eine Prüfung still
+  Magic Strings. `check-start.mjs` reißt das mit der Prüfung *Erde sichtbar,
+  aber nicht nutzbar*: dort steht `visibility === 'VISIBLE'` als Literal statt
+  als Konstante. Wer die Konstante umbenennt, lässt diese eine Prüfung still
   grün werden.
 - **Eine Regel pro Ort, nicht eine Ausnahme und eine Ausnahme.** Der Spawn-Anker
   kommt aus `spawnTile()` in `src/state/selectors.js`; Reducer *und* Work-State
@@ -185,8 +187,6 @@ stehen in `Docs/ARCHITEKTUR.md`. Die Kette ist **Konvention, nicht Gate**:
 `src/domain/`, kein `Math.random(` und kein `Date.now(` in `src/`, kein
 SVG-Markup in `src/domain/`. Die Importrichtung prüft er nicht.
 
----
-
 ## 8. Gestalterische Vorgaben
 
 Vom Auftraggeber gesetzt und nicht verhandelbar:
@@ -195,74 +195,35 @@ Vom Auftraggeber gesetzt und nicht verhandelbar:
   zusammenhängende Masse; Auswahlringe und Effekte folgen der Fläche, nie dem
   Rechteck.
 - Der Untergrund bleibt bei einer Art: heller Stein. Obsidian und Sand wurden
-  verworfen.
+  verworfen. **Ausnahme für das Raid-Feature:** dort braucht es zwei harte
+  Sorten, Stein und Obsidian, weil die Ausdauer-Wand sie unterscheidet. Sie
+  sind Terrain, kein Erdreich — `isEarth()` bleibt Erdreich, und die
+  Abbauregel für Hartgestein steht daneben, nicht darin. Begründung und
+  offene Fragen in [`Docs/RAID-PLAN.md`](Docs/RAID-PLAN.md).
 - Die Welt ist auf 64 × 64 Felder gedeckelt, sichtbar bleibt ein 13 × 13-Fenster,
   das dem gebauten Raum folgt. Der Rest ist Dunkelheit.
 - Die Leiter steht außerhalb des Sichtfelds und wird erst gezeichnet, wenn die
   Kamera sie erreicht.
 
----
+## 9. Fallen
 
-## 9. Fallen (alle gemessen, nicht geraten)
+**Die vollständige Liste liegt in [`Docs/PITFALLS.md`](Docs/PITFALLS.md)** — alle
+gemessen, nicht geraten, mit Symptom, Ursache und Gegenprobe. Die drei, die am
+häufigsten zuschlagen:
 
-- **`npm run gate` prüft Commits nur gegen eine Basisrevision.** Auf `main`
-  ohne neue Commits meldet es „keine neuen Commits" und übersieht damit
-  Regelverstöße. Der eigentliche Test ist der PR-Check; lokal immer mit
-  expliziter `--commits=<base>..<head>`.
-- **`TREE_ROOTS` in `scripts/ci-gate.mjs` kennt nur `src` und `scripts`.**
-  Hilfsskripte im Repo-Root umgehen alle Caps, landen aber beim Staging im
-  Commit und müssen dort namentlich im Body stehen. Messskripte gehören nach
-  `/tmp`.
 - **Abgeschriebene Zahlen in Prüfungen bleiben grün, während die Regel kippt.**
   Wer eine Config ändert, muss die Literale in den `check-*.mjs` mitziehen —
-  besser ist es, sie aus der Config abzuleiten. Beispiel: `check-build.mjs` trug
-  drei Erwartungen über einen Startvorrat, der sich änderte.
-- **`scripts/verify/expect.mjs` ist global zustandsbehaftet.** `lines` und
-  `failures` stehen auf Modulebene, alles zählt über den ganzen Lauf, und
-  `summary()` ist nur einmal aufrufbar. Deshalb liegt die Reihenfolge fest in
-  `verify-slice.mjs`: `checkStart()` läuft vor `makeOnboardingRun()`, weil der
-  Start-Zustand der Run-Erzeugung zugrunde liegt.
-- **Hive-Position und Startkoordinaten liegen in zwei Dateien**: `HIVE_ORIGIN`
-  in `src/domain/world/world-config.js` und `dunglingSpawnTile` /
-  `firstEarthBlock` in `src/domain/onboarding/onboarding-config.js`. Wer den
-  Hive verschiebt, muss beide mitziehen.
-- **`run-slice.mjs` leitet sein Zielfeld aus `firstEarthBlock` ab**, es ist kein
-  festes Raster verdrahtet. Verschiebt sich der Hive, wandert das Ziel mit —
-  die abgeleiteten Erwartungen in den `check-*.mjs` aber nicht automatisch.
-  `check-start.mjs` liest die erwartete Hive-Fläche aus `world.hiveSize`, also
-  aus `HIVE_SIZE`. `firstEarthBlock` und die Thresholds tragen in den
-  `check-*.mjs` aber weiterhin Literale — wer sie ändert, muss die mitziehen.
-- **`soilBlob` zieht mit positivem `jitter` immer nach innen.** Überlappung
-  entsteht nur über `outward`, und ohne die festen Eckpunkte schneidet
-  `smoothClosedPath` die Ecken ab. Symptom sind dunkle Rauten im Raster — das
-  sieht nach Abstand aus, ist aber eine fehlende Ecke.
-- **Das `transform`-Attribut einer SVG-Form wird von der CSS-`transform`-
-  Eigenschaft der Animation überschrieben.** Platzierung gehört deshalb in eine
-  umschließende Gruppe.
-- **`.venv/` steht nicht in `.gitignore`, wird aber von sich selbst ignoriert**
-  (`.venv/.gitignore` enthält `*`). Es ist in `git status` unsichtbar und frisst
-  trotzdem jede Datei-Zählung. `git status` ist kein Beweis, dass etwas nicht da
-  ist.
-- **`dist/` ist Build-Ausgabe und nicht versioniert** — nicht von Hand editieren.
-- **Kein Lint- oder Format-Automat.** Nichts davon in `package.json`.
-  Einrückungsfehler bleiben unentdeckt, bis jemand die Datei liest.
-- **`npm run dev` bindet an `127.0.0.1`** — aus einem Container nicht erreichbar.
-  Läuft schon ein Server auf 5173, weicht Vite still auf 5174 aus. Vor dem
-  Neustart `ss -ltnp | grep 517`.
-- **Der Dev-Server muss von der Shell losgelöst starten.** `nohup … &` wird mit
-  der Shell wieder abgeräumt. Bewährt:
-  `python3 -c "subprocess.Popen([…], start_new_session=True)"` mit Log in
-  `/tmp/vite-dev.log`. Der Log ist keine Verlässlichkeit: Vite meldet
-  `ready in ~1000 ms`, der Port antwortet erst nach etwa 4 s. Ein `curl`
-  dazwischen liefert `000` — das ist die Lücke zwischen „gebunden" und
-  „liefert".
-- **Die deutschen `rule`-Texte aus `commitViolations` sind die Schnittstelle zu
-  `verify-commit-gate.mjs`** — die Tests greifen per `includes()` und
-  unterscheiden Großschreibung. Ein umbenannter Regelname macht genau eine Zeile
-  rot, ohne auf die Ursache zu zeigen.
-- **`git log -1 --format=%B | tail -1` taugt nicht als Label-Prüfung** — `%B`
-  endet mit Zeilenumbruch, die letzte Zeile ist leer. Erst `messageParts()` aus
-  `scripts/lib/commit-rules.mjs` filtert die Leerzeilen weg.
+  besser ist es, sie aus der Config abzuleiten.
+- **Hive-Position und Startkoordinaten liegen in zwei Dateien.** Wer den Hive
+  verschiebt, muss `world-config.js` *und* `onboarding-config.js` mitziehen.
+- **`expect.mjs` ist global zustandsbehaftet.** `lines`, `failures` und
+  `summary()` zählen über den ganzen Lauf; die Reihenfolge in
+  `verify-slice.mjs` ist deshalb fest.
 
-Details zu jedem dieser Punkte, die Preview-Werkzeuge unter `tools/preview/`
-und die vollständige Importmatrix stehen in `Docs/ARCHITEKTUR.md`.
+Zwei weitere, die man vor dem ersten Task kennen muss: Ein lokales `.venv/`
+taucht in keiner `.gitignore` und in keiner Dateiliste auf — `git status` ist
+kein Beweis, dass etwas nicht da ist —, und `dist/` ist Build-Ausgabe und nicht
+versioniert.
+
+Details zu jedem dieser Punkte und die Preview-Werkzeuge unter `tools/preview/`
+stehen in `Docs/PITFALLS.md` und `Docs/ARCHITEKTUR.md`.
