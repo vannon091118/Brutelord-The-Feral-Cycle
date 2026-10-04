@@ -108,11 +108,21 @@ Grund, ihn zu haben.
       nie traf. Jetzt: Ausschnitt koordinatenweise statt Raster filtern,
       `applyTiles()` bündelt mehrere Kacheln in ein Streuen,
       `earthGeometry()` cached nach Koordinate, Größe und Zustand, Kopie nur
-      bei Kacheln mit Vorrat. Gemessen gegen die echten Module, alt gegen neu
-      im selben Lauf: Ableitung pro Render 16,2 → 3,5 ms, ein abgeräumter
-      Block 182 → 8 ms. Ohne Bildänderung, bewiesen über 34 Zustandsvergleiche
-      mit identischer Kamera, identischer Kachelreihenfolge und identischer
-      Frontier, plus unveränderten 187 Prüfungen.
+      bei Kacheln mit Vorrat. **Und der eigentliche Brocken: `world.tiles` war
+      ein Objekt mit 4.096 String-Schlüsseln.** `{ ...world.tiles }` kostete
+      6,7 ms, weil V8 so viele Schlüssel in den Wörterbuchmodus schickt und
+      dessen Kopieren ein generischer Durchlauf ist; `tiles.slice()` kostet
+      24 µs, Faktor 273. Das Raster ist jetzt ein dichtes Array mit Index
+      `y * width + x`, `cellIndex()` ist die einzige Stelle, die aus einer Id
+      einen Platz macht, und `tileAt()` liefert dieselbe Kachel über
+      Koordinaten, damit `touchesUsableSpace()` nicht vier Id-Strings baut, die
+      `getTile()` sofort wieder zerlegt. Boot 258 → 9,7 ms, Rooting-Takt
+      4,1 ms → 0,039 ms, Ableitung pro Render 16,2 → 1,06 ms, Script-Zeit im
+      aktiven Browser 0,41 → 0,08 s/s, Long Tasks 16 mit maximal 97 ms → 4 mit
+      maximal 56 ms. Ohne Bildänderung: 58 Zustände über den ganzen Ablauf
+      liefern zwischen Objekt- und Array-Raster byteweise dieselben 4.096
+      Kacheln, Frontier, Vorräte, Bauten und Dunglinge, dazu unverändert 187
+      Prüfungen.
 - [x] **Die Regeln nachgeschärft.** Hard Caps messen jetzt nur Code — Leer- und
       Kommentarzeilen fallen aus dem LOC-Cap heraus —, und Kommentare selbst
       sind auf fünf Zeilen pro Datei gedeckelt: global für alles unter `src/`

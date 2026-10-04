@@ -3,13 +3,14 @@ import { ACTION } from '../../src/domain/actions/action-types.js';
 import { ONBOARDING_STATE, enterOnboarding } from '../../src/domain/onboarding/onboarding-state.js';
 import { DEPOSIT_PHASE } from '../../src/domain/deposits/deposit-config.js';
 import { createInitialGameState } from '../../src/state/game-state.js';
+import { allTiles } from '../../src/domain/world/grid.js';
 import { reduceMining } from '../../src/state/reducers/mining-reducer.js';
 import { check, section } from './expect.mjs';
 
 const WORKER = { id: 'dungling-1', tile: { x: 0, y: 0 }, state: 'IDLE', facing: 1, targetTileId: null, job: null };
 
 function tileWith(state, tileId) {
-  return Object.values(state.world.tiles).find((entry) => entry.id === tileId);
+  return allTiles(state.world).find((entry) => entry.id === tileId);
 }
 
 function digOrdered(world, tileId) {

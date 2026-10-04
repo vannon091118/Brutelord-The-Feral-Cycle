@@ -35,10 +35,10 @@ export function tickRooting(world, dtMs = ROOTING_CONFIG.tickMs) {
     if (step.spread) spreading.push(id);
     else if (isRootingBusy(step.rooting)) active.push(id);
   }
-  const tiles = Object.keys(updates).length ? { ...world.tiles, ...updates } : world.tiles;
-  const unchanged = tiles === world.tiles && active.length === world.rootingWorkIds.length;
+  const next = applyTiles(world, updates);
+  const unchanged = next === world && active.length === world.rootingWorkIds.length;
   return {
-    world: unchanged ? world : { ...world, tiles, rootingWorkIds: active },
+    world: unchanged ? world : { ...next, rootingWorkIds: active },
     spreading,
   };
 }

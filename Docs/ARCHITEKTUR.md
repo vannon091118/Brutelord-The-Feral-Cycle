@@ -311,23 +311,34 @@ Zwischenposition zwischen zwei Feldern, damit ein Träger läuft statt zu spring
 ### Was ein Render kostet
 
 Vier Uhren ticken bis zu 20-mal pro Sekunde, und jeder Takt ist ein vollständiger
-Durchlauf durch `App`. Was pro Durchlauf teuer war, stand an drei Stellen:
+Durchlauf durch `App`. Was pro Durchlauf teuer war, stand an vier Stellen:
 
-**Das Raster wurde durchsucht, um 13 × 13 Kacheln zu finden.** `tilesInView()`
-geht den Ausschnitt jetzt koordinatenweise ab und liest `world.tiles[tileId(x, y)]`
-— 169 Zugriffe statt 4.096. `builtCenterPx()` zählt ohne `Object.values()`
-zu, weil das Array über 4.096 Elemente allein mehr kostet als der Durchgang.
-Die Frontier zählt nur, was im Ausschnitt liegt; sie wird ausschließlich dort
-gelesen (`TileLayer.jsx`), also ändert das nichts am Bild. `GameStage.jsx`
-berechnet die Kamera nur noch, wenn das Kontextmenü offen ist — sonst stand
-derselbe Kasten zweimal pro Render im Bild, mit identischen Argumenten.
+**Das Raster war ein Objekt mit viertausend String-Schlüsseln.** `world.tiles`
+ist jetzt ein dichtes Array, Index `y * width + x`. Das ist kein Kosmetikum,
+sondern der teuerste Einzelposten im ganzen Spiel: `{ ...world.tiles }` kostete
+**6,7 ms**, `tiles.slice()` **24 µs** — Faktor 273. Ein Objekt mit so vielen
+Schlüsseln landet in V8 im Wörterbuchmodus, und dessen Kopieren ist ein
+s generischer Durchlauf. `cellIndex()` in `grid.js` ist die einzige Stelle, die
+aus einer Id einen Platz macht; `tileAt(world, x, y)` liefert dieselbe Kachel
+über Koordinaten, damit weder Id gebaut noch zerlegt werden muss. `isUsable()`
+trägt darum `null` — am Rand des Rasters bleibt die Kachel leer. Wer das Raster
+anfasst, fasst diese drei Funktionen an, nicht ihre Aufrufer.
 
-**Mehrere Kacheln werden in einem Zug geschrieben.** `replaceTile()` streut das
-ganze `tiles`-Objekt, und das sind 4.096 Keys. `revealAround()` tat das 37-mal
-für einen einzigen Block — 78 ms in einem Reducer-Schritt. `applyTiles()` in
-`grid.js` ist die Stelle, die mehrere Änderungen in *ein* Streuen packt;
-`reveal.js` und `spreadToNeighbors()` benutzen sie. Einzelne Kacheln bleiben bei
-`replaceTile()`.
+**Der Ausschnitt wurde durchsucht, um 13 × 13 Kacheln zu finden.** `tilesInView()`
+geht den Ausschnitt koordinatenweise ab und liest `tileAt()` — 169 Zugriffe statt
+4.096. `builtCenterPx()` zählt in einer Schleife ohne Zwischenarray. Die Frontier
+zählt nur, was im Ausschnitt liegt; sie wird ausschließlich im `TileLayer`
+gelesen, also ändert das nichts am Bild. `GameStage.jsx` berechnet die Kamera
+nur noch, wenn das Kontextmenü offen ist — sonst stand derselbe Kasten zweimal
+pro Render im Bild, mit identischen Argumenten. Und `touchesUsableSpace()` lief
+über `neighborIds()`, also über vier gebaute Id-Strings, die `getTile()`
+unmittelbar wieder zerlegte; es fragt die vier Nachbarn jetzt direkt.
+
+**Mehrere Kacheln wurden einzeln geschrieben.** `replaceTile()` streut das ganze
+Raster, und `revealAround()` tat das 37-mal für einen einzigen Block — 78 ms in
+einem Reducer-Schritt. `applyTiles()` in `grid.js` ist die Stelle, die mehrere
+Änderungen in *eine* Kopie packt; `reveal.js`, `tickRooting` und
+`spreadToNeighbors()` benutzen sie. Einzelne Kacheln bleiben bei `replaceTile()`.
 
 **Geometrie hängt an Koordinate, Größe und Zustand.** `earthGeometry()`
 cached darum nach genau diesen drei Dingen (`earth-geometry.js`) und baut die
@@ -340,9 +351,28 @@ auf `EarthTile` nie zu und die Geometrie wurde für alle 56 sichtbaren Felder ne
 gebaut, obwohl sich 55 davon nicht bewegt hatten.
 
 Gemessen wurde das in `node` gegen die echten Module und im Browser per
-CPU-Profil im Production-Build: die Ableitung pro Render fiel von 16,2 auf
-3,5 ms, ein abgeräumter Block von 182 auf 8 ms. Bild und Bedienung sind
-unverändert — dieselben 187 Prüfungen, dieselbe Reihenfolge der Kacheln.
+CPU-Profil im Production-Build, alt gegen neu im selben Prozess, weil die
+Maschine unter Last stand und absolute Zahlen sonst nichts bedeuten:
+
+| | vorher | nachher |
+| --- | --- | --- |
+| `createInitialGameState` (Boot) | 258 ms | 9,7 ms |
+| Ableitung pro Render | 16,2 ms | 1,06 ms |
+| Rooting-Takt (10 Hz) | 4,1 ms | 0,039 ms |
+| ein abgeräumter Block | 78 ms | 3 ms |
+| Script-Zeit im Browser, aktiv | 0,41 s/s | 0,08 s/s |
+| Long Tasks | 16, max 97 ms | 4, max 56 ms |
+
+Bild und Bedienung sind unverändert. Das ist nicht behauptet, sondern geprüft:
+58 Zustände über den ganzen Ablauf — Start, Onboarding, Abbau, Aufdecken, 240
+Rooting-Ticks, Hive- und Arbeitstakte — liefern zwischen Objekt- und
+Array-Raster dieselben 4.096 Kacheln, dieselbe Frontier, dieselben Vorräte,
+dieselben Bauten und Dunglinge, byteweise. Dazu die 187 Prüfungen.
+
+Was bleibt, ist ehrlich gesagt Rest: die verbleibenden rund 1 ms pro Render
+sind der Ausschnitt, die Frontier und Reacts eigene Abstimmung. Die Frontier
+noch weiter zu bringen hieße, `canMineTile()` in der Ansicht zu duplizieren —
+das wäre ein Regelbruch für ein halbes Prozent des Taktbudgets.
 
 ## Werkzeuge
 

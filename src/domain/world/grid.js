@@ -52,10 +52,10 @@ export function createWorld({
   spawnTile = ONBOARDING_CONFIG.dunglingSpawnTile,
 } = {}) {
   const context = { hiveOrigin, spawnTile };
-  const tiles = {};
+  const tiles = new Array(width * height);
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
-      tiles[tileId(x, y)] = tileForCell({ x, y, ...context });
+      tiles[y * width + x] = tileForCell({ x, y, ...context });
     }
   }
 
@@ -80,21 +80,34 @@ function withDeposits(world, spawnTile) {
     hiveOrigin: world.hiveOrigin,
     spawnTile,
   });
-  const tiles = { ...world.tiles };
+  const tiles = world.tiles.slice();
   for (const deposit of Object.values(deposits)) {
     for (const id of deposit.cells) {
-      if (tiles[id]) tiles[id] = { ...tiles[id], depositId: deposit.id };
+      const cell = getTile(world, id);
+      if (cell) tiles[cellIndex(world, id)] = { ...cell, depositId: deposit.id };
     }
   }
   return { ...world, deposits, tiles };
 }
 
+/** Die eine Stelle, die aus einer Kachel-Id einen Platz im Raster macht. */
+function cellIndex(world, id) {
+  const { x, y } = parseTileId(id);
+  return y * world.width + x;
+}
+
 export function getTile(world, id) {
-  return world.tiles[id] ?? null;
+  return world.tiles[cellIndex(world, id)] ?? null;
+}
+
+/** Dieselbe Kachel über Koordinaten — ohne Id und ohne Zwischendeklaration. */
+export function tileAt(world, x, y) {
+  if (!isInsideGrid(world, x, y)) return null;
+  return world.tiles[y * world.width + x] ?? null;
 }
 
 export function allTiles(world) {
-  return Object.values(world.tiles);
+  return world.tiles.filter(Boolean);
 }
 
 export function isInsideGrid(world, x, y) {
@@ -102,14 +115,16 @@ export function isInsideGrid(world, x, y) {
 }
 
 export function replaceTile(world, nextTile) {
-  return { ...world, tiles: { ...world.tiles, [nextTile.id]: nextTile } };
+  return applyTiles(world, { [nextTile.id]: nextTile });
 }
 
-/** Mehrere Kacheln in einem Zug: ein Streuen statt eines je Kachel. */
+/** Mehrere Kacheln in einem Zug: eine Kopie des Rasters statt einer je Kachel. */
 export function applyTiles(world, updates) {
   const ids = Object.keys(updates);
   if (ids.length === 0) return world;
-  return { ...world, tiles: { ...world.tiles, ...updates } };
+  const tiles = world.tiles.slice();
+  for (const id of ids) tiles[cellIndex(world, id)] = updates[id];
+  return { ...world, tiles };
 }
 
 export function neighborIds(world, id) {

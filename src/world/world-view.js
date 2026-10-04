@@ -1,6 +1,6 @@
 /** Ableitung für die Darstellung: Ausschnitt, Schwarm, Popups, Bauten. */
-import { TILE_KIND, isVisible, tileId } from '../domain/world/tile.js';
-import { getTile } from '../domain/world/grid.js';
+import { TILE_KIND, isVisible } from '../domain/world/tile.js';
+import { tileAt } from '../domain/world/grid.js';
 import { MINING_PHASE, canMineTile } from '../domain/actions/mining.js';
 import { tilePositionPx, workerPositionPx } from '../domain/entities/dungling.js';
 import {
@@ -23,9 +23,8 @@ export function builtCenterPx(world, tileSize) {
   let count = 0;
   let sumX = 0;
   let sumY = 0;
-  for (const id in world.tiles) {
-    const tile = world.tiles[id];
-    if (tile.kind === TILE_KIND.EARTH) continue;
+  for (const tile of world.tiles) {
+    if (!tile || tile.kind === TILE_KIND.EARTH) continue;
     count += 1;
     sumX += (tile.x + 0.5) * tileSize;
     sumY += (tile.y + 0.5) * tileSize;
@@ -60,7 +59,7 @@ function tilesInView(world, camera, tileSize) {
   const to = (start, extent, limit) => Math.min(limit, Math.floor((start + extent) / tileSize));
   for (let y = from(camera.y); y <= to(camera.y, camera.height, world.height - 1); y += 1) {
     for (let x = from(camera.x); x <= to(camera.x, camera.width, world.width - 1); x += 1) {
-      const tile = getTile(world, tileId(x, y));
+      const tile = tileAt(world, x, y);
       if (tile && isVisible(tile) && insideCamera(tile, camera, tileSize)) seen.push(tile);
     }
   }

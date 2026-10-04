@@ -7,8 +7,9 @@ import {
   isEarth,
   isUsable,
   isVisible,
+  parseTileId,
 } from '../world/tile.js';
-import { getTile, neighborIds, replaceTile } from '../world/grid.js';
+import { getTile, neighborIds, replaceTile, tileAt } from '../world/grid.js';
 import { exposeDeposit } from '../deposits/deposit-state.js';
 import { canPayForMining, ESSENCE_ECONOMY } from '../economy/essence-economy.js';
 
@@ -61,10 +62,13 @@ export function isMineableEarth(world, id) {
 }
 
 export function touchesUsableSpace(world, id) {
-  return neighborIds(world, id).some((nid) => {
-    const neighbor = getTile(world, nid);
-    return Boolean(neighbor) && isUsable(neighbor);
-  });
+  const { x, y } = parseTileId(id);
+  return (
+    isUsable(tileAt(world, x + 1, y)) ||
+    isUsable(tileAt(world, x - 1, y)) ||
+    isUsable(tileAt(world, x, y + 1)) ||
+    isUsable(tileAt(world, x, y - 1))
+  );
 }
 
 export function canMineTile(world, id) {
@@ -77,7 +81,9 @@ export function canAffordMining(world, id, essence) {
 }
 
 export function mineableFrontierIds(world) {
-  return Object.keys(world.tiles).filter((id) => canMineTile(world, id));
+  return world.tiles
+    .filter((tile) => tile && isEarth(tile) && isVisible(tile) && touchesUsableSpace(world, tile.id))
+    .map((tile) => tile.id);
 }
 
 function minedFloorTile(tile) {

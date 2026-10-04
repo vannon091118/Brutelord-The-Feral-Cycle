@@ -88,8 +88,9 @@ export function isVisible(tile) {
   return tile.visibility === TILE_VISIBILITY.VISIBLE;
 }
 
+/** Trägt null, weil tileAt() am Rand des Rasters leer bleibt. */
 export function isUsable(tile) {
-  return tile.usability === TILE_USABILITY.USABLE;
+  return tile?.usability === TILE_USABILITY.USABLE;
 }
 
 export function isBuildable(tile) {
