@@ -12,7 +12,7 @@ import {
   STONE_TRAIT_DEFS,
 } from '../../src/domain/brutelord/stone-config.js';
 import { createStone, pityBonus, rarityFor } from '../../src/domain/brutelord/stone-roll.js';
-import { buyStone, createLab, isDiscovered, labStoneCount, nextSeed, placeStone, stoneLabel } from '../../src/domain/brutelord/lab-state.js';
+import { buyStone, createLab, labStoneCount, nextSeed, placeStone, stoneLabel, stoneOf } from '../../src/domain/brutelord/lab-state.js';
 import { counterScales, emptySlots, formFor, torsoScale } from '../../src/domain/brutelord/mutation-formula.js';
 import { check, section } from './expect.mjs';
 
@@ -62,12 +62,12 @@ function checkMasking() {
   const lab = buyMany(6);
   check('Gekaufte Steine liegen im Inventar', labStoneCount(lab) === 6);
   check('Jeder Kauf bekommt einen eigenen Seed', new Set(lab.stones.map((stone) => stone.seed)).size === 6);
-  check('Ein frischer Stein maskiert sich', stoneLabel(lab, lab.stones[0]) === '???' && !isDiscovered(lab, lab.stones[0].seed));
+  check('Ein frischer Stein maskiert sich', stoneLabel(lab, lab.stones[0]) === '???' && !stoneOf(lab, lab.stones[0].seed)?.discovered);
   check('Der nächste Seed folgt dem Kauf', nextSeed(createLab()) !== nextSeed(buyMany(1)));
 
   const placed = placeStone(lab, lab.stones[0].seed, STONE_SLOT.ARMS);
-  check('Ein verbauter Stein gilt als entdeckt', isDiscovered(placed, lab.stones[0].seed) && stoneLabel(placed, placed.stones[0]) !== '???');
-  check('Die Maskierung gilt pro Stein', !isDiscovered(placed, lab.stones[1].seed));
+  check('Ein verbauter Stein gilt als entdeckt', Boolean(stoneOf(placed, lab.stones[0].seed)?.discovered) && stoneLabel(placed, placed.stones[0]) !== '???');
+  check('Die Maskierung gilt pro Stein', !stoneOf(placed, lab.stones[1].seed)?.discovered);
   check('Ein unbekannter Seed ändert nichts', placeStone(lab, 999999, STONE_SLOT.HEAD) === lab);
 }
 

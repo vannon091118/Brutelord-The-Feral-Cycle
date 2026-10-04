@@ -39,7 +39,7 @@ export function nextSeed(lab) {
   return (lab.purchased + 1) * 2654435761 % 4294967296;
 }
 
-export function isDiscovered(lab, seed) {
+function isDiscovered(lab, seed) {
   return Boolean(stoneOf(lab, seed)?.discovered);
 }
 
