@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 /** Offline regression tests for the commit-gate policy. */
-import { commitViolations, REQUIRED_LABEL } from './lib/commit-rules.mjs';
+import {
+  REQUIRED_LABEL,
+  buildDraftMessage,
+  commitViolations,
+  stripForeignFooters,
+} from './lib/commit-rules.mjs';
 import { hasRef } from './ci-gate.mjs';
 
 const paths = ['src/domain/world/grid.js', 'src/ui/GameStage.jsx'];
@@ -23,6 +28,22 @@ const missingScope = commitViolations({
 });
 const tooShort = commitViolations(makeEntry(`feat: short\n\nToo brief.\n\n${REQUIRED_LABEL}`));
 
+const foreignTail = `${valid}\nCo-Authored-By: Bot <bot@example.com>\nGenerated with Freebuff 🤖\nFremd-Footer: geladen`;
+const stripped = stripForeignFooters(foreignTail);
+const strippedValid = commitViolations(makeEntry(stripped));
+const draft = buildDraftMessage({
+  subject: 'feat: draft regression fixture',
+  paragraphs: [
+    ...paths.map((path) => `Die Datei ${path} erklaert dieser Absatz mit Genauigkeit.`),
+    ...Array.from({ length: 8 }, (_, index) =>
+      `Absatz ${index + 1} erklaert, warum die Aenderung noetig war und welches Verhalten sie dem Spieler bringt.`,
+    ),
+  ],
+  paths,
+});
+const draftViolations = commitViolations(makeEntry(draft));
+const draftStripped = stripForeignFooters(`${draft}\nReviewed-by: Niemand`);
+
 const checks = [
   ['100–1000 Wörter und korrektes Label bestehen', validViolations.length === 0],
   ['Co-Authored Trailer wird abgewiesen', trailerViolations.some((item) => item.rule.includes('Footer/Trailer'))],
@@ -34,6 +55,13 @@ const checks = [
   ['HEAD gilt als vorhandene Referenz', hasRef('HEAD')],
   ['Ein erfundener SHA gilt nicht als vorhanden', !hasRef('deadbeefdeadbeefdeadbeefdeadbeefdeadbeef')],
   ['Unsinn gilt nicht als vorhanden', !hasRef('kaputt')],
+  ['Der Stripper entfernt Co-Authored und Bot-Signaturen', !stripped.includes('Co-Authored') && !stripped.includes('Freebuff')],
+  ['Der Stripper entfernt Key-value-Trailer', !stripped.includes('Fremd-Footer')],
+  ['Nach dem Stripper ist die Message regelkonform', strippedValid.length === 0, strippedValid.map((i) => i.rule).join('; ')],
+  ['Der Label-Stripper trennt das VANNON-Label nicht ab', stripped.includes(REQUIRED_LABEL)],
+  ['Der Draft-Generator liefert eine policy-feste Message', draftViolations.length === 0, draftViolations.map((i) => i.rule).join('; ')],
+  ['Der Draft-Generator stellt das Label ans Ende', draft.trimEnd().endsWith(REQUIRED_LABEL)],
+  ['Der Draft-Generator entfernt fremde Footer', !draftStripped.includes('Reviewed-by')],
 ];
 
 for (const [label, passed] of checks) console.log(`${passed ? '  ok  ' : ' FAIL '} ${label}`);

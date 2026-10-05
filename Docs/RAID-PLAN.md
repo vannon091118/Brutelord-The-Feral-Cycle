@@ -8,7 +8,7 @@ das nicht entschieden und vermerkt ist, gehört es hierhin und nicht in den
 Code.
 
 Alles Weitere zu diesem Feature steht in
-[`ROADMAP.md`](ROADMAP.md). Dieses Dokument trägt die **Regeln, die
+[`ROADMAP_OPEN.md`](ROADMAP_OPEN.md). Dieses Dokument trägt die **Regeln, die
 Entscheidungen und die offenen Fragen** — und benennt ehrlich, was noch nicht
 wissbar ist.
 

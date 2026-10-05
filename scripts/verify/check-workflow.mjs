@@ -1,36 +1,40 @@
 /** Der Versions-Bot muss die Commit-Policy selbst erfüllen, die er sonst bricht. */
 import { readFileSync } from 'node:fs';
 import { check, section } from './expect.mjs';
-import { REQUIRED_LABEL } from '../lib/commit-rules.mjs';
+import {
+  DOC_FILES,
+  MIRRORS,
+  REQUIRED_LABEL,
+  buildBumpMessage,
+  commitViolations,
+} from '../lib/commit-rules.mjs';
 
-const MIRRORS = ['VERSION', 'version.lock.json', 'package.json', 'package-lock.json'];
-const MIN_WORDS = 100;
+const WORKFLOW = '.github/workflows/auto-bump.yml';
+const GENERATOR = 'node scripts/commit-draft.mjs --bump';
 
-function commitStep() {
-  const text = readFileSync('.github/workflows/auto-bump.yml', 'utf8');
-  const rest = text.split('- name: Commit bump')[1] ?? '';
+function stepText(text, name) {
+  const rest = text.split(`- name: ${name}`)[1] ?? '';
   const end = rest.indexOf('\n      - name:');
   return end === -1 ? rest : rest.slice(0, end);
 }
 
-function spokenLines(step) {
-  const echoes = [...step.matchAll(/echo "([^"]*)"/g)].map((match) => match[1]);
-  const intro = step.split('INTRO="')[1]?.split('"')[0] ?? '';
-  return echoes.map((line) => (line === '$INTRO' ? intro : line));
-}
-
-function wordCount(lines) {
-  return lines.reduce((sum, line) => sum + (line.match(/[\p{L}\p{N}]+/gu) ?? []).length, 0);
-}
-
 export function checkWorkflow() {
-  const step = commitStep();
-  const lines = spokenLines(step);
-  const label = lines.filter((line) => line.includes(REQUIRED_LABEL));
-  const mirrors = step.split('MIRRORS="')[1]?.split('"')[0] ?? '';
-  const words = wordCount(lines.filter((line) => line !== REQUIRED_LABEL).flatMap((line) => (line.includes('$f') ? [line, line, line, line] : [line])));
+  const text = readFileSync(WORKFLOW, 'utf8');
+  const preflight = text.indexOf('- name: Pre-Flight');
+  const bump = text.indexOf('- name: Bump version, stamp docs');
+  const commit = stepText(text, 'Commit bump');
+  const message = buildBumpMessage({ version: '0.0.0', docs: DOC_FILES, code: ['src/domain/world/grid.js'] });
+  const issues = commitViolations({
+    sha: 'bot',
+    message,
+    paths: [...MIRRORS, ...DOC_FILES, 'src/domain/world/grid.js'],
+  });
+  const missing = [...MIRRORS, ...DOC_FILES].filter((file) => !commit.includes(file));
   section('Versions-Bot');
-  check('Das VANNON-Label steht allein in einer Zeile', label.length === 1 && label[0] === REQUIRED_LABEL, `${label.length} Zeilen`);
-  check('Der Body nennt die vier Spiegeldateien', MIRRORS.every((name) => mirrors.includes(name)), mirrors);
-  check('Der kuerzeste Body hat genug Woerter', words >= MIN_WORDS, `${words} von ${MIN_WORDS}`);
+  check('Der Pre-Flight laeuft vor dem Bump', preflight !== -1 && bump !== -1 && preflight < bump, `${preflight} vor ${bump}`);
+  check('Die Bump-Stufe faehrt den Doku-Sync', /npm run docs:sync sync/.test(text), 'npm run docs:sync sync');
+  check('Der Commit kommt aus dem Draft-Generator', commit.includes(GENERATOR), GENERATOR);
+  check('Der Commit nimmt Spiegel- und Doku-Dateien auf', missing.length === 0, missing.join(', '));
+  check('Die generierte Message traegt das Label am Ende', message.trimEnd().endsWith(REQUIRED_LABEL), 'Label-Stelle');
+  check('Die generierte Message erfuellt die Commit-Policy', issues.length === 0, issues.map((i) => `${i.rule}: ${i.detail}`).join('; '));
 }

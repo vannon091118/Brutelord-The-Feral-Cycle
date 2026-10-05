@@ -1,5 +1,5 @@
 /** Die Testfälle: realer Klick, echte Uhr, echte Konten-API. Jeder Fall fährt
- *  die Seite und prüft mit dem echten Zustand. Die Wege stehen in ROADMAP.md. */
+ *  die Seite und prüft mit dem echten Zustand. Die Wege stehen in ROADMAP_OPEN.md. */
 import { BUILDING_LABEL, SEL, dropOn, mineOne, mineableEarth, panelText } from './lib/dl.mjs';
 import { readState, readTilePhases, waitState } from './lib/probe.mjs';
 

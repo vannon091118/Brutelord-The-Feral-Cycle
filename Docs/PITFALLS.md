@@ -34,6 +34,21 @@ umgeht **alle** Caps — und landet beim Staging trotzdem im Commit.
 **Was zu tun ist:** Messskripte gehören nach `/tmp`. Was wirklich ins Repo muss,
 trägt seinen Namen im Commit-Body.
 
+### Der Footer-Stripper frisst den Betreff, wenn er ihn mitstrippt
+
+Der `generic-trailer`-Pattern verlangt für **jede** Zeile `Schlüssel: Wert` —
+konventionelle Betreffs (`feat: …`, `chore: …`) sehen so aus. Strippte der
+Draft-Generator über alle Zeilen, war die generierte Message betrefflos und
+das Commit-Gate meldete „leerer Betreff".
+
+> **Gegenprobe:** `buildDraftMessage()` mit konventionellem Betreff rufen und
+> die Message ins `commitViolations()` werfen — ohne den Schutz fiel exakt die
+> Betreff-Prüfung um, alle anderen blieben grün.
+
+**Was zu tun ist:** `stripForeignFooters()` ist auf Zeile null geschützt — der
+Betreff bleibt unangetastet, alles darunter unterliegt den Footer-Regeln. Der
+Draft-Generator schreibt ihn ohnehin aus dem Argument, nicht aus der Quelle.
+
 ### Der Vorrat an `Math.random()` und `Date.now()` gilt für ganz `src/`
 
 Die Architekturprüfung verbietet `Math.random(` und `Date.now(` in **ganz**
@@ -544,7 +559,8 @@ im Export-Durchgang als tot erkannt und geloescht. `canMutate()` liest
 Markierung **an der Schreibstelle** (`settleHive()` in
 `src/domain/entities/hive.js`) und nicht beim Leser — sie wandert mit
 `settleHive()` und verschwindet nicht, wenn jemand die Datei aufraeumt.
-Ausfuehrlich in [`ROADMAP.md`](ROADMAP.md).
+Ausfuehrlich in [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md) — die Leiter ist dort
+als offener Punkt verzeichnet.
 
 ### Ein Kommentar zaehlt gegen die Hard Cap, nicht gegen die Erklaerung
 

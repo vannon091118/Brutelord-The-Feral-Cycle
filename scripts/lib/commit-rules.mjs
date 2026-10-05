@@ -4,6 +4,8 @@ import { execFileSync } from 'node:child_process';
 export const COMMIT_LIMITS = { subjectLength: 72, bodyMinWords: 100, bodyMaxWords: 1000 };
 export const REQUIRED_LABEL =
   'created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.';
+export const MIRRORS = ['VERSION', 'version.lock.json', 'package.json', 'package-lock.json'];
+export const DOC_FILES = ['Docs/ROADMAP_OPEN.md', 'Docs/CHECKPOINTS.md'];
 
 const FORBIDDEN = [
   { id: 'co-authored-by', pattern: /^\s*co-authored-by\s*:/im },
@@ -89,4 +91,47 @@ export function commitViolations(entry) {
     }
   }
   return issues.map((issue) => ({ ...issue, scope: entry.sha }));
+}
+
+function isForeign(line) {
+  return FORBIDDEN.some((rule) => rule.pattern.test(line));
+}
+
+export function stripForeignFooters(message) {
+  // Zeile null ist der Betreff — konventionelle Subjects sehen aus wie
+  // Key-value-Trailer und wären sonst Opfer der eigenen Regel.
+  const kept = message
+    .replace(/\r/g, '')
+    .split('\n')
+    .filter((line, index) => index === 0 || !isForeign(line));
+  return `${kept.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd()}\n`;
+}
+
+export function buildDraftMessage({ subject, paragraphs, paths }) {
+  const prose = paragraphs.map((text) => text.trim()).filter(Boolean);
+  const files = paths.length > 0 ? `Geaendert wurden diese Dateien: ${paths.join(', ')}.` : '';
+  return stripForeignFooters([subject, '', ...prose, '', files, '', REQUIRED_LABEL, ''].join('\n'));
+}
+
+export function buildBumpMessage({ version, docs, code }) {
+  const intro = [
+    `Diese automatische Erhoehung hebt die Patchstufe auf ${version}, weil der Aenderungsbereich Code unter src/ oder scripts/ beruehrt.`,
+    'Sie entsteht aus dem Versionierer und dem Doku-Sync, nicht von Hand, und sie folgt allein daraus, dass die Versionierung die tatsaechliche Funktionalitaet abbilden soll, nicht aus einer Bewertung einzelner Aenderungen.',
+    'Der Versionsbot committet als github-actions[bot] und bleibt deshalb ohne Signatur, weil der persoenliche Schluessel nicht im GITHUB_TOKEN liegt; eine behauptete Identitaet waere nicht pruefbar.',
+    'Vor dem Bump hat der Pre-Flight die Doku-Eintraege geprueft, danach hat der Doku-Sync die erledigten in die Checkpoints bewegt und dort gestempelt.',
+  ].join(' ');
+  return stripForeignFooters([
+    'chore: auto version bump for code changes',
+    '',
+    intro,
+    '',
+    `Geaendert wurden die Spiegeldateien der Versionsautoritaet: ${MIRRORS.join(', ')}.`,
+    '',
+    `Der Doku-Sync hat die Dateien ${DOC_FILES.join(' und ')} geprueft, gestempelt und die erledigten Eintraege in die Checkpoints bewegt.`,
+    '',
+    `Den Bump ausgeloest haben die Code-Dateien des Commits davor: ${code.join(', ')}.`,
+    '',
+    REQUIRED_LABEL,
+    '',
+  ].join('\n'));
 }

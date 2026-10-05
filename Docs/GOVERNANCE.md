@@ -20,8 +20,9 @@ Verweis; wer sie ändert, ändert die eine Stelle.
 | Wohin das Spiel überhaupt baut | [`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md) |
 | Welche Regeln und Pflichten gelten | dieses Dokument |
 | Welche Fehler bereits einmal zugeschlagen haben | [`PITFALLS.md`](PITFALLS.md) |
-| Was als Nächstes gebaut wird | [`ROADMAP.md`](ROADMAP.md) |
+| Was als Nächstes gebaut wird | [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md) |
 | Was sich in einer Version geändert hat | [`CHANGELOG.md`](CHANGELOG.md) |
+| Was geliefert wurde, mit Metadaten | [`CHECKPOINTS.md`](CHECKPOINTS.md) |
 | Die offenen Fragen eines Features, **bevor** Code entsteht | `Docs/<feature>-PLAN.md` |
 | Versionsnummer, verbindlich | `version.lock.json` |
 | Wie viele Prüfungen `npm run verify` fährt | der Lauf selbst — **nicht** in einen Text geschrieben |
@@ -118,8 +119,8 @@ deshalb unsigniert; `git log --show-signature -1` zeigt `N`. Das bleibt so: Ein
 Bot, der sich als Mensch ausgibt, ist nicht prüfbar, sondern nur behauptet — und
 der persönliche Signaturschlüssel gehört nicht in `GITHUB_TOKEN`. Hand-Commits
 zeigen `G`. Der Bot ist deshalb auch **nicht** von der Commit-Policy
-ausgenommen: Er schreibt regelkonform, Label in eigener Zeile, die vier
-Spiegeldateien namentlich, genug Wörter — und `scripts/verify/check-workflow.mjs`
+ausgenommen: Er schreibt regelkonform, Label in eigener Zeile, die Spiegel-
+und Doku-Dateien namentlich, genug Wörter — und `scripts/verify/check-workflow.mjs`
 prüft das bei jedem `npm run verify`. Der Grund: Bot-Commits lösen mit
 `GITHUB_TOKEN` keine CI aus, ein Verstoß bliebe also unentdeckt, bis jemand die
 Range über einen Bot-Commit zieht.
@@ -144,8 +145,24 @@ einer Fehlbenennung**, als `amends` im Lock. `versionTransitionViolations`
 lässt einen Rückschritt nur durch, wenn `amends` exakt der Basisstand ist.
 
 Bleibt die Version stehen, muss auch die `revision` stehen bleiben. Regel- und
-Doku-Commits brauchen deshalb keinen Bump — ihr Roadmap-Eintrag darf trotzdem
-als erledigt unter der nächsten Section stehen.
+Doku-Commits brauchen deshalb keinen Bump — ihr Eintrag wandert trotzdem als
+`fix` in die Checkpoints.
+
+### Doku-Sync: nur er bewegt
+
+Die zwei Doku-Artefakte sind [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md) (offene
+Checkliste) und [`CHECKPOINTS.md`](CHECKPOINTS.md) (Historie). Jeder Eintrag
+trägt einen Metadaten-Block — Status, Scope, Kategorie, Version, Datum; der
+Wortlaut steht im Metadaten-Vertrag der Checkpoints. **Der Doku-Sync
+(`scripts/docs-sync.mjs`) ist die einzige Stelle, die Einträge zwischen den
+Dokumenten bewegt oder einen Platzhalter auf die Liefer-Version stampft.**
+Ein Hand-Edit, der dieselbe Arbeit tut, kämpft mit dem Bot um dieselben Zeilen.
+
+Der Ablauf im Versionier-Workflow: pre-flight (`--check`, fail-closed) vor
+jedem Schreiben, dann Bump, dann Sync, dann Commit. Ein invalider
+Metadaten-Block stoppt den Bump, statt halb synchronisierte Doku zu
+committen — die Version bleibt stehen, und der Lauf sagt, welcher Eintrag
+meckert.
 
 ---
 
@@ -163,8 +180,8 @@ drei Monaten niemand mehr, warum die Dinge so liegen.
 | Wenn du … | dann schreibst du in |
 | --- | --- |
 | etwas **entschieden** hast (auch wenn es klein ist) | `ARCHITEKTUR.md`, mit dem Warum |
-| etwas **gemessen** und es verändert hat | `ARCHITEKTUR.md` (Messung) **und** `ROADMAP.md` (Eintrag) |
-| etwas **fertig** gemacht hast | `ROADMAP.md`: Häkchen setzen, Eintrag stehen lassen |
+| etwas **gemessen** und es verändert hat | `ARCHITEKTUR.md` (Messung) **und** `ROADMAP_OPEN.md` (Eintrag) |
+| etwas **fertig** gemacht hast | Häkchen in `ROADMAP_OPEN.md` — der Doku-Sync bewegt den Eintrag in die `CHECKPOINTS.md` |
 | etwas **gebrochen** hast, das jemand anders treffen kann | `PITFALLS.md`: Symptom, Ursache, Gegenprobe |
 | eine **Regel** geändert hast | dieses Dokument |
 | einen **Prozess** geändert hast | `WORKFLOW.md` |
@@ -177,12 +194,14 @@ Konfigurationsdatei.
 
 ### Die drei Pflichten im einzeln
 
-1. **Dokupflicht.** Jeder abgeschlossene Task berührt `ROADMAP.md` im selben
-   Commit — fertiges bekommt ein Häkchen, **der Eintrag bleibt stehen**.
-   Erledigtes wird nie gelöscht; gelöschte Zeilen lesen sich nach drei Monaten
-   wie eine gelogene Wunschliste. Eine geplante Version, die sich als falsch
-   erwies, wird *begründet* stehen gelassen — nicht, damit die Lücke
-   verschwindet, sondern damit sie jemand anderes nicht macht.
+1. **Dokupflicht.** Jeder abgeschlossene Task berührt `ROADMAP_OPEN.md` im selben
+   Commit — fertiges bekommt ein Häkchen, **der Eintrag bleibt bis zum Sync
+   stehen**. Erledigtes wird nicht von Hand gelöscht: Der Doku-Sync ist der
+   einzige Mover zwischen Open-Dokument und Checkpoints. Ein Eintrag ohne
+   gültigen Metadaten-Block (Status, Scope, Kategorie, Version, Datum) bleibt
+   liegen und fällt im Gate rot auf — `npm run docs:sync --check` ist der
+   Pre-Flight vor jedem Schreiben, und der Bot lässt einen Bump mit invaliden
+   Einträgen gar nicht erst zu.
 2. **Vorsicht mit verschobenen Punkten.** „Muss später" ist kein Feature, das
    ist ein Schuldenposten. Verschobenes wird verschoben markiert, nicht
    umsortiert und so getan, als wäre es immer so gewesen. Ändert sich die
@@ -193,9 +212,11 @@ Konfigurationsdatei.
 
 ### Was nicht dokumentiert wird
 
-Absichten ohne Code sind Luft. `ROADMAP.md` ist Absicht und Pflichtdoku, aber
-kein Feature-Forum und kein Wunschzettel. Wer eine Idee einbringen will,
-bringt einen Task mit, der sie umsetzt, und trägt sie danach ein.
+Absichten ohne Code sind Luft. `ROADMAP_OPEN.md` ist Absicht und Pflichtdoku,
+aber kein Feature-Forum und kein Wunschzettel. Wer eine Idee einbringen will,
+bringt einen Task mit, der sie umsetzt, und trägt sie danach ein. Was geliefert
+wurde, steht in `CHECKPOINTS.md` — die zwei Dokumente teilen sich die Arbeit,
+und nur der Sync bewegt zwischen ihnen.
 
 ---
 

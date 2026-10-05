@@ -1,27 +1,45 @@
-# Roadmap
+# Checkpoints
 
-Pflichtdoku. Versionsgebunden, wird nach **jedem** abgeschlossenen Task im
-selben Commit nachgezogen — siehe die Regel in `AGENTS.md`. Wer hier was
-einträgt, verpflichtet sich, es auch zu liefern.
-
-Die Autorität für „welche Version lebe ich gerade" ist `version.lock.json`.
-Dieses Dokument hält die Absicht fest, nicht den Stand — der Stand steht im
-Code, und `npm run verify` sagt dir, ob er stimmt. Die Sections hier benennen
-**geplante** Versionen, nicht den aktuellen Stand; zwischen zwei geplanten
-Sections können beliebig viele Patch-Bumps liegen.
-
-Hier wird eingetragen und nichts nachgeschrieben. Wer pflegt, braucht die
-anderen Dateien — aber nicht, weil hier etwas fehlte, sondern weil eine Aussage
-genau einmal stehen soll:
+Der Zeitstrahl des Gebauten. Hier steht nur Abgeschlossenes — mit Metadaten und
+mit der Version, in der es geliefert wurde. Was als Nächstes kommt, steht in
+[`ROADMAP_OPEN.md`](ROADMAP_OPEN.md); die eine Datei ist die Vergangenheit,
+die andere die Absicht, und der Doku-Sync trägt Erledigtes von dort hierher.
+Wie das läuft, steht in [`WORKFLOW.md`](WORKFLOW.md), die Regeln in
+[`GOVERNANCE.md`](GOVERNANCE.md).
 
 | Frage | Datei |
 | --- | --- |
 | Was muss ich vor jedem Commit wissen? | [`AGENTS.md`](../AGENTS.md) |
-| Wie laufen Gate, Abnahme, Version, CI? | [`WORKFLOW.md`](WORKFLOW.md) |
-| Welche Regeln und Pflichten gelten? | [`GOVERNANCE.md`](GOVERNANCE.md) |
-| Welche Fehler schon einmal zugeschlagen haben? | [`PITFALLS.md`](PITFALLS.md) |
-| Warum steht eine Sache so und nicht anders? | [`ARCHITEKTUR.md`](ARCHITEKTUR.md) |
-| Wohin baut das Spiel überhaupt? | [`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md) |
+| Was wird als Nächstes gebaut? | [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md) |
+| Wie läuft der Doku-Sync? | [`WORKFLOW.md`](WORKFLOW.md) |
+| Warum steht eine Sache so? | [`ARCHITEKTUR.md`](ARCHITEKTUR.md) |
+
+---
+
+## Metadaten-Vertrag
+
+Jeder Eintrag in dieser Datei und in [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md)
+trägt unmittelbar unter der Textzeile genau diese Attribute, je eine pro Zeile:
+
+| Attribut | Werte |
+| --- | --- |
+| `Status` | `fix` (geliefert) oder `geplant` — beides ohne Klammern |
+| `Scope` | Zielsystem, ein Wort: Welt, Domäne, Kolonie, Brutlord, Konto, Browser, CI, Doku — die Liste wächst mit dem Spiel, das Format wird geprüft, die Taxonomie nicht |
+| `Kategorie` | Feature, Bugfix, Refactor, Test, Doku, Abnahme |
+| `Version` | `x.y.z` oder `ausstehend` (nur im Open-Dokument, nur der Sync löst ihn auf) |
+| `Datum` | `JJJJ-MM-TT` oder `ausstehend` (dieselbe Regel) |
+
+`Status: fix` steht allein hier, `Status: geplant` allein im Open-Dokument.
+Der Platzhalter `ausstehend` ist der einzige erlaubte: Er hält offen, was erst
+beim Liefer-Commit feststeht, statt es zu erraten. Bleibt er liegen, meldet das
+Gate rot — ein stiller Rückfallwert wäre eine zweite Wahrheit. Einzige Ausnahme
+ist die Gründungssection unten, markiert mit `<!-- Metadaten: aus -->`: Die
+Zeilen dort sind Protokoll aus der Zeit vor dem Vertrag.
+
+**Wer Einträge bewegt oder Stempelt, ist der Doku-Sync, sonst niemand.**
+Ein Hand-Edit, der dieselbe Arbeit tut, kämpft mit dem Sync um dieselben
+Zeilen — deshalb: Häkchen im Open-Dokument setzen ist Handarbeit, alles
+danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
@@ -36,29 +54,81 @@ eine Etage ist eine Funktion aus Spielerseed und Tiefe.
       Tiefen ungleich 0 kamen falsch zurück — ein LCG laeuft nur vorwaerts und hat
       keine Inverse. Der Spielerseed bleibt eine Eingabe, `createInitialGameState()`
       legt ihn ab jetzt in den Zustand, und die Tiefe wandert in `world`.
+  Status: fix
+  Scope: Domäne
+  Kategorie: Bugfix
+  Version: 0.0.23
+  Datum: 2026-10-05
+
 - [x] **Tiefe 0 ist die Startwelt.** Der zweite Entwurf salzte den Seed auch auf
       Tiefe 0, wodurch `FLOOR.start` eine Welt benannt haette, die der Spieler nie
       sieht: `floorSeed(p, 0)` ergab 2712521215, `createWorld()` 2712847316. Der
       Sprung ist jetzt `depth <= FLOOR.start → base`.
+  Status: fix
+  Scope: Domäne
+  Kategorie: Bugfix
+  Version: 0.0.23
+  Datum: 2026-10-05
+
 - [x] **Fail closed auch fuer negative Tiefen.** `canDescend()` war `depth <
       DEEPEST_FLOOR` und gab fuer `-1` `true` zurueck — eine negative Etage durfte
       "absteigen". Jetzt gilt `depth >= FLOOR.start`.
+  Status: fix
+  Scope: Domäne
+  Kategorie: Bugfix
+  Version: 0.0.23
+  Datum: 2026-10-05
+
 - [x] **Der Speichern-Vertrag kennt die Tiefe.** `seedWorld()` hat den Cache-Schluessel
       um die Tiefe erweitert und `isSavedShape()` verlangt sie jetzt. `SNAPSHOT_VERSION`
       steht auf 2: ein Stand aus Fassung 1 traegt keine Tiefe und wird verworfen,
       statt still eine Ebene ohne Sprungpfad zu laden.
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Bugfix
+  Version: 0.0.23
+  Datum: 2026-10-05
+
 - [x] **Die Etage ist im Spiel erreichbar.** `ACTION.FLOOR_DESCEND`, der Reducer in
       der Kette, `actions.descend` und eine `FloorChip` in der Hinweiszeile. Die
       Plakette sperrt an der Grenze, statt einen Sprung anzubieten, der nichts tut.
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.23
+  Datum: 2026-10-05
+
 - [x] **Abnahme mit vier Sabotagen.** `check-verticality.mjs` (Messung) und
       `check-verticality-wiring.mjs` (Quelltext, weil Node den Sprung nicht ausfuehrt).
       Sabotiert und jeweils rot geprueft: Startwelt gebrochen, Cache-Schluessel ohne
       Tiefe, Formpruefung ohne Tiefe, `isFloorTarget` ohne Fail-closed.
+  Status: fix
+  Scope: Domäne
+  Kategorie: Abnahme
+  Version: 0.0.23
+  Datum: 2026-10-05
 
-## 0.0.2 — als Nächstes
+- [x] **Die Doku getrennt: offene Punkte und Checkpoints.** Aus der gemischten
+      Roadmap sind zwei Artefakte geworden: dieses hier trägt das Offene als
+      Checkliste, [`CHECKPOINTS.md`](CHECKPOINTS.md) die Historie als Zeitstrahl.
+      Jeder Eintrag trägt Metadaten, das Gate prüft sie (`npm run gate -- --docs`),
+      und der Doku-Sync ist der einzige Mover: Pre-Flight vor dem Bump, Stempel
+      und Bewegung im Bot-Workflow, der Commit-Body aus dem Draft-Generator mit
+      Footer-Schutz. Begründung und Edge-Cases stehen im Metadaten-Vertrag der
+      Checkpoints und in [`WORKFLOW.md`](WORKFLOW.md).
+  Status: fix
+  Scope: Doku
+  Kategorie: Refactor
+  Version: 0.0.23
+  Datum: 2026-10-05
 
-Der Bau steht, der Schwarm arbeitet. Was jetzt fehlt, ist Bestand — und ein
-Grund, ihn zu haben.
+
+## 0.0.2 — Der große Durchgang
+
+Der Bau steht, der Schwarm arbeitet. Was jetzt fehlte, war Bestand — und ein
+Grund, ihn zu haben. Diese Section ist der Nachweis, dass er geerntet wurde:
+jeder Punkt hier war einmal offen in der Roadmap und ist seit der Lieferung
+Metadaten-tragender Bestandteil dieser Historie.
 
 - [x] **Das README ist Bühne, nicht Werkzeugkasten.** Die Anleitung früher im
       README war eine Anleitung: Wie man Befehle laufen lässt, wie ein Gate
@@ -66,6 +136,11 @@ Grund, ihn zu haben.
       dort, **was das Ding ist** — ein Hive, ein Geschwur, eine Kolonie — und was
       daran ernst gemeint ist. Die Anleitung bleibt, wo sie hingehört: in
       [`AGENTS.md`](../AGENTS.md) und [`Docs/`](ARCHITEKTUR.md).
+  Status: fix
+  Scope: Doku
+  Kategorie: Doku
+  Version: 0.0.2
+  Datum: 2026-10-04
 
 - [x] **Der Wächter prüft seine Basis nicht.** `hasRef()` sollte sagen, ob eine
       Referenz existiert, und tat es nicht: `git rev-parse --verify` gibt einen
@@ -78,6 +153,11 @@ Grund, ihn zu haben.
       und drei Zeilen in `verify-commit-gate.mjs` sichern das ab. Eine davon
       benutzt `deadbeef`. Befund und Gegenprobe stehen in
       [`PITFALLS.md`](PITFALLS.md).
+  Status: fix
+  Scope: CI
+  Kategorie: Bugfix
+  Version: 0.0.2
+  Datum: 2026-10-04
 
 - [x] **Das Raster verschwindet: das Nachbarschafts-Byte und die Kantenwand.**
       Erdblöcke wussten nichts voneinander: Jede Silhouette wölbte sich an jeder
@@ -104,22 +184,28 @@ Grund, ihn zu haben.
       `scripts/verify-slice.mjs` und `scripts/verify/index.mjs`: Miniwelt-Regeln
       (Seiten, Kerben, Weltrand), Wand-Invarianten über die echte Welt,
       Geometrie-Verdrahtung. Mit derselben Hand fährt die Parallel-Session ihre
-      Bühne mit: szenarienfeste Zustände unter `tools/tests/state/`, Bühnen- und
+      Bühne mit: szenariafefeste Zustände unter `tools/tests/state/`, Bühnen- und
       Metrik-Arbeiten in `scripts/ci-gate.mjs`, `scripts/lib/source-metrics.mjs`,
       `tools/tests/lib/config.mjs`, `tools/tests/lib/fixture.mjs`, den Spielstand
       in `src/state/snapshot.js` und den Beispielumgebungsvertrag
-      `.env.example`. **Phase 2 ist gebaut**, siehe unten.
+      `.env.example`. **Phase 2 ist gebaut** und unten als eigener Punkt
+      protokolliert.
+  Status: fix
+  Scope: Welt
+  Kategorie: Feature
+  Version: 0.0.2
+  Datum: 2026-10-05
 
-- [ ] **Das Raid-Feature: Entwurf steht, Bau nicht.** Angriffe zwischen zwei
-      Spielern, Ausdauer als Einsatz statt Timer, ein rundenbasiertes
-      Gameplay gegen den gefrorenen Snapshot des Gegners. Der Entwurf liegt
-      vollständig in [`RAID-PLAN.md`](RAID-PLAN.md) — mit den Entscheidungen,
-      die gefallen sind, und den offenen Fragen. **Die beiden Bauaufträge von
-      damals sind entschieden.** Das Bedrohungsmodell ist benannt: gefälschtes
-      Ergebnis, aufgeblähte eigene Werte, beschleunigter Takt, manipulierte
-      Pending-Beute — gegen alle vier wird ein **RaidTicket** verwendet, das
-      Kader, Start-Ausdauer, Eintrittspunkt und gegnerischen Snapshot
-      einfriert und die Einreichung nur gegenReplay akzeptiert. Und das
+- [x] **Das Raid-Feature: Entwurf steht, Bau steht soweit, das Tor bleibt offen.**
+      Angriffe zwischen zwei Spielern, Ausdauer als Einsatz statt Timer, ein
+      rundenbasiertes Gameplay gegen den gefrorenen Snapshot des Gegners. Der
+      Entwurf liegt vollständig in [`RAID-PLAN.md`](RAID-PLAN.md) — mit den
+      Entscheidungen, die gefallen sind, und den offenen Fragen. **Die beiden
+      Bauaufträge von damals sind entschieden.** Das Bedrohungsmodell ist benannt:
+      gefälschtes Ergebnis, aufgeblähte eigene Werte, beschleunigter Takt,
+      manipulierte Pending-Beute — gegen alle vier wird ein **RaidTicket**
+      verwendet, das Kader, Start-Ausdauer, Eintrittspunkt und gegnerischen
+      Snapshot einfriert und die Einreichung nur gegen Replay akzeptiert. Und das
       Kaltstartproblem ist weg, weil das **Ressourcen-Monopol aufgehoben** ist:
       Stein und Obsidian sind in jeder Welt vorhanden, aber begrenzt und an
       ein Progressions-Gate gebunden — die Fähigkeit **Graben** aus dem
@@ -193,7 +279,8 @@ Grund, ihn zu haben.
       sind gegeneinander gerechnet (`entryRadius` gegen `baseStamina`), und die
       Kandidatenliste trägt eine Fassungsmarke, weil ihre Reihenfolge Teil des
       Replay-Formats ist. **Noch nicht gebaut** ist der Schaden eines Angriffs
-      an Wächtern.
+      an Wächtern — der offene Rest steht als eigener Punkt im
+      [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md).
       — [x] **Das Terrainfeld und die Berechtigung.** `TILE_TERRAIN` steht in
       `tile.js` **neben** `TILE_KIND` und nicht darin, `terrainOf()` lässt
       `isEarth()` unberührt, und §8 hält: über alle 4.096 Kacheln der Heimat
@@ -214,7 +301,7 @@ Grund, ihn zu haben.
       `canDig()` und `pathCost()` machen daraus die Regel: ohne `GRABEN` ist
       Hartgestein zu, mit `GRABEN` zahlt der Kader 6 oder 12. Das
       Nackte-Team-Versprechen gilt damit für eine reine Erdreich-Karte, und die
-      Basis-Ausdauer ist als das ausgewiesen, was sie ist: eine Zusage über die
+      Basis-Ausdauer ist als das ausgewiesen was sie ist: eine Zusage über die
       Kartenart, nicht über die Welt. Gemessen: 18,8 Prozent Stein gegen 18
       konfiguriert, 113 von 400 Steinen mit `GRABEN`, 23 davon **mit** Trait —
       die beiden Kanäle sind unabhängig, wie D30 verlangt.
@@ -249,7 +336,14 @@ Grund, ihn zu haben.
       **Weiterhin nicht gebaut:** Angriff, Opfer, Extraktion, Wächter-Koma und
       Kantenwände. `EXTRACTING` und `RESOLVED` werden heute verhindert, nicht
       erreicht — und das Ticket **auszustellen** kann nur der Server, dieser
-      Baum führt die Instanz aus, er vergibt sie nicht.
+      Baum führt die Instanz aus, er vergibt sie nicht. Der offene Rest steht
+      als eigener Punkt im [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md).
+  Status: fix
+  Scope: Domäne
+  Kategorie: Feature
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Eine Abnahme für den Browser.** Die Onboarding-Kette ist jetzt geprüft,
       die Darstellung halb, die Browser-Uhr gar nicht: `scripts/` führt
       `use-schedule-runner.js` nie aus, weil dort kein Browser läuft. Damit ist
@@ -263,9 +357,8 @@ Grund, ihn zu haben.
       Screenshots. Es gibt inzwischen eine Mark-Liste mit Kommentarfeld
       und einen Senden-Knopf, der die Auswahl in die Zwischenablage und in
       eine Inbox legt, und der Supervisor haelt das Fenster offen, ohne es
-      nach jedem Schliessen sofort neu aufzureissen. Was fehlt, ist die
-      eigentliche Abnahme — eine Liste von
-      Erwartungen, die der Durchlauf einhält oder nicht.
+      nach jedem Schliessen sofort neu aufzureissen. Was fehlte, war die
+      eigentliche Abnahme — sie steht als nächster Punkt.
       — [x] fertig: `npm run verify:browser` startet den echten Dev-Server als
       Kindprozess, pinnt eine Sitzung und einen Seed und fährt die Kette unter
       `page.clock` ab — also mit angehaltener Uhr, nicht mit Warten. Zwei Akte:
@@ -277,6 +370,12 @@ Grund, ihn zu haben.
       Prüfungen, grün gegen Chromium 1.63; die Bilder liegen in `Docs/shots/`.
       Der Lauf ist nicht im Gate — er braucht einen Browser und einen Port —
       deshalb `npm run verify` für CI und `verify:browser` für Hand und Auge.
+  Status: fix
+  Scope: Browser
+  Kategorie: Abnahme
+  Version: 0.0.2
+  Datum: 2026-10-04
+
 - [x] **Der szenariale Browserlauf mit einfrierbaren Zuständen.** Acht Fälle
       unter `tools/tests/`, die das Spiel mit der **echten Uhr** und der echten
       Konto-API fahren: `npm run verify:tests`. Das Fenster ist **sichtbar**,
@@ -312,6 +411,12 @@ Grund, ihn zu haben.
       derselbe Fall wie in [`PITFALLS.md`](PITFALLS.md). Und `marker.js` unter
       `tools/preview/` musste in der Tat zerlegt werden — 353 Zeilen, zwei
       Funktionen mit je 41.
+  Status: fix
+  Scope: Browser
+  Kategorie: Test
+  Version: 0.0.2
+  Datum: 2026-10-04
+
 - [x] **Speichern.** Der Hive überlebt das Reload. Der Zustand geht alle fünf
       Sekunden in den `localStorage` und beim Verlassen der Seite noch einmal;
       `initialGameState()` holt ihn zurück, bevor der Reducer den ersten Zug
@@ -326,13 +431,12 @@ Grund, ihn zu haben.
       jetzt **12 ms** statt 74 ms: die abgeleitete Welt wird gehalten statt je
       Packvorgang neu gebaut, und der Vergleich läuft feldweise statt über
       `JSON.stringify`.
-- [ ] **Die Leiter bei 47,47.** Steht als `LADDER_TILE` in der Config und wird
-      gerendert, sobald die Wurzeln hinkommen. Sie ist Deko mit Tiefe — irgendwann
-      wird sie der Eingang. **Bestätigt und als Lücke markiert:** was beim
-      Erreichen passiert, ist null Zeilen Code, und die Datei sagt es jetzt an
-      sich selbst (`[FUTURE]` in `src/world/entrance/EntranceLadder.jsx`), damit
-      der nächste Export-Durchgang sie nicht als totes Material weghaut. Sie
-      bleibt Kulisse, bis Vertikalität als Task mit Verifier hier steht.
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Phase 2 der Kantenwand: der Treffer fühlt sich an.** Drei Bewegungen,
       alle am **Abbau-Tick** und nicht an der Uhr: der bearbeitete Erdblock
       federt zurück (`dl-hit-punch` auf der Masse in `EarthTile.jsx`, über einen
@@ -353,12 +457,24 @@ Grund, ihn zu haben.
       und beide `@keyframes`. Gegenproben gelaufen: `working`-Zweig entfernt
       und `key` auf konstant gesetzt — beide fallen um, während `npm run build`
       in beiden Fällen grün bleibt.
+  Status: fix
+  Scope: Welt
+  Kategorie: Feature
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Die abgeschriebene `35` war nicht die Krankheit.** `PITFALLS.md` führt
       sie als Literal in `check-mining-progress.mjs` — gemessen stand dort keine,
       sondern eine Ableitung aus der Config. Der echte Fehler war der andere
       Eintrag derselben Datei: die Erwartung kam aus derselben Funktion, gegen
       die geprüft wurde. Jetzt steht beides: die Ableitung als Erwartung **und**
       eine Messung, dass `totalMiningTicks()` denselben Wert liefert.
+  Status: fix
+  Scope: CI
+  Kategorie: Bugfix
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Die Traits wirken auf den Arbeitstakt.** Gierig verweigert Bauaufträge
       und verdoppelt die getragene Essenz, Motivator beschleunigt alles in
       dreifeldrigem Umkreis, Schleimig verlangsamt jeden auf seiner Grundfläche.
@@ -366,12 +482,24 @@ Grund, ihn zu haben.
       `work-tick.js` fragt es je Einheit ab. `check-traits.mjs` misst die
       Takte bis zum Essenz-Popup mit dem echten Reducer — nicht an einem
       Konfigurationsliteral, das sich selbst vergleicht.
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Die Hive-Fläche aus der Config ableiten.** `check-start.mjs` prüfte
       „exakt vier Hive-Tiles" als Literal `4`. Die Erwartung kommt jetzt aus
       `world.hiveSize`; wer `HIVE_SIZE` in `world-config.js` vergrößert, muss
       die Prüfung nicht mehr mitziehen, sonst prüft sie nichts mehr. Gegenprobe
       gelaufen: mit hartkodiertem Raster im `grid.js` und `HIVE_SIZE` auf 3 × 2
       fällt genau diese eine Prüfung rot.
+  Status: fix
+  Scope: CI
+  Kategorie: Bugfix
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Verborgene Essenz-Vorräte und eine Hive-Ökonomie.** Unter der Erde
       liegen Cluster aus ein bis drei Feldern mit je höchstens hundert Essenz,
       stets isoliert; spürbar wird ein Vorrat nur, wenn die Wurzeln ein
@@ -392,6 +520,12 @@ Grund, ihn zu haben.
       danach genau ein Extraktor übrig ist. Beides prüft
       `check-economy.mjs` gegen den echten Reducer. Beim Speichern gehört
       `deposit` nur auf die Felder, die wirklich eins haben.
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Der Brutlord tut etwas.** Er wird gebaut, er kostet, er wartet — und er ist
       die Senke für einen Vorrat, den erst das System darüber erzeugt.
       **Ein Stein kostet vier Essenz und wird aus einem beim Kauf erzeugten
@@ -416,6 +550,12 @@ Grund, ihn zu haben.
       eine Lücke geblieben und wieder gefüllt: die Beinform `snailfoot`, die die
       Formel als erstes liefert, hatte keine Zeichnung — ein Stein im Bein war
       unsichtbar. Jetzt hat jede der zwanzig Formen genau eine.
+  Status: fix
+  Scope: Brutlord
+  Kategorie: Feature
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Konto und Spielerseed.** Registrierung mit Name und Passwort, daraus
       entsteht ein Seed, aus dem Seed die Welt — jeder bekommt eine eigene.
       **Passwörter werden nie gespeichert**, sondern mit scrypt und eigenem Salz
@@ -435,8 +575,15 @@ Grund, ihn zu haben.
       Entwicklungsdatenbank also nicht an. Sichtbar geprüft: fünf Konten über das
       Formular angelegt, fünf Seeds, fünf verschiedene Startbilder (45 bis 52
       Erdfelder), Abmelden und Anmelden liefert denselben Seed zurück.
-      **Offen bleibt der Spielstand** — der gehört als Spalte in dieselbe
-      Tabelle, sobald er drankommt.
+      **Offen blieb der Spielstand** — der gehört als Spalte in dieselbe
+      Tabelle, sobald er drankommt; er steht als eigener Punkt im
+      [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md).
+  Status: fix
+  Scope: Konto
+  Kategorie: Feature
+  Version: 0.0.2
+  Datum: 2026-10-04
+
 - [x] **Die Konto-API hält Angriffe aus.** Sie war gewachsen, ohne je einen
       Angreifer gesehen zu haben. **Bremse:** Fehlversuche je Name und Herkunft
       zählen in einem gleitenden Fenster, ab fünf Versuchen ist die Tür eine
@@ -458,20 +605,16 @@ Grund, ihn zu haben.
       `npm run purge` verweigert das rekursive Löschen von Wurzel, Home und
       Projektverzeichnis, und der Versions-Bump läuft nur noch auf Pushes nach
       `main` — auf einem Pull Request hat er denselben `version.lock.json`
-      konkurrierend zu beiden Zweigen geschrieben.      Messbar in `check-account-brake.mjs` und `check-account-http.mjs`;
+      konkurrierend zu beiden Zweigen geschrieben.
+      Messbar in `check-account-brake.mjs` und `check-account-http.mjs`;
       Begründung in [`ARCHITEKTUR.md`](ARCHITEKTUR.md), die Fehlerbilder in
       [`PITFALLS.md`](PITFALLS.md).
-- [ ] **Der Konto-Server fehlt im Production-Build.** Das Backend hängt als
-      Vite-Plugin im Dev-Server, also gibt es in `dist/` keine `/api/login` —
-      das ausgelieferte Spiel scheitert am Konto-Tor. `accountApi()` registriert
-      nur `configureServer` — es gibt keinen `configurePreviewServer`-Haken, also
-      fehlt die Route auch im Vorschau-Server und auf jedem statischen Hosting;
-      der Client bekommt dort HTML statt JSON und meldet es jetzt mit einem
-      verständlichen Satz statt mit einem stillen `Failed to fetch`. **Offen ist
-      die Entscheidung**, wohin das Backend wandert (derselbe Node-Prozess neben
-      dem Build, eine D1-Datenbank, oder ein Dienst) — `account-store.mjs` ist
-      dafür schon plain SQL, aber die Wahl ist nicht getroffen. Gehört vor den
-      Code in ein eigenes Plan-Dokument.
+  Status: fix
+  Scope: Konto
+  Kategorie: Bugfix
+  Version: 0.0.2
+  Datum: 2026-10-04
+
 - [x] **Die Render-Kosten.** Vier Uhren ticken bis zu 20-mal pro Sekunde, und
       jeder Takt zog vorher das ganze 4.096-Kacheln-Raster durch die
       Ableitung. **Der eigentliche Brocken: `world.tiles` war ein Objekt mit
@@ -492,9 +635,15 @@ Grund, ihn zu haben.
       Vorräte, Bauten und Dunglinge, dazu die unveränderte Abnahme. Die
       Einzelheiten und die Messmethode stehen in `ARCHITEKTUR.md`, Kapitel
       *Was ein Render kostet*.
+  Status: fix
+  Scope: Welt
+  Kategorie: Bugfix
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Der Versions-Bot hält sich an die Commit-Policy.** Sein Body war eine
       einzige Zeile, in der das VANNON-Label mitten im Text stand — das Gate
-      zählte deshalb null Wörter und meldete das fehlende Label am Ende.
+      zählte deshalb null Wörter und meldet das fehlende Label am Ende.
       Dazu nannte er die Code-Dateien, die den Bump ausgelöst hatten, statt der
       vier Spiegeldateien, die er selbst ändert. Beide Fehler fielen nie auf,
       weil Bot-Commits mit `GITHUB_TOKEN` keine CI auslösen. Jetzt steht das
@@ -503,6 +652,12 @@ Grund, ihn zu haben.
       bleibt. Gegenprobe: der neue Check gegen die alte Workflow-Datei lässt
       alle drei Prüfungen rot werden. Der Bot committet weiterhin ohne
       Signatur — eine behauptete Identität bleibt nicht prüfbar.
+  Status: fix
+  Scope: CI
+  Kategorie: Bugfix
+  Version: 0.0.2
+  Datum: 2026-10-05
+
 - [x] **Vier ungenutzte Exporte fallen weg.** `footprintIds()` und
       `isDelivered()` in `building.js`, `smoothClosedPath()` in
       `tile-shapes.js` und `isDiscovered()` in `lab-state.js` trugen alle das
@@ -523,6 +678,11 @@ Grund, ihn zu haben.
       `stone-roll.js`, wo `withSlot()` tatsächlich steht — die Prüfung blieb
       grün, weil ich die falsche Datei getroffen hatte, nicht weil sie nichts
       fand. Genau die Sorte Test, die sich grün meldet und nichts beweist.
+  Status: fix
+  Scope: Domäne
+  Kategorie: Refactor
+  Version: 0.0.2
+  Datum: 2026-10-05
 
 - [x] **Der große Durchgang: 190 Dateien, jede Zeile.** Der Auftrag war, nicht
       nur einzelne Funde zu beheben, sondern zu fragen, was ein Export
@@ -600,6 +760,11 @@ Grund, ihn zu haben.
       (`cameraBox()`) und ist damit eine ganz normale private Funktion. Die
       damalige Notiz galt einer Arbeitskopie, in der der Zustand anders war;
       im Baum ist er es nicht.
+  Status: fix
+  Scope: Domäne
+  Kategorie: Refactor
+  Version: 0.0.2
+  Datum: 2026-10-05
 
 - [x] **Die Regeln nachgeschärft.** Hard Caps messen jetzt nur Code — Leer- und
       Kommentarzeilen fallen aus dem LOC-Cap heraus —, und Kommentare selbst
@@ -608,6 +773,11 @@ Grund, ihn zu haben.
       Commit-Label ist der VANNON-Satz statt der alten `vannon091118`-Kennung.
       Was an Erklärungen aus dem Code weichen musste, steht geschlossen in
       `Docs/ARCHITEKTUR.md` — der Code trägt nur noch den Kopf.
+  Status: fix
+  Scope: CI
+  Kategorie: Refactor
+  Version: 0.0.2
+  Datum: 2026-10-05
 
 - [x] **Der Untergrund hat Tiefe.** Fünf rein visuelle Hebel, ohne eine einzige
       Spielregel zu berühren. Die Erdmasse trägt jetzt einen Verlauf, der am
@@ -621,6 +791,11 @@ Grund, ihn zu haben.
       Sätze der Hinweiszeile werden weiterhin abgeschnitten, und die
       Bühne springt beim Oeffnen eines Panels weiterhin — beides gehört zur
       parallelen Arbeit an Anweisungen und Layout.
+  Status: fix
+  Scope: Welt
+  Kategorie: Feature
+  Version: 0.0.2
+  Datum: 2026-10-05
 
 - [x] **Das Gate schließt wieder.** Die letzte Änderung an der Erdform brach das
       eigene CI vor dem Push, weil zwei Hard-Caps-Verletzungen ins Haupt drungen
@@ -639,11 +814,16 @@ Grund, ihn zu haben.
       erklärt ist. Gegenprobe: npm run gate -- --tree grün, npm run verify grün
       (421 Prüfungen), npm run build grün. Kein neuer Check, nur die Behebung
       einer bestehenden Verletzung — die Cap-Prüfungen laufen vor.
+  Status: fix
+  Scope: CI
+  Kategorie: Bugfix
+  Version: 0.0.2
+  Datum: 2026-10-05
 
 Reihenfolge geändert, mit Grund. Der Brutlord stand hier ursprünglich als
 letzter Punkt dieser Section. Ein Verbraucher, der einen Vorrat von hundert
-Essenz schluckt, ist ohne Ökonomie wertlos — das Ressourcen-System kommt
-deshalb zwingend vorher, und der Brutlord wartet, bis es steht.
+Essenz schluckt, ist ohne Ökonomie wertlos — das Ressourcen-System kam
+deshalb zwingend vorher, und der Brutlord wartete, bis es stand.
 
 ## 0.0.1 — steht
 
@@ -653,22 +833,88 @@ zwischendurch `0.1.0` und `0.2.0` — das war eine Fehlbenennung, keine Absicht.
 Versionsregel kennt für genau diesen Fall einen ausdrücklichen Korrekturpfad.
 
 - [x] Hive anklicken → 5 s → Dungling kriecht raus
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.1
+  Datum: 2026-10-04
+
 - [x] Erdblock wählen, 3,5 s Abbau (0 → 100 %), Grid wächst, Feld wird Boden
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.1
+  Datum: 2026-10-04
+
 - [x] Verwurzelung: 10 s Einnehmen, 5 s Ruhe, dann Tentakel in die Nachbarfelder
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.1
+  Datum: 2026-10-04
+
 - [x] Welt 64 × 64 (4.096 Felder, davon 4 Hive), Kamera 13 × 13 folgt dem Raum
+  Status: fix
+  Scope: Welt
+  Kategorie: Feature
+  Version: 0.0.1
+  Datum: 2026-10-04
+
 - [x] Gate: Hard Caps (300/30/3/7), Version, Commits — läuft in CI
+  Status: fix
+  Scope: CI
+  Kategorie: Abnahme
+  Version: 0.0.1
+  Datum: 2026-10-04
+
 - [x] `npm run verify`: deterministische Abnahme des Slice, ohne Browser
+  Status: fix
+  Scope: CI
+  Kategorie: Abnahme
+  Version: 0.0.1
+  Datum: 2026-10-04
+
 - [x] Domäne frei von React, DOM, SVG, `Math.random()`, `Date.now()`
+  Status: fix
+  Scope: Domäne
+  Kategorie: Abnahme
+  Version: 0.0.1
+  Datum: 2026-10-04
+
 - [x] **Bauen.** Schwarmhort, Essenz Extractor und Brutlord: Bau wählen, Bauplatz
       setzen, Dunglinge tragen Essenz hin, erst dann steht das Bauwerk. Kein Bau
       wird bezahlt, kein Bau steht sofort — der Weg ist bei jedem der gleiche.
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.1
+  Datum: 2026-10-04
+
 - [x] **Mehr als ein Dungling.** Der Schwarmhort brütet neue Arbeiter; der
       Schwarm ist eine Liste statt eines einzelnen Dunglings, und ein Extraktor
       beschäftigt bis zu drei davon.
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.1
+  Datum: 2026-10-04
+
 - [x] **Nur abgebauter Boden wird beansprucht.** Die Tentakel machen den Raum
       ringsum sichtbar, eingenommen wird ausschließlich abgebauter Boden.
+  Status: fix
+  Scope: Kolonie
+  Kategorie: Feature
+  Version: 0.0.1
+  Datum: 2026-10-04
 
 ## 0.0.0 — Historie
+
+<!-- Metadaten: aus -->
+
+Die Gründungsphase. Diese Section ist ein Protokoll, keine Checkliste: Die
+Zeilen hier sind, was geschehen ist, ohne Metadaten-Pflicht — der Metadaten-
+Vertrag gilt ab `0.0.1` und für jeden Eintrag, den der Sync von heute an
+hierher trägt.
 
 - [x] Erstes spielbarer Slice
 - [x] Rebuild unter den Hard Caps, Gate-Skripte dazugekommen
@@ -684,33 +930,3 @@ Versionsregel kennt für genau diesen Fall einen ausdrücklichen Korrekturpfad.
       Prüfungszahl (121/122/165/187/216) standen in fünf Dateien neben der
       laufenden Ausgabe von `npm run verify` — jetzt steht die Zahl nur noch
       dort, wo sie gemessen wird.
-
----
-
-## Wie hier gepflegt wird
-
-- **Neue Version geplant?** Section anlegen, Einträge mit Zielversion markieren.
-  Version hochziehen nur über `npm run version:bump -- minor|major`.
-- **Task fertig?** Häkchen setzen, Eintrag stehen lassen. Erledigte Zeilen
-  werden nicht gelöscht — sonst liest sich das hier nach drei Monaten wie eine
-  gelogene Wunschliste.
-- **Verschoben?** Eine Zeile, kein neuer Eintrag. „Muss später" ist kein
-  Feature, das ist ein Schuldenposten, und Schuldenposten gehören sichtbar hier
-  hin.
-- **Reihenfolge ändert sich?** Kurz begründen, warum. Nicht einfach die Liste
-  umsortieren und so tun, als wäre es immer so gewesen.
-
-## Was hier NICHT steht
-
-Absichten ohne Code sind Luft. Diese Datei beschreibt, was als Nächstes
-gebaut wird — sie ist kein Wunschzettel und kein Feature-Forum. Wer eine Idee
-einbringen will, bringt einen Task mit, der sie umsetzt, und trägt sie danach
-hier ein.
-
-Ausnahmen gibt es genau eine: wenn eine geplante Version sich als falsch
-erwies. Dann wird hier dokumentiert, *warum* — nicht, damit die Lücke
-verschwindet, sondern damit sie jemand anderes nicht macht.
-
-Die Sections hier benennen **geplante** Versionen, nicht den aktuellen Stand;
-der Stand steht in `version.lock.json`. Zwischen zwei geplanten Sections können
-deshalb beliebig viele Patch-Bumps liegen.

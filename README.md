@@ -157,4 +157,4 @@ Und wenn du wissen willst, wie hier gearbeitet und geprüft wird: das steht in
 — die Entscheidungen und ihr Warum. [`Docs/WORKFLOW.md`](Docs/WORKFLOW.md) erklärt
 die Wächter, [`Docs/GOVERNANCE.md`](Docs/GOVERNANCE.md) die Regeln,
 [`Docs/PITFALLS.md`](Docs/PITFALLS.md) die Fehler, die schon einmal zugeschlagen
-haben, und [`Docs/ROADMAP.md`](Docs/ROADMAP.md) was als Nächstes gebaut wird.
+haben, und [`Docs/ROADMAP_OPEN.md`](Docs/ROADMAP_OPEN.md) was als Nächstes gebaut wird — [`Docs/CHECKPOINTS.md`](Docs/CHECKPOINTS.md) was wann geliefert wurde.

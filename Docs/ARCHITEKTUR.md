@@ -15,7 +15,7 @@ Was hier **nicht** steht, steht anderswo und wird von hier verwiesen:
 | Wie laufen Gate, Abnahme, Version, CI? | [`WORKFLOW.md`](WORKFLOW.md) |
 | Welche Fehler schon einmal zugeschlagen haben? | [`PITFALLS.md`](PITFALLS.md) |
 | Was muss ich vor jedem Commit wissen? | [`AGENTS.md`](../AGENTS.md) |
-| Was wird als Nächstes gebaut? | [`ROADMAP.md`](ROADMAP.md) |
+| Was wird als Nächstes gebaut? | [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md) |
 | Wie sieht das Raid-Feature aus und was ist offen? | [`RAID-PLAN.md`](RAID-PLAN.md) |
 | Was hat sich in einer Version geändert? | [`CHANGELOG.md`](CHANGELOG.md) |
 

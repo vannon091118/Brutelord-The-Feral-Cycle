@@ -13,6 +13,7 @@ import {
   readVersionState,
 } from './lib/version-authority.mjs';
 import { HARD_CAPS, analyzeData, analyzeTree } from './lib/source-metrics.mjs';
+import { preFlightProblems } from './docs-sync.mjs';
 
 const TREE_ROOTS = ['src', 'scripts', 'tools'];
 const DATA_ROOTS = ['tools/tests/state'];
@@ -139,6 +140,9 @@ function main() {
   }
   if (wantsAll || args.includes('--version')) {
     failures += report('Versionierung', runVersionCheck(baseRef));
+  }
+  if (wantsAll || args.includes('--docs')) {
+    failures += report('Doku-Metadaten (Status, Scope, Kategorie, Version, Datum)', preFlightProblems());
   }
   if (wantsAll || commitArg) {
     failures += report('Commit-Regeln', runCommitCheck(explicitRange ?? detectRange()));

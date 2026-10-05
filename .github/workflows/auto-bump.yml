@@ -61,68 +61,41 @@ jobs:
         run: |
           CHANGED="${{ steps.files.outputs.changed }}"
           CODE=0
-          DOCS=0
-          HYGIENE=0
           while IFS= read -r f; do
             case "$f" in
-              src/*|scripts/*)
+              src/*|scripts/*|tools/*)
                 CODE=1
-                ;;
-              Docs/*|README*|LICENSE*)
-                DOCS=1
-                ;;
-              .gitignore|.github/*)
-                HYGIENE=1
                 ;;
             esac
           done <<< "$CHANGED"
           echo "code_changed=$CODE" >> $GITHUB_OUTPUT
-          echo "docs_changed=$DOCS" >> $GITHUB_OUTPUT
-          echo "hygiene_changed=$HYGIENE" >> $GITHUB_OUTPUT
 
-      - name: Bump version if code changed
+      - name: Pre-Flight der Doku-Einträge
+        if: steps.classify.outputs.code_changed == '1'
+        run: |
+          # Fail-closed: Ein invalider Metadaten-Block stoppt den Bump, bevor
+          # irgendwo geschrieben wird. Die Version bleibt stehen und der Lauf
+          # nennt den Eintrag, der meckert.
+          npm run gate -- --docs
+
+      - name: Bump version, stamp docs
         if: steps.classify.outputs.code_changed == '1'
         shell: bash
         run: |
-          echo "Code change detected – bumping version"
+          echo "Code change detected – bumping version and stamping docs"
           npm run version:bump -- patch
-          VERSION=$(cat VERSION)
-          echo "version=$VERSION" >> $GITHUB_ENV
+          npm run docs:sync sync
 
       - name: Commit bump
         if: steps.classify.outputs.code_changed == '1'
         shell: bash
-        env:
-          TRIGGERED: ${{ steps.files.outputs.changed }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Genau diese vier Dateien wandern in den Commit. Sie sind es, die das
-          # Gate im Body namentlich verlangt — nicht die Dateien, die den Bump
-          # ausgeloest haben.
-          MIRRORS="VERSION version.lock.json package.json package-lock.json"
-          INTRO="Diese automatische Erhoehung hebt die Patchstufe, weil der Aenderungsbereich unter src/ oder scripts/ Code beruehrt. Sie entsteht aus dem Versionierer und nicht von Hand, und sie folgt allein daraus, dass die Versionierung die tatsaechliche Funktionalitaet abbilden soll, nicht aus einer Bewertung einzelner Aenderungen. Der Versionsbot committet als github-actions[bot] und bleibt deshalb ohne Signatur, weil der persoenliche Schluessel nicht im GITHUB_TOKEN liegt; eine behauptete Identitaet waere nicht pruefbar."
-          MSG_FILE=$(mktemp)
-          {
-            echo "chore: auto version bump for code changes"
-            echo ""
-            echo "$INTRO"
-            echo ""
-            echo "Geaendert hat dieser Commit genau die Spiegeldateien der Versionsautoritaet."
-            for f in $MIRRORS; do
-              echo "Die Datei $f wurde vom Versionierer mitgezogen und ist hier nur ein Spiegel."
-            done
-            echo ""
-            echo "Den Bump ausgeloest haben die Code-Dateien des Commits davor, nicht dieser."
-            while IFS= read -r f; do
-              [ -z "$f" ] && continue
-              case "$f" in
-                src/*|scripts/*) echo "Die Datei $f liegt im ausloesenden Bereich." ;;
-              esac
-            done <<< "$TRIGGERED"
-            echo ""
-            echo "created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe."
-          } > "$MSG_FILE"
-          git add $MIRRORS
-          git diff --cached --quiet || git commit -q -F "$MSG_FILE"
+          # Die Message kommt aus demselben Generator, dessen Regeln das Gate
+          # bei jedem Lauf verhängt: Prosa je geänderter Datei, Label allein in
+          # der letzten Zeile, fremde Footer vorher gestrippt.
+          node scripts/commit-draft.mjs --bump > "$RUNNER_TEMP/commit-msg.txt"
+          git add VERSION version.lock.json package.json package-lock.json Docs/ROADMAP_OPEN.md Docs/CHECKPOINTS.md
+          git diff --cached --quiet || git commit -q -F "$RUNNER_TEMP/commit-msg.txt"
           git push

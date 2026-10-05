@@ -49,6 +49,7 @@ jobs:
             npm run gate -- --version
           fi
           npm run gate -- --tree
+          npm run gate -- --docs
 
       - name: Commit-Regeln im Änderungsbereich
         env:

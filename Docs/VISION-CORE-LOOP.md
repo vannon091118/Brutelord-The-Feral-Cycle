@@ -8,7 +8,7 @@ Dieses Dokument beschreibt **das Spiel**, nicht den Stand der Arbeit. Der Stand
 steht im Code, und `npm run verify` sagt dir, ob er stimmt. Wer eine Aussage
 über den *Bau* braucht, findet sie in [`ARCHITEKTUR.md`](ARCHITEKTUR.md);
 wer eine über den *nächsten Schritt* braucht, in
-[`ROADMAP.md`](ROADMAP.md). Zwei Klassen von Wahrheit, zwei Orte.
+[`ROADMAP_OPEN.md`](ROADMAP_OPEN.md). Zwei Klassen von Wahrheit, zwei Orte.
 
 Die Vorlage für dieses Dokument ist der Kontext-Anker des Game Directors vom
 5. Oktober 2026. Er ist hier übernommen und um die Punkte ergänzt, die sich beim
@@ -222,7 +222,7 @@ Der vollständige Aufbau mit der Importmatrix steht in
 ## Was dieses Dokument nicht ist
 
 - **Kein Feature-Forum.** Ideen ohne Code gehören nicht hierher, sondern als
-  Task in den [`ROADMAP.md`](ROADMAP.md).
+  Task in den [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md).
 - **Keine Zahlenquelle.** Preise, Zeiten und Grenzen stehen in den
   `*-config.js`. Wer hier eine Zahl schreibt, baut eine zweite Wahrheit.
 - **Keine Abkürzung für die Abnahme.** `npm run verify` prüft den Stand, nicht

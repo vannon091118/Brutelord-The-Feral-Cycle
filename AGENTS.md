@@ -21,7 +21,8 @@ verwiesen, nicht abgeschrieben:
 | Welche Regeln und Pflichten gelten? | [`Docs/GOVERNANCE.md`](Docs/GOVERNANCE.md) |
 | Welche Fehler schon einmal zugeschlagen haben? | [`Docs/PITFALLS.md`](Docs/PITFALLS.md) |
 | Warum steht eine Sache so und nicht anders? | [`Docs/ARCHITEKTUR.md`](Docs/ARCHITEKTUR.md) |
-| Was wird als Nächstes gebaut? | [`Docs/ROADMAP.md`](Docs/ROADMAP.md) |
+| Was wird als Nächstes gebaut? | [`Docs/ROADMAP_OPEN.md`](Docs/ROADMAP_OPEN.md) |
+| Was wurde wann geliefert? | [`Docs/CHECKPOINTS.md`](Docs/CHECKPOINTS.md) |
 
 **Keine Kopie dieser Regeln in `CLAUDE.md`, `README.md` oder woanders.** Eine
 zweite Kopie läuft still auseinander, und die CI prüft immer nur das Original —
@@ -63,17 +64,19 @@ neuen Commits" und übersieht Regelverstöße.
 
 Nach **jedem** abgeschlossenen Task, in dieser Reihenfolge:
 
-1. **Roadmap aktualisieren.** `Docs/ROADMAP.md` ist versionsgebundene
-   Pflichtdoku und wandert im selben Commit mit. Fertiges bekommt ein Häkchen,
-   der Eintrag bleibt stehen — Erledigtes wird nie gelöscht.
+1. **Offene Roadmap aktualisieren.** `Docs/ROADMAP_OPEN.md` ist Pflichtdoku
+   und wandert im selben Commit mit. Fertiges bekommt ein Häkchen; die Bewegung
+   in die Historie (`Docs/CHECKPOINTS.md`) und der Version-Stempel sind Sache
+   des Doku-Syncs, nicht der Hand. Vor dem Commit `npm run docs:sync --check`
+   — er lässt einen invaliden Metadaten-Block nicht durch.
 2. **`npm run gate -- --commits=<base>..<head>`** — explizit, mit echter Range.
 3. **`npm run verify`**, dann **`npm run build`**. Ein Fehlpfad fällt nur hier
    auf, nicht im Gate.
 4. **Commit**, dann **Push auf `main`**. Kein PR, kein Branch-Zirkus.
 
 Bleibt die Version stehen, muss auch die `revision` stehen bleiben. Regel- und
-Doku-Commits brauchen deshalb keinen Bump, ihr Roadmap-Eintrag darf trotzdem
-als erledigt unter der nächsten Section stehen.
+Doku-Commits brauchen deshalb keinen Bump, ihr Eintrag wandert trotzdem als
+`fix` in die Checkpoints — die Version trägt er vom letzten Bump.
 
 Die ausführliche Fassung mit der Commit-Vorprüfung steht in
 [`Docs/WORKFLOW.md`](Docs/WORKFLOW.md).

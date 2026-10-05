@@ -19,6 +19,7 @@ Es gibt **kein `npm test` und keinen Linter.** `gate` hat drei Modi, dazu kommen
 | `npm run gate -- --tree` | Die fünf Hard Caps pro Datei unter `src/` und `scripts/` — die Werte stehen in [`GOVERNANCE.md`](GOVERNANCE.md) | CI |
 | `npm run gate -- --commits=<base>..<head>` | Betreff, Body-Länge, genannte Dateien, VANNON-Label, Bot-Signaturen | CI |
 | `npm run gate -- --version --base=<sha>` | Monotonie der `revision`, Übereinstimmung von Lock und Spiegeln | CI |
+| `npm run gate -- --docs` | Metadaten-Pflicht der Einträge in `ROADMAP_OPEN.md` und `CHECKPOINTS.md` | CI |
 | `npm run verify` | Verhalten der Domäne: Onboarding, Abbau, Verwurzelung, Bau, Brutlord, Ökonomie, Konto | CI |
 | `npm run verify:commits` | Das Commit-Gate gegen sich selbst — Regressionstests der Regelprüfung | CI |
 | `npm run verify:browser` | Dieselbe Onboarding-Kette im echten Chromium, mit angehaltener Uhr — braucht einen Browser und den Port 5199 | Hand |
@@ -27,10 +28,14 @@ Es gibt **kein `npm test` und keinen Linter.** `gate` hat drei Modi, dazu kommen
 ```sh
 npm ci                                     # CI pinnt Node 22, lokal läuft Node 26
 npm run dev                                # Vite, bindet auf 127.0.0.1
-npm run gate                               # alle drei Wächter
+npm run gate                               # alle Wächter
 npm run gate -- --tree                     # nur Hard Caps
 npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
+npm run gate -- --docs                     # Metadaten-Pflicht der Doku-Einträge
+npm run docs:sync --check                  # Pre-Flight des Doku-Syncs (liest nur)
+npm run docs:sync                          # Sync ausführen — im Bot-Workflow
+npm run commit:draft                       # Commit-Body-Vorprüfung für gestagete Dateien
 npm run verify                             # Abnahmesimulation des Slice in node
 npm run verify:commits                     # Regressionstests des Commit-Gates
 npm run verify:browser                      # Abnahme im echten Browser (einmal Chromium holen)
@@ -49,10 +54,13 @@ Repo-Wurzelverzeichnis starten.
 
 Nach **jedem** abgeschlossenen Task, in dieser Reihenfolge:
 
-### 1. Roadmap aktualisieren
+### 1. Offene Roadmap aktualisieren
 
-`Docs/ROADMAP.md` ist versionsgebundene Pflichtdoku und wandert im selben
-Commit mit. Fertiges bekommt ein Häkchen, **der Eintrag bleibt stehen**.
+`Docs/ROADMAP_OPEN.md` ist Pflichtdoku und wandert im selben Commit mit.
+Fertiges bekommt ein Häkchen, **der Eintrag bleibt bis zum Doku-Sync stehen**:
+`npm run docs:sync --check` prüft vor jedem Schreiben, ob jeder Eintrag valide
+Metadaten trägt, und der Bot bewegt Erledigtes in die
+[`CHECKPOINTS.md`](CHECKPOINTS.md) und stempelt Version und Datum.
 
 ### 2. Gate gegen eine echte Range
 
@@ -79,9 +87,25 @@ andere Instanz, die einen fehlenden Export bemerkt.
 
 ### 4. Commit vorprüfen, dann committen
 
-Die Vorprüfung ist billiger als ein Commit, der am Gate scheitert.
-`commitViolations({ sha, message, paths })` aus `scripts/lib/commit-rules.mjs`
-bekommt die Commit-Message und die Liste der gestageten Dateien:
+**Empfohlener Weg: der Draft-Generator.** `npm run commit:draft -- "Betreff"
+"Absatz eins" "Absatz zwei"` generiert aus den **gestageten** Dateien einen
+regelkonformen Body — Prosa je Datei, das VANNON-Label allein in der letzten
+Zeile — und entfernt fremde Footer (`Co-Authored-By`, `Generated with …`,
+Bot-Signaturen, `Key: value`-Trailer), bevor sie jemals in einen Commit
+gelangen. Die Ausgabe nach `/tmp/commit-msg.txt` schreiben, mit
+`git diff --cached --name-only` gegen die Vorprüfung spiegeln, dann aus
+derselben Datei committen:
+
+```sh
+npm run commit:draft -- "Betreff" "Erster Absatz." "Noch einer." > /tmp/commit-msg.txt
+git diff --cached --name-only
+git commit -F /tmp/commit-msg.txt
+```
+
+Die Vorprüfung ohne Generator — billiger als ein Commit, der am Gate
+scheitert. `commitViolations({ sha, message, paths })` aus
+`scripts/lib/commit-rules.mjs` bekommt die Commit-Message und die Liste der
+gestageten Dateien:
 
 ```sh
 git add <nur deine Dateien>
@@ -139,9 +163,10 @@ Zwei Workflows in `.github/workflows/`:
   `gate --tree`, `gate --commits`, `verify:commits`, `verify` und `build`.
 - **`auto-bump.yml`** — committet als `github-actions[bot]`, also **unsigned**
   (`git log --show-signature -1` zeigt `N`). Er bumpt nur bei Änderungen unter
-  `src/` oder `scripts/`; Doku- und Hygiene-Änderungen allein lösen keinen Bump
-  aus. Für PRs aus Feature-Branches gilt jede Änderung als code-relevant.
-  Hand-Commits zeigen `G`.
+  `src/`, `scripts/` oder `tools/`; Doku- und Hygiene-Änderungen allein lösen
+  keinen Bump aus. Vor dem Bump prüft der Pre-Flight die Doku-Einträge, nach
+  dem Bump stempelt der Doku-Sync, und der Commit-Body kommt aus dem
+  Draft-Generator. Hand-Commits zeigen `G`.
 
 Die Bot-Ausnahme gilt nur für die **Signatur**, nicht für die Commit-Policy —
 siehe `GOVERNANCE.md`. `scripts/verify/check-workflow.mjs` prüft bei jedem
