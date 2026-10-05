@@ -44,7 +44,7 @@ function falling(pools) {
   return pools.length > 1 && pools.every((pool, index) => index === 0 || pool < pools[index - 1]);
 }
 
-export function checkDepositFlow({ rooted, targetId }) {
+export function checkDepositFlow({ rooted, targetId, ticks }) {
   const digging = digOrdered(rooted, targetId);
   const depositId = tileWith(digging, targetId).depositId;
   const opened = digging.world.deposits[depositId];
@@ -56,7 +56,7 @@ export function checkDepositFlow({ rooted, targetId }) {
   check('Der Auftrag läuft an und der Dungling erreicht die Kachel', Boolean(digging.mining));
   check('Der Vorrat öffnet sich beim Graben, nicht erst danach', opened.phase === DEPOSIT_PHASE.FOUND, opened.phase);
   check('Er öffnet sich mit vollem Pool', opened.pool === opened.capacity);
-  check('Der Pool sinkt über alle 35 Takte hinweg', falling(run.pools), `${run.pools[0]} bis ${run.pools.at(-1)}`);
+  check(`Der Pool sinkt über alle ${ticks} Takte hinweg`, falling(run.pools), `${run.pools[0]} bis ${run.pools.at(-1)}`);
   check('Jeder Takt meldet die Ernte mit wachsender Nummer', run.seqs.every((seq, i) => seq === i + 1));
   check('Jeder Takt nennt den grabenden Dungling als Ziel', run.aims.every((aim) => aim === `${worker.x},${worker.y}`));
   check('Der Pool endet bei null', end.pool === 0, `Pool ${end.pool}`);

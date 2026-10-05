@@ -30,6 +30,7 @@ export function startMutation(hive) {
   return canMutate(hive) ? { ...hive, phase: HIVE_PHASE.MUTATING } : hive;
 }
 
+// [FUTURE] SETTLED ist der Endzustand, den Speichern und die Leiter brauchen.
 export function settleHive(hive) {
   return { ...hive, phase: HIVE_PHASE.SETTLED };
 }

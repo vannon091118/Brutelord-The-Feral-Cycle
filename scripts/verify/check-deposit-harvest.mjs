@@ -72,5 +72,5 @@ export function checkDepositHarvest(context) {
   checkSingle(world);
   checkDrain(world);
   checkStages(world);
-  checkDepositFlow(context);
+  checkDepositFlow({ ...context, ticks: TICKS });
 }

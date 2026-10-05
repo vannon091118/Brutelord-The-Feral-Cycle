@@ -89,6 +89,10 @@ function workerViews(game, tileSize) {
   }));
 }
 
+function workingStepOf(game) {
+  return game.mining?.phase === MINING_PHASE.WORKING ? game.mining.tick : 0;
+}
+
 function popupViews(game, tileSize) {
   return game.popups.map((popup) => ({ id: popup.id, position: tilePositionPx(popup, tileSize) }));
 }
@@ -118,6 +122,7 @@ export function worldView({ game, tileSize = TILE_SIZE }) {
     canSelect: selectMaySelectTiles(game),
     softHint: selectSoftHintVisible(game),
     workingTileId: selectWorkingTileId(game),
+    workingStep: workingStepOf(game),
     workers: workerViews(game, tileSize),
     popups: popupViews(game, tileSize),
     world: game.world,

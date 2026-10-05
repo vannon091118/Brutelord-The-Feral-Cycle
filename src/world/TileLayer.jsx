@@ -8,6 +8,7 @@ import { TILE_KIND } from '../domain/world/tile.js';
 import { ROOTING_PHASE } from '../domain/world/rooting.js';
 
 function EarthCell({ tile, view, tileSize, world, selectedTileId, highlightedTileId, onSelect }) {
+  const working = view.workingTileId === tile.id;
   return (
     <EarthTile
       key={tile.id}
@@ -16,7 +17,8 @@ function EarthCell({ tile, view, tileSize, world, selectedTileId, highlightedTil
       world={world}
       highlighted={highlightedTileId === tile.id}
       selected={selectedTileId === tile.id}
-      working={view.workingTileId === tile.id}
+      working={working}
+      step={working ? view.workingStep : 0}
       interactive={view.canSelect && view.frontier.has(tile.id)}
       softHint={view.softHint && view.frontier.has(tile.id)}
       onSelect={onSelect}

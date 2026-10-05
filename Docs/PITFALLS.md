@@ -63,9 +63,14 @@ nichts.
 
 Konkret betroffen und bereits abgeschrieben oder abgeleitet:
 
-- `check-mining-progress.mjs` prüft `totalMiningTicks() === 35` als Literal.
-  Wer `miningDurationMs` oder `earthStateThresholds` ändert, muss die 35
-  mitziehen.
+- `check-mining-progress.mjs` rechnet die Erwartung selbst aus
+  (`Math.max(1, Math.round(miningDurationMs / miningTickMs))`) und **misst
+  zusätzlich**, dass `totalMiningTicks()` denselben Wert liefert. Die beiden
+  Zeilen sind nicht dasselbe: die erste ist die Ableitung, die zweite prüft den
+  Zeitplan dagegen. Vorher kam die Erwartung aus derselben Funktion, gegen die
+  geprüft wurde — das ist der Fehler, nicht das Fehlen eines Literals. Gemessen
+  an der Schwelle: `miningDurationMs` auf 2000 gezogen fällt genau
+  „Der Zeitplan zählt dieselbe Tickzahl", nicht die Ableitungszeile.
 - `check-start.mjs` liest die erwartete Hive-Fläche aus `world.hiveSize` — das
   ist der Weg, den alle anderen auch gehen sollten.
 - `check-deposits.mjs` vergleicht die Welt gegen die Konstanten aus
@@ -91,6 +96,25 @@ kam, gegen die geprüft wurde.
 Der Fund aus dem Export-Durchgang: `withSlot()` steht in `stone-roll.js`, nicht
 in `lab-state.js`. Wer in `lab-state.js` sabotiert, trifft nichts und meldet
 Erfolg.
+
+### Ein Node-Test sieht keine Animation — und der Build ist auch kein Richter
+
+Gemessen an `dl-hit-punch`: `className` auf `undefined` gesetzt (der Block federt
+nicht mehr) lässt **Build und `verify` grün**. Sabotiert man zusätzlich den
+`key`, startet die Animation nur noch einmal statt je Takt — ebenfalls grün. Der
+Grund ist strukturell: die Animation ist CSS auf einem Knoten, den erst der
+Browser malt. `npm run build` prüft Aufloesen von Importen, die Abnahme prüft
+Zustände, und keines der beiden rendert.
+
+> **Gegenprobe:** `scripts/verify/check-hit-juice.mjs` liest darum den Quelltext
+> von `EarthTile.jsx`, `DungeonWorld.jsx` und `globals.css` und verlangt, dass
+> die Klasse am `working`-Zustand haengt, dass ihr `key` den Schritt traegt und
+> dass beide `@keyframes` existieren. Beide Sabotagen fallen damit um.
+
+Und noch eine, die danebenlag: die Kamera-Huelle bekam zuerst
+`pointer-events: none` — das erbt in die Bauplaetze und schluckt dort den
+Klick. Das ist derselbe Fehler wie bei den Augen des Dunglings unten, an anderer
+Stelle.
 
 ---
 
@@ -500,6 +524,38 @@ bekam `ECONNREFUSED` auf einer Adresse, die er eben noch selbst bekommen hatte.
 > **Gegenprobe:** stirbt der Browser-Driver, geht der Wirt mit. Und der Lauf,
 > der sich nicht anhängen kann, räumt auf und startet **einmal** neu — ein
 > zweiter Versuch ohne Ende ist schlechter als ein klarer Fehlschlag.
+
+---
+
+## Ein Zustand, den niemand liest
+
+### `HIVE_PHASE.SETTLED` wird geschrieben und von niemandem gelesen
+
+`settleHive()` setzt den Zustand, und die einzige Leseebene war `isSettled()` —
+im Export-Durchgang als tot erkannt und geloescht. `canMutate()` liest
+`DORMANT`, `hive-state.js` liest `MUTATING`, und niemand verzweigt an `SETTLED`.
+
+> **Das ist kein Fehler, sondern eine Lücke.** `SETTLED` ist der Endzustand, den
+> Speichern und die Leiter brauchen werden — beides steht unfertig in der
+> ROADMAP. Ein Schreibzustand ohne Leser wird vom naechsten
+> Export-Durchgang fuer toten Code gehalten und faellt weg.
+
+**Was zu tun ist:** als `[FUTURE]` markieren, nicht loeschen. Heute steht die
+Markierung **an der Schreibstelle** (`settleHive()` in
+`src/domain/entities/hive.js`) und nicht beim Leser — sie wandert mit
+`settleHive()` und verschwindet nicht, wenn jemand die Datei aufraeumt.
+Ausfuehrlich in [`ROADMAP.md`](ROADMAP.md).
+
+### Ein Kommentar zaehlt gegen die Hard Cap, nicht gegen die Erklaerung
+
+Der Marker passte in `settleHive()` locker, derselbe Text in `hive-reducer.js`
+sprengte die fuenf Kommentarzeilen, und `EntranceLadder.jsx` brauchte dafuer vier
+kuerzere Zeilen als gedacht. `npm run gate -- --tree` nennt die Verstoesse
+einzeln; die Cap gilt **pro Datei**, nicht pro Aenderung.
+
+> **Was zu tun ist:** die Erklaerung gehoert nach [`PITFALLS.md`](PITFALLS.md)
+> und [`ARCHITEKTUR.md`](ARCHITEKTUR.md), in den Code nur der Kopf. Das ist
+> keine Formalie: die Gate-Meldung sagt es bei jedem Verstoss.
 
 ---
 

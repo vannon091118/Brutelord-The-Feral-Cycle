@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Führt die Slice-Akzeptanzprüfungen in fachlichen Gruppen aus. */
 import {
-  checkArchitecture, checkColony, checkEdgeMaskGroup, checkMining,
+  checkArchitecture, checkColony, checkEdgeMaskGroup, checkHitJuice, checkMining,
   checkOnboarding, checkRaidGroup, checkRooting, checkStart, checkStartup,
   makeOnboardingRun, summary,
 } from './verify/index.mjs';
@@ -14,6 +14,7 @@ async function main() {
   const run = makeOnboardingRun();
   checkOnboarding(run);
   checkMining(run);
+  checkHitJuice(run.state);
   checkRooting(run);
   checkEdgeMaskGroup();
   checkColony(run);

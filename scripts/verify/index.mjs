@@ -3,6 +3,7 @@ export { checkStart } from './check-start.mjs';
 export { checkEdgeMaskGroup } from './check-edge-mask.mjs';
 export { checkOnboarding, makeOnboardingRun } from './check-onboarding.mjs';
 export { checkMining } from './check-mining.mjs';
+export { checkHitJuice } from './check-hit-juice.mjs';
 export { checkRooting } from './check-rooting.mjs';
 export { checkColony } from './check-colony.mjs';
 export { checkRaidGroup } from './check-raid-group.mjs';

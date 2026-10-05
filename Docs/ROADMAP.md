@@ -77,8 +77,7 @@ Grund, ihn zu haben.
       Metrik-Arbeiten in `scripts/ci-gate.mjs`, `scripts/lib/source-metrics.mjs`,
       `tools/tests/lib/config.mjs`, `tools/tests/lib/fixture.mjs`, den Spielstand
       in `src/state/snapshot.js` und den Beispielumgebungsvertrag
-      `.env.example`. **Noch nicht gebaut** ist der Treffer-Punch, die Partikel
-      am Block und der Kameraruck — Phase 2 derselben Route.
+      `.env.example`. **Phase 2 ist gebaut**, siehe unten.
 
 - [ ] **Das Raid-Feature: Entwurf steht, Bau nicht.** Angriffe zwischen zwei
       Spielern, Ausdauer als Einsatz statt Timer, ein rundenbasiertes
@@ -298,7 +297,37 @@ Grund, ihn zu haben.
       `JSON.stringify`.
 - [ ] **Die Leiter bei 47,47.** Steht als `LADDER_TILE` in der Config und wird
       gerendert, sobald die Wurzeln hinkommen. Sie ist Deko mit Tiefe — irgendwann
-      wird sie der Eingang.
+      wird sie der Eingang. **Bestätigt und als Lücke markiert:** was beim
+      Erreichen passiert, ist null Zeilen Code, und die Datei sagt es jetzt an
+      sich selbst (`[FUTURE]` in `src/world/entrance/EntranceLadder.jsx`), damit
+      der nächste Export-Durchgang sie nicht als totes Material weghaut. Sie
+      bleibt Kulisse, bis Vertikalität als Task mit Verifier hier steht.
+- [x] **Phase 2 der Kantenwand: der Treffer fühlt sich an.** Drei Bewegungen,
+      alle am **Abbau-Tick** und nicht an der Uhr: der bearbeitete Erdblock
+      federt zurück (`dl-hit-punch` auf der Masse in `EarthTile.jsx`, über einen
+      `key` je Schritt, damit die Animation wirklich neu startet und nicht
+      einmal läuft), die Kamera zuckt (`dl-camera-kick`), und die Erdkrümel
+      fliegen weiter aus `MiningParticles.jsx` — die waren schon am Tick
+      verdrahtet, es fehlte nur der Rest. **Die Kamera-Hülle ist eine eigene
+      Ebene über dem `svg`, nicht der `viewBox`:** die Animation überschreibt
+      sonst das Inline-`transform` des Maßstabs, und am `viewBox` wanderte das
+      Kontextmenü mit. Zwei Fehler hat der Bau selbst gefunden, beide im Bild
+      und nicht im Zustand: die Hülle trug zuerst `pointer-events: none` und
+      schluckte damit den Klick auf den Bauplatz — derselbe Fehler wie bei den
+      Augen des Dunglings —, und `key` im Props-Spread erzeugte eine
+      React-Warnung. **Die Abnahme ist `scripts/verify/check-hit-juice.mjs`:**
+      der Ruck hängt am Tick, wandert mit, verstummt nach dem Abbau und
+      verschiebt den Ausschnitt nicht; und weil ein Node-Test keine Animation
+      sieht, liest sie zusätzlich den Quelltext und verlangt Klasse, Schritt-Key
+      und beide `@keyframes`. Gegenproben gelaufen: `working`-Zweig entfernt
+      und `key` auf konstant gesetzt — beide fallen um, während `npm run build`
+      in beiden Fällen grün bleibt.
+- [x] **Die abgeschriebene `35` war nicht die Krankheit.** `PITFALLS.md` führt
+      sie als Literal in `check-mining-progress.mjs` — gemessen stand dort keine,
+      sondern eine Ableitung aus der Config. Der echte Fehler war der andere
+      Eintrag derselben Datei: die Erwartung kam aus derselben Funktion, gegen
+      die geprüft wurde. Jetzt steht beides: die Ableitung als Erwartung **und**
+      eine Messung, dass `totalMiningTicks()` denselben Wert liefert.
 - [x] **Die Traits wirken auf den Arbeitstakt.** Gierig verweigert Bauaufträge
       und verdoppelt die getragene Essenz, Motivator beschleunigt alles in
       dreifeldrigem Umkreis, Schleimig verlangsamt jeden auf seiner Grundfläche.
@@ -534,10 +563,12 @@ Grund, ihn zu haben.
       `npm run build` löst alle Importe auf — der Build ist hier die einzige
       Instanz, die einen fehlenden Export überhaupt bemerkt, weil Rollup ihn
       beim Auflösen findet und stirbt. Die Hart-Caps habe ich über alle 181
-      versionierten Quelldateien neu gerechnet: keine Verletzung. Offen bleibt
-      eine Fassade, die ich nicht angefasst habe, `builtCenterPx()` in
-      `world-view.js`, weil diese Datei gerade in der Arbeitskopie eines
-      anderen Vorgangs steckt.
+      versionierten Quelldateien neu gerechnet: keine Verletzung. **Die offene
+      Fassade ist keine mehr** — nachgemessen: `builtCenterPx()` in
+      `world-view.js` trägt gar kein `export`, hat genau einen Verwendungsort
+      (`cameraBox()`) und ist damit eine ganz normale private Funktion. Die
+      damalige Notiz galt einer Arbeitskopie, in der der Zustand anders war;
+      im Baum ist er es nicht.
 
 - [x] **Die Regeln nachgeschärft.** Hard Caps messen jetzt nur Code — Leer- und
       Kommentarzeilen fallen aus dem LOC-Cap heraus —, und Kommentare selbst

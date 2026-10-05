@@ -7,16 +7,18 @@ import { check, section } from './expect.mjs';
 
 export function checkMiningProgress(run) {
   const { reachedAt, earthHealth, ticks } = run;
-  const expectedTicks = Math.round(ONBOARDING_CONFIG.miningDurationMs / ONBOARDING_CONFIG.miningTickMs);
+  const { miningDurationMs, miningTickMs, earthStateThresholds } = ONBOARDING_CONFIG;
+  const expectedTicks = Math.max(1, Math.round(miningDurationMs / miningTickMs));
   section('Abbauzeit und Erd-Zustände');
-  check('Abbau dauert konfigurierte 3500 ms', reachedAt.get(ONBOARDING_STATE.TILE_DESTROYED) - reachedAt.get(ONBOARDING_STATE.MINING) === ONBOARDING_CONFIG.miningDurationMs);
-  check(`Genau ${expectedTicks} definierte Fortschrittstick`, ticks.length === expectedTicks, `${ticks.length} statt ${expectedTicks}`);
+  check(`Abbau dauert konfigurierte ${miningDurationMs} ms`, reachedAt.get(ONBOARDING_STATE.TILE_DESTROYED) - reachedAt.get(ONBOARDING_STATE.MINING) === miningDurationMs);
+  check(`Genau die konfigurierte Anzahl Fortschrittstick — ${expectedTicks}`, ticks.length === expectedTicks, `${ticks.length} statt ${expectedTicks}`);
+  check('Der Zeitplan zählt dieselbe Tickzahl', totalMiningTicks() === expectedTicks, `${totalMiningTicks()} statt ${expectedTicks}`);
   check('Material-Bursts haben feste Kadenz', miningBurstEveryTicks() >= 1);
 
   const states = earthHealth.map((entry) => entry.health);
   const touched = earthHealth.find((entry) => entry.health === EARTH_HEALTH.TOUCHED)?.tick;
   const critical = earthHealth.find((entry) => entry.health === EARTH_HEALTH.CRITICAL)?.tick;
   check('HEALTHY → TOUCHED → CRITICAL', states.join('|') === 'HEALTHY|TOUCHED|CRITICAL');
-  check('TOUCHED ab 45 Prozent', touched === Math.ceil(ONBOARDING_CONFIG.earthStateThresholds.touched * totalMiningTicks()));
-  check('CRITICAL ab 80 Prozent', critical === Math.ceil(ONBOARDING_CONFIG.earthStateThresholds.critical * totalMiningTicks()));
+  check(`TOUCHED am konfigurierten Schwellenwert — ${earthStateThresholds.touched}`, touched === Math.ceil(earthStateThresholds.touched * expectedTicks));
+  check(`CRITICAL am konfigurierten Schwellenwert — ${earthStateThresholds.critical}`, critical === Math.ceil(earthStateThresholds.critical * expectedTicks));
 }

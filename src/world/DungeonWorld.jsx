@@ -7,23 +7,37 @@ import { WorkerLayer } from './WorkerLayer.jsx';
 import { EntranceLadder } from './entrance/EntranceLadder.jsx';
 
 /**
- * Die Welt: 2D, direkter Vogelblick, handgemachte Flächen.
- * Diese Komponente schichtet nur die Ebenen — sie entscheidet nichts.
- * Das Bild ist ein Ausschnitt: die Kamera folgt dem, was der Hive gebaut hat.
+ * Die Welt: 2D, direkter Vogelblick, handgemachte Flächen. Diese Komponente
+ * schichtet nur die Ebenen — sie entscheidet nichts. Das Bild ist ein Ausschnitt.
  */
 export const DungeonWorld = memo(function DungeonWorld({ game, actions, tileSize, scale }) {
   const view = worldView({ game, tileSize });
+  const kick = view.workingTileId ? view.workingStep : null;
   return (
-    <svg {...worldSvgProps(view.camera, scale)}>
-      <WorldContext view={view} onBackgroundClick={actions.clearSelection} />
-      <TileLayer {...tileLayerProps({ game, view, tileSize, actions })} />
-      <EntranceLadder entrance={game.world.entrance} camera={view.camera} tileSize={tileSize} />
-      <HiveNode {...hiveProps(game, tileSize, actions)} />
-      <WorkerLayer workers={view.workers} popups={view.popups} tileSize={tileSize} />
-      <WorldVignette camera={view.camera} />
-    </svg>
+    <div key={kickKey(kick)} {...kickProps(kick)}>
+      <svg {...worldSvgProps(view.camera, scale)}>
+        <WorldContext view={view} onBackgroundClick={actions.clearSelection} />
+        <TileLayer {...tileLayerProps({ game, view, tileSize, actions })} />
+        <EntranceLadder entrance={game.world.entrance} camera={view.camera} tileSize={tileSize} />
+        <HiveNode {...hiveProps(game, tileSize, actions)} />
+        <WorkerLayer workers={view.workers} popups={view.popups} tileSize={tileSize} />
+        <WorldVignette camera={view.camera} />
+      </svg>
+    </div>
   );
 });
+
+/** Der Ruck sitzt auf einer Huelle: die Animation ueberschriebe sonst das inline-`transform`. */
+function kickKey(kick) {
+  return kick === null ? 'still' : `kick-${kick}`;
+}
+
+function kickProps(kick) {
+  return {
+    className: kick === null ? undefined : 'dl-camera-kick',
+    style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
+  };
+}
 
 function worldSvgProps(camera, scale) {
   return {

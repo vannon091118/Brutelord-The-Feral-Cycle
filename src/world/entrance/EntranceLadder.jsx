@@ -1,7 +1,7 @@
 /**
- * Der Eingang von draußen: eine Leiter, die in einen dunklen Schacht führt.
- * Sie liegt weit außerhalb des Sichtfelds und wird erst sichtbar, wenn die
- * Verwurzelung herangewachsen ist — bis dahin ist sie nur ein Ziel.
+ * Der Eingang: eine Leiter in einen dunklen Schacht, erst sichtbar, wenn die
+ * Verwurzelung herangewachsen ist. [FUTURE] Kulisse, kein Uebergang — Handler,
+ * State und Etagenwechsel kommen mit der Vertikalitaet als Task in der ROADMAP.
  */
 function isInView({ entrance, camera, tileSize }) {
   const x = entrance.x * tileSize;
