@@ -560,6 +560,24 @@ Grund, ihn zu haben.
       Bühne springt beim Oeffnen eines Panels weiterhin — beides gehört zur
       parallelen Arbeit an Anweisungen und Layout.
 
+- [x] **Das Gate schließt wieder.** Die letzte Änderung an der Erdform brach das
+      eigene CI vor dem Push, weil zwei Hard-Caps-Verletzungen ins Haupt drungen
+      sind: maskPoints() in src/world/tile-shapes.js trug 36 Zeilen gegen die
+      30-zeilige Cap, und src/domain/world/edge-mask.js trug 6 Kommentarzeilen
+      gegen die 5-zeilige Cap. Der Versions-Bot hat den Push geliefert, Bot-
+      Commits lösen keine CI aus, also stand das Gate erst einmal senkrecht, als
+      der erste Hand-Check kam. Die Korrektur ist auf die Verstoß-Dateien
+      beschränkt: maskPoints() wird auf 28 Zeilen zusammengezogen, indem die
+      Hilfsfunktionen seamPoint und notchPoint aus der Funktion genommen und als
+      geschlossene Pfeilfunktionen im Inneren von maskPoints wieder eingebaut
+      werden — sie lesen damit border, tuning, rng und overlap aus dem äußeren
+      Scope, brauchen also weniger Parameter (2 und 1 statt 9 und 5), was sie
+      gegen die 3-Parameter-Cap schützt. Die eine Kommentarzeile in
+      edge-mask.js geht, weil die Funktion isEdgeCell bereits durch ihren Namen
+      erklärt ist. Gegenprobe: npm run gate -- --tree grün, npm run verify grün
+      (421 Prüfungen), npm run build grün. Kein neuer Check, nur die Behebung
+      einer bestehenden Verletzung — die Cap-Prüfungen laufen vor.
+
 Reihenfolge geändert, mit Grund. Der Brutlord stand hier ursprünglich als
 letzter Punkt dieser Section. Ein Verbraucher, der einen Vorrat von hundert
 Essenz schluckt, ist ohne Ökonomie wertlos — das Ressourcen-System kommt
