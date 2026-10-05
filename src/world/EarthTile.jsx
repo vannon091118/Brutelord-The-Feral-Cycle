@@ -1,14 +1,15 @@
-/** Ein Erdblock als Ganzes: Masse, Spuren, Klickfläche. */
+/** Ein Erdblock als Ganzes: Masse, Wand zur Unbekannten, Spuren, Klickfläche. */
 import { memo, useState } from 'react';
 import { earthGeometry } from './earth/earth-geometry.js';
 import { EarthSlab } from './earth/EarthSlab.jsx';
 import { EarthDamage } from './earth/EarthDamage.jsx';
+import { EarthWall } from './earth/EarthWall.jsx';
 import { TileRing } from './earth/TileRing.jsx';
 import { HitArea } from './earth/HitArea.jsx';
 
-export const EarthTile = memo(function EarthTile({ tile, size, highlighted, selected, working, interactive, softHint, onSelect }) {
+export const EarthTile = memo(function EarthTile({ tile, size, world, highlighted, selected, working, interactive, softHint, onSelect }) {
   const [hovered, setHovered] = useState(false);
-  const geometry = earthGeometry({ tile, size });
+  const geometry = earthGeometry({ tile, size, world });
   const ring = { highlighted, selected, working, interactive, hovered, softHint };
 
   return (
@@ -18,6 +19,7 @@ export const EarthTile = memo(function EarthTile({ tile, size, highlighted, sele
         <EarthDamage geometry={geometry} />
       </g>
 
+      <EarthWall walls={geometry.walls} />
       <TileRing geometry={geometry} state={ring} />
 
       <HitArea

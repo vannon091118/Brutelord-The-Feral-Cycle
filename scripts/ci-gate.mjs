@@ -12,9 +12,10 @@ import {
   versionTransitionViolations,
   readVersionState,
 } from './lib/version-authority.mjs';
-import { HARD_CAPS, analyzeTree } from './lib/source-metrics.mjs';
+import { HARD_CAPS, analyzeData, analyzeTree } from './lib/source-metrics.mjs';
 
 const TREE_ROOTS = ['src', 'scripts', 'tools'];
+const DATA_ROOTS = ['tools/tests/state'];
 
 function hasRef(ref) {
   try {
@@ -43,7 +44,10 @@ export function detectRange() {
 }
 
 function runTreeCheck() {
-  const violations = TREE_ROOTS.flatMap((root) => analyzeTree(root, HARD_CAPS));
+  const violations = [
+    ...TREE_ROOTS.flatMap((root) => analyzeTree(root, HARD_CAPS)),
+    ...DATA_ROOTS.flatMap((root) => analyzeData(root, HARD_CAPS)),
+  ];
   return violations.map((violation) => ({
     rule: violation.rule,
     detail: `${violation.file}${violation.line ? `:${violation.line}` : ''} — ${violation.detail}`,

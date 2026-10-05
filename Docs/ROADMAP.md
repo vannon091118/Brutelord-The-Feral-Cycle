@@ -48,6 +48,38 @@ Grund, ihn zu haben.
       benutzt `deadbeef`. Befund und Gegenprobe stehen in
       [`PITFALLS.md`](PITFALLS.md).
 
+- [x] **Das Raster verschwindet: das Nachbarschafts-Byte und die Kantenwand.**
+      Erdblöcke wussten nichts voneinander: Jede Silhouette wölbte sich an jeder
+      Kachelgrenze nach außen, die dunkle Kulisse schien in den Rinnen durch, und
+      die Welt las sich als Kachelmuster statt als Masse. Jetzt leitet eine reine
+      Domänen-Lesefunktion (`edgeMask`, `hiddenMask`, `notchFlags` in
+      `src/domain/world/edge-mask.js`) je Kachel ein Byte: Erde schließt an Erde,
+      Freifläche öffnet die Silhouette, zur verborgenen Erde steht eine Wand. Die
+      Erdform (`soilMaskBlob` in `src/world/tile-shapes.js`) läuft an verbundenen
+      Seiten flach und mit Zufallsbetrag über die Grenze, sodaß sich die Naht
+      unter gleichen Farben verliert; Schachbrett-Ecken schneiden eine Einwärts-
+      Kerbe, damit die Kulisse dort nicht durchscheint. Die Kantenwand
+      (`wallBand`, gezeichnet in `src/world/earth/EarthWall.jsx`) steht als
+      Bruchfläche mit heller Abrisskante nur zur verborgenen Erde und niemals zur
+      fehlenden Zelle am Weltrand — dort ist die Vignette zuständig. Der Geometrie-
+      Cache (`src/world/earth/earth-geometry.js`) trägt beide Bytes im Schlüssel,
+      die bestehende Begrenzung bleibt unangetastet; die Prüfung fährt dieselbe
+      Form blind und mit Welt und verlangt zwei verschiedene Pfade. Verdrahtet
+      sind `src/world/EarthTile.jsx`, `src/world/TileLayer.jsx`,
+      `src/world/rooting/RootingVeil.jsx` (derselbe Maskenpfad für den Wurzelschleier)
+      und das neue Wand-Muster `dl-wallFace` in `src/world/WorldDefs.jsx` samt
+      Stufe `--color-rock-200` in `src/styles/globals.css`. Die Abnahme hängt als
+      `scripts/verify/check-edge-mask.mjs` hinter `checkRooting` in
+      `scripts/verify-slice.mjs` und `scripts/verify/index.mjs`: Miniwelt-Regeln
+      (Seiten, Kerben, Weltrand), Wand-Invarianten über die echte Welt,
+      Geometrie-Verdrahtung. Mit derselben Hand fährt die Parallel-Session ihre
+      Bühne mit: szenarienfeste Zustände unter `tools/tests/state/`, Bühnen- und
+      Metrik-Arbeiten in `scripts/ci-gate.mjs`, `scripts/lib/source-metrics.mjs`,
+      `tools/tests/lib/config.mjs`, `tools/tests/lib/fixture.mjs`, den Spielstand
+      in `src/state/snapshot.js` und den Beispielumgebungsvertrag
+      `.env.example`. **Noch nicht gebaut** ist der Treffer-Punch, die Partikel
+      am Block und der Kameraruck — Phase 2 derselben Route.
+
 - [ ] **Das Raid-Feature: Entwurf steht, Bau nicht.** Angriffe zwischen zwei
       Spielern, Ausdauer als Einsatz statt Timer, ein rundenbasiertes
       Gameplay gegen den gefrorenen Snapshot des Gegners. Der Entwurf liegt

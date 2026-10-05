@@ -11,6 +11,7 @@ export const HARD_CAPS = {
 };
 
 export const SOURCE_EXTENSIONS = ['.js', '.jsx', '.mjs', '.css'];
+export const DATA_EXTENSIONS = ['.json'];
 export const DOCUMENTATION_EXTENSIONS = ['.md', '.markdown', '.txt'];
 
 const FUNCTION_PATTERNS = [
@@ -191,5 +192,17 @@ export function metricViolations(file, code, caps = HARD_CAPS) {
 export function analyzeTree(root, caps = HARD_CAPS) {
   return collectSourceFiles(root).flatMap((file) =>
     metricViolations(file, readFileSync(file, 'utf8'), caps),
+  );
+}
+
+function dataViolations(file, code, caps) {
+  const lines = codeLineCount(code);
+  if (lines <= caps.moduleLines) return [];
+  return [{ file, rule: `max ${caps.moduleLines} Codezeilen pro Modul`, detail: `${lines} Codezeilen` }];
+}
+
+export function analyzeData(root, caps = HARD_CAPS) {
+  return collectSourceFiles(root, DATA_EXTENSIONS).flatMap((file) =>
+    dataViolations(file, readFileSync(file, 'utf8'), caps),
   );
 }

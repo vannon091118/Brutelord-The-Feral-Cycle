@@ -1,6 +1,7 @@
-/** Geometrie eines Erdblocks: Umriss, Körner, Risse. */
+/** Geometrie eines Erdblocks: Umriss, Körner, Risse — die Form folgt Nachbarn. */
 import { EARTH_HEALTH } from '../../domain/world/tile.js';
-import { chipBlob, crackPath, soilBlob, soilSpeckles, tileSeed } from '../tile-shapes.js';
+import { edgeMask, hiddenMask, notchFlags, sideFlags } from '../../domain/world/edge-mask.js';
+import { chipBlob, crackPath, soilMaskBlob, soilSpeckles, tileSeed, wallBand } from '../tile-shapes.js';
 
 function handLines({ x, y, size, seed }) {
   return [
@@ -46,32 +47,41 @@ function damageOf({ x, y, size, seed, health }) {
   };
 }
 
-/** Geometrie haengt an Koordinate, Groesse und Zustand — also merkt sie sich das. */
+/** Geometrie haengt an Koordinate, Groesse, Zustand und Nachbarschaft. */
 const CACHE_LIMIT = 512;
 const geometryCache = new Map();
 
-export function earthGeometry({ tile, size }) {
-  const key = `${tile.x},${tile.y}|${size}|${tile.earthHealth}`;
+export function earthGeometry({ tile, size, world = null }) {
+  const openByte = world ? edgeMask(world, tile.x, tile.y) : 0;
+  const hiddenByte = world ? hiddenMask(world, tile.x, tile.y) : 0;
+  const key = `${tile.x},${tile.y}|${size}|${tile.earthHealth}|${openByte}|${hiddenByte}`;
   const cached = geometryCache.get(key);
   if (cached) return cached;
-  const geometry = buildGeometry({ tile, size });
+  const geometry = buildGeometry({ tile, size, openByte, hiddenByte });
   if (geometryCache.size >= CACHE_LIMIT) geometryCache.clear();
   geometryCache.set(key, geometry);
   return geometry;
 }
 
-function buildGeometry({ tile, size }) {
+function buildGeometry({ tile, size, openByte, hiddenByte }) {
   const seed = tileSeed(tile.x, tile.y);
   const x = tile.x * size;
   const y = tile.y * size;
   const critical = tile.earthHealth === EARTH_HEALTH.CRITICAL;
+  const open = sideFlags(openByte);
+  const hidden = sideFlags(hiddenByte);
+  const notch = notchFlags(openByte, open);
   return {
     x,
     y,
     size,
     seed,
     center: { x: x + size / 2, y: y + size / 2 },
-    mass: soilBlob({ x, y, size, inset: 4, jitter: 2.6, outward: 10, points: 16, seed }),
+    open,
+    hidden,
+    notch,
+    mass: soilMaskBlob({ x, y, size, open, notch, seed }),
+    walls: wallBand({ x, y, size, hidden, seed }),
     speckles: soilSpeckles({ x, y, size, count: 6, seed, inset: 4 }),
     handLines: handLines({ x, y, size, seed }),
     damage: damageOf({ x, y, size, seed, health: tile.earthHealth }),

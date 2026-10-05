@@ -149,3 +149,83 @@ export function scatterRocks({ seed, minX, minY, maxX, maxY, count = 16 }) {
   }
   return rocks;
 }
+
+const SIDE_ORIGIN = Object.freeze({ N: 0.125, E: 0.375, S: 0.625, W: 0.875 });
+const CORNER_PLACE = Object.freeze({ NE: 0.25, SE: 0.5, SW: 0.75, NW: 0 });
+const CORNER_IN = Object.freeze({ NE: [-1, 1], SE: [-1, -1], SW: [1, -1], NW: [1, 1] });
+const SIDES = Object.freeze(['N', 'E', 'S', 'W']);
+
+function sideSpan(side) {
+  return [SIDE_ORIGIN[side] - 0.125, SIDE_ORIGIN[side] + 0.125];
+}
+
+/** Die Masse läuft an verbundenen Seiten flach über die Grenze, an freien
+ *  Seiten wölbt sie sich organisch — die Rinne zwischen zwei Erdblöcken stirbt. */
+export function soilMaskBlob({ x, y, size, open, seed, notch = null, inset = 4, jitter = 2.6, points = 16, outward = 10, overlap = 2.5 }) {
+  const rng = makeRng(seed);
+  const pts = maskPoints({ x, y, size, open, notch, rng, overlap, tuning: { rng, inset, jitter, wobble: 0, outward, points } });
+  pts.sort((a, b) => a.place - b.place);
+  return smoothClosedPath(pts.map((entry) => entry.point));
+}
+
+function maskPoints({ x, y, size, open, notch, rng, overlap, tuning }) {
+  const border = (t) => perimeterPoint({ t, minX: x + tuning.inset, minY: y + tuning.inset, maxX: x + size - tuning.inset, maxY: y + size - tuning.inset });
+  const seamPoint = (side, t) => {
+    const p = border(t);
+    const o = tuning.inset + (0.55 + rng() * 0.45) * overlap;
+    return { x: p.x + p.nx * o, y: p.y + p.ny * o };
+  };
+  const notchPoint = (corner) => {
+    const p = border(CORNER_PLACE[corner]);
+    const [dx, dy] = CORNER_IN[corner];
+    return { x: p.x + dx * 2.2, y: p.y + dy * 2.2 };
+  };
+  const openSides = SIDES.filter((side) => open[side]);
+  const per = Math.max(2, Math.round(tuning.points / Math.max(1, openSides.length)));
+  const pts = [];
+  for (const side of openSides) {
+    const [from, to] = sideSpan(side);
+    for (let i = 0; i < per; i += 1) {
+      const place = from + ((i + 0.5) / per) * (to - from);
+      pts.push({ place, point: blobPoint({ place, ...tuning }, { x, y, size }) });
+    }
+  }
+  const seam = 0.03;
+  for (const side of SIDES) {
+    if (open[side]) continue;
+    const [from, to] = sideSpan(side);
+    pts.push({ place: from + seam, point: seamPoint(side, from + seam) });
+    pts.push({ place: to - seam, point: seamPoint(side, to - seam) });
+  }
+  for (const corner of ['NE', 'SE', 'SW', 'NW']) {
+    if (open[corner[0]] && open[corner[1]]) pts.push({ place: CORNER_PLACE[corner] || 0.999, point: blobPoint({ place: CORNER_PLACE[corner], ...tuning }, { x, y, size }) });
+    else if (notch && notch[corner]) pts.push({ place: CORNER_PLACE[corner] || 0.999, point: notchPoint(corner) });
+  }
+  return pts;
+}
+
+/** Das Band der Kantenwand: Bruchfläche zur unbekannten Seite, helle
+ *  Abrisskante am Rand — die Wand folgt der Fläche, nie dem Rechteck. */
+export function wallBand({ x, y, size, hidden, seed, depth = 18, outset = 0.8 }) {
+  const rng = makeRng(seed ^ 0x5e11);
+  const anchor = (t) => perimeterPoint({ t, minX: x, minY: y, maxX: x + size, maxY: y + size });
+  const bands = [];
+  for (const side of SIDES) {
+    if (!hidden[side]) continue;
+    const [from, to] = sideSpan(side);
+    const steps = 4;
+    const outer = [];
+    const inner = [];
+    for (let i = 0; i <= steps; i += 1) {
+      const p = anchor(from + ((i / steps) * (to - from)));
+      const d = depth * (0.55 + rng() * 0.9);
+      outer.push({ x: p.x - p.nx * outset, y: p.y - p.ny * outset });
+      inner.push({ x: p.x + p.nx * d, y: p.y + p.ny * d });
+    }
+    const head = `M${round(outer[0].x)},${round(outer[0].y)}`;
+    const top = outer.slice(1).map((pt) => `L${round(pt.x)},${round(pt.y)}`).join('');
+    const tail = inner.slice().reverse().map((pt) => `L${round(pt.x)},${round(pt.y)}`).join('');
+    bands.push({ key: `band-${side}`, d: `${head}${top}${tail}Z`, lip: `${head}${top}`, lipWidth: round(1.6 + rng() * 1.2) });
+  }
+  return bands;
+}

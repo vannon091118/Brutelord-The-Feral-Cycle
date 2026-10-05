@@ -6,9 +6,9 @@ import { earthGeometry } from '../earth/earth-geometry.js';
 import { floorGeometry } from '../floor/floor-geometry.js';
 import { tendrilsOf } from './tendrils.js';
 
-function massOf({ tile, size }) {
+function massOf({ tile, size, world = null }) {
   return tile.kind === TILE_KIND.EARTH
-    ? earthGeometry({ tile, size }).mass
+    ? earthGeometry({ tile, size, world }).mass
     : floorGeometry({ tile, size }).mass;
 }
 
@@ -33,10 +33,10 @@ function Tendril({ tendril, coverage }) {
   );
 }
 
-export const RootingVeil = memo(function RootingVeil({ tile, size }) {
+export const RootingVeil = memo(function RootingVeil({ tile, size, world = null }) {
   const coverage = rootingCoverage(tile.rooting);
   if (coverage <= 0) return null;
-  const mass = massOf({ tile, size });
+  const mass = massOf({ tile, size, world });
 
   return (
     <g>

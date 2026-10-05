@@ -42,6 +42,27 @@ function unpackTiles(world, changed) {
   return tiles;
 }
 
+function packDeposits(world) {
+  const fresh = seedWorld(world).deposits;
+  const changed = {};
+  for (const id of Object.keys(world.deposits ?? {})) {
+    const deposit = world.deposits[id];
+    const base = fresh[id];
+    if (deposit.phase !== base?.phase || deposit.pool !== base?.pool) {
+      changed[id] = { phase: deposit.phase, pool: deposit.pool };
+    }
+  }
+  return changed;
+}
+
+function unpackDeposits(world, changed) {
+  const deposits = { ...seedWorld(world).deposits };
+  for (const id of Object.keys(changed ?? {})) {
+    deposits[id] = { ...deposits[id], ...changed[id] };
+  }
+  return deposits;
+}
+
 function isMap(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -62,11 +83,20 @@ function isSavedShape(state) {
 }
 
 export function packState(state) {
-  return { ...state, world: { ...state.world, tiles: packTiles(state.world) } };
+  const world = state.world;
+  return { ...state, world: { ...world, tiles: packTiles(world), deposits: packDeposits(world) } };
 }
 
 export function unpackState(state) {
-  return { ...state, world: { ...state.world, tiles: unpackTiles(state.world, state.world.tiles) } };
+  const world = state.world;
+  return {
+    ...state,
+    world: {
+      ...world,
+      tiles: unpackTiles(world, world.tiles),
+      deposits: unpackDeposits(world, world.deposits),
+    },
+  };
 }
 
 export function readSavedState(playerseed) {

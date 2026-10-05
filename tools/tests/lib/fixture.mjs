@@ -6,27 +6,57 @@ import { packState } from '../../../src/state/snapshot.js';
 import { SNAPSHOT_KEY, SNAPSHOT_VERSION } from '../../../src/state/snapshot-config.js';
 import { SESSION_KEY } from '../../../src/ui/account/session.js';
 import { SEL } from './dl.mjs';
-import { STATE_DIR } from './config.mjs';
+import { FIXTURE_PART_LINES, STATE_DIR } from './config.mjs';
+
+const TILES_PART = '.tiles.json';
+
+function fits(value) {
+  return JSON.stringify(value, null, 1).split('\n').length <= FIXTURE_PART_LINES;
+}
+
+/** Der Zustand ist modular: die Kachel-Delta wandert in eine eigene Datei. */
+function modules(name, packed, playerseed) {
+  const main = { version: SNAPSHOT_VERSION, seed: playerseed, state: packed };
+  if (fits(main)) return [{ file: `${name}.json`, value: main }];
+  const world = { ...packed.world };
+  delete world.tiles;
+  return [
+    { file: `${name}.json`, value: { ...main, state: { ...packed, world } } },
+    { file: `${name}${TILES_PART}`, value: { tiles: packed.world.tiles } },
+  ];
+}
+
+function readPart(file) {
+  const path = join(STATE_DIR, file);
+  return existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : null;
+}
 
 export function recordState(name, state, playerseed) {
   mkdirSync(STATE_DIR, { recursive: true });
-  const file = join(STATE_DIR, `${name}.json`);
-  writeFileSync(file, JSON.stringify({ version: SNAPSHOT_VERSION, seed: playerseed, state: packState(state) }, null, 1));
-  return file;
+  return modules(name, packState(state), playerseed)
+    .map((part) => {
+      const path = join(STATE_DIR, part.file);
+      writeFileSync(path, JSON.stringify(part.value, null, 1));
+      return path;
+    })
+    .join(', ');
 }
 
 export function readFixture(name) {
-  const file = join(STATE_DIR, `${name}.json`);
-  if (!existsSync(file)) {
+  const main = readPart(`${name}.json`);
+  if (!main) {
     throw new Error(`Zustand "${name}" fehlt in ${STATE_DIR} — erst DL_FROM=live laufen lassen`);
   }
-  return JSON.parse(readFileSync(file, 'utf8'));
+  const tiles = readPart(`${name}${TILES_PART}`);
+  if (!tiles) return main;
+  const state = { ...main.state, world: { ...main.state.world, tiles: tiles.tiles } };
+  return { ...main, state };
 }
 
 export function fixtureNames() {
   if (!existsSync(STATE_DIR)) return [];
   return readdirSync(STATE_DIR)
-    .filter((file) => file.endsWith('.json'))
+    .filter((file) => file.endsWith('.json') && !file.endsWith(TILES_PART))
     .map((file) => file.replace(/\.json$/, ''));
 }
 

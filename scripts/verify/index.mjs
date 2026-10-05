@@ -1,5 +1,6 @@
 /** Die Prüfgruppen des Slices an einer Kante: der Runner kennt nur diese Liste. */
 export { checkStart } from './check-start.mjs';
+export { checkEdgeMaskGroup } from './check-edge-mask.mjs';
 export { checkOnboarding, makeOnboardingRun } from './check-onboarding.mjs';
 export { checkMining } from './check-mining.mjs';
 export { checkRooting } from './check-rooting.mjs';

@@ -28,6 +28,11 @@ function SoilGradients() {
         <stop offset="0%" stopColor="var(--color-soil-700)" />
         <stop offset="100%" stopColor="var(--color-soil-950)" />
       </linearGradient>
+      <linearGradient id="dl-wallFace" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="var(--color-rock-400)" />
+        <stop offset="70%" stopColor="var(--color-rock-700)" />
+        <stop offset="100%" stopColor="var(--color-soil-950)" />
+      </linearGradient>
     </>
   );
 }

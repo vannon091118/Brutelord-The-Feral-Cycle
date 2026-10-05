@@ -1,0 +1,239 @@
+{
+ "tiles": {
+  "29,26": {
+   "id": "29,26",
+   "x": 29,
+   "y": 26,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "32,26": {
+   "id": "32,26",
+   "x": 32,
+   "y": 26,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "33,26": {
+   "id": "33,26",
+   "x": 33,
+   "y": 26,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "35,26": {
+   "id": "35,26",
+   "x": 35,
+   "y": 26,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "29,27": {
+   "id": "29,27",
+   "x": 29,
+   "y": 27,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "30,27": {
+   "id": "30,27",
+   "x": 30,
+   "y": 27,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "31,27": {
+   "id": "31,27",
+   "x": 31,
+   "y": 27,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "33,27": {
+   "id": "33,27",
+   "x": 33,
+   "y": 27,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "34,27": {
+   "id": "34,27",
+   "x": 34,
+   "y": 27,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "31,28": {
+   "id": "31,28",
+   "x": 31,
+   "y": 28,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "30,29": {
+   "id": "30,29",
+   "x": 30,
+   "y": 29,
+   "kind": "EARTH",
+   "terrain": "EARTH",
+   "visibility": "VISIBLE",
+   "usability": "UNUSABLE",
+   "earthHealth": "HEALTHY",
+   "floorOrigin": null,
+   "rooting": {
+    "phase": "DARK",
+    "progress": 0
+   }
+  },
+  "31,29": {
+   "id": "31,29",
+   "x": 31,
+   "y": 29,
+   "kind": "DUNGEON_FLOOR",
+   "visibility": "VISIBLE",
+   "usability": "USABLE",
+   "earthHealth": "DESTROYED",
+   "floorOrigin": "MINED",
+   "rooting": {
+    "phase": "CLAIMED",
+    "progress": 0
+   }
+  },
+  "32,29": {
+   "id": "32,29",
+   "x": 32,
+   "y": 29,
+   "kind": "DUNGEON_FLOOR",
+   "visibility": "VISIBLE",
+   "usability": "USABLE",
+   "earthHealth": "DESTROYED",
+   "floorOrigin": "MINED",
+   "rooting": {
+    "phase": "GROWING",
+    "progress": 0.9000000000000006
+   }
+  },
+  "31,30": {
+   "id": "31,30",
+   "x": 31,
+   "y": 30,
+   "kind": "DUNGEON_FLOOR",
+   "visibility": "VISIBLE",
+   "usability": "USABLE",
+   "earthHealth": "DESTROYED",
+   "floorOrigin": "MINED",
+   "rooting": {
+    "phase": "CLAIMED",
+    "progress": 0
+   }
+  },
+  "32,30": {
+   "id": "32,30",
+   "x": 32,
+   "y": 30,
+   "kind": "DUNGEON_FLOOR",
+   "visibility": "VISIBLE",
+   "usability": "USABLE",
+   "earthHealth": "DESTROYED",
+   "floorOrigin": "MINED",
+   "rooting": {
+    "phase": "CLAIMED",
+    "progress": 0
+   }
+  },
+  "32,33": {
+   "id": "32,33",
+   "x": 32,
+   "y": 33,
+   "kind": "DUNGEON_FLOOR",
+   "visibility": "VISIBLE",
+   "usability": "USABLE",
+   "earthHealth": "DESTROYED",
+   "floorOrigin": "MINED",
+   "rooting": {
+    "phase": "CLAIMED",
+    "progress": 0
+   }
+  }
+ }
+}

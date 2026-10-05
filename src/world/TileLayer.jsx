@@ -7,12 +7,13 @@ import { DepositLayer } from './deposits/DepositLayer.jsx';
 import { TILE_KIND } from '../domain/world/tile.js';
 import { ROOTING_PHASE } from '../domain/world/rooting.js';
 
-function EarthCell({ tile, view, tileSize, selectedTileId, highlightedTileId, onSelect }) {
+function EarthCell({ tile, view, tileSize, world, selectedTileId, highlightedTileId, onSelect }) {
   return (
     <EarthTile
       key={tile.id}
       tile={tile}
       size={tileSize}
+      world={world}
       highlighted={highlightedTileId === tile.id}
       selected={selectedTileId === tile.id}
       working={view.workingTileId === tile.id}
@@ -45,11 +46,11 @@ function floorTiles(view, tileSize) {
 function rootedTiles(view, tileSize) {
   return view.tiles
     .filter((tile) => tile.rooting.phase !== ROOTING_PHASE.DARK)
-    .map((tile) => <RootingVeil key={`root-${tile.id}`} tile={tile} size={tileSize} />);
+    .map((tile) => <RootingVeil key={`root-${tile.id}`} tile={tile} size={tileSize} world={view.world} />);
 }
 
 export function TileLayer({ view, tileSize, selectedTileId, highlightedTileId, onSelect, onPlace, onSelectBuilding }) {
-  const shared = { tileSize, selectedTileId, highlightedTileId, onSelect };
+  const shared = { tileSize, selectedTileId, highlightedTileId, onSelect, world: view.world };
   return (
     <>
       {earthTiles(view, shared)}
