@@ -1,7 +1,4 @@
-/**
- * App ist Komposition und jetzt auch das Konto-Tor: ohne Sitzung gibt es kein
- * Spiel, mit Sitzung startet der Seed die Welt.
- */
+// @doc: docs/daten/app/app.md#app
 import { useState } from 'react';
 import { useGameEngine } from '../state/use-game-engine.js';
 import { AccountGate } from '../ui/account/AccountGate.jsx';
@@ -21,7 +18,6 @@ function Playing({ session, onSignOut }) {
 
   return (
     <main className="dl-root relative flex h-full w-full flex-col overflow-hidden">
-      {/* Lichtstimmung der Kammer hinter der Welt */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{

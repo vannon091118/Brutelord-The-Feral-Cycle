@@ -1,5 +1,4 @@
-/** Der Startzustand des Slices und die eine Tür, auf der ein gespeicherter
- *  Spielstand zurück in den Reducer kommt. */
+// @doc: docs/daten/state/game-state.md#game-state
 import { countFloorTiles, createWorld } from '../domain/world/grid.js';
 import { createHive } from '../domain/entities/hive.js';
 import { createOnboarding } from '../domain/onboarding/onboarding-state.js';

@@ -1,8 +1,4 @@
-/**
- * Die Einladung: solange der Hive noch nichts geboren hat, lädt er sichtbar
- * zum Klick ein — ohne Pfeil, ohne Text. Auch sie pulst als Ring, aber rund:
- * nichts in dieser Welt markiert eine Kachel.
- */
+// @doc: docs/daten/hive/hiveinvitation.md#hiveinvitation
 function InvitationGlow({ cx, cy, tileSize }) {
   return (
     <circle

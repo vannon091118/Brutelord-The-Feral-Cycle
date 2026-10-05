@@ -33,7 +33,7 @@ function CrumbField({ crumbs, origin }) {
   ));
 }
 
-/** Erdkrümel springen kurz weg und verfallen — kein Konfetti-Feuerwerk. */
+// @doc: docs/daten/world/miningparticles.md#miningparticles
 export const MiningParticles = memo(function MiningParticles({ origin, tick, active }) {
   const crumbs = useMiningCrumbs({ tick, active });
   if (!origin) return null;

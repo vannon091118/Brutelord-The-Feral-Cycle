@@ -1,4 +1,4 @@
-/** Der Auftrag eines Dunglings: fünf Phasen, Wege und Zeiten. */
+// @doc: docs/daten/labour/jobs.md#jobs
 import { JOB_CONFIG } from './job-config.js';
 
 export const JOB_KIND = Object.freeze({

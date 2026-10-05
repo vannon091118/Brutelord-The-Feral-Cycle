@@ -18,7 +18,7 @@ function SelectionRing({ box, tileSize }) {
   );
 }
 
-/** Die Klickfläche liegt unsichtbar über der ganzen Grundfläche. */
+// @doc: docs/daten/buildings/buildingnode.md#buildingnode
 function HitArea({ id, box, onSelect }) {
   return (
     <rect
@@ -33,10 +33,6 @@ function HitArea({ id, box, onSelect }) {
   );
 }
 
-/**
- * Ein Bauwerk als Ganzes: Zeichnung, Auswahlring und Klickfläche über der
- * ganzen Grundfläche. Klicken wählt es aus — der Rest passiert im Reducer.
- */
 export const BuildingNode = memo(function BuildingNode({ building, tileSize, selected, onSelect }) {
   const def = buildingDef(building.type);
   const box = {

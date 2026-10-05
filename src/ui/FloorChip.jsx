@@ -1,8 +1,6 @@
 import { canDescend } from '../domain/world/floor.js';
 
-/** Die Etagenplakette: auf welcher Tiefe steht der Hive, und geht es noch tiefer.
- *  Ohne Tiefe gibt es keine Plakette — sie haengt an der Hinweiszeile, nicht an
- *  jeder Leiste, die schon eine Plakette traegt. */
+// @doc: docs/daten/ui/floorchip.md#floorchip
 export function FloorChip({ depth, onDescend }) {
   if (!Number.isInteger(depth)) return null;
   const open = canDescend(depth);

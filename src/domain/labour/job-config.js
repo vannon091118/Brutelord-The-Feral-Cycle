@@ -1,4 +1,4 @@
-/** Zeiten der Arbeit und der Essenz-Popups. */
+// @doc: docs/daten/labour/job-config.md#job-config
 export const JOB_CONFIG = Object.freeze({
   tickMs: 200,
 

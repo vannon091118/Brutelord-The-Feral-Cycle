@@ -1,4 +1,4 @@
-/** Eine Essenz-Kachel im Inventar: Die Seltenheit verrät sich, der Inhalt bleibt ???. */
+// @doc: docs/daten/stone/stonechip.md#stonechip
 import { STONE_DEFS } from '../../domain/brutelord/stone-config.js';
 
 const TONE = Object.freeze({

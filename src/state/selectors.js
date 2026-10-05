@@ -1,4 +1,4 @@
-/** Selektoren: Ableitungen aus dem Zustand. */
+// @doc: docs/daten/state/selectors.md#selectors
 import { MINING_PHASE, canMineTile } from '../domain/actions/mining.js';
 import { ONBOARDING_CONFIG } from '../domain/onboarding/onboarding-config.js';
 import { ONBOARDING_STATE, hasReached } from '../domain/onboarding/onboarding-state.js';

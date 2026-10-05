@@ -1,4 +1,4 @@
-/** Zustände und Übergänge des Onboardings. */
+// @doc: docs/daten/onboarding/onboarding-state.md#onboarding-state
 export const ONBOARDING_STATE = Object.freeze({
   INITIAL: 'INITIAL',
   HIVE_CLICKED: 'HIVE_CLICKED',

@@ -1,3 +1,4 @@
+// @doc: docs/daten/hive/hiveshell.md#hiveshell
 const NODES = [
   { cx: -40, cy: 4, rx: 9, ry: 8, tone: 'hive-600', opacity: 0.9 },
   { cx: 44, cy: -4, rx: 8, ry: 7.5, tone: 'hive-600', opacity: 0.85 },

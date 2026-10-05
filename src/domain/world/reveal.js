@@ -1,12 +1,8 @@
-/** Die Sonde des Hive: Sichtbarkeit folgt dem gewachsenen Raum. */
+// @doc: docs/daten/world/reveal.md#reveal
 import { REVEAL_GUARANTEED, REVEAL_RADIUS } from './world-config.js';
 import { TILE_VISIBILITY, isVisible, tileId } from './tile.js';
 import { applyTiles, getTile, isInsideGrid } from './grid.js';
 
-// Ein Wackel-Bit aus dem niedrigsten Hash-Bit taugt nichts: parity(x) XOR
-// parity(y) XOR parity(seed) ist linear, also kippt ein Seed alle Entscheidungen
-// oder keine — zwei Muster für jede Welt. Erst zwei Mix-Runden, dann Bits 8 bis
-// 15. Damit trägt jedes Seed-Bit jede Feldentscheidung einzeln.
 function wobbleAt(x, y, seed) {
   let h = Math.imul(x + 7919, 73856093) ^ Math.imul(y + 104729, 19349663) ^ Math.imul(seed + 1013904223, 2246822519);
   h = Math.imul(h ^ (h >>> 15), 2654435761);

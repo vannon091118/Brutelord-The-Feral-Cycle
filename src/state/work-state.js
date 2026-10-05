@@ -1,4 +1,4 @@
-/** Die Arbeitssicht des Zustands für Reducer und Uhr. */
+// @doc: docs/daten/state/work-state.md#work-state
 import { hasWork } from '../domain/labour/work-tick.js';
 import { spawnTile } from './selectors.js';
 

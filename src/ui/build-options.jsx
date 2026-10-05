@@ -1,4 +1,4 @@
-/** Die Bauoptionen als Daten: Reihenfolge und Formen. */
+// @doc: docs/daten/ui/build-options.md#build-options
 import { BUILDING_TYPE } from '../domain/buildings/building-config.js';
 
 export const BUILD_OPTIONS = [

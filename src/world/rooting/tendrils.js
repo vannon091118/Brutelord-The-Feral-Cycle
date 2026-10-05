@@ -1,4 +1,4 @@
-/** Deterministische Wurzeltentakel je Feld. */
+// @doc: docs/daten/rooting/tendrils.md#tendrils
 import { crackPath, makeRng, tileSeed } from '../tile-shapes.js';
 
 const ROOTS = [0, 1, 2, 3];

@@ -2,11 +2,7 @@ import { HINTS } from './hint-texts.js';
 import { PhaseTrail } from './PhaseTrail.jsx';
 import { ResourceChips } from './ResourceChips.jsx';
 
-/**
- * Die schmale Hinweiszeile unten. Sie erklärt den ersten Moment ohne Handbuch
- * und zeigt daneben, wie viel Essenz im Hive liegt, wie groß der Raum ist und
- * auf welcher Etage der Hive steht.
- */
+// @doc: docs/daten/ui/onboardinghint.md#onboardinghint
 export function OnboardingHint({ onboarding, usableTileCount, essence, depth, onDescend }) {
   const hint = HINTS[onboarding.state];
 

@@ -1,7 +1,4 @@
-/**
- * Kein Gesicht. Das Geschwur hat eine Narbe dort, wo ein Mund wäre, und ein
- * paar Poren, die atmen. Beim Arbeiten presst sich die Narbe zusammen.
- */
+// @doc: docs/daten/dungling/dunglingface.md#dunglingface
 function Seam({ working }) {
   return (
     <path
@@ -35,7 +32,6 @@ function BudCrown({ working }) {
   );
 }
 
-/** Narbe statt Mund, Poren statt Augen. */
 export function DunglingFace({ working }) {
   return (
     <>

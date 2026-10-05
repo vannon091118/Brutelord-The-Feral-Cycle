@@ -6,6 +6,8 @@ export const REQUIRED_LABEL =
   'created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.';
 export const MIRRORS = ['VERSION', 'version.lock.json', 'package.json', 'package-lock.json'];
 export const DOC_FILES = ['Docs/ROADMAP_OPEN.md', 'Docs/CHECKPOINTS.md'];
+// Kennzeichnet die Zeilen, die ein Generator schreibt und die kein Mensch liest.
+export const MACHINE_PREFIX = 'Geaendert wurden';
 
 const FORBIDDEN = [
   { id: 'co-authored-by', pattern: /^\s*co-authored-by\s*:/im },
@@ -59,12 +61,15 @@ function labelViolations(body) {
 }
 
 function wordViolations(body) {
-  const explanation = bodyLines(body).slice(0, -1).join(' ');
-  const words = wordCount(explanation);
+  // Gezählt wird die eigene Prosa, nicht das Pflicht-Label und die Generatorliste (GOVERNANCE).
+  const prose = bodyLines(body)
+    .filter((line) => line !== REQUIRED_LABEL && !line.startsWith(MACHINE_PREFIX))
+    .join(' ');
+  const words = wordCount(prose);
   if (words >= COMMIT_LIMITS.bodyMinWords && words <= COMMIT_LIMITS.bodyMaxWords) return [];
   return [{
     rule: `erklärender Body mit ${COMMIT_LIMITS.bodyMinWords}–${COMMIT_LIMITS.bodyMaxWords} Wörtern`,
-    detail: `${words} Wörter (ohne Pflicht-Label)`,
+    detail: `${words} Wörter (ohne Pflicht-Label und ohne die maschinelle Dateiliste)`,
   }];
 }
 
@@ -129,7 +134,7 @@ export function buildBumpMessage({ version, docs, code }) {
     '',
     `Der Doku-Sync hat die Dateien ${DOC_FILES.join(' und ')} geprueft, gestempelt und die erledigten Eintraege in die Checkpoints bewegt.`,
     '',
-    `Den Bump ausgeloest haben die Code-Dateien des Commits davor: ${code.join(', ')}.`,
+    `Geaendert wurden vom Bump die Code-Dateien des Commits davor: ${code.join(', ')}.`,
     '',
     REQUIRED_LABEL,
     '',

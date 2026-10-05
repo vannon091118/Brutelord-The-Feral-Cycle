@@ -1,4 +1,4 @@
-/** Abbau-Domäne: Befehl, Laufweg, Takt, Ernte, Abschluss. */
+// @doc: docs/daten/reducers/mining-reducer.md#mining-reducer
 import {
   MINING_PHASE,
   advanceMiningJob,

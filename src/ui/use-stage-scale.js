@@ -1,11 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { TILE_SIZE, computeWorldScale, viewportPixelSize } from '../domain/world/world-config.js';
 
-/**
- * Misst die verfügbare Spielfläche und liefert Skalierung und Sichtfeld.
- * Auf Desktop bleiben die Tiles 64px, auf schmalen Geräten schrumpft das
- * Sichtfeld proportional (Tiles landen bei etwa 48–56px). Keine Scrollbar.
- */
+// @doc: docs/daten/ui/use-stage-scale.md#use-stage-scale
 export function useStageScale(tileSize = TILE_SIZE) {
   const [node, setNode] = useState(null);
   const [available, setAvailable] = useState({ width: 0, height: 0 });

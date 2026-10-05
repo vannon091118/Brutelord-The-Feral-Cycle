@@ -1,4 +1,4 @@
-/** Kolonie-Domäne: Bau-Befehle des Spielers und der Arbeitstakt. */
+// @doc: docs/daten/reducers/colony-reducer.md#colony-reducer
 import { ACTION } from '../../domain/actions/action-types.js';
 import { BUILDING_STATE, BUILDING_TYPE, canAfford } from '../../domain/buildings/building-config.js';
 import {

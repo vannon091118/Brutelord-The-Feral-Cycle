@@ -1,4 +1,4 @@
-/** Labor-Domäne: Stein kaufen, Stein verbauen, Labor öffnen und schließen. */
+// @doc: docs/daten/reducers/lab-reducer.md#lab-reducer
 import { ACTION } from '../../domain/actions/action-types.js';
 import { STONE_CONFIG } from '../../domain/brutelord/stone-config.js';
 import { buyStone, canAffordStone, canOpenLab, nextSeed, placeStone } from '../../domain/brutelord/lab-state.js';

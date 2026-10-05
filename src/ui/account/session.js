@@ -1,5 +1,4 @@
-/** Die Sitzung: Name, PlayerID und Seed. Das ist Identität, kein Spielstand —
- *  der Hive-Fortschritt bleibt weiter beim Reload verloren. */
+// @doc: docs/daten/account/session.md#session
 export const SESSION_KEY = 'dl.session';
 const SEED = /^[0-9a-f]{16}$/;
 
@@ -7,8 +6,6 @@ function text(value) {
   return typeof value === 'string' ? value : '';
 }
 
-/** Der Seed entscheidet die Welt, also muss er der sein, den der Server
- *  vergeben hat — 16 Hex-Zeichen, sonst ist es fremder Zustand im Speicher. */
 function isSeed(value) {
   return typeof value === 'string' && SEED.test(value);
 }

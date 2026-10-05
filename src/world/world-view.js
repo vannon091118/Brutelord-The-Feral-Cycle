@@ -1,4 +1,4 @@
-/** Ableitung für die Darstellung: Ausschnitt, Schwarm, Popups, Bauten. */
+// @doc: docs/daten/world/world-view.md#world-view
 import { TILE_KIND, isVisible } from '../domain/world/tile.js';
 import { tileAt } from '../domain/world/grid.js';
 import { MINING_PHASE, canMineTile } from '../domain/actions/mining.js';
@@ -20,7 +20,6 @@ const ARRIVAL_STATES = [ONBOARDING_STATE.GRID_EXPANDED, ONBOARDING_STATE.TILE_DE
 
 const centerCache = new WeakMap();
 
-/** Ohne Array: der Bauplatz zaehlt wenige Kacheln, das Raster hat viertausend. */
 function builtCenterTile(world) {
   const cached = centerCache.get(world.tiles);
   if (cached) return cached;
@@ -62,7 +61,6 @@ function insideCamera(tile, camera, tileSize) {
   return x + tileSize > camera.x && x < camera.x + camera.width && y + tileSize > camera.y && y < camera.y + camera.height;
 }
 
-/** Der Ausschnitt wird koordinatenweise abgegangen, nicht das ganze Raster. */
 function tilesInView(world, camera, tileSize) {
   const seen = [];
   const from = (start) => Math.max(0, Math.floor(start / tileSize) - 1);
@@ -97,12 +95,10 @@ function popupViews(game, tileSize) {
   return game.popups.map((popup) => ({ id: popup.id, position: tilePositionPx(popup, tileSize) }));
 }
 
-/** Nur Kacheln mit Vorrat werden kopiert — sonst bliebe die Objektidentitaet. */
 function depositsOf(world, tiles) {
   return tiles.map((tile) => (tile.depositId ? { ...tile, deposit: world.deposits?.[tile.depositId] ?? null } : tile));
 }
 
-/** Die Frontier zaehlt nur, was der Ausschnitt zeigen kann. */
 function frontierOf(world, tiles) {
   const frontier = new Set();
   for (const tile of tiles) if (canMineTile(world, tile.id)) frontier.add(tile.id);

@@ -1,7 +1,7 @@
 import { soilBlob } from '../tile-shapes.js';
 import { buildingBox } from './building-geometry.js';
 
-/** Der Beutel: eine weiche Birne mit engem Hals, aus dem die Arbeiter kommen. */
+// @doc: docs/daten/buildings/swarmhostart.md#swarmhostart
 function podPath(size) {
   const r = size * 0.3;
   return [
@@ -12,7 +12,6 @@ function podPath(size) {
   ].join(' ');
 }
 
-/** Drei Brutknospen, die im Takt des Horts pulsieren. */
 function BroodBuds({ size }) {
   const r = size * 0.3;
   const buds = [
@@ -38,7 +37,6 @@ function BroodBuds({ size }) {
   );
 }
 
-/** Der Schwarmhort: ein pulsender Brutbeutel im Erdreich des Hive. */
 export function SwarmHostArt({ building, tileSize }) {
   const box = buildingBox(building, tileSize);
   const nest = soilBlob({

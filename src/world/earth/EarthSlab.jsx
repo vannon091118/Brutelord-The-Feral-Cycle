@@ -26,10 +26,7 @@ function EarthDetails({ lines, speckles }) {
   );
 }
 
-/**
- * Die Masse selbst: eine einzige Fläche, die über die Nachbarn hinausragt.
- * Kein Sockel, keine Kante — dadurch verschwindet das Raster.
- */
+// @doc: docs/daten/earth/earthslab.md#earthslab
 export function EarthSlab({ geometry }) {
   return (
     <>

@@ -1,8 +1,4 @@
-/**
- * Der Etagensprung: der Hive zieht in die naechste Tiefe, und die Welt dort ist
- * eine Funktion aus Seed und Tiefe. Ein Sprung ersetzt den Rasterzustand —
- * Dunglinge, Bauten und Essenz bleiben, das Gestein ist ein neues.
- */
+// @doc: docs/daten/reducers/floor-reducer.md#floor-reducer
 import { ACTION } from '../../domain/actions/action-types.js';
 import { createFloorWorld, isFloorTarget } from '../../domain/world/floor.js';
 import { countFloorTiles } from '../../domain/world/grid.js';

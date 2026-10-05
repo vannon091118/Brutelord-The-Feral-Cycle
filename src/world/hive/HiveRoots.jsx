@@ -1,7 +1,4 @@
-/**
- * Wurzeln und Steine am Fuß: verbinden den Hive mit der Erde und verankern ihn
- * sichtbar im Boden.
- */
+// @doc: docs/daten/hive/hiveroots.md#hiveroots
 export function HiveRoots() {
   return (
     <>

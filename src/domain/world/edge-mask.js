@@ -1,4 +1,4 @@
-/** Nachbarschafts-Byte: Form folgt Nachbarn, nie dem Rechteck. */
+// @doc: docs/daten/world/edge-mask.md#edge-mask
 import { TILE_KIND, TILE_VISIBILITY } from './tile.js';
 
 export const EDGE = Object.freeze({ N: 'N', E: 'E', S: 'S', W: 'W', NE: 'NE', SE: 'SE', SW: 'SW', NW: 'NW' });
@@ -23,7 +23,6 @@ function neighborTile(world, x, y) {
   return world.tiles[y * world.width + x] ?? null;
 }
 
-/** Erde schließt an Erde an; vor Freifläche und außerhalb bleibt sie Fläche. */
 export function edgeMask(world, x, y) {
   const open = {};
   for (const side of SIDES) {
@@ -42,7 +41,6 @@ export function edgeMask(world, x, y) {
   return mask;
 }
 
-/** Wo das Land unentdeckt bleibt: die Seiten, an denen die Kantenwand steht. */
 export function hiddenMask(world, x, y) {
   let mask = 0;
   for (const side of SIDES) {
@@ -57,7 +55,6 @@ export function maskHas(mask, side) {
   return (mask & EDGE_MASK_BITS[side]) !== 0;
 }
 
-/** Die vier Seiten als Flag-Objekt — die Formwerkzeuge lesen Wörter, kein Byte. */
 export function sideFlags(mask) {
   return {
     N: maskHas(mask, 'N'),
@@ -67,7 +64,6 @@ export function sideFlags(mask) {
   };
 }
 
-/** Eine offene Diagonale zwischen zwei geschlossenen Seiten schneidet ein. */
 export function notchFlags(mask, open) {
   const flags = {};
   for (const corner of CORNERS) {

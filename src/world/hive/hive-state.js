@@ -1,7 +1,4 @@
-/**
- * Was der Hive gerade tut — als reine Zuordnung von Domänenzustand zu
- * Darstellung. Keine Animation entscheidet hier etwas, sie zeigt nur.
- */
+// @doc: docs/daten/hive/hive-state.md#hive-state
 import { HIVE_PHASE } from '../../domain/entities/hive.js';
 import { ONBOARDING_STATE } from '../../domain/onboarding/onboarding-state.js';
 

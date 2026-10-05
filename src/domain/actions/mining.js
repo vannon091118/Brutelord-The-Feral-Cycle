@@ -1,4 +1,4 @@
-/** Abbau-Logik: wer darf, wie weit, welcher Erd-Zustand. */
+// @doc: docs/daten/actions/mining.md#mining
 import { ONBOARDING_CONFIG } from '../onboarding/onboarding-config.js';
 import {
   EARTH_HEALTH,
@@ -75,7 +75,6 @@ export function canMineTile(world, id) {
   return isMineableEarth(world, id) && touchesUsableSpace(world, id);
 }
 
-/** Der Abbau kostet — die einzige Stelle, die entscheidet, ob er bezahlt ist. */
 export function canAffordMining(world, id, essence) {
   return canMineTile(world, id) && canPayForMining(essence);
 }

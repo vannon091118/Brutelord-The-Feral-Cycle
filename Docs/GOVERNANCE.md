@@ -73,7 +73,8 @@ Jede Datei unter `src/` und `scripts/` — `.js`, `.jsx`, `.mjs` **und** `.css`:
 | Importzeilen pro Datei | 7 |
 | Parameter pro benannter Funktion | 3 |
 | LOC pro benannter Funktion | 30 |
-| Kommentarzeilen pro Datei | 5 |
+| Kommentarzeilen pro Datei, `src/` | 1 — nur der `@doc`-Pointer, siehe *Kommentar-Cap und Spiegel-Doku* |
+| Kommentarzeilen pro Datei, `scripts/` und `tools/` | 5 |
 
 Die Werte stehen als `HARD_CAPS` im Gate-Skript, die Tabelle hier ist die
 einzige abschriftliche Fassung — `AGENTS.md` verweist auf sie, statt sie zu
@@ -89,6 +90,49 @@ Wer mehr erklären will, schreibt es nach `ARCHITEKTUR.md`. Fünf Zeilen bedeute
 keine Zensur, sondern einen Indikator: Wer für drei Datenbauten fünfzehn
 Kommentarzeilen braucht, hat zu viel Logik in eine Datei gelegt.
 
+### Kommentar-Cap und Spiegel-Doku
+
+Der Kontext des Codes steht **nicht im Code**. Jede Datei unter `src/` trägt
+höchstens **eine** Kommentarzeile, und die ist ausschließlich ein Metadaten-
+Pointer auf die Spiegel-Doku:
+
+```js
+// @doc: docs/daten/<domain>/<name>.md#<name>
+```
+
+Fließtext, Inline-Erklärungen, `TODO` und Blockkommentare führen über
+`npm run gate -- --spiegel` zum CI-Abbruch. Die Spiegel-Datei unter
+`docs/daten/` ist die einzige Erklärstelle und selbst gedeckelt:
+
+| Cap | Wert |
+| --- | --- |
+| Kommentarzeilen pro src-Modul | 1 (nur der `@doc`-Pointer) |
+| Zeilen pro Spiegel-Doku | 80 — der SRP-Trigger |
+| Mindestinhalt pro Spiegel-Doku | 4 gefüllte Zeilen, höchstens 100 Zeichen je Zeile |
+| Code-LOC pro Modul | 300 (unverändert, siehe Tabelle oben) |
+
+**Der Architektur-Trigger:** Reichen 80 Zeilen nicht, um ein Modul zu
+erklären, ist nicht die Doku zu stauchen (`Anti-Squash`: das Gate misst die
+längste Zeile und verlangt Mindestinhalt — komprimierter Text fällt auf).
+Das Modul trägt mehr als eine Verantwortung und wird in kleinere
+Sub-Module gespalten, jede mit eigener Spiegel-Doku. **Terminierung:** Der
+Gate ist ein Zustandsprüfer, kein Generator — eine Spaltung erzeugt n neue
+Dateien mit n Docs von je höchstens 80 Zeilen; jede weitere Spaltung
+verkleinert den übertretenden Umfang strikt, also endet der Prozess.
+
+**Migration bestehender Kommentare** ist mechanisch
+(`node tools/spiegel-migrate.mjs`): Kommentare wandern wortgetreu in die
+Spiegel-Datei, der Code behält den Pointer. Kommentare sind zur Laufzeit
+inert — die Abnahme (`npm run verify`) beweist, dass kein Verhalten kippt.
+
+**Drift-Regel:** Wird eine src-Datei im Änderungsbereich berührt, wandert
+ihre Spiegel-Datei im selben Bereich mit — das Gate vergleicht die Pfade
+des Diffs (`--base=<ref>`), fail-closed. Der Vergleich liest `git diff`
+und sieht ungetrackte Dateien nicht: frisch erzeugte Spiegel-Dokumente
+fallen lokal erst nach `git add` unter, in der CI ohnehin nie, weil dort
+alles committed ist. Wer vor dem Commit `git add docs/daten src` vergisst,
+sieht 160 Fehlalarme statt eines echten Befunds.
+
 ### Commit-Policy
 
 Hart, per Gate erzwungen, geprüft von `scripts/lib/commit-rules.mjs` und
@@ -97,7 +141,12 @@ VANNON-Satz steht hier und sonst nirgends im Repository, damit ihn niemand
 umbenennen kann, ohne dass eine zweite Wahrheit zurückbleibt.
 
 - Betreff **maximal 72 Zeichen**.
-- Body **100 bis 1000 Wörter**, ohne das Label.
+- Body **100 bis 1000 Wörter**, gezählt wird die **eigene** Prosa: das
+  Pflicht-Label und die maschinelle Dateiliste (`Geaendert wurden …`) zählen
+  nicht mit. Sonst wäre die Obergrenze eine Funktion der Commit-Größe — eine
+  Migration über 320 Dateien käme allein an ihren Pfaden über die 1000 Wörter
+  und könnte gar nicht mehr erfüllt werden. Die Mindestlänge gilt neben einer
+  langen Liste unverändert weiter, das prüft `verify-commit-gate.mjs`.
 - **Jede geänderte Datei muss namentlich im Body vorkommen** — vollständiger
   Pfad, nicht der Ordnername. `src/x.js` zählt, `src/` nicht.
 - Letzte nichtleere Body-Zeile, **exakt einmal**:

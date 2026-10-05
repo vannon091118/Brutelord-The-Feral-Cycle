@@ -1,4 +1,4 @@
-/** Geometrie eines Bodenfelds. */
+// @doc: docs/daten/floor/floor-geometry.md#floor-geometry
 import { FLOOR_ORIGIN } from '../../domain/world/tile.js';
 import { soilBlob, soilSpeckles, tileSeed } from '../tile-shapes.js';
 import { stoneMarks } from './substrate.js';

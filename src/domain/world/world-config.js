@@ -1,4 +1,4 @@
-/** Welt-Konstanten: Raster, Hive, Sichtfeld, Skalierung. */
+// @doc: docs/daten/world/world-config.md#world-config
 export const TILE_SIZE = 64;
 
 export const GRID_WIDTH = 64;
@@ -8,7 +8,6 @@ export const HIVE_ORIGIN = Object.freeze({ x: 31, y: 31 });
 export const HIVE_SIZE = Object.freeze({ width: 2, height: 2 });
 
 export const REVEAL_RADIUS = 2;
-/** Der Kern um eine Sonde bleibt immer frei, alles davor wackelt pro Seed. */
 export const REVEAL_GUARANTEED = 1;
 
 const VIEW_TILES = 13;
@@ -22,7 +21,6 @@ export const DEPTH_RADIUS_TILES = 14;
 const MIN_WORLD_SCALE = 0.4;
 const MAX_WORLD_SCALE = 1;
 
-/** Die Welt ohne Konto: der Start, den npm run verify und der Offline-Bau bekommen. */
 export const WORLD_SEED = Object.freeze({
   anonymous: 0xc0ffee,
   hexLength: 8,

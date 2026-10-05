@@ -4,7 +4,7 @@ import { SwarmHostArt } from './SwarmHostArt.jsx';
 import { ExtractorArt } from './ExtractorArt.jsx';
 import { BruteLordArt } from './BruteLordArt.jsx';
 
-/** Ein Bauwerk zeichnet sich nach Typ: der Bauplatz zeigt nur seinen Umriss. */
+// @doc: docs/daten/buildings/buildingart.md#buildingart
 export function BuildingArt({ building, tileSize }) {
   const props = { building, tileSize };
   if (building.state === BUILDING_STATE.SITE) return <BuildSiteArt {...props} />;

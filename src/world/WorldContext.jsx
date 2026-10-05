@@ -16,7 +16,7 @@ function RockField({ rocks }) {
   ));
 }
 
-/** Unerforschte Masse: dunkel, körnig, ohne Kanten. */
+// @doc: docs/daten/world/worldcontext.md#worldcontext
 function UnchartedRock({ camera }) {
   return (
     <>
@@ -40,7 +40,6 @@ function BackgroundHitArea({ camera, onClick }) {
   );
 }
 
-/** Die unbearbeitete Erde, Kulisse und Auswahl-Hintergrund. */
 export function WorldContext({ view, onBackgroundClick }) {
   return (
     <>
@@ -51,7 +50,6 @@ export function WorldContext({ view, onBackgroundClick }) {
   );
 }
 
-/** Der Rand des Bildes: die Höhle verliert sich, das Sichtfeld ist begrenzt. */
 export function WorldVignette({ camera }) {
   return (
     <rect

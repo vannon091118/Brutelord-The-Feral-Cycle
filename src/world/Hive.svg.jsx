@@ -6,10 +6,7 @@ import { HiveCore } from './hive/HiveCore.jsx';
 import { HiveDoor } from './hive/HiveDoor.jsx';
 import { HiveBirthMarks, HiveMutationFx } from './hive/HiveFx.jsx';
 
-/**
- * Der Hive: 2x2 Tiles, organisch, massiv, das Herz der Szene. Gezeichnet in
- * einem Nominalsystem von 2x2 Tiles, das auf die echte Tile-Größe skaliert.
- */
+// @doc: docs/daten/world/hive.svg.md#hive-svg
 export const HiveSvg = memo(function HiveSvg({ hive, tileSize, onboardingState, spawned }) {
   const unit = tileSize / 64;
   const px = hive.origin.x * tileSize + tileSize;

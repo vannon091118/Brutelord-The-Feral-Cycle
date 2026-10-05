@@ -1,4 +1,4 @@
-/** Mutation: Steine in einen Dungling verbauen und ihn zurückentwickeln. */
+// @doc: docs/daten/reducers/mutant-reducer.md#mutant-reducer
 import { ACTION } from '../../domain/actions/action-types.js';
 import { fusionStones, fuse, isMutant, nextCandidate, refundFor, asBase } from '../../domain/brutelord/mutant.js';
 
@@ -8,7 +8,6 @@ export function reduceMutant(state, action) {
   return state;
 }
 
-/** Erschaffen braucht das offene Labor, einen Kandidaten und einen Stein im Slot. */
 function created(state) {
   if (!state.lab.open) return state;
   const stones = fusionStones(state.lab);
@@ -23,7 +22,6 @@ function created(state) {
   };
 }
 
-/** Zurückentwickeln geht jederzeit, auch mitten im Auftrag — er läuft weiter. */
 function reverted(state, workerId) {
   const worker = state.dunglings.find((entry) => entry.id === workerId);
   if (!worker || !isMutant(worker)) return state;

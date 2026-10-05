@@ -1,3 +1,4 @@
+// @doc: docs/daten/hive/hivedoor.md#hivedoor
 function DoorArch() {
   return (
     <>

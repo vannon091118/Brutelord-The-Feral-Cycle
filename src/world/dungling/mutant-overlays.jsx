@@ -1,8 +1,4 @@
-/**
- * Die Stein-Overlays: eine Form je Slot, aus dem Seed gewaehlt. Welche Formen
- * es gibt, entscheidet die Formel in `mutation-formula.js` — diese Datei
- * zeichnet sie nur, und eine unbekannte Form bleibt einfach leer.
- */
+// @doc: docs/daten/dungling/mutant-overlays.md#mutant-overlays
 import { STONE_DEFS, STONE_RARITY, STONE_SLOT } from '../../domain/brutelord/stone-config.js';
 import { partFor } from './mutant-plan.js';
 

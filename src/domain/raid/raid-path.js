@@ -1,4 +1,4 @@
-/** Die Pfadfindung: der günstigste Weg im Ausdauerbudget, nicht der kürzeste. */
+// @doc: docs/daten/raid/raid-path.md#raid-path
 import { tileAt, neighborIds } from '../world/grid.js';
 import { TILE_KIND, isBuildable, terrainOf, parseTileId, tileId } from '../world/tile.js';
 import { canDig, digCost } from './raid-config.js';
@@ -9,7 +9,6 @@ function touchesTrail(state, world, id) {
   return neighborIds(world, id).some((next) => state.dug[next] === true);
 }
 
-/** Gegrabener Boden ist gratis, ungegrabener kostet — am eigenen Tunnel das Doppelte. */
 export function cellCost(state, world, id) {
   if (state.dug[id] === true) return 0;
   const { x, y } = parseTileId(id);
@@ -32,7 +31,6 @@ function tracePath(came, id) {
   return path.slice(1);
 }
 
-/** Dijkstra über Ausdauer: ein Weg, der das Budget überschreitet, wird nicht ausgegeben. */
 export function planPath(state, world, goal) {
   const target = tileId(goal.x, goal.y);
   const start = tileId(state.at.x, state.at.y);
@@ -56,7 +54,6 @@ export function planPath(state, world, goal) {
   return null;
 }
 
-/** Die Frontlinie: grabbare Felder am Rand des bereits gelaufenen Bereichs. */
 export function frontierOf(state, world) {
   const known = [tileId(state.at.x, state.at.y), ...Object.keys(state.dug)];
   const frontier = [];

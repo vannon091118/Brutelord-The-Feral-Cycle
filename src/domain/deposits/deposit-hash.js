@@ -1,4 +1,4 @@
-/** Eigener Hash und Zufallsstrom — die Domäne zieht nichts aus src/world/. */
+// @doc: docs/daten/deposits/deposit-hash.md#deposit-hash
 const MIX_X = 73856093;
 const MIX_Y = 19349663;
 const SALT_X = 1013904223;
@@ -8,7 +8,6 @@ const SALT_SEED = 3266489917;
 const MIX_SALT = 2654435761;
 const RANGE = 4294967296;
 
-/** Der Spielerseed kommt als dritter Wert dazu: ohne ihn hat jeder dieselbe Welt. */
 export function blockHash(x, y, seed) {
   return (Math.imul(x + SALT_X, MIX_X) ^ Math.imul(y + SALT_Y, MIX_Y) ^ Math.imul(seed + SALT_SEED, MIX_SEED)) >>> 0;
 }

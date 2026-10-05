@@ -1,7 +1,4 @@
-/**
- * Die Reihenfolge der Fach-Reducer als zwei Ketten, weil acht Imports das Cap
- * sprengen. Zusammengefuegt wird in `game-reducer.js`, dort steht die Reihenfolge.
- */
+// @doc: docs/daten/state/reducer-chain.md#reducer-chain
 import { reduceHive } from './reducers/hive-reducer.js';
 import { reduceDungling } from './reducers/dungling-reducer.js';
 import { reduceSelection } from './reducers/selection-reducer.js';

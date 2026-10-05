@@ -1,4 +1,4 @@
-/** Die Aktionen, die der zentrale Reducer versteht. */
+// @doc: docs/daten/actions/action-types.md#action-types
 export const ACTION = Object.freeze({
   HIVE_CLICKED: 'HIVE_CLICKED',
   TILE_SELECTED: 'TILE_SELECTED',

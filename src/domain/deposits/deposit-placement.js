@@ -1,4 +1,4 @@
-/** Die Platzierung: Blöcke, Isolation, Sperrzonen, Kapazität. */
+// @doc: docs/daten/deposits/deposit-placement.md#deposit-placement
 import { DEPOSIT_CONFIG, DEPOSIT_PHASE, hiveDistance } from './deposit-config.js';
 import { blockHash, keepBlock, pick } from './deposit-hash.js';
 import { GRID_HEIGHT, GRID_WIDTH, HIVE_ORIGIN, HIVE_SIZE, LADDER_TILE } from '../world/world-config.js';

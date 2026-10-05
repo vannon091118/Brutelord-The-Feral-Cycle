@@ -1,7 +1,4 @@
-/**
- * Das Labor des Brutlords: Inventar, belegte Slots und der Pity-Zähler.
- * Steine werden über ihren Seed identifiziert, nicht über ihre Position.
- */
+// @doc: docs/daten/brutelord/lab-state.md#lab-state
 import { BUILDING_TYPE } from '../buildings/building-config.js';
 import { STONE_CONFIG, SLOT_ORDER } from './stone-config.js';
 import { createStone, withSlot } from './stone-roll.js';
@@ -28,7 +25,6 @@ export function canOpenLab(buildings, selectedBuildingId) {
   );
 }
 
-/** Der Kauf erzeugt den Seed und schreibt den Stein sofort fest. */
 export function buyStone(lab, seed) {
   if (labIsFull(lab)) return lab;
   const stone = createStone({ seed, pityMisses: lab.pityMisses });

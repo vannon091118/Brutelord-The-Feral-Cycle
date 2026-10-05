@@ -6,10 +6,7 @@ import { useStageScale } from './use-stage-scale.js';
 import { TileActionMenu } from './TileActionMenu.jsx';
 import { menuPositionFor } from './menu-position.js';
 
-/**
- * Die Bühne: Sichtfeld plus Kontextmenü. Sie misst die verfügbare Fläche und
- * legt das Menü im DOM über die passende Stelle der skalierten Welt.
- */
+// @doc: docs/daten/ui/gamestage.md#gamestage
 export function GameStage({ game, actions }) {
   const { attach, scale, stage } = useStageScale(TILE_SIZE);
   const menuOpen =

@@ -1,4 +1,4 @@
-/** Der Arbeitstisch: der mutierte Dungling in der Mitte, vier Slots drumherum. */
+// @doc: docs/daten/stone/labbench.md#labbench
 import { useCallback } from 'react';
 import { SLOT_ORDER, STONE_DEFS, STONE_SLOT } from '../../domain/brutelord/stone-config.js';
 import { MutantSvg } from '../../world/dungling/MutantSvg.jsx';

@@ -1,4 +1,4 @@
-/** Ausbau: zerstörter Block wird Raum, dann erscheint das Baumenü. */
+// @doc: docs/daten/reducers/expansion-reducer.md#expansion-reducer
 import { countFloorTiles, getTile } from '../../domain/world/grid.js';
 import { revealAround } from '../../domain/world/reveal.js';
 import { startRooting } from '../../domain/world/rooting-world.js';

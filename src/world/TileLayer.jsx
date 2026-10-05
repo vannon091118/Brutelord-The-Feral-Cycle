@@ -1,4 +1,4 @@
-/** Das Feld in vier Durchgängen: Erde, Boden, Wurzeln, Vorräte, Bauten. */
+// @doc: docs/daten/world/tilelayer.md#tilelayer
 import { EarthTile } from './EarthTile.jsx';
 import { DungeonFloorTile } from './DungeonFloorTile.jsx';
 import { RootingVeil } from './rooting/RootingVeil.jsx';

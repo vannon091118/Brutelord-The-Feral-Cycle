@@ -1,8 +1,4 @@
-/**
- * Die Wirkung der Steine hängt an der Einheit, nicht am Labor: ein Mutant trägt
- * seine eigenen Aufträge und seine Tragekraft, und er strahlt auf die anderen.
- * Ohne Stein ist ein Dungling neutral.
- */
+// @doc: docs/daten/brutelord/stone-effects.md#stone-effects
 import { STONE_TRAIT_DEFS } from './stone-config.js';
 import { unitStones } from './mutant.js';
 import { jobTrip } from '../labour/jobs.js';

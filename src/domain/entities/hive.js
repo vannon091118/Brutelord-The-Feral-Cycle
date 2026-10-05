@@ -1,7 +1,4 @@
-/**
- * Der Hive: 2x2 Tiles, Herz der Szene, Quelle der Dunglinge.
- * Reine Daten + Übergänge, keine Darstellung.
- */
+// @doc: docs/daten/entities/hive.md#hive
 import { HIVE_ORIGIN, HIVE_SIZE } from '../world/world-config.js';
 
 export const HIVE_PHASE = Object.freeze({
@@ -30,7 +27,6 @@ export function startMutation(hive) {
   return canMutate(hive) ? { ...hive, phase: HIVE_PHASE.MUTATING } : hive;
 }
 
-// [FUTURE] SETTLED ist der Endzustand, den Speichern und die Leiter brauchen.
 export function settleHive(hive) {
   return { ...hive, phase: HIVE_PHASE.SETTLED };
 }

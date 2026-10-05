@@ -50,6 +50,11 @@ jobs:
           fi
           npm run gate -- --tree
           npm run gate -- --docs
+          if [ -n "$BASE" ]; then
+            npm run gate -- --spiegel --base="$BASE"
+          else
+            npm run gate -- --spiegel
+          fi
 
       - name: Commit-Regeln im Änderungsbereich
         env:

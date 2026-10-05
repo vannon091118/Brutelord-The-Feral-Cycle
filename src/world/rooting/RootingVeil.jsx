@@ -1,4 +1,4 @@
-/** Die Hülle der Verwurzelung über einem Feld. */
+// @doc: docs/daten/rooting/rootingveil.md#rootingveil
 import { memo } from 'react';
 import { TILE_KIND } from '../../domain/world/tile.js';
 import { rootingCoverage } from '../../domain/world/rooting.js';

@@ -1,10 +1,7 @@
 import { hasReached } from '../domain/onboarding/onboarding-state.js';
 import { PHASES } from './hint-texts.js';
 
-/**
- * Die vier Phasen des Slice als kleine Marken: Hive, Dungling, Erde, Bauen.
- * Sie zeigen, wo im ersten Moment man gerade steht.
- */
+// @doc: docs/daten/ui/phasetrail.md#phasetrail
 export function PhaseTrail({ onboarding }) {
   return (
     <div className="flex shrink-0 items-center gap-1.5">

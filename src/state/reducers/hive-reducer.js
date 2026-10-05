@@ -1,7 +1,4 @@
-/**
- * Hive-Domäne: Klick, Mutation, Ruhe. Ein Befehl ändert hier genau eine Sache —
- * es gibt keine Event-Kette, die weitere Befehle auslöst.
- */
+// @doc: docs/daten/reducers/hive-reducer.md#hive-reducer
 import { HIVE_PHASE, canMutate, settleHive, startMutation } from '../../domain/entities/hive.js';
 import { hiveRemainderMs, hiveYieldFor } from '../../domain/economy/essence-economy.js';
 import { ONBOARDING_STATE, enterOnboarding } from '../../domain/onboarding/onboarding-state.js';
@@ -48,7 +45,6 @@ function settled(state) {
   };
 }
 
-// Der Fortschritt wächst auch ohne Ertrag, sonst käme die Uhr nie an ihre Schwelle.
 function pressed(state, dtMs) {
   const elapsed = state.hive.progressMs + Math.max(0, dtMs);
   const gained = hiveYieldFor(state.hive, elapsed);

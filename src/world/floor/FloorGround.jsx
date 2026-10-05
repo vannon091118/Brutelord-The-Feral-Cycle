@@ -24,10 +24,7 @@ function FloorLight({ geometry }) {
   );
 }
 
-/**
- * Der freigelegte Boden. Eine einzige Fläche aus hellem Stein, die über die
- * Nachbarn hinausragt — der Raum wächst als Höhle, nicht als Raster.
- */
+// @doc: docs/daten/floor/floorground.md#floorground
 export function FloorGround({ geometry }) {
   return (
     <>

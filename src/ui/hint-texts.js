@@ -1,7 +1,4 @@
-/**
- * Die Hinweiszeile als Daten: pro Onboarding-Zustand ein Satz plus Erklärung,
- * dazu die vier Phasen des Slice. Texte sind Darstellung, nicht Spielzustand.
- */
+// @doc: docs/daten/ui/hint-texts.md#hint-texts
 import { ONBOARDING_STATE } from '../domain/onboarding/onboarding-state.js';
 
 export const HINTS = {

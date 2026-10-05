@@ -1,4 +1,4 @@
-/** Untergrund abgebauter Felder: heller Stein. */
+// @doc: docs/daten/floor/substrate.md#substrate
 import { crackPath, makeRng, soilSpeckles } from '../tile-shapes.js';
 
 const STYLE = Object.freeze({

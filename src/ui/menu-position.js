@@ -1,8 +1,4 @@
-/**
- * Bildschirmposition eines Tiles innerhalb der Bühne. Die Welt ist skaliert
- * und Ausschnitt, Menüs sind DOM und bleiben in echter Größe — deshalb wird
- * hier der Versatz des Kamerafensters herausgerechnet.
- */
+// @doc: docs/daten/ui/menu-position.md#menu-position
 import { parseTileId } from '../domain/world/tile.js';
 
 export function menuPositionFor({ tileId, camera, scale, tileSize }) {

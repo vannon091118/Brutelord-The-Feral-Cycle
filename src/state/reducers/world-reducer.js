@@ -1,7 +1,4 @@
-/**
- * Die Welt-Kette: Abbau, Ausbau, Verwurzelung. Drei Themen, eine Verteidigung —
- * so bleibt der zentrale Reducer unter dem Import-Cap.
- */
+// @doc: docs/daten/reducers/world-reducer.md#world-reducer
 import { reduceMining } from './mining-reducer.js';
 import { reduceExpansion } from './expansion-reducer.js';
 import { reduceRooting } from './rooting-reducer.js';

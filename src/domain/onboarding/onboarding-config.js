@@ -1,4 +1,4 @@
-/** Zeiten und Tuning-Werte des Onboardings. */
+// @doc: docs/daten/onboarding/onboarding-config.md#onboarding-config
 export const ONBOARDING_CONFIG = Object.freeze({
   hiveHitDurationMs: 320,
 

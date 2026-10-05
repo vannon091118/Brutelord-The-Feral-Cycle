@@ -6,11 +6,7 @@ import { DunglingFace } from './dungling/DunglingFace.jsx';
 import { DunglingTool } from './dungling/DunglingTool.jsx';
 import { makeRng } from './tile-shapes.js';
 
-/**
- * Der Dungling: ein kleines Geschwur, das der Hive treibt. Weich, lappig und
- * fleischig — es arbeitet mit Wurzeln, nicht mit Werkzeug. Gezeichnet in einem
- * Nominalsystem um (0,0), das auf die Tile-Größe skaliert wird.
- */
+// @doc: docs/daten/world/dungling.svg.md#dungling-svg
 function budLobes(dungling) {
   const rng = makeRng(0x2f19 + dungling.tile.x * 31 + dungling.tile.y * 17);
   return Array.from({ length: 4 }, (_, index) => ({

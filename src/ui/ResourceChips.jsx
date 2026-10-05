@@ -1,6 +1,6 @@
 import { FloorChip } from './FloorChip.jsx';
 
-/** Die drei Werteplaketten des HUD: Essenz im Hive, Raum und Etage. */
+// @doc: docs/daten/ui/resourcechips.md#resourcechips
 export function ResourceChips({ essence, count, countLabel, depth, onDescend }) {
   return (
     <div className="flex shrink-0 items-center gap-2">

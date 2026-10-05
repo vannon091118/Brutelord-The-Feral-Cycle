@@ -1,4 +1,4 @@
-/** Das Raster: ein Tile pro Koordinate, Sichtbarkeit folgt der Sonde. */
+// @doc: docs/daten/world/grid.md#grid
 import {
   GRID_HEIGHT,
   GRID_WIDTH,
@@ -97,7 +97,6 @@ function withDeposits(world, spawnTile) {
   return { ...world, deposits, tiles };
 }
 
-/** Die eine Stelle, die aus einer Kachel-Id einen Platz im Raster macht. */
 function cellIndex(world, id) {
   const { x, y } = parseTileId(id);
   return y * world.width + x;
@@ -107,7 +106,6 @@ export function getTile(world, id) {
   return world.tiles[cellIndex(world, id)] ?? null;
 }
 
-/** Dieselbe Kachel über Koordinaten — ohne Id und ohne Zwischendeklaration. */
 export function tileAt(world, x, y) {
   if (!isInsideGrid(world, x, y)) return null;
   return world.tiles[y * world.width + x] ?? null;
@@ -125,7 +123,6 @@ export function replaceTile(world, nextTile) {
   return applyTiles(world, { [nextTile.id]: nextTile });
 }
 
-/** Mehrere Kacheln in einem Zug: eine Kopie des Rasters statt einer je Kachel. */
 export function applyTiles(world, updates) {
   const ids = Object.keys(updates);
   if (ids.length === 0) return world;

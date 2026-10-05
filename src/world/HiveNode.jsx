@@ -1,4 +1,4 @@
-/** Der Hive als Ganzes: Mulde, Zeichnung, Einladung, Klickfläche. */
+// @doc: docs/daten/world/hivenode.md#hivenode
 import { memo } from 'react';
 import { canMutate } from '../domain/entities/hive.js';
 import { soilBlob } from './tile-shapes.js';

@@ -1,4 +1,4 @@
-/** Nutzbarer Boden: Masse, Untergrund, Spuren, Lichtschein. */
+// @doc: docs/daten/world/dungeonfloortile.md#dungeonfloortile
 import { memo } from 'react';
 import { floorGeometry } from './floor/floor-geometry.js';
 import { FloorGround } from './floor/FloorGround.jsx';

@@ -1,4 +1,4 @@
-/** Der Dungling: Zustand, Auftrag, Tile, Position und seine Fusionssteine. */
+// @doc: docs/daten/entities/dungling.md#dungling
 import { TILE_SIZE } from '../world/world-config.js';
 import { jobTrip } from '../labour/jobs.js';
 

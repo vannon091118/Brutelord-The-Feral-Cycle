@@ -1,4 +1,4 @@
-/** Geometrie eines Erdblocks: Umriss, Körner, Risse — die Form folgt Nachbarn. */
+// @doc: docs/daten/earth/earth-geometry.md#earth-geometry
 import { EARTH_HEALTH } from '../../domain/world/tile.js';
 import { edgeMask, hiddenMask, notchFlags, sideFlags } from '../../domain/world/edge-mask.js';
 import { chipBlob, crackPath, soilMaskBlob, soilSpeckles, tileSeed, wallBand } from '../tile-shapes.js';
@@ -47,7 +47,6 @@ function damageOf({ x, y, size, seed, health }) {
   };
 }
 
-/** Geometrie haengt an Koordinate, Groesse, Zustand und Nachbarschaft. */
 const CACHE_LIMIT = 512;
 const geometryCache = new Map();
 

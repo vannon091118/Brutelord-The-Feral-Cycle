@@ -3,11 +3,7 @@ import { ACTION } from '../domain/actions/action-types.js';
 import { JOB_CONFIG } from '../domain/labour/job-config.js';
 import { workIsIdle } from './work-state.js';
 
-/**
- * Die Arbeitsuhr: Aufträge laufen weiter, egal was der Spieler tut. Solange
- * niemand trägt, kein Bauplatz offen ist und kein Schwarmhort brütet, schweigt
- * sie — wie die Wurzeluhr liest sie nur den Zustand, sie besitzt keinen.
- */
+// @doc: docs/daten/state/use-work-runner.md#use-work-runner
 export function useWorkRunner({ latest, dispatch }) {
   useEffect(() => {
     const clock = setInterval(() => {

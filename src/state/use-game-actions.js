@@ -1,7 +1,4 @@
-/**
- * Die Befehle des Spielers. Die UI ruft sie auf — was daraus entsteht,
- * entscheidet der Reducer.
- */
+// @doc: docs/daten/state/use-game-actions.md#use-game-actions
 import { useMemo } from 'react';
 import { ACTION } from '../domain/actions/action-types.js';
 

@@ -1,4 +1,4 @@
-/** Verwurzelung auf Weltebene: wachsen, ruhen, nur abgebauten Boden beanspruchen. */
+// @doc: docs/daten/world/rooting-world.md#rooting-world
 import { applyTiles, getTile, neighborIds, replaceTile } from './grid.js';
 import { TILE_KIND } from './tile.js';
 import { ROOTING_PHASE, advanceRooting, beginRooting, createRooting, isRootingBusy } from './rooting.js';

@@ -1,11 +1,10 @@
-/** Eco-Stakes-Raid: Regeln und Zahlen, jede aus einer Config abgeleitet. */
+// @doc: docs/daten/raid/raid-config.md#raid-config
 import { MAX_DUNGLINGS } from '../buildings/building-config.js';
 import { GRID_WIDTH, GRID_HEIGHT, HIVE_ORIGIN } from '../world/world-config.js';
 import { TILE_TERRAIN } from '../world/tile.js';
 import { STAT_KEYS } from '../brutelord/stone-roll.js';
 import { SLOT_ORDER, STONE_DEFS, STONE_TRAIT, STONE_TRAIT_DEFS } from '../brutelord/stone-config.js';
 
-/** Fassung des Replay-Formats: gehört in den State-Hash (D38). */
 export const RAID_FORMAT_VERSION = 2;
 
 export const RAID_PHASE = Object.freeze({
@@ -15,7 +14,6 @@ export const RAID_PHASE = Object.freeze({
   RESOLVED: 'RESOLVED',
 });
 
-/** Der Einmarsch gräbt orthogonal; die ferne Ecke ist (63,63), nicht (0,0). */
 const MAX_APPROACH = Math.max(HIVE_ORIGIN.x, GRID_WIDTH - 1 - HIVE_ORIGIN.x)
   + Math.max(HIVE_ORIGIN.y, GRID_HEIGHT - 1 - HIVE_ORIGIN.y);
 
@@ -63,13 +61,11 @@ export function digCost(terrainClass, config = RAID_CONFIG) {
   return config.earthCost;
 }
 
-/** Erde ist offen. Hartgestein ist eine Berechtigung, keine Aufpreisstufe. */
 export function canDig(terrain, heroes) {
   if (terrain === TILE_TERRAIN.EARTH) return true;
   return heroes.some((held) => held.dig === true);
 }
 
-/** Fail closed: ohne die Berechtigung kostet der Weg nichts, weil er nicht geht — null. */
 export function pathCost({ terrains, heroes, config = RAID_CONFIG } = {}) {
   let sum = 0;
   for (const terrain of terrains) {

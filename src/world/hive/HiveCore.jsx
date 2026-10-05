@@ -1,7 +1,4 @@
-/**
- * Der Kern: das organische Zentrum des Hive. Er bleibt ruhig atmend, bis der
- * Spieler ihn weckt — dann öffnet er sich sichtbar.
- */
+// @doc: docs/daten/hive/hivecore.md#hivecore
 export function HiveCore({ mutating }) {
   return (
     <>

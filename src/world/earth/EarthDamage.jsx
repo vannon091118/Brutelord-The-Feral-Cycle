@@ -1,3 +1,4 @@
+// @doc: docs/daten/earth/earthdamage.md#earthdamage
 function DamageChips({ chips }) {
   return chips.map((path) => (
     <path key={`chip-${path}`} d={path} fill="var(--color-soil-950)" opacity="0.75" />

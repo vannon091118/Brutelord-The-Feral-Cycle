@@ -1,8 +1,4 @@
-/**
- * Der Eingang: eine Leiter in einen dunklen Schacht, erst sichtbar, wenn die
- * Verwurzelung herangewachsen ist. [FUTURE] Kulisse, kein Uebergang — Handler,
- * State und Etagenwechsel kommen mit der Vertikalitaet als Task in der ROADMAP_OPEN.
- */
+// @doc: docs/daten/entrance/entranceladder.md#entranceladder
 function isInView({ entrance, camera, tileSize }) {
   const x = entrance.x * tileSize;
   const y = entrance.y * tileSize;

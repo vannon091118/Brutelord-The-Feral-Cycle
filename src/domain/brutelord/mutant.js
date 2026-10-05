@@ -1,4 +1,4 @@
-/** Die Fusion: Steine wandern in einen Dungling, die Rückentwicklung löst sie. */
+// @doc: docs/daten/brutelord/mutant.md#mutant
 import { placedStones } from './lab-state.js';
 import { MUTANT_CONFIG, STONE_CONFIG } from './stone-config.js';
 
@@ -18,7 +18,6 @@ export function investedIn(stones) {
   return stones.length * STONE_CONFIG.cost;
 }
 
-// Mutieren darf jeder; freie Dunglinge gehen den arbeitenden vor.
 export function nextCandidate(dunglings) {
   const free = dunglings.filter((worker) => !isMutant(worker));
   return free.find((worker) => !worker.job) ?? free[0] ?? null;

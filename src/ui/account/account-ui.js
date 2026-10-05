@@ -1,5 +1,4 @@
-/** Beschriftung und Farben der Konto-Seite — eine Quelle, damit Tor und
- *  Kopfzeile dasselbe reden. */
+// @doc: docs/daten/account/account-ui.md#account-ui
 export const ACCOUNT_UI = Object.freeze({
   register: 'register',
   login: 'login',

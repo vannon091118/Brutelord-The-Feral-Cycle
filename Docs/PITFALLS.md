@@ -573,6 +573,25 @@ einzeln; die Cap gilt **pro Datei**, nicht pro Aenderung.
 > und [`ARCHITEKTUR.md`](ARCHITEKTUR.md), in den Code nur der Kopf. Das ist
 > keine Formalie: die Gate-Meldung sagt es bei jedem Verstoss.
 
+### 160 Drift-Verstoesse, die keine sind
+
+Der Spiegel-Umbau erzeugte 160 neue Doku-Dateien, alle noch ungetrackt.
+`npm run gate -- --spiegel` meldete daraufhin fuer **jede** Quelldatei
+„Quelle und Spiegel-Datei wandern zusammen". Der Befund sah echt aus und war
+falsch: `driftEntries()` liest `git diff --name-only <base>`, und ungetrackte
+Dateien stehen in keinem Diff. Nach `git add src docs` war derselbe Lauf gruen
+— ohne eine Zeile Code zu aendern.
+
+> **Symptom:** eine Regel, die eine *Aenderung* vergleicht, kann eine Datei
+> nicht sehen, die noch gar nicht committed ist. In der CI kann das nicht
+> passieren — dort ist alles committed —, lokal aber schon, und zwar genau dann,
+> wenn man die Regel zum ersten Mal ausprobt.
+
+> **Gegenprobe:** Wer eine neue Regel gegen einen frischen Umbau faehrt, staged
+> beide Seiten (`git add`) und wiederholt den Lauf, bevor er ueberhaupt auf einen
+> Codefehler schliesst. Sonst sucht man einen Bug in `spiegel-rules.mjs`, den
+> dort nicht gibt.
+
 ### Ein Vorwaerts-Hash hat keine Ruecksubstitution — und eine gebaute Wahrheit daneben
 
 Der erste Etagen-Entwurf hat den Spielerseed aus dem Welt-Seed **zurueckgerechnet**,

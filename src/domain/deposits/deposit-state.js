@@ -1,4 +1,4 @@
-/** Ein Vorrat: Lesen, Phase setzen, Ernte — alles über die Cluster-Id. */
+// @doc: docs/daten/deposits/deposit-state.md#deposit-state
 import { DEPOSIT_PHASE, ESSENCE_STAGE, STAGE_MIN_SHARE } from './deposit-config.js';
 
 export function depositOf(world, tile) {
@@ -12,7 +12,6 @@ export function withDepositPhase(world, id, phase) {
   return { ...world, deposits: { ...world.deposits, [id]: { ...deposit, phase } } };
 }
 
-// Ein toter Vorrat bleibt tot: der Abbau darf ihn nicht wieder öffnen.
 export function exposeDeposit(world, tile) {
   const deposit = depositOf(world, tile);
   if (!deposit || deposit.phase === DEPOSIT_PHASE.SPENT) return world;
@@ -31,8 +30,6 @@ export function depositStage(deposit) {
   return fill > 0 ? ESSENCE_STAGE.LEAN : ESSENCE_STAGE.DEAD;
 }
 
-// Der Vorrat leert sich im Takt des Grabens: was am Ende übrig bleibt, gehört
-// zur verbleibenden Grabzeit. So erreicht der Pool die Null mit dem letzten Takt.
 export function harvestTick(world, tile, progress) {
   const deposit = depositOf(world, tile);
   if (!deposit || deposit.phase !== DEPOSIT_PHASE.FOUND) return { world, gained: 0, depleted: false };

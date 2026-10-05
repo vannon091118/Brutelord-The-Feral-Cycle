@@ -1,8 +1,4 @@
-/**
- * Die Sim-Uhr. Sie kennt keine Zeiten und keine Regeln: sie holt den Plan aus
- * der Domäne (`scheduleFor`) und führt ihn aus. Der Spielzustand entsteht
- * ausschließlich im Reducer.
- */
+// @doc: docs/daten/state/use-schedule-runner.md#use-schedule-runner
 import { useEffect } from 'react';
 import { intervalAction, scheduleFor } from '../domain/onboarding/onboarding-schedule.js';
 

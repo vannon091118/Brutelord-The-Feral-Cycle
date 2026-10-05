@@ -1,4 +1,4 @@
-/** Die Speicher-Uhr: ein Takt, der den Stand sichert, und ein Abschied, der ihn eilt. */
+// @doc: docs/daten/state/use-snapshot-runner.md#use-snapshot-runner
 import { useEffect } from 'react';
 import { SNAPSHOT_EVERY_MS } from './snapshot-config.js';
 import { openTestDoor, saveSnapshot } from './snapshot.js';

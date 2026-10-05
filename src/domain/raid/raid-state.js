@@ -1,8 +1,7 @@
-/** Der Raid-Zustand: eine zweite Instanz, isoliert vom Heimat-Zustand. */
+// @doc: docs/daten/raid/raid-state.md#raid-state
 import { RAID_PHASE, RAID_CONFIG, RAID_FORMAT_VERSION, teamStamina } from './raid-config.js';
 import { teamTraitProfile } from './raid-traits.js';
 
-/** Helden tragen keine Position: `at` gehört der Gruppe (D32). */
 function toHero(hero, apScale) {
   const ap = Math.round(hero.speed * apScale);
   return { id: hero.id, name: hero.name, atk: hero.atk, grit: hero.grit, dig: hero.dig === true, apMax: ap, ap };
@@ -38,7 +37,6 @@ export function canSpend(state, cost) {
   return state.stamina >= cost;
 }
 
-/** Fail closed: reicht die Ausdauer nicht, bleibt der Zustand unverändert. */
 export function spend(state, cost) {
   return canSpend(state, cost) ? { ...state, stamina: state.stamina - cost } : state;
 }

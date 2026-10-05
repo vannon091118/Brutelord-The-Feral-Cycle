@@ -1,6 +1,4 @@
-/** Die Etage: eine Ebene ist eine Funktion aus Spielerseed und Tiefe, und Tiefe 0
- *  ist die Startwelt. Der LCG laeuft nur vorwaerts — der Spielerseed bleibt eine
- *  Eingabe und wird nie aus dem Welt-Seed zurueckgerechnet. */
+// @doc: docs/daten/world/floor.md#floor
 import { createWorld } from './grid.js';
 import { worldSeed } from './world-seed.js';
 import { FLOOR } from './floor-config.js';
@@ -11,7 +9,6 @@ export function createFloorWorld(playerseed, depth = FLOOR.start) {
   return createWorld({ playerseed, seed: floorSeed(playerseed, depth), depth });
 }
 
-/** Eigene Hash-Instanz, nicht `tileSeed`: der Etagen-Seed ist Weltwahrheit. */
 export function floorSeed(playerseed, depth = FLOOR.start) {
   const base = worldSeed(playerseed);
   if (depth <= FLOOR.start) return base;
@@ -22,7 +19,6 @@ export function floorSeed(playerseed, depth = FLOOR.start) {
   return hash >>> 0;
 }
 
-/** Fail closed: eine negative Tiefe ist kein Sprung, sondern eine kaputte Aktion. */
 export function canDescend(depth) {
   return Number.isInteger(depth) && depth >= FLOOR.start && depth < DEEPEST_FLOOR;
 }

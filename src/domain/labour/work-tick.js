@@ -1,4 +1,4 @@
-/** Der Arbeitstakt der Kolonie: Aufträge, Essenz, Brut, Bauplätze, Popups. */
+// @doc: docs/daten/labour/work-tick.md#work-tick
 import {
   JOB_EVENT,
   JOB_KIND,

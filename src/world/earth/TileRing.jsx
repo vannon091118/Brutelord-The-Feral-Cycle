@@ -1,4 +1,4 @@
-/** Visuelle Darstellung der Auswahl, des Arbeitsziels und des Hinweises. */
+// @doc: docs/daten/earth/tilering.md#tilering
 function ringAppearance({ highlighted, selected, working, interactive, hovered, softHint }) {
   if (selected) return { stroke: 'var(--color-core-300)', opacity: 0.5, width: 1.1 };
   if (highlighted || working) return { stroke: 'var(--color-core-400)', opacity: 0.45, width: 1.2 };
@@ -6,7 +6,6 @@ function ringAppearance({ highlighted, selected, working, interactive, hovered, 
   return softHint ? { stroke: 'var(--color-bone-300)', opacity: 0.16, width: 1.2 } : null;
 }
 
-/** Die Auswahl ist Licht, keine Kontur: die Masse selbst leuchtet auf. */
 function SelectionGlow({ geometry }) {
   return (
     <>

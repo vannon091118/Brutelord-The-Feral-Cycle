@@ -1,4 +1,4 @@
-/** Die Splitterlage eines Vorratsfelds: alles aus dem Pool, nichts zufällig. */
+// @doc: docs/daten/deposits/deposit-visuals.md#deposit-visuals
 import { DEPOSIT_PHASE, ESSENCE_STAGE } from '../../domain/deposits/deposit-config.js';
 import { depositFill, depositStage } from '../../domain/deposits/deposit-state.js';
 import { touchingTiles } from '../../domain/deposits/deposit-hint.js';
@@ -63,8 +63,6 @@ export function depositShards(tile, deposit) {
   return Array.from({ length: count }, (_, index) => shard({ tile, index, count, stage }));
 }
 
-// Die Splitter entstehen im Ring um den Vorrat und fliegen auf den grabenden
-// Dungling zu; steht er auf der Kachel, ist das Ziel deren Mitte.
 export function harvestBurst({ tile, seq, size, to }) {
   const rng = seeded(tileSeed(tile.x, tile.y), (seq ?? 0) + 53);
   const aim = to ?? tile;

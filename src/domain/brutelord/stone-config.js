@@ -1,7 +1,4 @@
-/**
- * Essenz-Steine: Seltenheit, Fähigkeiten, Traits und Slots. Die Gewichte sind
- * absichtlich grob — der Pity-Timer in stone-roll.js fängt die Extreme auf.
- */
+// @doc: docs/daten/brutelord/stone-config.md#stone-config
 export const STONE_RARITY = Object.freeze({
   NORMAL: 'NORMAL',
   RARE: 'RARE',
@@ -119,7 +116,6 @@ export const STONE_CONFIG = Object.freeze({
   inventoryMax: 12,
 });
 
-// Unbenutzt die Hälfte zurück, ab dem ersten Kampf-EP achtzig Prozent.
 export const MUTANT_CONFIG = Object.freeze({
   refundUnused: 0.5,
   refundVeteran: 0.8,

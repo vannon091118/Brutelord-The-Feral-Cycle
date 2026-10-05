@@ -6,10 +6,7 @@ import { HiveNode } from './HiveNode.jsx';
 import { WorkerLayer } from './WorkerLayer.jsx';
 import { EntranceLadder } from './entrance/EntranceLadder.jsx';
 
-/**
- * Die Welt: 2D, direkter Vogelblick, handgemachte Flächen. Diese Komponente
- * schichtet nur die Ebenen — sie entscheidet nichts. Das Bild ist ein Ausschnitt.
- */
+// @doc: docs/daten/world/dungeonworld.md#dungeonworld
 export const DungeonWorld = memo(function DungeonWorld({ game, actions, tileSize, scale }) {
   const view = worldView({ game, tileSize });
   const kick = view.workingTileId ? view.workingStep : null;
@@ -27,7 +24,6 @@ export const DungeonWorld = memo(function DungeonWorld({ game, actions, tileSize
   );
 });
 
-/** Der Ruck sitzt auf einer Huelle: die Animation ueberschriebe sonst das inline-`transform`. */
 function kickKey(kick) {
   return kick === null ? 'still' : `kick-${kick}`;
 }

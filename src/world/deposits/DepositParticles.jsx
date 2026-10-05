@@ -1,4 +1,4 @@
-/** Splitter und Asche: die Menge zeigt den Füllstand, die Farbe den Rest. */
+// @doc: docs/daten/deposits/depositparticles.md#depositparticles
 import { DEPOSIT_PHASE } from '../../domain/deposits/deposit-config.js';
 import { ashBurst, depositShards, harvestBurst } from './deposit-visuals.js';
 
@@ -8,8 +8,6 @@ function centerOf(tile, size) {
   return { x: tile.x * size + size / 2, y: tile.y * size + size / 2 };
 }
 
-// Die Platzierung liegt in der Gruppe: die CSS-Animation setzt transform und
-// würde das Attribut an der Form löschen, dann läge der Splitter im Ursprung.
 function Shard({ shard, center }) {
   return (
     <g transform={`translate(${center.x + shard.x} ${center.y + shard.y})`}>

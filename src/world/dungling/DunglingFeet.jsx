@@ -1,10 +1,6 @@
 import { makeRng } from '../tile-shapes.js';
 
-/**
- * Das Geschwur hat keine Füße, sondern Wurzelfasern, die sich in den Boden
- * schieben. Position und Länge kommen aus dem Zustand, damit die Fasern
- * nicht in jedem Schritt gleich aussehen.
- */
+// @doc: docs/daten/dungling/dunglingfeet.md#dunglingfeet
 const FIBERS = Array.from({ length: 4 }, (_, index) => ({
   dx: -7.4 + index * 5,
   r: 3 + (index % 2),

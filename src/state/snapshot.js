@@ -1,9 +1,8 @@
-/** Die Tür zum Speichern: gespeichert wird der Spielstand, nicht die Welt. */
+// @doc: docs/daten/state/snapshot.md#snapshot
 import { createWorld } from '../domain/world/grid.js';
 import { parseTileId } from '../domain/world/tile.js';
 import { SNAPSHOT_KEY, SNAPSHOT_VERSION } from './snapshot-config.js';
 
-/** Die Tiefe gehört in den Schlüssel, sonst käme der untere Etagen-Raster oben wieder heraus. */
 function seedWorld(world) {
   const spawnTile = world.spawnTileId ? parseTileId(world.spawnTileId) : null;
   const key = `${world.seed}/${world.width}x${world.height}/${world.hiveOrigin.x},${world.hiveOrigin.y}/${world.depth}`;
@@ -22,8 +21,6 @@ function sameValue(left, right) {
   return keys.length === Object.keys(right).length && keys.every((key) => sameValue(left[key], right[key]));
 }
 
-/** Gepackt wird gegen die frisch abgeleitete Welt, nicht nach Sichtbarkeit:
- *  333 Vorrats-Zellen liegen im Raster, davon sind die meisten noch verborgen. */
 function packTiles(world) {
   const fresh = seedWorld(world).tiles;
   const changed = {};
@@ -121,7 +118,6 @@ export function clearSnapshot() {
   window.localStorage.removeItem(SNAPSHOT_KEY);
 }
 
-/** Was Konsole und Szenarienlauf brauchen: denselben Zugang, aber nur im Dev-Bau. */
 export function openTestDoor({ latest, playerseed }) {
   if (!import.meta.env?.DEV) return;
   window.__dl = {

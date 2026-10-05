@@ -1,4 +1,4 @@
-/** Die Uhr der Verwurzelung. */
+// @doc: docs/daten/state/use-rooting-runner.md#use-rooting-runner
 import { useEffect } from 'react';
 import { ACTION } from '../domain/actions/action-types.js';
 import { ROOTING_CONFIG } from '../domain/world/rooting-config.js';

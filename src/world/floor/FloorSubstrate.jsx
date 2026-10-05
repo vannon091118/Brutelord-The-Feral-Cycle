@@ -1,8 +1,4 @@
-/**
- * Der Untergrund. Erde ist abgetragen, jetzt liegt der helle Stein darunter:
- * Bruchflächen, Nähte und helles Korn verraten den Stein. Der Hive-Eingang ist
- * gebaut und bekommt deshalb keinen Untergrund.
- */
+// @doc: docs/daten/floor/floorsubstrate.md#floorsubstrate
 function Mark({ mark }) {
   if (mark.kind === 'poly') {
     return <polygon points={mark.points} fill={mark.fill} opacity={mark.opacity} />;

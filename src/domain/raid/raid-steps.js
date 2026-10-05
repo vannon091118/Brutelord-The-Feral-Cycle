@@ -1,4 +1,4 @@
-/** Die Übergänge: gehen ist gratis, graben kostet Ausdauer, beides fail closed. */
+// @doc: docs/daten/raid/raid-steps.md#raid-steps
 import { tileAt } from '../world/grid.js';
 import { TILE_KIND, terrainOf, tileId } from '../world/tile.js';
 import { RAID_PHASE, canDig } from './raid-config.js';
@@ -20,7 +20,6 @@ function arrive(state, tile, dugId) {
   };
 }
 
-/** Der Preis kommt aus der Pfadfindung, damit Plan und Schritt dieselbe Zahl nennen. */
 function dig(state, { world, action, tile }) {
   const terrain = terrainOf(tile);
   if (!terrain || !canDig(terrain, state.heroes)) return state;

@@ -1,4 +1,4 @@
-/** Baubare Objekte: Typen, Grundflächen, Preise, Startvorrat. */
+// @doc: docs/daten/buildings/building-config.md#building-config
 import { ESSENCE_ECONOMY } from '../economy/essence-economy.js';
 
 export const BUILDING_TYPE = Object.freeze({
@@ -14,7 +14,6 @@ export const BUILDING_STATE = Object.freeze({
 
 const COST = Object.freeze({ extractor: 5, swarmHost: 6, bruteLord: 10 });
 
-/** Der Startraum des Onboardings kostet sechs Abbauten — der Hive muss sie tragen. */
 const FIRST_ROOM_TILES = 6;
 
 export const BUILDING_DEFS = Object.freeze({

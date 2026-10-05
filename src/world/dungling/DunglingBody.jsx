@@ -1,8 +1,4 @@
-/**
- * Der Körper ist kein Arbeiter, sondern ein Geschwur: eine weiche, lappige
- * Verdickung, die aus dem Hive wächst. Kein Gesicht, kein Lächeln — eine
- * Narbe, ein paar Adern und ein Kern, der durch die Haut schimmert.
- */
+// @doc: docs/daten/dungling/dunglingbody.md#dunglingbody
 function BudShell() {
   return (
     <path

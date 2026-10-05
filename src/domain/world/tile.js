@@ -1,4 +1,4 @@
-/** Ein Tile als ein Datenobjekt: Art, Sichtbarkeit, Nutzbarkeit, Verwurzelung. */
+// @doc: docs/daten/world/tile.md#tile
 import { ROOTING_PHASE, createRooting } from './rooting.js';
 
 export const TILE_KIND = Object.freeze({
@@ -7,7 +7,6 @@ export const TILE_KIND = Object.freeze({
   DUNGEON_FLOOR: 'DUNGEON_FLOOR',
 });
 
-/** Neben TILE_KIND, nicht darin: Hartgestein ist Terrain und kein Erdreich. */
 export const TILE_TERRAIN = Object.freeze({
   EARTH: 'EARTH',
   STONE: 'STONE',
@@ -92,7 +91,6 @@ export function isEarth(tile) {
   return tile.kind === TILE_KIND.EARTH;
 }
 
-/** Die Heimat kennt nur Erdreich; Stein und Obsidian setzt der Raid daneben. */
 export function terrainOf(tile) {
   return tile.kind === TILE_KIND.EARTH ? tile.terrain : null;
 }
@@ -101,7 +99,6 @@ export function isVisible(tile) {
   return tile.visibility === TILE_VISIBILITY.VISIBLE;
 }
 
-/** Trägt null, weil tileAt() am Rand des Rasters leer bleibt. */
 export function isUsable(tile) {
   return tile?.usability === TILE_USABILITY.USABLE;
 }

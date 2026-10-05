@@ -1,4 +1,4 @@
-/** Die vier Phasen eines Feldes: DARK, GROWING, RESTING, CLAIMED. */
+// @doc: docs/daten/world/rooting.md#rooting
 import { ROOTING_CONFIG } from './rooting-config.js';
 
 export const ROOTING_PHASE = Object.freeze({

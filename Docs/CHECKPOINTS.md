@@ -43,6 +43,41 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.25 — Absicht und Vergangenheit getrennt
+
+Nachgetragen: Der Auftrag kam direkt vom Game Director und stand deshalb
+nie in der offenen Roadmap — der Sync hat nichts zu bewegen gehabt, und der
+Zeitstrahl bekam den Liefer-Commit `db78406` erst hier nachträglich.
+
+- [x] **Offene Absicht und Vergangenheit sind zwei Dateien.** `ROADMAP.md`
+      mischte Checkliste und Historie und war damit keine mehr: Wer abhakt,
+      löscht den Beweis. Jetzt trägt `ROADMAP_OPEN.md` nur Unabgeschlossenes,
+      `CHECKPOINTS.md` nur Abgeschlossenes, und jeder Eintrag trägt einen
+      Metadaten-Block (Status, Scope, Kategorie, Version, Datum), den das
+      Gate fail-closed prüft. `ROADMAP.md` ist gelöscht, elf Verweisstellen
+      (AGENTS, README, GOVERNANCE, WORKFLOW, ARCHITEKTUR, VISION-CORE-LOOP,
+      RAID-PLAN, PITFALLS, `EntranceLadder.jsx`, `tools/tests/scenarios.mjs`)
+      zeigen auf den neuen Ort.
+  Status: fix
+  Scope: Doku
+  Kategorie: Doku
+  Version: 0.0.25
+  Datum: 2026-10-05
+
+- [x] **Die Doku-Pflichten sind Maschine, nicht Absicht.** Der Bump-Bot
+      prüft die Roadmap vor dem Commit (`gate --docs`, sonst bricht der Job ab),
+      und danach ist `docs-sync` der einzige Mover: Er stempelt Version und
+      Datum, verschiebt abgehakte Einträge in die Historie und schreibt den
+      Commit-Body aus einem Generator — ein von Hand gesetzter `Key: value`
+      im Body oder ein fremder Footer reißt ihn vorher raus. Vorher Prüfung,
+      Commit und Bot sahen drei verschiedene Texte; jetzt sehen sie dieselben
+      Bytes.
+  Status: fix
+  Scope: CI
+  Kategorie: Feature
+  Version: 0.0.25
+  Datum: 2026-10-05
+
 ## 0.0.23 — Vertikalität
 
 Der erste Baustein aus dem Nordstern

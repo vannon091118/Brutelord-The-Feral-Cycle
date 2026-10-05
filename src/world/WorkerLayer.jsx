@@ -18,11 +18,7 @@ function WorkerBody({ worker, tileSize }) {
   );
 }
 
-/**
- * Alles, was über der Welt lebt: der Schwarm bei der Arbeit und die
- * Essenzsymbole, die kurz über dem Abladeort aufsteigen. Beides hängt an
- * Positionen aus dem Auftrag — deshalb eine Ebene.
- */
+// @doc: docs/daten/world/workerlayer.md#workerlayer
 export const WorkerLayer = memo(function WorkerLayer({ workers, popups, tileSize }) {
   return (
     <>

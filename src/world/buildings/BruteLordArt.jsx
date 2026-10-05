@@ -1,7 +1,7 @@
 import { soilBlob } from '../tile-shapes.js';
 import { buildingBox } from './building-geometry.js';
 
-/** Drei Panzerplatten übereinander — je weiter oben, desto schmaler. */
+// @doc: docs/daten/buildings/brutelordart.md#brutelordart
 function Carapace({ size }) {
   const widths = [0.74, 0.6, 0.44];
   return (
@@ -25,7 +25,6 @@ function Carapace({ size }) {
   );
 }
 
-/** Die Hörner: zwei dunkle Sicheln, die den Panzer krönen. */
 function Horns({ size }) {
   const half = size * 0.31;
   return (
@@ -36,7 +35,6 @@ function Horns({ size }) {
   );
 }
 
-/** Das geschlossene Auge: ein Schlitz, unter dem es warm glüht. */
 function Eye({ size }) {
   return (
     <g>
@@ -47,7 +45,6 @@ function Eye({ size }) {
   );
 }
 
-/** Der Brutlord: ein gepanzerter Leib, der auf seinen Herrn wartet. */
 export function BruteLordArt({ building, tileSize }) {
   const box = buildingBox(building, tileSize);
   const nest = soilBlob({
@@ -75,7 +72,6 @@ export function BruteLordArt({ building, tileSize }) {
   );
 }
 
-/** Der Umriss des Panzers: breit, mit flachem Rücken und schwerem Bauch. */
 function shell(size) {
   const r = size * 0.42;
   return [

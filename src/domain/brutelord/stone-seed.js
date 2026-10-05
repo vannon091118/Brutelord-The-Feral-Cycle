@@ -1,7 +1,4 @@
-/**
- * Deterministische Streuung für den Brutlord. Eigener Hash, eigene Konstanten —
- * ein Stein muss aus seinem Seed exakt denselben Stein wiedergeben.
- */
+// @doc: docs/daten/brutelord/stone-seed.md#stone-seed
 const MIX = 2654435761;
 const RANGE = 4294967296;
 
@@ -13,7 +10,6 @@ export function unitOf(hash) {
   return (hash >>> 0) / RANGE;
 }
 
-/** Zieht einen Wert aus [0, max) aus einem Seed mit Salz. */
 export function pickFrom(seed, salt, max) {
   return Math.floor(unitOf(mixSeed(seed, salt)) * max);
 }

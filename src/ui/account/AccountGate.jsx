@@ -19,8 +19,7 @@ async function send({ mode, credentials, onSignedIn, setError, setBusy }) {
   }
 }
 
-/** Das Tor: ohne Konto kein Spiel. Wer sich anmeldet, bekommt Seed und PlayerID
- *  zurück und landet damit in seiner eigenen Welt. */
+// @doc: docs/daten/account/accountgate.md#accountgate
 export function AccountGate({ onSignedIn }) {
   const [mode, setMode] = useState(ACCOUNT_UI.register);
   const [credentials, setCredentials] = useState(EMPTY);

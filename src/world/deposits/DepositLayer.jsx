@@ -1,4 +1,4 @@
-/** Die Ebenen der Vorräte: Schimmer, Hinweis, Splitter und Asche. */
+// @doc: docs/daten/deposits/depositlayer.md#depositlayer
 import { DepositGlow } from './DepositGlow.jsx';
 import { DepositHint } from './DepositHint.jsx';
 import { DepositParticles } from './DepositParticles.jsx';

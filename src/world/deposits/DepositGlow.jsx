@@ -1,11 +1,9 @@
-/** Der grüne Schimmer über einem geöffneten Vorrat — weich, ohne Kante. */
+// @doc: docs/daten/deposits/depositglow.md#depositglow
 import { DEPOSIT_PHASE } from '../../domain/deposits/deposit-config.js';
 import { depositHalo, haloStops } from './deposit-visuals.js';
 
 const GLOW_PREFIX = 'dl-essence-glow';
 
-// Jeder Vorrat braucht einen eigenen Verlauf: ein gemeinsamer Gradient würde
-// allen Kacheln die Helligkeit des ersten Vorrats aufzwingen.
 function Halo({ tile, size }) {
   const gradientId = `${GLOW_PREFIX}-${tile.id}`;
   return (

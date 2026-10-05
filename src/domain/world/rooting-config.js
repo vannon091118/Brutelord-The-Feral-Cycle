@@ -1,4 +1,4 @@
-/** Zeiten der Verwurzelung. */
+// @doc: docs/daten/world/rooting-config.md#rooting-config
 export const ROOTING_CONFIG = Object.freeze({
   claimDurationMs: 10000,
 

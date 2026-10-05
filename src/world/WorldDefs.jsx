@@ -1,4 +1,4 @@
-/** Verläufe, Filter und Muster der Welt. */
+// @doc: docs/daten/world/worlddefs.md#worlddefs
 import { DEPTH_RADIUS_TILES, HIVE_ORIGIN, HIVE_SIZE, TILE_SIZE } from '../domain/world/world-config.js';
 
 function hiveCenter() {
@@ -41,7 +41,6 @@ function CaveGradients({ camera }) {
   const { x, y, width, height } = camera;
   return (
     <>
-      {/* Erde trägt die Tiefe: warm nahe am Hive, kalt an den Rändern des Ausschnitts. */}
       <radialGradient id="dl-earthMass" gradientUnits="userSpaceOnUse" {...hiveCenter()}>
         <stop offset="0%" stopColor="var(--color-soil-500)" />
         <stop offset="46%" stopColor="var(--color-soil-600)" />

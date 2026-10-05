@@ -1,5 +1,4 @@
-/** Der zentrale Reducer als Verteiler. Die Reihenfolge der Reducer, und damit
- *  die Reihenfolge der Themen, steht in den beiden Ketten. */
+// @doc: docs/daten/state/game-reducer.md#game-reducer
 import { COLONY_REDUCERS } from './reducer-chain.js';
 import { WORLD_REDUCERS } from './reducer-chain-world.js';
 

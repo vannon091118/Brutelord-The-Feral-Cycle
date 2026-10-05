@@ -19,6 +19,30 @@ Commit: `npm run docs:sync` prüft, der Bot stampft und bewegt. Verschieben
 mit Grund, nie still — „Muss später" ist ein Schuldenposten, und Schulden-
 posten gehören sichtbar hier hin.
 
+## 0.0.26 — Spiegel-Doku
+
+Ab dieser Version trägt `src/` genau **eine** Kommentarzeile, und die ist ein
+`@doc`-Pointer auf `docs/daten/<domain>/<name>.md`. Wer ein Modul anfasst,
+wandert seine Spiegel-Datei im selben Änderungsbereich mit; was das Gate
+`npm run gate -- --spiegel` über 80 Doku-Zeilen sagt, ist der Auftrag, das
+Modul zu spalten.
+
+- [x] **Der Code zeigt auf seine Erklärung, er trägt sie nicht mehr.** Unter
+      `src/` ist auf **eine** Kommentarzeile reduziert, und die ist ein
+      `@doc`-Pointer. 160 Module haben jetzt je eine Spiegel-Datei unter
+      `docs/daten/`; der Kommentar-Text ist dorthin gewandert, der Code
+      behielt seine Zeile. Das Gate (`npm run gate -- --spiegel`, in der CI
+      eingehängt) bricht bei zweiter Kommentarzeile, Pointer ohne Anker,
+      totem Link, verwaister Doku, mehr als 80 Doku-Zeilen oder Drift ab —
+      Quelle und Spiegel müssen im selben Änderungsbereich wandern. Die
+      80-Zeilen-Grenze ist der SRP-Trigger: Reicht sie nicht, ist das Modul zu
+      groß und wird gespalten, nicht die Erklärung gestaucht.
+  Status: geplant
+  Scope: CI
+  Kategorie: Refactor
+  Version: ausstehend
+  Datum: ausstehend
+
 ## 0.0.24 — Bestand und Tor
 
 Der Schwarm arbeitet, das Bestand-Problem ist adressiert. Diese Einträge

@@ -1,4 +1,4 @@
-/** Bauplatz-Logik: Grundfläche, Platzprüfung, Lieferung, Zuweisung. */
+// @doc: docs/daten/buildings/building.md#building
 import { BUILDING_STATE, buildingDef } from './building-config.js';
 import { getTile, isInsideGrid } from '../world/grid.js';
 import { isBuildable, tileId } from '../world/tile.js';

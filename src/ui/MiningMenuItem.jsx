@@ -1,7 +1,4 @@
-/**
- * Die eine Aktion des Menüs: Abbau. Sie schickt nur den Befehl — was daraus
- * folgt, entscheidet der Reducer.
- */
+// @doc: docs/daten/ui/miningmenuitem.md#miningmenuitem
 export function MiningMenuItem({ onMine }) {
   return (
     <button

@@ -1,7 +1,4 @@
-/**
- * Das Baumenü: erscheint, sobald ein Feld nutzbarer Boden ist. Es zeigt die
- * Essenz im Hive, die drei Bauten und in einem Satz, was gerade zu tun ist.
- */
+// @doc: docs/daten/ui/buildmenu.md#buildmenu
 import { BUILDING_DEFS, BUILDING_STATE, canAfford } from '../domain/buildings/building-config.js';
 import { BUILD_OPTIONS } from './build-options.jsx';
 import { BuildOptionButton } from './BuildOptionButton.jsx';
@@ -19,7 +16,6 @@ function BuildHeader({ count, essence }) {
   );
 }
 
-/** Was gerade zu tun ist — ein Satz, kein Handbuch. */
 function noteFor({ buildChoice, buildings, essence }) {
   if (buildChoice) return `${BUILDING_DEFS[buildChoice].label}: Klicke freien Boden als Bauplatz an.`;
   if (buildings.some((building) => building.state === BUILDING_STATE.SITE)) {

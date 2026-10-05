@@ -1,4 +1,4 @@
-/** Zwei Aufrufe, ein Ort: das Backend antwortet mit Status und Objekt. */
+// @doc: docs/daten/account/account-api.md#account-api
 const NO_SERVER = 'Der Konto-Server antwortet nicht — er hängt nur am Dev-Server, nicht im Production-Build.';
 
 async function post(path, body) {

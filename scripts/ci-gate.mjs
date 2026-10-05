@@ -14,8 +14,9 @@ import {
 } from './lib/version-authority.mjs';
 import { HARD_CAPS, analyzeData, analyzeTree } from './lib/source-metrics.mjs';
 import { preFlightProblems } from './docs-sync.mjs';
+import { analyzeSpiegel, driftEntries } from './lib/spiegel-rules.mjs';
 
-const TREE_ROOTS = ['src', 'scripts', 'tools'];
+const TREE_ROOTS = ['scripts', 'tools'];
 const DATA_ROOTS = ['tools/tests/state'];
 
 function hasRef(ref) {
@@ -44,10 +45,14 @@ export function detectRange() {
   return null;
 }
 
+const SRC_ROOTS = ['src'];
+// src traegt nur den @doc-Pointer; scripts und tools bleiben auf 5.
+const SRC_CAPS = { ...HARD_CAPS, commentLines: 1 };
+
 function runTreeCheck() {
   const violations = [
+    ...SRC_ROOTS.flatMap((root) => analyzeTree(root, SRC_CAPS)),
     ...TREE_ROOTS.flatMap((root) => analyzeTree(root, HARD_CAPS)),
-    ...DATA_ROOTS.flatMap((root) => analyzeData(root, HARD_CAPS)),
   ];
   return violations.map((violation) => ({
     rule: violation.rule,
@@ -94,8 +99,6 @@ function runCommitCheck(range) {
     console.log('Commit-Regeln: keine Basislinie gefunden, übersprungen.');
     return [];
   }
-  // Nach einem Force-Push zeigt die gemeldete Basis auf einen Commit, den es
-  // nicht mehr gibt; ohne diese Pruefung bricht listCommits hart ab.
   if (!hasRef(range.split('..')[0])) {
     const head = range.split('..').at(-1);
     console.log(`Commit-Regeln: Basis ${range.split('..')[0]} existiert nicht mehr, übersprungen.`);
@@ -126,14 +129,7 @@ function report(title, problems) {
   return problems.length;
 }
 
-function main() {
-  const args = process.argv.slice(2);
-  const wantsAll = args.length === 0;
-  const commitArg = args.find((arg) => arg.startsWith('--commits'));
-  const baseArg = args.find((arg) => arg.startsWith('--base='));
-  const explicitRange = commitArg?.includes('=') ? commitArg.split('=')[1] : null;
-  const baseRef = baseArg?.split('=')[1] ?? explicitRange?.split('..')[0] ?? detectRange()?.split('..')[0] ?? null;
-
+function collectFailures({ args, wantsAll, commitArg, baseRef, explicitRange }) {
   let failures = 0;
   if (wantsAll || args.includes('--tree')) {
     failures += report('Hard Caps (LOC, Parameter, Imports)', runTreeCheck());
@@ -144,10 +140,23 @@ function main() {
   if (wantsAll || args.includes('--docs')) {
     failures += report('Doku-Metadaten (Status, Scope, Kategorie, Version, Datum)', preFlightProblems());
   }
+  if (wantsAll || args.includes('--spiegel')) {
+    failures += report('Spiegel-Doku (Pointer, Caps, Orphans)', analyzeSpiegel());
+    failures += report('Quelle und Spiegel-Datei wandern zusammen', driftEntries(baseRef));
+  }
   if (wantsAll || commitArg) {
     failures += report('Commit-Regeln', runCommitCheck(explicitRange ?? detectRange()));
   }
+  return failures;
+}
 
+function main() {
+  const args = process.argv.slice(2);
+  const commitArg = args.find((arg) => arg.startsWith('--commits'));
+  const baseArg = args.find((arg) => arg.startsWith('--base='));
+  const explicitRange = commitArg?.includes('=') ? commitArg.split('=')[1] : null;
+  const baseRef = baseArg?.split('=')[1] ?? explicitRange?.split('..')[0] ?? detectRange()?.split('..')[0] ?? null;
+  const failures = collectFailures({ args, wantsAll: args.length === 0, commitArg, baseRef, explicitRange });
   if (failures > 0) {
     console.error(`\nGate: ${failures} Verstoß/Verstöße.`);
     process.exitCode = 1;

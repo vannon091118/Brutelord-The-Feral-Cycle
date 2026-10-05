@@ -22,7 +22,7 @@ function hiveHitProps({ hive, tileSize, clickable, onClick }) {
   };
 }
 
-/** Klickfläche des Hive, etwas größer als seine zwei mal zwei Tiles. */
+// @doc: docs/daten/hive/hivehitarea.md#hivehitarea
 export function HiveHitArea(props) {
   return <rect {...hiveHitProps(props)} />;
 }

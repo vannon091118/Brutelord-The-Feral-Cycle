@@ -1,8 +1,4 @@
-/**
- * Eine Bauoption: Form, Name, Hinweis und Preis. Fehlt die Essenz, bleibt der
- * Knopf stehen, aber kraftlos — der Preis erklärt, warum. Gewählt trägt er
- * einen Kernrand; ein zweiter Klick nimmt die Wahl zurück.
- */
+// @doc: docs/daten/ui/buildoptionbutton.md#buildoptionbutton
 export function BuildOptionButton({ option, def, affordable, picked, onPick }) {
   const tone = picked
     ? 'border-core-300/70 bg-soil-800'

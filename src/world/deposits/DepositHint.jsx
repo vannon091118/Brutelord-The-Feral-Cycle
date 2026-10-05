@@ -1,4 +1,4 @@
-/** Der atmende Hinweis: ein geclaimtes Nachbarfeld macht den Vorrat spürbar. */
+// @doc: docs/daten/deposits/deposithint.md#deposithint
 import { depositHalo, hintTiles } from './deposit-visuals.js';
 
 const HINT_GLOW = 'dl-essence-hint-glow';

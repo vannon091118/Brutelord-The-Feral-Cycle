@@ -2,11 +2,7 @@ import { BuildMenu } from './BuildMenu.jsx';
 import { BuildingPanel } from './BuildingPanel.jsx';
 import { OnboardingHint } from './OnboardingHint.jsx';
 
-/**
- * Das HUD unten: das ausgewählte Bauwerk, das Baumenü (erst nach dem ersten
- * freien Boden) und die Hinweiszeile. Alle drei lesen nur, was im Reducer
- * passiert ist — keiner von ihnen entscheidet etwas.
- */
+// @doc: docs/daten/ui/gamehud.md#gamehud
 function SelectedBuilding({ building, game, actions }) {
   return (
     <div className="pointer-events-auto">

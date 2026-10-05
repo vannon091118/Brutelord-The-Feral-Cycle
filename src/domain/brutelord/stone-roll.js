@@ -1,7 +1,4 @@
-/**
- * Der Wurf: Seltenheit aus dem Seed, Pity-Timer, Fähigkeiten, Trait. Aus
- * demselben Seed kommt immer derselbe Stein — Neuladen ist kein Losgriff.
- */
+// @doc: docs/daten/brutelord/stone-roll.md#stone-roll
 import {
   RARITY_ORDER,
   RARITY_WEIGHTS,
@@ -22,7 +19,6 @@ export function pityMisses(lab) {
   return Math.max(0, lab?.pityMisses ?? 0);
 }
 
-// Die Legende-Chance steigt unsichtbar mit jedem Fehlschlag.
 function pityBonus(misses, config = STONE_CONFIG) {
   return Math.min(config.pityMaxBonus, misses * config.pityStep);
 }

@@ -1,4 +1,4 @@
-/** Dungling-Domäne: geboren werden, kriechen, bereit sein. */
+// @doc: docs/daten/reducers/dungling-reducer.md#dungling-reducer
 import { createDungling, idle, nextDunglingId, startSpawning } from '../../domain/entities/dungling.js';
 import { ONBOARDING_STATE, enterOnboarding } from '../../domain/onboarding/onboarding-state.js';
 import { ACTION } from '../../domain/actions/action-types.js';

@@ -23,7 +23,7 @@ function hitAreaProps({ geometry, interactive, label, onSelect, onHover }) {
   };
 }
 
-/** Klickfläche eines Tiles: leitet den Befehl weiter, wertet ihn nicht aus. */
+// @doc: docs/daten/earth/hitarea.md#hitarea
 export function HitArea(props) {
   return <rect {...hitAreaProps(props)} />;
 }

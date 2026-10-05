@@ -1,4 +1,4 @@
-/** Die Kantenwand: Felsfläche zur unbekannten Seite, helle Abrisskante davor. */
+// @doc: docs/daten/earth/earthwall.md#earthwall
 export function EarthWall({ walls }) {
   if (walls.length === 0) return null;
   return (

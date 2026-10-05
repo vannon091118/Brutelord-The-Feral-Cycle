@@ -1,4 +1,4 @@
-/** Ein Erdblock als Ganzes: Masse, Wand zur Unbekannten, Spuren, Klickfläche. */
+// @doc: docs/daten/world/earthtile.md#earthtile
 import { memo, useState } from 'react';
 import { earthGeometry } from './earth/earth-geometry.js';
 import { EarthSlab } from './earth/EarthSlab.jsx';
@@ -7,7 +7,6 @@ import { EarthWall } from './earth/EarthWall.jsx';
 import { TileRing } from './earth/TileRing.jsx';
 import { HitArea } from './earth/HitArea.jsx';
 
-/** Die Masse federt beim Einschlag — der Key zwingt die Animation je Tick neu. */
 function EarthMass({ geometry, working, step }) {
   const className = working ? 'dl-anim dl-hit-punch' : geometry.shiver ? 'dl-anim dl-shiver' : undefined;
   return (

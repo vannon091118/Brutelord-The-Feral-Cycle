@@ -2,10 +2,7 @@ import { buildingDef } from '../../domain/buildings/building-config.js';
 import { canPlaceBuilding } from '../../domain/buildings/building.js';
 import { BuildingNode } from './BuildingNode.jsx';
 
-/**
- * Wo der gewählte Bau stehen dürfte: ein Umriss je freiem Platz. Die Fläche
- * zeigt gleich die ganze Grundfläche — beim Brutlord also 2 × 2 Felder.
- */
+// @doc: docs/daten/buildings/buildinglayer.md#buildinglayer
 function placementSpots(view, tileSize) {
   if (!view.buildChoice) return [];
   const def = buildingDef(view.buildChoice);
@@ -22,7 +19,6 @@ function placementSpots(view, tileSize) {
     }));
 }
 
-/** Ein Bauplatz darf auch mit der Tastatur gewählt werden. */
 function onSpotKeyDown(event, onPlace, id) {
   if (event.key !== 'Enter' && event.key !== ' ') return;
   event.preventDefault();

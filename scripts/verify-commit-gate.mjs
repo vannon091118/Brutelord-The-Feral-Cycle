@@ -28,6 +28,14 @@ const missingScope = commitViolations({
 });
 const tooShort = commitViolations(makeEntry(`feat: short\n\nToo brief.\n\n${REQUIRED_LABEL}`));
 
+const manyPaths = Array.from({ length: 340 }, (_, index) => `src/domain/generated/modul-${index}.js`);
+const bulkProse = Array.from({ length: 12 }, (_, index) =>
+  `Absatz ${index + 1} erklaert, warum die Datei in diese Migration wandert und was der Spieler danach sieht.`).join(' ');
+const bulkList = `Geaendert wurden diese Dateien: ${manyPaths.join(', ')}.`;
+const bulkEntry = (message) => ({ sha: 'bulk', message, paths: manyPaths });
+const bulkOk = commitViolations(bulkEntry(`feat: Migration\n\n${bulkProse}\n\n${bulkList}\n\n${REQUIRED_LABEL}`));
+const bulkTooShort = commitViolations(bulkEntry(`feat: Migration\n\nSehr kurz.\n\n${bulkList}\n\n${REQUIRED_LABEL}`));
+
 const foreignTail = `${valid}\nCo-Authored-By: Bot <bot@example.com>\nGenerated with Freebuff 🤖\nFremd-Footer: geladen`;
 const stripped = stripForeignFooters(foreignTail);
 const strippedValid = commitViolations(makeEntry(stripped));
@@ -52,6 +60,8 @@ const checks = [
   ['VANNON-Label ist genau einmal die letzte Zeile', repeatedLabel.some((item) => item.rule.includes('VANNON-Label'))],
   ['Nicht erklärte Dateien werden abgewiesen', missingScope.some((item) => item.rule.includes('Datei erklären'))],
   ['Zu kurzer Body wird abgewiesen', tooShort.some((item) => item.rule.includes('100–1000'))],
+  ['Eine Dateiliste mit 340 Pfaden frisst das Wortbudget nicht', bulkOk.length === 0, bulkOk.map((i) => i.rule).join('; ')],
+  ['Die Mindestlänge gilt neben einer langen Dateiliste weiter', bulkTooShort.some((item) => item.rule.includes('100–1000'))],
   ['HEAD gilt als vorhandene Referenz', hasRef('HEAD')],
   ['Ein erfundener SHA gilt nicht als vorhanden', !hasRef('deadbeefdeadbeefdeadbeefdeadbeefdeadbeef')],
   ['Unsinn gilt nicht als vorhanden', !hasRef('kaputt')],

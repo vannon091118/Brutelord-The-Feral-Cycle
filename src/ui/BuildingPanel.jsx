@@ -1,7 +1,4 @@
-/**
- * Ein ausgewähltes Bauwerk: was es ist, wie weit es ist und — beim Extraktor —
- * wer daran arbeitet. Zuweisen und Freigeben sind die einzigen Befehle hier.
- */
+// @doc: docs/daten/ui/buildingpanel.md#buildingpanel
 import { BUILDING_STATE, BUILDING_TYPE, buildingDef } from '../domain/buildings/building-config.js';
 import { LabPanel } from './stone/LabPanel.jsx';
 
@@ -55,7 +52,6 @@ function WorkerControls({ building, maxWorkers, freeWorkers, onAssign, onRelease
   );
 }
 
-/** Nur der Extraktor beschäftigt Dunglinge — nur dort gibt es die Bedienung. */
 function WorkerSection({ building, maxWorkers, freeWorkers, onAssign, onRelease }) {
   if (maxWorkers === 0) return null;
   return (

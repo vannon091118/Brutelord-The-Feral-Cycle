@@ -3,11 +3,7 @@ import { ONBOARDING_CONFIG } from '../../domain/onboarding/onboarding-config.js'
 import { miningBurstEveryTicks } from '../../domain/onboarding/onboarding-schedule.js';
 import { makeRng } from '../tile-shapes.js';
 
-/**
- * Erdkrümel für den Abbau. Rein visuell: die Partikel folgen dem Abbau-Tick der
- * Domäne, aber es gibt keine Partikelwahrheit im Spielzustand. Alles ist
- * deterministisch aus dem Tick abgeleitet — kein Math.random.
- */
+// @doc: docs/daten/particles/use-mining-crumbs.md#use-mining-crumbs
 const BURST_EVERY_TICKS = miningBurstEveryTicks();
 
 function makeCrumbs(tick, counter) {

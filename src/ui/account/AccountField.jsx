@@ -1,4 +1,4 @@
-/** Ein Feld der Anmeldung: Beschriftung und Eingabe gehören zusammen. */
+// @doc: docs/daten/account/accountfield.md#accountfield
 export function AccountField({ label, type = 'text', value, onChange, autoComplete }) {
   return (
     <label className="flex flex-col gap-1 text-xs text-bone-300">

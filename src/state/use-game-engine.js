@@ -1,7 +1,4 @@
-/**
- * Der Spielmotor des Slices — reine Komposition:
- * Reducer (Wahrheit) + Zeitpläne der Domäne (Uhren) + Befehle (UI-Eingang).
- */
+// @doc: docs/daten/state/use-game-engine.md#use-game-engine
 import { useReducer, useRef } from 'react';
 import { gameReducer } from './game-reducer.js';
 import { initialGameState } from './game-state.js';
@@ -13,7 +10,6 @@ import { useGameActions } from './use-game-actions.js';
 export function useGameEngine(playerseed) {
   const [state, dispatch] = useReducer(gameReducer, playerseed, initialGameState);
 
-  /** Die Uhren fragen den Zustand, sie besitzen ihn nicht. */
   const latest = useRef(state);
   latest.current = state;
 

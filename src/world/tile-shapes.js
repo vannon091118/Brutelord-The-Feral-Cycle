@@ -1,4 +1,4 @@
-/** Deterministische Formgebung für die Weltgrafik. */
+// @doc: docs/daten/world/tile-shapes.md#tile-shapes
 export function tileSeed(x, y) {
   let h = Math.imul(x + 1013, 73856093) ^ Math.imul(y + 7079, 19349663);
   h ^= h >>> 13;
@@ -159,8 +159,6 @@ function sideSpan(side) {
   return [SIDE_ORIGIN[side] - 0.125, SIDE_ORIGIN[side] + 0.125];
 }
 
-/** Die Masse läuft an verbundenen Seiten flach über die Grenze, an freien
- *  Seiten wölbt sie sich organisch — die Rinne zwischen zwei Erdblöcken stirbt. */
 export function soilMaskBlob({ x, y, size, open, seed, notch = null, inset = 4, jitter = 2.6, points = 16, outward = 10, overlap = 2.5 }) {
   const rng = makeRng(seed);
   const tuning = { rng, inset, jitter, wobble: 0, outward, points };
@@ -198,8 +196,6 @@ function maskPoints({ x, y, size, open, notch, rng, overlap, tuning }) {
   return pts;
 }
 
-/** Das Band der Kantenwand: Bruchfläche zur unbekannten Seite, helle
- *  Abrisskante am Rand — die Wand folgt der Fläche, nie dem Rechteck. */
 export function wallBand({ x, y, size, hidden, seed, depth = 18, outset = 0.8 }) {
   const rng = makeRng(seed ^ 0x5e11);
   const anchor = (t) => perimeterPoint({ t, minX: x, minY: y, maxX: x + size, maxY: y + size });

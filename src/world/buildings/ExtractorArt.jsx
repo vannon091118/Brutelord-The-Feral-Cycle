@@ -1,7 +1,7 @@
 import { soilBlob } from '../tile-shapes.js';
 import { buildingBox } from './building-geometry.js';
 
-/** Der Bohrkopf in der Mitte: dunkler Kegel, aus dem die Essenz austritt. */
+// @doc: docs/daten/buildings/extractorart.md#extractorart
 function Drill({ size }) {
   const r = size * 0.2;
   return (
@@ -12,7 +12,6 @@ function Drill({ size }) {
   );
 }
 
-/** Zwei Fänge, die die freigesetzte Essenz in den Hive leiten. */
 function EssenceVeins({ size }) {
   const r = size * 0.34;
   return (
@@ -23,7 +22,6 @@ function EssenceVeins({ size }) {
   );
 }
 
-/** Der Extraktor: ein Steinsockel, ein Bohrer und ein Kern aus Essenz. */
 export function ExtractorArt({ building, tileSize }) {
   const box = buildingBox(building, tileSize);
   const base = soilBlob({

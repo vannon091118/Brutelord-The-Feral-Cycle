@@ -1,10 +1,6 @@
 import { makeRng } from '../tile-shapes.js';
 
-/**
- * Spuren auf dem Boden: Tritte des Hive-Eingangs oder kleine Moosspitzen auf
- * abgebautem Land. Beides erzählt, woher der Boden kommt. Die Positionen
- * kommen aus dem Feld-Seed, sonst entstünde über viele Felder hinweg ein Muster.
- */
+// @doc: docs/daten/floor/floortraces.md#floortraces
 function traceSpots({ geometry, count }) {
   const rng = makeRng(geometry.seed ^ 0x2f31);
   return Array.from({ length: count }, () => ({

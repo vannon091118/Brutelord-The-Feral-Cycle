@@ -1,4 +1,4 @@
-/** Die halbautomatische Gruppe: Befehl setzt den Pfad, Idle erkundet, nichts blockiert. */
+// @doc: docs/daten/raid/raid-move.md#raid-move
 import { tileId } from '../world/tile.js';
 import { mixRaid, unitOf } from './raid-spawn-seed.js';
 import { RAID_ACTION, neighborOf } from './raid-actions.js';
@@ -6,7 +6,6 @@ import { applyAction } from './raid-steps.js';
 import { cellCost, planPath, frontierOf } from './raid-path.js';
 import { RAID_VERB, attackStep } from './raid-verbs.js';
 
-/** Die Erkundung würfelt aus demselben Ticket-Strom, nur mit eigener Salze. */
 const SALT_EXPLORE = 1103515245;
 
 function exploreGoal(state, world) {
@@ -16,7 +15,6 @@ function exploreGoal(state, world) {
   return frontier[Math.floor(unitOf(stream) * frontier.length)];
 }
 
-/** Der Schritt entsteht aus dem Vokabular des Replays, nicht aus einer zweiten Regel. */
 function actionToward(state, world, id) {
   for (const type of Object.values(RAID_ACTION)) {
     const point = neighborOf(state.at, { type });
@@ -35,7 +33,6 @@ function approachTile(state, world, order) {
   return null;
 }
 
-/** Angenommen wird nur, was das Budget trägt; sonst bleibt der Zustand (D9). */
 export function orderFrom(state, world, order) {
   if (!order) return state;
   const here = tileId(state.at.x, state.at.y);

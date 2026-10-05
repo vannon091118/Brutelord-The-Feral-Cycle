@@ -1,7 +1,4 @@
-/**
- * Effekte: der Blitz der Mutation und die kleinen Marken für jede Geburt.
- * Rein visuell — sie folgen dem Zustand, sie erzeugen ihn nicht.
- */
+// @doc: docs/daten/hive/hivefx.md#hivefx
 const PUFFS = [
   { cx: -46, cy: -40, r: 7, delay: '0ms' },
   { cx: -15, cy: 32, r: 8.6, delay: '90ms' },

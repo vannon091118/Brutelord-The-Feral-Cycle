@@ -1,4 +1,4 @@
-/** Der Bauplatz: Umriss, Gerüst, Essenzpunkte. */
+// @doc: docs/daten/buildings/buildsiteart.md#buildsiteart
 import { buildingBox } from './building-geometry.js';
 
 function pipPath(x, y) {

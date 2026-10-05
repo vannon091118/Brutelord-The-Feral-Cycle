@@ -1,4 +1,4 @@
-/** Hartgestein im fremden Dungeon: eigener Hash, eigene Konstanten, kein Zufall. */
+// @doc: docs/daten/raid/raid-terrain.md#raid-terrain
 import { HIVE_ORIGIN } from '../world/world-config.js';
 import { TILE_TERRAIN } from '../world/tile.js';
 import { RAID_TERRAIN } from './raid-config.js';
@@ -26,7 +26,6 @@ function isNearHive({ x, y, hiveOrigin, radius }) {
   return Math.abs(x - hiveOrigin.x) + Math.abs(y - hiveOrigin.y) <= radius;
 }
 
-/** Das Terrain einer Zelle im fremden Dungeon. Die Heimat kennt nur Erdreich. */
 export function terrainAt({ seed, x, y, hiveOrigin = HIVE_ORIGIN, terrain = RAID_TERRAIN } = {}) {
   const hash = cellHash({ seed, x, y });
   const nearHive = isNearHive({ x, y, hiveOrigin, radius: terrain.coreRadius });

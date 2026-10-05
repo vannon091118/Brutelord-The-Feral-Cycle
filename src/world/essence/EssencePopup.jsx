@@ -1,4 +1,4 @@
-/** Essenzsymbol: getragen und als +1 über dem Abladeort. */
+// @doc: docs/daten/essence/essencepopup.md#essencepopup
 function Spark({ scale = 1 }) {
   return (
     <g transform={`scale(${scale})`}>

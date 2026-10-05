@@ -1,7 +1,4 @@
-/**
- * Zustand → Animation. Der Dungling führt keine Regie über sich selbst:
- * die Domäne sagt Idle, Move oder Work, hier wird es nur sichtbar.
- */
+// @doc: docs/daten/dungling/dungling-anim.md#dungling-anim
 import { DUNGLING_STATE } from '../../domain/entities/dungling.js';
 
 const BODY_ANIMATIONS = {

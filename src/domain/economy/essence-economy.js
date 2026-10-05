@@ -1,7 +1,4 @@
-/**
- * Essenz-Ökonomie: Der Hive presst passiv, der Abbau kostet. Der Hive ist der
- * Motor für den Anfang, nie ein Vorrat fürs Endgame — deshalb sein Budget.
- */
+// @doc: docs/daten/economy/essence-economy.md#essence-economy
 export const ESSENCE_ECONOMY = Object.freeze({
   miningCost: 1,
   hiveEveryMs: 10000,

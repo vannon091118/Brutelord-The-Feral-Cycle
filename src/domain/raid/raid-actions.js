@@ -1,4 +1,4 @@
-/** Die zwei Verbformen des Einmarschs: gehen und graben, je vier Richtungen. */
+// @doc: docs/daten/raid/raid-actions.md#raid-actions
 const STEP = Object.freeze({
   N: Object.freeze({ dx: 0, dy: -1 }),
   E: Object.freeze({ dx: 1, dy: 0 }),

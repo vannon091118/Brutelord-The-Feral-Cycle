@@ -4,7 +4,7 @@ const STEP_DUST = [
   { cx: 6, r: 2.8, delay: '240ms' },
 ];
 
-/** Wurzelspitzen statt Werkzeug: drei Zähne, die ins Gestein greifen. */
+// @doc: docs/daten/dungling/dunglingtool.md#dunglingtool
 function RootTeeth() {
   return (
     <g>
@@ -40,7 +40,6 @@ function StepDust({ moving }) {
   ));
 }
 
-/** Wurzelspitzen und die kleine Staubspur beim Kriechen. */
 export function DunglingTool({ working, moving }) {
   return (
     <>

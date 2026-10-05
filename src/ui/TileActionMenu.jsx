@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
 import { MiningMenuItem } from './MiningMenuItem.jsx';
 
-/**
- * Kontextmenü an genau einem Erdblock. Die Welt bleibt darunter vollständig
- * sichtbar. Das Menü enthält genau eine Aktion: Abbau.
- */
+// @doc: docs/daten/ui/tileactionmenu.md#tileactionmenu
 function TileMenuTitle() {
   return (
     <div className="flex items-center gap-1.5 px-1.5 pb-1.5 pt-0.5">

@@ -1,10 +1,9 @@
-/** Der Angriff ist kein Schritt: er hat kein Ziel-Feld, sondern eine Richtungslosigkeit. */
+// @doc: docs/daten/raid/raid-verbs.md#raid-verbs
 import { RAID_CONFIG } from './raid-config.js';
 import { record } from './raid-state.js';
 
 export const RAID_VERB = Object.freeze({ DIG: 'DIG', ATTACK: 'ATTACK' });
 
-/** Jeder Held mit AP zahlt mit; ohne AP gibt es keinen Schlag (fail closed). */
 export function attackStep(state, target) {
   const cost = RAID_CONFIG.attackApCost;
   const joiners = state.heroes.filter((hero) => hero.ap >= cost);

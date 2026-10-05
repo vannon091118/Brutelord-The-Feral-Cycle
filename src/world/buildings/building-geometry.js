@@ -1,7 +1,4 @@
-/**
- * Maße eines Bauwerks in Pixeln — einmal gerechnet, überall gleich. Die
- * Grundfläche steht in der Domäne, hier wird sie nur in Pixel übersetzt.
- */
+// @doc: docs/daten/buildings/building-geometry.md#building-geometry
 import { buildingDef } from '../../domain/buildings/building-config.js';
 
 export function buildingBox(building, tileSize) {

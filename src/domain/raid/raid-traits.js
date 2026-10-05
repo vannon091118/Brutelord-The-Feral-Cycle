@@ -1,7 +1,6 @@
-/** Die Trait-Faltung des Teams: der stärkste Stein zählt, nicht die Summe. */
+// @doc: docs/daten/raid/raid-traits.md#raid-traits
 import { RAID_TRAIT_DEFS, NEUTRAL_TRAITS } from './raid-config.js';
 
-/** Jeder Trait nennt genau eine Achse, also ist der fehlende Wert keine Luecke, sondern neutral. */
 function peak(heroes, key) {
   const values = heroes.flatMap((hero) => (hero.traits ?? [])
     .map((trait) => RAID_TRAIT_DEFS[trait][key])
@@ -17,7 +16,6 @@ export function teamTraitProfile(heroes) {
   });
 }
 
-/** Was das Team aus dem fremden Dungeon heraushält — GREEDY zählt doppelt. */
 export function carriedLoot(loot, traits) {
   return Math.round(loot * traits.lootScale);
 }

@@ -1,4 +1,4 @@
-/** Der Hinweiskanal: geclaimte Nachbarn machen verborgene Vorräte spürbar. */
+// @doc: docs/daten/deposits/deposit-hint.md#deposit-hint
 import { DEPOSIT_PHASE } from './deposit-config.js';
 import { depositOf, withDepositPhase } from './deposit-state.js';
 import { getTile } from '../world/grid.js';

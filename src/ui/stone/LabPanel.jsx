@@ -1,4 +1,4 @@
-/** Das Labor des Brutlords: Inventar links, Arbeitstisch rechts, Kauf oben. */
+// @doc: docs/daten/stone/labpanel.md#labpanel
 import { useState } from 'react';
 import { STONE_CONFIG } from '../../domain/brutelord/stone-config.js';
 import { placedStones, stoneLabel, canAffordStone, labIsFull } from '../../domain/brutelord/lab-state.js';
@@ -51,7 +51,6 @@ function LabTray({ essence, full, onBuy }) {
   );
 }
 
-/** Ohne Stein im Slot und ohne freien Dungling gibt es nichts zu erschaffen. */
 function MakeRow({ placed, candidate, onCreate }) {
   return (
     <div className="flex items-center justify-between rounded-xl border border-violet-400/25 bg-violet-500/10 px-3 py-2">
