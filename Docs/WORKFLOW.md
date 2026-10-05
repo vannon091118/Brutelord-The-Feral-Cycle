@@ -24,6 +24,7 @@ Es gibt **kein `npm test` und keinen Linter.** `gate` hat drei Modi, dazu kommen
 | `npm run verify` | Verhalten der Domäne: Onboarding, Abbau, Verwurzelung, Bau, Brutlord, Ökonomie, Konto | CI |
 | `npm run verify:commits` | Das Commit-Gate gegen sich selbst — Regressionstests der Regelprüfung | CI |
 | `npm run verify:browser` | Dieselbe Onboarding-Kette im echten Chromium, mit angehaltener Uhr — braucht einen Browser und den Port 5199 | Hand |
+| `VERIFY_SHOTS=1 npm run verify:browser` | Zusätzlich die Bilder in `Docs/shots/` neu erzeugen — sonst fasst der Lauf die versionierten Bilder nicht an | Hand |
 | `npm run build` | Importauflösung über den echten Bundler | CI |
 
 ```sh

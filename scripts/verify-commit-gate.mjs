@@ -36,6 +36,15 @@ const bulkEntry = (message) => ({ sha: 'bulk', message, paths: manyPaths });
 const bulkOk = commitViolations(bulkEntry(`feat: Migration\n\n${bulkProse}\n\n${bulkList}\n\n${REQUIRED_LABEL}`));
 const bulkTooShort = commitViolations(bulkEntry(`feat: Migration\n\nSehr kurz.\n\n${bulkList}\n\n${REQUIRED_LABEL}`));
 
+const shotsPaths = ['Docs/shots/00-konto-tor.jpg', 'Docs/shots/11-dungling-am-werk.jpg'];
+const shotsMessage = `chore: nur Bilder\n\n${explanation}\n${shotsPaths.join(', ')}\n\n${REQUIRED_LABEL}`;
+const shotsOnly = commitViolations({ sha: 'shots', message: shotsMessage, paths: shotsPaths });
+const shotsWithCode = commitViolations({
+  sha: 'mixed',
+  message: shotsMessage.replace(`\n\n${REQUIRED_LABEL}`, `\nsrc/domain/entities/hive.js\n\n${REQUIRED_LABEL}`),
+  paths: [...shotsPaths, 'src/domain/entities/hive.js'],
+});
+
 const foreignTail = `${valid}\nCo-Authored-By: Bot <bot@example.com>\nGenerated with Freebuff 🤖\nFremd-Footer: geladen`;
 const stripped = stripForeignFooters(foreignTail);
 const strippedValid = commitViolations(makeEntry(stripped));
@@ -62,6 +71,8 @@ const checks = [
   ['Zu kurzer Body wird abgewiesen', tooShort.some((item) => item.rule.includes('100–1000'))],
   ['Eine Dateiliste mit 340 Pfaden frisst das Wortbudget nicht', bulkOk.length === 0, bulkOk.map((i) => i.rule).join('; ')],
   ['Die Mindestlänge gilt neben einer langen Dateiliste weiter', bulkTooShort.some((item) => item.rule.includes('100–1000'))],
+  ['Ein Commit nur aus generierten Bildern wird abgewiesen', shotsOnly.some((item) => item.rule.includes('generierten Bildern')), shotsOnly.map((i) => i.rule).join('; ')],
+  ['Bilder neben echtem Code sind erlaubt', shotsWithCode.length === 0, shotsWithCode.map((i) => `${i.rule}: ${i.detail}`).join('; ')],
   ['HEAD gilt als vorhandene Referenz', hasRef('HEAD')],
   ['Ein erfundener SHA gilt nicht als vorhanden', !hasRef('deadbeefdeadbeefdeadbeefdeadbeefdeadbeef')],
   ['Unsinn gilt nicht als vorhanden', !hasRef('kaputt')],

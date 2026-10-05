@@ -167,6 +167,10 @@ umbenennen kann, ohne dass eine zweite Wahrheit zurückbleibt.
   langen Liste unverändert weiter, das prüft `verify-commit-gate.mjs`.
 - **Jede geänderte Datei muss namentlich im Body vorkommen** — vollständiger
   Pfad, nicht der Ordnername. `src/x.js` zählt, `src/` nicht.
+- **Kein Commit allein aus generierten Bildern.** Besteht ein Commit
+  ausschließlich aus Dateien unter `Docs/shots/`, wird er abgewiesen: die Bilder
+  entstehen bei jeder Abnahme und würden den Code-Commit verdecken. Ein Bild
+  darf mit echten Änderungen mitgehen, allein nicht.
 - Letzte nichtleere Body-Zeile, **exakt einmal**:
   `created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.`
 - Verboten sind: `Co-Authored-By`, `Signed-off-by`, `Reviewed-by`,

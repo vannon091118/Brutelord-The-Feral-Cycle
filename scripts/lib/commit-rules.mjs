@@ -6,6 +6,7 @@ export const REQUIRED_LABEL =
   'created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.';
 export const MIRRORS = ['VERSION', 'version.lock.json', 'package.json', 'package-lock.json'];
 export const DOC_FILES = ['Docs/ROADMAP_OPEN.md', 'Docs/CHECKPOINTS.md'];
+export const SHOTS_PREFIX = 'Docs/shots/';
 // Kennzeichnet die Zeilen, die ein Generator schreibt und die kein Mensch liest.
 export const MACHINE_PREFIX = 'Geaendert wurden';
 
@@ -73,6 +74,16 @@ function wordViolations(body) {
   }];
 }
 
+// Bilder aus Docs/shots/ entstehen bei jeder Abnahme und gehoeren nie allein in einen Commit.
+function generatedOnlyViolations(paths) {
+  const normalized = paths.map((path) => path.replace(/\\/g, '/'));
+  if (normalized.length === 0 || !normalized.every((path) => path.startsWith(SHOTS_PREFIX))) return [];
+  return [{
+    rule: 'kein Commit allein aus generierten Bildern',
+    detail: `${normalized.length} Datei(en) unter ${SHOTS_PREFIX} und sonst nichts — die Bilder werden bei jedem verify neu erzeugt`,
+  }];
+}
+
 function changedPathViolations(body, paths) {
   const text = body.replace(/\\/g, '/').toLowerCase();
   return paths
@@ -88,7 +99,12 @@ export function commitViolations(entry) {
   if (subject.length > COMMIT_LIMITS.subjectLength) {
     issues.push({ rule: `Betreff höchstens ${COMMIT_LIMITS.subjectLength} Zeichen`, detail: `${subject.length} Zeichen` });
   }
-  issues.push(...wordViolations(body), ...labelViolations(body), ...changedPathViolations(body, entry.paths));
+  issues.push(
+    ...wordViolations(body),
+    ...labelViolations(body),
+    ...generatedOnlyViolations(entry.paths),
+    ...changedPathViolations(body, entry.paths),
+  );
   for (const rule of FORBIDDEN) {
     const scannedText = rule.id === 'generic-trailer' ? body : entry.message;
     if (rule.pattern.test(scannedText)) {
@@ -103,8 +119,7 @@ function isForeign(line) {
 }
 
 export function stripForeignFooters(message) {
-  // Zeile null ist der Betreff — konventionelle Subjects sehen aus wie
-  // Key-value-Trailer und wären sonst Opfer der eigenen Regel.
+  // Zeile null ist der Betreff: konventionelle Subjects wären sonst eigene Opfer.
   const kept = message
     .replace(/\r/g, '')
     .split('\n')
