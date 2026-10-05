@@ -10,7 +10,6 @@ const DIR_OF = Object.freeze({ N: [0, -1], E: [1, 0], S: [0, 1], W: [-1, 0], NE:
 const SIDES = Object.freeze(['N', 'E', 'S', 'W']);
 const CORNERS = Object.freeze(['NE', 'SE', 'SW', 'NW']);
 
-/** Offen für die Silhouette ist, was kein abgetrennter Erdblock ist. */
 function isEdgeCell(tile) {
   return Boolean(tile) && (tile.kind === TILE_KIND.DUNGEON_FLOOR || tile.kind === TILE_KIND.HIVE);
 }

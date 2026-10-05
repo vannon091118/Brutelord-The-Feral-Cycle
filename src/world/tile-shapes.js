@@ -163,23 +163,17 @@ function sideSpan(side) {
  *  Seiten wölbt sie sich organisch — die Rinne zwischen zwei Erdblöcken stirbt. */
 export function soilMaskBlob({ x, y, size, open, seed, notch = null, inset = 4, jitter = 2.6, points = 16, outward = 10, overlap = 2.5 }) {
   const rng = makeRng(seed);
-  const pts = maskPoints({ x, y, size, open, notch, rng, overlap, tuning: { rng, inset, jitter, wobble: 0, outward, points } });
+  const tuning = { rng, inset, jitter, wobble: 0, outward, points };
+  const border = (t) => perimeterPoint({ t, minX: x + inset, minY: y + inset, maxX: x + size - inset, maxY: y + size - inset });
+  const pts = maskPoints({ x, y, size, open, notch, rng, overlap, tuning, border });
   pts.sort((a, b) => a.place - b.place);
   return smoothClosedPath(pts.map((entry) => entry.point));
 }
 
 function maskPoints({ x, y, size, open, notch, rng, overlap, tuning }) {
   const border = (t) => perimeterPoint({ t, minX: x + tuning.inset, minY: y + tuning.inset, maxX: x + size - tuning.inset, maxY: y + size - tuning.inset });
-  const seamPoint = (side, t) => {
-    const p = border(t);
-    const o = tuning.inset + (0.55 + rng() * 0.45) * overlap;
-    return { x: p.x + p.nx * o, y: p.y + p.ny * o };
-  };
-  const notchPoint = (corner) => {
-    const p = border(CORNER_PLACE[corner]);
-    const [dx, dy] = CORNER_IN[corner];
-    return { x: p.x + dx * 2.2, y: p.y + dy * 2.2 };
-  };
+  const seamPoint = (side, t) => { const p = border(t); const o = tuning.inset + (0.55 + rng() * 0.45) * overlap; return { x: p.x + p.nx * o, y: p.y + p.ny * o } };
+  const notchPoint = (corner) => { const p = border(CORNER_PLACE[corner]); const [dx, dy] = CORNER_IN[corner]; return { x: p.x + dx * 2.2, y: p.y + dy * 2.2 } };
   const openSides = SIDES.filter((side) => open[side]);
   const per = Math.max(2, Math.round(tuning.points / Math.max(1, openSides.length)));
   const pts = [];
