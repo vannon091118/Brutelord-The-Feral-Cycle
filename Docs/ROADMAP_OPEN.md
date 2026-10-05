@@ -27,37 +27,6 @@ wandert seine Spiegel-Datei im selben Änderungsbereich mit; was das Gate
 `npm run gate -- --spiegel` über 80 Doku-Zeilen sagt, ist der Auftrag, das
 Modul zu spalten.
 
-- [x] **Der Code zeigt auf seine Erklärung, er trägt sie nicht mehr.** Unter
-      `src/` ist auf **eine** Kommentarzeile reduziert, und die ist ein
-      `@doc`-Pointer. 160 Module haben jetzt je eine Spiegel-Datei unter
-      `docs/daten/`; der Kommentar-Text ist dorthin gewandert, der Code
-      behielt seine Zeile. Das Gate (`npm run gate -- --spiegel`, in der CI
-      eingehängt) bricht bei zweiter Kommentarzeile, Pointer ohne Anker,
-      totem Link, verwaister Doku, mehr als 80 Doku-Zeilen oder Drift ab —
-      Quelle und Spiegel müssen im selben Änderungsbereich wandern. Die
-      80-Zeilen-Grenze ist der SRP-Trigger: Reicht sie nicht, ist das Modul zu
-      groß und wird gespalten, nicht die Erklärung gestaucht.
-  Status: geplant
-  Scope: CI
-  Kategorie: Refactor
-  Version: ausstehend
-  Datum: ausstehend
-
-- [x] **159 Spiegel-Dateien trugen den Pointer statt des Textes.** Der zweite
-      Migrationslauf hatte `docs/daten` geloescht und aus den bereits
-      migrierten Quellen neu erzeugt: 479 Kommentarzeilen aus `src/` waren aus
-      dem Baum verschwunden und nur noch im Git des Vor-Migrations-Commits zu
-      finden, waehrend das Gate gruen blieb. Der Migrator schreibt jetzt Prosa
-      nie ueber, laeuft byteidentisch und haelt den Pointer fuer eine Adresse;
-      eine neue Regel laesst `## Verantwortung` nur dann durch, wenn sie mehr
-      als den Pointer traegt. Die Prosa ist aus `99da74e` zurueckgeholt und in
-      155 Dateien wieder da, 5 Module hatten nie einen Kommentar.
-  Status: geplant
-  Scope: CI
-  Kategorie: Bugfix
-  Version: ausstehend
-  Datum: ausstehend
-
 ## 0.0.24 — Bestand und Tor
 
 Der Schwarm arbeitet, das Bestand-Problem ist adressiert. Diese Einträge
