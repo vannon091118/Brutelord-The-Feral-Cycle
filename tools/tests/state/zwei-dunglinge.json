@@ -1839,7 +1839,7 @@
    "phase": "SETTLED",
    "spawned": 1,
    "pressed": 12,
-   "progressMs": 1800
+   "progressMs": 7400
   },
   "dunglings": [
    {
@@ -1855,7 +1855,7 @@
      "kind": "EXTRACT",
      "buildingId": "building-1",
      "phase": "ATTEND",
-     "progressMs": 3400,
+     "progressMs": 3000,
      "durationMs": 15000,
      "origin": {
       "x": 31,
@@ -1920,7 +1920,7 @@
     "delivered": 6,
     "required": 6,
     "workers": [],
-    "progressMs": 600
+    "progressMs": 200
    }
   ],
   "buildChoice": null,

@@ -65,24 +65,38 @@ export async function panelText(page) {
 }
 
 /** Ein Element auf ein anderes ziehen. Bekommen werden **Selektoren**: `dragTo`
- *  benutzt die Maus und loest kein HTML5-Drop aus, wirft aber keinen Fehler —
- *  darum kommen die echten `DragEvent`s samt DataTransfer immer dazu. */
-export async function dropOn(page, fromSel, toSel) {
-  await page.locator(fromSel).dragTo(page.locator(toSel)).catch(() => null);
+ *  benutzt die Maus und loest kein HTML5-Drop aus, wirft aber keinen Fehler. */
+function fireDrop(page, [sourceSel, targetSel]) {
   return page.evaluate(
-    ([sourceSel, targetSel]) => {
-      const source = document.querySelector(sourceSel);
-      const target = document.querySelector(targetSel);
+    ([from, to]) => {
+      const source = document.querySelector(from);
+      const target = document.querySelector(to);
       if (!source || !target) return false;
       const data = new DataTransfer();
       const carry = (node, type) =>
         node.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: data }));
-      carry(source, 'dragstart');
       carry(target, 'dragover');
       carry(target, 'drop');
       carry(source, 'dragend');
       return true;
     },
-    [fromSel, toSel],
+    [sourceSel, targetSel],
   );
+}
+
+/** Das Labor holt den Stein nicht aus der DataTransfer, sondern aus dem State,
+ *  den `dragstart` setzt. React braucht einen Zug dazwischen. */
+function fireDragStart(page, sourceSel) {
+  return page.evaluate((from) => {
+    document
+      .querySelector(from)
+      ?.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true, dataTransfer: new DataTransfer() }));
+  }, sourceSel);
+}
+
+export async function dropOn(page, fromSel, toSel) {
+  await page.locator(fromSel).dragTo(page.locator(toSel)).catch(() => null);
+  await fireDragStart(page, fromSel);
+  await page.waitForTimeout(150);
+  return fireDrop(page, [fromSel, toSel]);
 }

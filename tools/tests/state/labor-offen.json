@@ -213,7 +213,7 @@
      "floorOrigin": "MINED",
      "rooting": {
       "phase": "GROWING",
-      "progress": 0.8900000000000006
+      "progress": 0.9000000000000006
      }
     },
     "31,30": {
@@ -2062,7 +2062,7 @@
    "phase": "SETTLED",
    "spawned": 1,
    "pressed": 19,
-   "progressMs": 200
+   "progressMs": 5800
   },
   "dunglings": [
    {
@@ -2078,7 +2078,7 @@
      "kind": "EXTRACT",
      "buildingId": "building-1",
      "phase": "ATTEND",
-     "progressMs": 600,
+     "progressMs": 1200,
      "durationMs": 15000,
      "origin": {
       "x": 31,
@@ -2185,7 +2185,7 @@
     "delivered": 6,
     "required": 6,
     "workers": [],
-    "progressMs": 9200
+    "progressMs": 8800
    },
    {
     "id": "building-3",
@@ -2242,7 +2242,7 @@
    "tileId": "32,29",
    "phase": "COMPLETE",
    "progress": 1,
-   "tick": 35,
+   "tick": 34,
    "totalTicks": 35,
    "burstCount": 0,
    "workerId": "dungling-2"

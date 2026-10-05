@@ -34,7 +34,7 @@
      "floorOrigin": "MINED",
      "rooting": {
       "phase": "GROWING",
-      "progress": 0.060000000000000005
+      "progress": 0.07
      }
     }
    },
@@ -1841,7 +1841,7 @@
    "phase": "SETTLED",
    "spawned": 1,
    "pressed": 1,
-   "progressMs": 6400
+   "progressMs": 9200
   },
   "dunglings": [
    {
