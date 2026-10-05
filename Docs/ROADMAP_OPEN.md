@@ -109,6 +109,40 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
   Version: ausstehend
   Datum: ausstehend
 
+- [x] **Der Gang um den Hive, und die Erde verschmilzt auch an seinem Rand.**
+      Der Start legte genau ein Feld Boden frei, der Dungling saß an einer Wand
+      aus Erde. `BURROW_RING` in `world-config.js` legt jetzt jede Kachel im
+      Abstand eins um den Hive frei — zwölf Felder, der Start liegt mittendrin.
+      Der Ring hängt an der Startkachel, nicht am Hive: die Raid-Welt ruft
+      `createWorld` mit `spawnTile: null` und bleibt ohne Gang. Der erste
+      Erdblock steht auf 32,34, weil 32,33 jetzt Boden ist. Dazu die zweite
+      Hälfte: eine Erdkachel mit genau **einer** offenen Seite bekam keinen
+      Eckpunkt, ihre Silhouette schnitt die Ecke ab und ließ an der Naht einen
+      Keil stehen. Genau diesen Fall trägt jede Randkachel des Rings.
+      `cornerPoint()` in `tile-shapes.js` kennt ihn jetzt; gemessen am Verbund
+      um den Hive fielen die ungedeckten Pixel von 830 auf 159. Der Anker für
+      den Reveal musste mitwachsen, sonst trägt der frische Boden eine Wand zur
+      Unbekannten — `check-burrow-ring.mjs` prüft genau das, samt Gegenprobe.
+      Die Abnahme steht bei 516 Prüfungen.
+  Status: geplant
+  Scope: Welt
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+- [ ] **Der Tiefenschein ist noch nicht auf Gerät gemessen.** `EarthDepth.jsx`
+      liegt als eine einzige animierte Ebene über allen sichtbaren Erdflächen —
+      ein Pfad je Kachel, aber nur eine Bewegung für den ganzen Verbund, weil
+      eine Animation je Kachel auf schwacher Hardware jede Kachel einzeln neu
+      malt. Die Grundtiefe je Kachel kommt aus dem Seed. Was fehlt, ist die
+      Messung: ob die Ebene auf einem schwachen Gerät hält, und ob das Dunkel
+      in der Wiege gut aussieht, hat noch niemand auf einem Bildschirm gesehen.
+  Status: geplant
+  Scope: Welt
+  Kategorie: Abnahme
+  Version: ausstehend
+  Datum: ausstehend
+
 ---
 
 ## Was hier NICHT steht

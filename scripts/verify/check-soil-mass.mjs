@@ -6,6 +6,7 @@ import { check, section } from './expect.mjs';
 const SIZE = 48;
 const ZU = { N: false, E: false, S: false, W: false };
 const AUF = { N: true, E: true, S: true, W: true };
+const EIN = { N: false, E: true, S: false, W: false };
 const seedOf = 12345;
 
 function zahlenVon(d) {
@@ -30,6 +31,21 @@ function massOf(open, notch = null, seed = seedOf) {
 
 function massAt({ x, y, open, notch = null, seed = seedOf }) {
   return rahmenVon(soilMaskBlob({ x, y, size: SIZE, open, notch, seed }));
+}
+
+function stuetzpunkte(d) {
+  return [...d.matchAll(/Q(-?[\d.]+),(-?[\d.]+)/g)].map((m) => ({ x: Number(m[1]), y: Number(m[2]) }));
+}
+
+function naechster(liste, cx, cy) {
+  return liste.reduce((best, p) => {
+    const abstand = Math.hypot(p.x - cx, p.y - cy);
+    return abstand < best.abstand ? { abstand, p } : best;
+  }, { abstand: Infinity, p: null }).p;
+}
+
+function traegt(liste, punkt) {
+  return liste.some((p) => p.x === punkt.x && p.y === punkt.y);
 }
 
 /** Der am weitesten nach aussen gerichtete Stuetzpunkt einer Ecke. */
@@ -109,9 +125,25 @@ function checkNaht() {
     ymin <= 1, `y=${ymin.toFixed(2)} bei ${mitte.length} Punkten`);
 }
 
+function checkOffeneEcke() {
+  section('Boden: die einseitig offene Kachel behaelt ihre Ecknaht');
+  const ein = soilMaskBlob({ x: 0, y: 0, size: SIZE, open: EIN, notch: null, seed: seedOf });
+  const zu = soilMaskBlob({ x: 0, y: 0, size: SIZE, open: ZU, notch: null, seed: seedOf });
+  const ecken = [['NE', SIZE, 0], ['SE', SIZE, SIZE], ['SW', 0, SIZE], ['NW', 0, 0]];
+  for (const [ecke, cx, cy] of ecken) {
+    const naht = naechster(stuetzpunkte(zu), cx, cy);
+    check(`${ecke}: offen traegt dieselbe Ecknaht wie geschlossen`,
+      traegt(stuetzpunkte(ein), naht), `Naht ${naht.x},${naht.y} fehlt`);
+  }
+  const mitKerbe = soilMaskBlob({ x: 0, y: 0, size: SIZE, open: EIN, notch: { NE: true, SE: false, SW: false, NW: false }, seed: seedOf });
+  const neNaht = naechster(stuetzpunkte(zu), SIZE, 0);
+  check('Die Kerbe schlaegt die Ecknaht auch bei offener Nachbarseite', !traegt(stuetzpunkte(mitKerbe), neNaht));
+}
+
 export function checkSoilMass() {
   checkVerbund();
   checkNaht();
   checkEcke();
   checkKerbe();
+  checkOffeneEcke();
 }

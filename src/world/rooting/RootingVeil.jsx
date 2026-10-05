@@ -33,6 +33,12 @@ function Tendril({ tendril, coverage }) {
   );
 }
 
+export function RootingLayer({ tiles, size, world = null }) {
+  return tiles
+    .filter((tile) => rootingCoverage(tile.rooting) > 0)
+    .map((tile) => <RootingVeil key={`root-${tile.id}`} tile={tile} size={size} world={world} />);
+}
+
 export const RootingVeil = memo(function RootingVeil({ tile, size, world = null }) {
   const coverage = rootingCoverage(tile.rooting);
   if (coverage <= 0) return null;

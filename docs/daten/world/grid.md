@@ -11,11 +11,20 @@ einer Kachel-Id einen Platz im Raster macht. Dieselbe Kachel über Koordinaten �
 ohne Zwischendeklaration. Mehrere Kacheln in einem Zug: eine Kopie des Rasters statt einer
 je Kachel.
 
+Der Start bekommt einen Gang: `isBurrowCell()` legt jede Kachel im Abstand `BURROW_RING` um
+den Hive als Burrow-Boden an, bei einem 2 × 2-Hive sind das zwölf Felder. Der Gang hängt an
+der Startkachel, nicht am Hive: ohne `spawnTile` gibt es keinen Ring, die Raid-Welt bleibt
+unberührt. `burrowAnchorIds()` setzt dieselben Zellen als Sondenanker, damit der Reveal eine
+Reihe weiter außen garantiert sichtbar wird — sonst trüge der frische Boden eine Wand zur
+verborgenen Erde und `check-edge-mask.mjs` würde zu Recht rot.
+
 ## Schnittstellen
 
 - `isHiveCell()`
+- `isBurrowCell()`
 - `tileForCell()`
 - `hiveAnchorIds()`
+- `burrowAnchorIds()`
 - `fillTiles()`
 - `withDeposits()`
 - `cellIndex()`

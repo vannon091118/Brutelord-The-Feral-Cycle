@@ -24,7 +24,7 @@ export const ONBOARDING_CONFIG = Object.freeze({
 
   dunglingSpawnTile: Object.freeze({ x: 31, y: 33 }),
 
-  firstEarthBlock: Object.freeze({ x: 32, y: 33 }),
+  firstEarthBlock: Object.freeze({ x: 32, y: 34 }),
 
   particleBurstIntervalMs: 240,
   particleLifetimeMs: 950,

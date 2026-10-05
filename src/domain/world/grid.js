@@ -1,5 +1,6 @@
 // @doc: docs/daten/world/grid.md#grid
 import {
+  BURROW_RING,
   GRID_HEIGHT,
   GRID_WIDTH,
   HIVE_ORIGIN,
@@ -30,9 +31,19 @@ function isHiveCell(x, y, hiveOrigin) {
   );
 }
 
+export function isBurrowCell(x, y, hiveOrigin) {
+  return (
+    x >= hiveOrigin.x - BURROW_RING &&
+    x < hiveOrigin.x + HIVE_SIZE.width + BURROW_RING &&
+    y >= hiveOrigin.y - BURROW_RING &&
+    y < hiveOrigin.y + HIVE_SIZE.height + BURROW_RING
+  );
+}
+
 function tileForCell({ x, y, hiveOrigin, spawnTile }) {
   if (isHiveCell(x, y, hiveOrigin)) return createHiveTile(x, y);
-  if (spawnTile && x === spawnTile.x && y === spawnTile.y) {
+  const entrance = spawnTile && x === spawnTile.x && y === spawnTile.y;
+  if (spawnTile && (isBurrowCell(x, y, hiveOrigin) || entrance)) {
     return createFloorTile(x, y, FLOOR_ORIGIN.HIVE_BURROW);
   }
   return { ...createEarthTile(x, y), visibility: TILE_VISIBILITY.HIDDEN };
@@ -42,6 +53,18 @@ function hiveAnchorIds(hiveOrigin) {
   const ids = [];
   for (let y = hiveOrigin.y; y < hiveOrigin.y + HIVE_SIZE.height; y += 1) {
     for (let x = hiveOrigin.x; x < hiveOrigin.x + HIVE_SIZE.width; x += 1) ids.push({ x, y });
+  }
+  return ids;
+}
+
+function burrowAnchorIds(hiveOrigin) {
+  const ids = [];
+  const width = HIVE_SIZE.width + BURROW_RING * 2;
+  const height = HIVE_SIZE.height + BURROW_RING * 2;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      ids.push({ x: hiveOrigin.x - BURROW_RING + x, y: hiveOrigin.y - BURROW_RING + y });
+    }
   }
   return ids;
 }
@@ -68,7 +91,8 @@ export function createWorld({
     tiles: fillTiles({ width, height, hiveOrigin, spawnTile }),
   };
 
-  return revealWorld(withDeposits(world, spawnTile), [...hiveAnchorIds(hiveOrigin), ...(spawnTile ? [spawnTile] : [])]);
+  const anchors = [...hiveAnchorIds(hiveOrigin), ...(spawnTile ? [spawnTile, ...burrowAnchorIds(hiveOrigin)] : [])];
+  return revealWorld(withDeposits(world, spawnTile), anchors);
 }
 
 function fillTiles({ width, height, hiveOrigin, spawnTile }) {

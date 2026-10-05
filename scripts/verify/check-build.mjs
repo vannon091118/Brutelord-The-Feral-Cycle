@@ -11,14 +11,15 @@ import {
 } from '../../src/domain/buildings/building-config.js';
 import { JOB_CONFIG } from '../../src/domain/labour/job-config.js';
 import { ONBOARDING_CONFIG } from '../../src/domain/onboarding/onboarding-config.js';
-import { buildRun } from './build-run.mjs';
+import { countFloorTiles, createWorld } from '../../src/domain/world/grid.js';
+import { ROOM_IDS, buildRun } from './build-run.mjs';
 import { check, section } from './expect.mjs';
 
 const def = (type) => BUILDING_DEFS[type];
 
 function checkSites(run) {
   section('Bauen: Bauplatz, Essenz und Fertigstellung');
-  check('Sechs Felder abgebaut, sieben nutzbar', run.mined.usableTileCount === 7);
+  check('Sechs Felder abgebaut, dazu der Ring', run.mined.usableTileCount === countFloorTiles(createWorld()) + ROOM_IDS.length);
   check('Der Startvorrat reicht nicht für den teuersten Bau', run.bruteLordRefused);
   check('Der Bauplatz verlangt den Preis des Baus', run.extractor.required === def(BUILDING_TYPE.ESSENCE_EXTRACTOR).cost);
   check('Vor der Lieferung steht nur der Bauplatz', run.extractor.stateBefore === BUILDING_STATE.SITE);

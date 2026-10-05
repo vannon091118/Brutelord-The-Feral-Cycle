@@ -24,6 +24,14 @@ Erdfelder zusammenstossen, bleibt ein dunkler Stern. Eine geschlossene Ecke ist 
 nicht immer eine Kerbe: die Kerbe gilt nur, wenn die Diagonale begehbar ist, also am
 Hive — dort bleibt der Biss erhalten und hat Vorrang vor dem Eckpunkt.
 
+**Auch eine Ecke mit genau einer offenen Seite braucht ihren Punkt.** Die alte Schleife kannte
+nur drei Fälle und ließ diesen aus; die Kurve zog dann eine lange Sehne vom Nahtpunkt der
+geschlossenen Seite zum ersten Punkt der offenen und ließ an der Naht zum Boden einen Keil
+stehen. Jede Randkachel des Burrow-Rings trägt genau diesen Fall. Gemessen am Verbund um den
+Hive, Fenster 11 × 12 Kacheln im Raster von einem Pixel: 830 ungedeckte Pixel ohne den Punkt,
+159 mit ihm. Die Kerbe zieht nach innen, die Ecknaht nach aussen — die Richtungen dürfen sich
+nicht vermischen, sonst verschwindet der Biss am Hive.
+
 ## Schnittstellen
 
 - `tileSeed()`
@@ -44,6 +52,7 @@ Hive — dort bleibt der Biss erhalten und hat Vorrang vor dem Eckpunkt.
 - `seamPoint()`
 - `seamCorner()`
 - `notchPoint()`
+- `cornerPoint()`
 - `wallBand()`
 
 Aus der Migration vom 2026-10-05 hervorgegangen.

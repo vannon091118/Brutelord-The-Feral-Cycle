@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Führt die Slice-Akzeptanzprüfungen in fachlichen Gruppen aus. */
 import {
-  checkArchitecture, checkColony, checkEdgeMaskGroup, checkHitJuice, checkMining,
+  checkArchitecture, checkBurrowRing, checkColony, checkEdgeMaskGroup, checkHitJuice, checkMining,
   checkOnboarding, checkRaidCap, checkRaidGroup, checkSoilMass, checkRooting, checkStart, checkStartup,
   checkStorage, checkVerticality, checkVerticalityWiring, makeOnboardingRun, summary,
 } from './verify/index.mjs';
@@ -21,6 +21,7 @@ async function main() {
   checkRaidGroup();
   checkRaidCap();
   checkSoilMass();
+  checkBurrowRing();
   await checkStorage();
   checkVerticality();
   checkVerticalityWiring();

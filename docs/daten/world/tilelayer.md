@@ -6,14 +6,16 @@ Spiegel-Datei für `src/world/TileLayer.jsx`.
 
 ## Verantwortung
 
-Das Feld in vier Durchgängen: Erde, Boden, Wurzeln, Vorräte, Bauten.
+Das Feld in Durchgängen: Erde, Tiefe, Boden, Wurzeln, Vorräte, Bauten. Die Reihenfolge ist
+Inhalt, nicht Geschmack: die Tiefe liegt zwischen Erde und Boden, weil die Erdmasse über ihre
+Kachel hinausragt und der Boden den Überstand verdecken muss; Hive, Dunglinge und Bauten
+kommen eine Ebene höher.
 
 ## Schnittstellen
 
 - `EarthCell()`
 - `earthTiles()`
 - `floorTiles()`
-- `rootedTiles()`
 - `TileLayer()`
 
 Aus der Migration vom 2026-10-05 hervorgegangen.

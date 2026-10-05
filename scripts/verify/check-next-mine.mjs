@@ -21,5 +21,5 @@ export function checkNextMine(state) {
   clock.state = ordered;
   clock.schedule();
   clock.run();
-  check('Folgeabbau gewinnt exakt ein Feld', clock.state.usableTileCount === 3);
+  check('Folgeabbau gewinnt exakt ein Feld', clock.state.usableTileCount === state.usableTileCount + 1);
 }

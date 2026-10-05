@@ -19,7 +19,12 @@ function SelectionRing({ box, tileSize }) {
 }
 
 // @doc: docs/daten/buildings/buildingnode.md#buildingnode
-function HitArea({ id, box, onSelect }) {
+function HitArea({ id, box, label, onSelect }) {
+  const onKeyDown = (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    onSelect(id);
+  };
   return (
     <rect
       x={box.x}
@@ -27,8 +32,12 @@ function HitArea({ id, box, onSelect }) {
       width={box.width}
       height={box.height}
       fill="transparent"
+      role="button"
+      aria-label={`${label} anklicken`}
+      tabIndex={0}
       style={{ cursor: 'pointer' }}
       onClick={() => onSelect(id)}
+      onKeyDown={onKeyDown}
     />
   );
 }
@@ -46,7 +55,7 @@ export const BuildingNode = memo(function BuildingNode({ building, tileSize, sel
     <g>
       <BuildingArt building={building} tileSize={tileSize} />
       {selected ? <SelectionRing box={box} tileSize={tileSize} /> : null}
-      <HitArea id={building.id} box={box} onSelect={onSelect} />
+      <HitArea id={building.id} box={box} label={def.label} onSelect={onSelect} />
     </g>
   );
 });

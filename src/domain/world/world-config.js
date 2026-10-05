@@ -7,6 +7,8 @@ export const GRID_HEIGHT = 64;
 export const HIVE_ORIGIN = Object.freeze({ x: 31, y: 31 });
 export const HIVE_SIZE = Object.freeze({ width: 2, height: 2 });
 
+export const BURROW_RING = 1;
+
 export const REVEAL_RADIUS = 2;
 export const REVEAL_GUARANTEED = 1;
 
