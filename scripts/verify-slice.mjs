@@ -2,7 +2,7 @@
 /** Führt die Slice-Akzeptanzprüfungen in fachlichen Gruppen aus. */
 import {
   checkArchitecture, checkColony, checkEdgeMaskGroup, checkHitJuice, checkMining,
-  checkOnboarding, checkRaidCap, checkRaidGroup, checkRooting, checkStart, checkStartup,
+  checkOnboarding, checkRaidCap, checkRaidGroup, checkSoilMass, checkRooting, checkStart, checkStartup,
   checkStorage, checkVerticality, checkVerticalityWiring, makeOnboardingRun, summary,
 } from './verify/index.mjs';
 
@@ -20,6 +20,7 @@ async function main() {
   await checkColony(run);
   checkRaidGroup();
   checkRaidCap();
+  checkSoilMass();
   await checkStorage();
   checkVerticality();
   checkVerticalityWiring();

@@ -170,7 +170,8 @@ export function soilMaskBlob({ x, y, size, open, seed, notch = null, inset = 4, 
 
 function maskPoints({ x, y, size, open, notch, rng, overlap, tuning }) {
   const border = (t) => perimeterPoint({ t, minX: x + tuning.inset, minY: y + tuning.inset, maxX: x + size - tuning.inset, maxY: y + size - tuning.inset });
-  const seamPoint = (side, t) => { const p = border(t); const o = tuning.inset + (0.55 + rng() * 0.45) * overlap; return { x: p.x + p.nx * o, y: p.y + p.ny * o } };
+  const seamPoint = (side, t) => { const p = border(t); const o = tuning.inset + (0.55 + rng() * 0.45) * overlap; return { x: p.x - p.nx * o, y: p.y - p.ny * o } };
+  const seamCorner = (corner) => { const p = border(CORNER_PLACE[corner]); const [dx, dy] = CORNER_IN[corner]; const o = tuning.inset + overlap * 2; return { x: p.x - dx * o, y: p.y - dy * o } };
   const notchPoint = (corner) => { const p = border(CORNER_PLACE[corner]); const [dx, dy] = CORNER_IN[corner]; return { x: p.x + dx * 2.2, y: p.y + dy * 2.2 } };
   const openSides = SIDES.filter((side) => open[side]);
   const per = Math.max(2, Math.round(tuning.points / Math.max(1, openSides.length)));
@@ -192,6 +193,7 @@ function maskPoints({ x, y, size, open, notch, rng, overlap, tuning }) {
   for (const corner of ['NE', 'SE', 'SW', 'NW']) {
     if (open[corner[0]] && open[corner[1]]) pts.push({ place: CORNER_PLACE[corner] || 0.999, point: blobPoint({ place: CORNER_PLACE[corner], ...tuning }, { x, y, size }) });
     else if (notch && notch[corner]) pts.push({ place: CORNER_PLACE[corner] || 0.999, point: notchPoint(corner) });
+    else if (!open[corner[0]] && !open[corner[1]]) pts.push({ place: CORNER_PLACE[corner] || 0.999, point: seamCorner(corner) });
   }
   return pts;
 }

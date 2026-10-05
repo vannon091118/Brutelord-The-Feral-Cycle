@@ -9,6 +9,7 @@ export { checkColony } from './check-colony.mjs';
 export { checkRaidGroup } from './check-raid-group.mjs';
 export { checkStorage } from './check-storage.mjs';
 export { checkRaidCap } from './check-raid-cap.mjs';
+export { checkSoilMass } from './check-soil-mass.mjs';
 export { checkVerticality } from './check-verticality.mjs';
 export { checkVerticalityWiring } from './check-verticality-wiring.mjs';
 export { checkStartup } from './check-startup.mjs';
