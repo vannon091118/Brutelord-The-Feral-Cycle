@@ -17,6 +17,7 @@ Verweis; wer sie ändert, ändert die eine Stelle.
 | Was ein Agent vor **jedem** Commit wissen muss | [`AGENTS.md`](../AGENTS.md) |
 | Wie Gate, Abnahme, Version und CI laufen | [`WORKFLOW.md`](WORKFLOW.md) |
 | Warum eine Entscheidung so und nicht anders fiel | [`ARCHITEKTUR.md`](ARCHITEKTUR.md) |
+| Wohin das Spiel überhaupt baut | [`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md) |
 | Welche Regeln und Pflichten gelten | dieses Dokument |
 | Welche Fehler bereits einmal zugeschlagen haben | [`PITFALLS.md`](PITFALLS.md) |
 | Was als Nächstes gebaut wird | [`ROADMAP.md`](ROADMAP.md) |

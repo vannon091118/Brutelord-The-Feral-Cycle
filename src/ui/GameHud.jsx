@@ -55,6 +55,8 @@ export function GameHud({ game, actions }) {
           onboarding={game.onboarding}
           usableTileCount={game.usableTileCount}
           essence={game.essence}
+          depth={game.world.depth}
+          onDescend={actions.descend}
         />
       </div>
     </div>

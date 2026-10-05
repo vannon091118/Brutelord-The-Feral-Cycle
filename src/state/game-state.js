@@ -11,6 +11,7 @@ export function createInitialGameState(playerseed) {
   const world = createWorld({ playerseed });
   return {
     world,
+    playerseed: world.seed,
     hive: createHive(),
     dunglings: [],
     essence: START_ESSENCE,

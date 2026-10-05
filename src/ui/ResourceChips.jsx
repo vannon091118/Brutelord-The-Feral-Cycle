@@ -1,5 +1,7 @@
-/** Die beiden Werteplaketten des HUD: Essenz im Hive und Größe des Raums. */
-export function ResourceChips({ essence, count, countLabel }) {
+import { FloorChip } from './FloorChip.jsx';
+
+/** Die drei Werteplaketten des HUD: Essenz im Hive, Raum und Etage. */
+export function ResourceChips({ essence, count, countLabel, depth, onDescend }) {
   return (
     <div className="flex shrink-0 items-center gap-2">
       <span
@@ -11,6 +13,7 @@ export function ResourceChips({ essence, count, countLabel }) {
       <span className="rounded-full border border-bone-400/15 bg-soil-950/60 px-2 py-1 text-[10px] leading-none text-bone-300">
         {countLabel} {count}
       </span>
+      <FloorChip depth={depth} onDescend={onDescend} />
     </div>
   );
 }

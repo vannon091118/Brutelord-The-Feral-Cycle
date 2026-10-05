@@ -3,12 +3,12 @@ import { createWorld } from '../domain/world/grid.js';
 import { parseTileId } from '../domain/world/tile.js';
 import { SNAPSHOT_KEY, SNAPSHOT_VERSION } from './snapshot-config.js';
 
-/** Die abgeleitete Welt hängt nur an Seed und Maß, also wird sie gehalten. */
+/** Die Tiefe gehört in den Schlüssel, sonst käme der untere Etagen-Raster oben wieder heraus. */
 function seedWorld(world) {
   const spawnTile = world.spawnTileId ? parseTileId(world.spawnTileId) : null;
-  const key = `${world.seed}/${world.width}x${world.height}/${world.hiveOrigin.x},${world.hiveOrigin.y}`;
+  const key = `${world.seed}/${world.width}x${world.height}/${world.hiveOrigin.x},${world.hiveOrigin.y}/${world.depth}`;
   if (!WORLD_CACHE.has(key)) {
-    WORLD_CACHE.set(key, createWorld({ width: world.width, height: world.height, hiveOrigin: world.hiveOrigin, spawnTile, seed: world.seed }));
+    WORLD_CACHE.set(key, createWorld({ width: world.width, height: world.height, hiveOrigin: world.hiveOrigin, spawnTile, seed: world.seed, depth: world.depth }));
   }
   return WORLD_CACHE.get(key);
 }
@@ -67,7 +67,7 @@ function isMap(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function isSavedShape(state) {
+export function isSavedShape(state) {
   return (
     Number.isInteger(state.essence) &&
     Array.isArray(state.dunglings) &&
@@ -78,6 +78,7 @@ function isSavedShape(state) {
     isMap(state.world?.tiles) &&
     isMap(state.world?.deposits) &&
     Number.isInteger(state.world?.seed) &&
+    Number.isInteger(state.world?.depth) &&
     Number.isInteger(state.world?.hiveOrigin?.x)
   );
 }

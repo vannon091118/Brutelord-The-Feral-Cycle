@@ -4,9 +4,10 @@ import { ResourceChips } from './ResourceChips.jsx';
 
 /**
  * Die schmale Hinweiszeile unten. Sie erklärt den ersten Moment ohne Handbuch
- * und zeigt daneben, wie viel Essenz im Hive liegt und wie groß der Raum ist.
+ * und zeigt daneben, wie viel Essenz im Hive liegt, wie groß der Raum ist und
+ * auf welcher Etage der Hive steht.
  */
-export function OnboardingHint({ onboarding, usableTileCount, essence }) {
+export function OnboardingHint({ onboarding, usableTileCount, essence, depth, onDescend }) {
   const hint = HINTS[onboarding.state];
 
   return (
@@ -25,7 +26,7 @@ export function OnboardingHint({ onboarding, usableTileCount, essence }) {
 
       <PhaseTrail onboarding={onboarding} />
 
-      <ResourceChips essence={essence} count={usableTileCount} countLabel="Raum" />
+      <ResourceChips essence={essence} count={usableTileCount} countLabel="Raum" depth={depth} onDescend={onDescend} />
     </div>
   );
 }

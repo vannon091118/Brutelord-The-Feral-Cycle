@@ -21,8 +21,39 @@ genau einmal stehen soll:
 | Welche Regeln und Pflichten gelten? | [`GOVERNANCE.md`](GOVERNANCE.md) |
 | Welche Fehler schon einmal zugeschlagen haben? | [`PITFALLS.md`](PITFALLS.md) |
 | Warum steht eine Sache so und nicht anders? | [`ARCHITEKTUR.md`](ARCHITEKTUR.md) |
+| Wohin baut das Spiel überhaupt? | [`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md) |
 
 ---
+
+## 0.0.23 — Vertikalität
+
+Der erste Baustein aus dem Nordstern
+([`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md)): der Dungeon hat Etagen, und
+eine Etage ist eine Funktion aus Spielerseed und Tiefe.
+
+- [x] **Die Tiefe gehört in den Weltzustand, nicht in den Spielerseed.** Erster
+      Entwurf rechnete den Spielerseed aus dem Welt-Seed zurück. Gemessen: **alle**
+      Tiefen ungleich 0 kamen falsch zurück — ein LCG laeuft nur vorwaerts und hat
+      keine Inverse. Der Spielerseed bleibt eine Eingabe, `createInitialGameState()`
+      legt ihn ab jetzt in den Zustand, und die Tiefe wandert in `world`.
+- [x] **Tiefe 0 ist die Startwelt.** Der zweite Entwurf salzte den Seed auch auf
+      Tiefe 0, wodurch `FLOOR.start` eine Welt benannt haette, die der Spieler nie
+      sieht: `floorSeed(p, 0)` ergab 2712521215, `createWorld()` 2712847316. Der
+      Sprung ist jetzt `depth <= FLOOR.start → base`.
+- [x] **Fail closed auch fuer negative Tiefen.** `canDescend()` war `depth <
+      DEEPEST_FLOOR` und gab fuer `-1` `true` zurueck — eine negative Etage durfte
+      "absteigen". Jetzt gilt `depth >= FLOOR.start`.
+- [x] **Der Speichern-Vertrag kennt die Tiefe.** `seedWorld()` hat den Cache-Schluessel
+      um die Tiefe erweitert und `isSavedShape()` verlangt sie jetzt. `SNAPSHOT_VERSION`
+      steht auf 2: ein Stand aus Fassung 1 traegt keine Tiefe und wird verworfen,
+      statt still eine Ebene ohne Sprungpfad zu laden.
+- [x] **Die Etage ist im Spiel erreichbar.** `ACTION.FLOOR_DESCEND`, der Reducer in
+      der Kette, `actions.descend` und eine `FloorChip` in der Hinweiszeile. Die
+      Plakette sperrt an der Grenze, statt einen Sprung anzubieten, der nichts tut.
+- [x] **Abnahme mit vier Sabotagen.** `check-verticality.mjs` (Messung) und
+      `check-verticality-wiring.mjs` (Quelltext, weil Node den Sprung nicht ausfuehrt).
+      Sabotiert und jeweils rot geprueft: Startwelt gebrochen, Cache-Schluessel ohne
+      Tiefe, Formpruefung ohne Tiefe, `isFloorTarget` ohne Fail-closed.
 
 ## 0.0.2 — als Nächstes
 

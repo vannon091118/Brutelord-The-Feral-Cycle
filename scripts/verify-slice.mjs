@@ -3,7 +3,7 @@
 import {
   checkArchitecture, checkColony, checkEdgeMaskGroup, checkHitJuice, checkMining,
   checkOnboarding, checkRaidGroup, checkRooting, checkStart, checkStartup,
-  makeOnboardingRun, summary,
+  checkVerticality, checkVerticalityWiring, makeOnboardingRun, summary,
 } from './verify/index.mjs';
 
 /** Die HTTP- und die Browser-Prüfungen am Ende brauchen einen laufenden Server
@@ -19,6 +19,8 @@ async function main() {
   checkEdgeMaskGroup();
   checkColony(run);
   checkRaidGroup();
+  checkVerticality();
+  checkVerticalityWiring();
   await checkStartup();
   await checkArchitecture();
   process.exitCode = summary();

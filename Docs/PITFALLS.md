@@ -557,6 +557,81 @@ einzeln; die Cap gilt **pro Datei**, nicht pro Aenderung.
 > und [`ARCHITEKTUR.md`](ARCHITEKTUR.md), in den Code nur der Kopf. Das ist
 > keine Formalie: die Gate-Meldung sagt es bei jedem Verstoss.
 
+### Ein Vorwaerts-Hash hat keine Ruecksubstitution — und eine gebaute Wahrheit daneben
+
+Der erste Etagen-Entwurf hat den Spielerseed aus dem Welt-Seed **zurueckgerechnet**,
+weil der Weltzustand nur den Seed trug. Gemessen ueber alle Tiefen: **jede** Tiefe
+ungleich 0 kam falsch zurueck. Der zweite Versuch mit einer eigenen Mischfunktion
+litt am selben Grund — `Math.imul`-Ketten sind vorwaertsgerichtet und haben keine
+Inverse.
+
+> **Symptom:** Der Wert ist eine Zahl, sieht plausibel aus, und das Spiel startet
+> trotzdem. Es gibt keinen Befund, nur eine Welt, die irgendwie anders ist.
+
+> **Gegenprobe:** `createInitialGameState(seed).playerseed` muss der **Eingang**
+> sein, und `floorSeed(playerseed, 0)` muss `worldSeed(playerseed)` ergeben. Wer
+> stattdessen zurueckrechnet, baut sich eine zweite Wahrheit neben der ersten.
+
+### Ein Salz auf Tiefe 0 benennt eine Welt, die der Spieler nie sieht
+
+Der Hash mischte das Salz auch auf der Starttiefe. `floorSeed(p, 0)` ergab
+**2712521215**, `createWorld({ playerseed: p })` dagegen **2712847316** — dieselbe
+Funktion, dieselbe Zahl, zwei verschiedene Startwelten. `FLOOR.start` bezeichnete
+so einen Wert, dessen Welt nie im Bild auftaucht.
+
+> **Gegenprobe:** `check-verticality.mjs` verlangt, dass Tiefe 0 **exakt** die
+> Startwelt ist. Sabotiert auf `depth < FLOOR.start`, faellt genau diese eine Zeile
+> um — alle anderen bleiben gruen, weil die Welt „irgendwie" plausibel ist.
+
+### `canDescend(-1)` war wahr
+
+Die Grenze lautete `depth < DEEPEST_FLOOR`. Eine negative Tiefe galt damit als
+abstiegsberecht — der Sprung „eine Etage tiefer" fuehrt dann auf `-2` und geht
+unter das Nichts. Kein Absturz, keine Meldung: ein Zustand, den es nicht geben
+darf.
+
+> **Gegenprobe:** `canDescend` muss `depth >= FLOOR.start` **mit**pruefen. Die
+> Abnahme fragt `-1`, `undefined`, `'1'` und `NaN` ab; jeder davon ist `false`.
+
+### Ein Cache-Schluessel ohne die neue Dimension liefert die falsche Ebene
+
+Der Spielstand speichert die Welt als **Abweichung** vom Seed-Zustand, und der
+Seed-Zustand wird über einen Cache wiederverwendet. Dessen Schluessel nannte
+Seed, Mass und Hive-Anker — aber nicht die Tiefe. Nach einem Sprung rutschte
+darum eine Ebene durch denselben Eintrag.
+
+> **Gegenprobe:** die Tiefe gehoert in den Schluessel **und** in `isSavedShape()`.
+> Sabotiert man nur eines der beiden, bleibt der Lauf gruen — beide Pruefungen
+> sind noetig, weil sie zwei verschiedene Tueren sichern: die Ableitung und die
+> Formpruefung. `SNAPSHOT_VERSION` steht auf 2, damit ein Stand aus Fassung 1
+> (ohne Tiefe) verworfen wird und nicht still eine Ebene ohne Sprungpfad laedt.
+
+### Eine Pruefung, die den Seed vergleicht, prueft den Cache-Schluessel nicht
+
+Der erste Wächter der Tiefe hieß „Der Cache verwechselt die Tiefen nicht" und
+verglich zwei **Seeds**. Sie blieb gruen, als der Schluessel beschnitten war. Der
+Test hat etwas anderes geprueft als das, was sein Name behauptet — die Seeds waren
+auch nach dem Fehler verschieden, weil zwei Tiefen immer verschiedene Seeds haben.
+
+> **Gegenprobe:** entweder wird die Wirkung gemessen (das Verhalten bricht) oder
+> die Stelle gelesen. Beides ueber `check-verticality-wiring.mjs`, weil Node den
+> Sprung nicht ausfuehrt und `npm run build` bei gebrochenem Cache-Schluessel
+> gruen bleibt.
+
+### Ein Testname verwechselt „ungepackt" mit „gespeichert"
+
+`isSavedShape()` gilt fuer das **gepackte** Format, weil `readSavedState()` auf
+Packe-Werte prueft und erst danach entpackt. Die erste Fassung der Tiefen-Pruefung
+rief sie auf dem **ungepackten** Zustand auf und meldete „ein Stand mit Tiefe wird
+angenommen" als fehlgeschlagen — im gruenen Lauf.
+
+> **Symptom:** eine neu geschriebene Pruefung schlaegt sofort fehl und ihre
+> Umkehrung ist der Sabotage nicht mehr wert.
+
+> **Gegenprobe:** Wer `isSavedShape` pruft, prueft `packState(state)`. Geht es um
+> die Form, nicht um die Wirkung, ist das der Unterschied zwischen einem Befund
+> und einem Verwirrungsfehler.
+
 ---
 
 ## Was daraus folgt

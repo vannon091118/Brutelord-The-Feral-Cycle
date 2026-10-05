@@ -53,11 +53,13 @@ export function createWorld({
   spawnTile = ONBOARDING_CONFIG.dunglingSpawnTile,
   playerseed,
   seed = worldSeed(playerseed),
+  depth = 0,
 } = {}) {
   const world = {
     width,
     height,
     seed,
+    depth,
     hiveOrigin: { ...hiveOrigin },
     hiveSize: { ...HIVE_SIZE },
     spawnTileId: spawnTile ? tileId(spawnTile.x, spawnTile.y) : null,

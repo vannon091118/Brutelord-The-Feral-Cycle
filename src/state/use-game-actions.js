@@ -24,6 +24,7 @@ export function useGameActions(dispatch) {
       placeStone: (seed, slot) => dispatch({ type: ACTION.STONE_PLACED, seed, slot }),
       createMutant: () => dispatch({ type: ACTION.MUTANT_CREATED }),
       revertMutant: (workerId) => dispatch({ type: ACTION.MUTANT_REVERTED, workerId }),
+      descend: () => dispatch({ type: ACTION.FLOOR_DESCEND }),
     }),
     [dispatch],
   );
