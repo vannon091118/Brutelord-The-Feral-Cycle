@@ -1,0 +1,2305 @@
+{
+ "version": 1,
+ "seed": "a1b2c3d4e5f60718",
+ "state": {
+  "world": {
+   "width": 64,
+   "height": 64,
+   "seed": 2712847316,
+   "hiveOrigin": {
+    "x": 31,
+    "y": 31
+   },
+   "hiveSize": {
+    "width": 2,
+    "height": 2
+   },
+   "spawnTileId": "31,33",
+   "entrance": {
+    "x": 47,
+    "y": 47
+   },
+   "rootingWorkIds": [
+    "32,29"
+   ],
+   "tiles": {
+    "29,26": {
+     "id": "29,26",
+     "x": 29,
+     "y": 26,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "32,26": {
+     "id": "32,26",
+     "x": 32,
+     "y": 26,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "33,26": {
+     "id": "33,26",
+     "x": 33,
+     "y": 26,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "35,26": {
+     "id": "35,26",
+     "x": 35,
+     "y": 26,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "29,27": {
+     "id": "29,27",
+     "x": 29,
+     "y": 27,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "30,27": {
+     "id": "30,27",
+     "x": 30,
+     "y": 27,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "31,27": {
+     "id": "31,27",
+     "x": 31,
+     "y": 27,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "33,27": {
+     "id": "33,27",
+     "x": 33,
+     "y": 27,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "34,27": {
+     "id": "34,27",
+     "x": 34,
+     "y": 27,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "31,28": {
+     "id": "31,28",
+     "x": 31,
+     "y": 28,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "30,29": {
+     "id": "30,29",
+     "x": 30,
+     "y": 29,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "31,29": {
+     "id": "31,29",
+     "x": 31,
+     "y": 29,
+     "kind": "DUNGEON_FLOOR",
+     "visibility": "VISIBLE",
+     "usability": "USABLE",
+     "earthHealth": "DESTROYED",
+     "floorOrigin": "MINED",
+     "rooting": {
+      "phase": "CLAIMED",
+      "progress": 0
+     }
+    },
+    "32,29": {
+     "id": "32,29",
+     "x": 32,
+     "y": 29,
+     "kind": "DUNGEON_FLOOR",
+     "visibility": "VISIBLE",
+     "usability": "USABLE",
+     "earthHealth": "DESTROYED",
+     "floorOrigin": "MINED",
+     "rooting": {
+      "phase": "GROWING",
+      "progress": 0.8900000000000006
+     }
+    },
+    "31,30": {
+     "id": "31,30",
+     "x": 31,
+     "y": 30,
+     "kind": "DUNGEON_FLOOR",
+     "visibility": "VISIBLE",
+     "usability": "USABLE",
+     "earthHealth": "DESTROYED",
+     "floorOrigin": "MINED",
+     "rooting": {
+      "phase": "CLAIMED",
+      "progress": 0
+     }
+    },
+    "32,30": {
+     "id": "32,30",
+     "x": 32,
+     "y": 30,
+     "kind": "DUNGEON_FLOOR",
+     "visibility": "VISIBLE",
+     "usability": "USABLE",
+     "earthHealth": "DESTROYED",
+     "floorOrigin": "MINED",
+     "rooting": {
+      "phase": "CLAIMED",
+      "progress": 0
+     }
+    },
+    "32,33": {
+     "id": "32,33",
+     "x": 32,
+     "y": 33,
+     "kind": "DUNGEON_FLOOR",
+     "visibility": "VISIBLE",
+     "usability": "USABLE",
+     "earthHealth": "DESTROYED",
+     "floorOrigin": "MINED",
+     "rooting": {
+      "phase": "CLAIMED",
+      "progress": 0
+     }
+    }
+   },
+   "deposits": {
+    "deposit-3": {
+     "id": "deposit-3",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "13,1",
+      "14,1",
+      "13,2"
+     ]
+    },
+    "deposit-4": {
+     "id": "deposit-4",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "18,2",
+      "17,2"
+     ]
+    },
+    "deposit-7": {
+     "id": "deposit-7",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "30,1",
+      "29,2",
+      "29,1"
+     ]
+    },
+    "deposit-8": {
+     "id": "deposit-8",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "33,1"
+     ]
+    },
+    "deposit-9": {
+     "id": "deposit-9",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "38,1",
+      "37,2"
+     ]
+    },
+    "deposit-10": {
+     "id": "deposit-10",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "42,1",
+      "41,2"
+     ]
+    },
+    "deposit-11": {
+     "id": "deposit-11",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "46,1"
+     ]
+    },
+    "deposit-13": {
+     "id": "deposit-13",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "53,2",
+      "54,1"
+     ]
+    },
+    "deposit-15": {
+     "id": "deposit-15",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "61,2",
+      "62,1",
+      "61,1"
+     ]
+    },
+    "deposit-16": {
+     "id": "deposit-16",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "2,5",
+      "1,6"
+     ]
+    },
+    "deposit-17": {
+     "id": "deposit-17",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "5,6",
+      "6,5"
+     ]
+    },
+    "deposit-18": {
+     "id": "deposit-18",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "9,5",
+      "10,5"
+     ]
+    },
+    "deposit-23": {
+     "id": "deposit-23",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "30,5"
+     ]
+    },
+    "deposit-25": {
+     "id": "deposit-25",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "38,5",
+      "37,6"
+     ]
+    },
+    "deposit-26": {
+     "id": "deposit-26",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "42,5",
+      "41,6"
+     ]
+    },
+    "deposit-27": {
+     "id": "deposit-27",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "46,5"
+     ]
+    },
+    "deposit-28": {
+     "id": "deposit-28",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "50,5",
+      "49,6",
+      "49,5"
+     ]
+    },
+    "deposit-29": {
+     "id": "deposit-29",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "53,5",
+      "54,5"
+     ]
+    },
+    "deposit-30": {
+     "id": "deposit-30",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "57,5",
+      "58,5"
+     ]
+    },
+    "deposit-31": {
+     "id": "deposit-31",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "62,5",
+      "61,6"
+     ]
+    },
+    "deposit-32": {
+     "id": "deposit-32",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "2,9",
+      "1,10",
+      "1,9"
+     ]
+    },
+    "deposit-33": {
+     "id": "deposit-33",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "6,9",
+      "5,10",
+      "5,9"
+     ]
+    },
+    "deposit-34": {
+     "id": "deposit-34",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "10,9"
+     ]
+    },
+    "deposit-35": {
+     "id": "deposit-35",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "13,10",
+      "14,9",
+      "13,9"
+     ]
+    },
+    "deposit-36": {
+     "id": "deposit-36",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "18,9",
+      "17,10"
+     ]
+    },
+    "deposit-38": {
+     "id": "deposit-38",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "26,9"
+     ]
+    },
+    "deposit-41": {
+     "id": "deposit-41",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "37,10",
+      "38,9",
+      "37,9"
+     ]
+    },
+    "deposit-42": {
+     "id": "deposit-42",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "41,9",
+      "42,9",
+      "41,10"
+     ]
+    },
+    "deposit-44": {
+     "id": "deposit-44",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "50,9"
+     ]
+    },
+    "deposit-46": {
+     "id": "deposit-46",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "58,9"
+     ]
+    },
+    "deposit-47": {
+     "id": "deposit-47",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "62,9",
+      "61,10"
+     ]
+    },
+    "deposit-48": {
+     "id": "deposit-48",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "1,13",
+      "2,14",
+      "1,14"
+     ]
+    },
+    "deposit-50": {
+     "id": "deposit-50",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "10,14",
+      "9,14",
+      "10,13"
+     ]
+    },
+    "deposit-51": {
+     "id": "deposit-51",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "14,13",
+      "14,14"
+     ]
+    },
+    "deposit-52": {
+     "id": "deposit-52",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "18,13",
+      "17,14"
+     ]
+    },
+    "deposit-54": {
+     "id": "deposit-54",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "25,13"
+     ]
+    },
+    "deposit-55": {
+     "id": "deposit-55",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "30,14"
+     ]
+    },
+    "deposit-56": {
+     "id": "deposit-56",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "34,14",
+      "33,14",
+      "34,13"
+     ]
+    },
+    "deposit-57": {
+     "id": "deposit-57",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "38,13",
+      "37,14"
+     ]
+    },
+    "deposit-59": {
+     "id": "deposit-59",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "45,13"
+     ]
+    },
+    "deposit-60": {
+     "id": "deposit-60",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "50,13"
+     ]
+    },
+    "deposit-61": {
+     "id": "deposit-61",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "54,13"
+     ]
+    },
+    "deposit-62": {
+     "id": "deposit-62",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "57,13",
+      "58,13",
+      "57,14"
+     ]
+    },
+    "deposit-64": {
+     "id": "deposit-64",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "2,17",
+      "1,18"
+     ]
+    },
+    "deposit-65": {
+     "id": "deposit-65",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "5,17"
+     ]
+    },
+    "deposit-66": {
+     "id": "deposit-66",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "9,17",
+      "10,17"
+     ]
+    },
+    "deposit-68": {
+     "id": "deposit-68",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "17,18",
+      "18,17",
+      "17,17"
+     ]
+    },
+    "deposit-69": {
+     "id": "deposit-69",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "22,17",
+      "21,18"
+     ]
+    },
+    "deposit-70": {
+     "id": "deposit-70",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "25,17"
+     ]
+    },
+    "deposit-71": {
+     "id": "deposit-71",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "30,17"
+     ]
+    },
+    "deposit-75": {
+     "id": "deposit-75",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "46,17",
+      "45,18",
+      "45,17"
+     ]
+    },
+    "deposit-76": {
+     "id": "deposit-76",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "50,17",
+      "49,18",
+      "50,18"
+     ]
+    },
+    "deposit-77": {
+     "id": "deposit-77",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "54,17"
+     ]
+    },
+    "deposit-78": {
+     "id": "deposit-78",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "58,17",
+      "57,18"
+     ]
+    },
+    "deposit-79": {
+     "id": "deposit-79",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "61,17",
+      "62,17",
+      "61,18"
+     ]
+    },
+    "deposit-80": {
+     "id": "deposit-80",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "2,21"
+     ]
+    },
+    "deposit-81": {
+     "id": "deposit-81",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "6,21",
+      "6,22",
+      "5,22"
+     ]
+    },
+    "deposit-84": {
+     "id": "deposit-84",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "18,21",
+      "18,22"
+     ]
+    },
+    "deposit-85": {
+     "id": "deposit-85",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "22,21"
+     ]
+    },
+    "deposit-86": {
+     "id": "deposit-86",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "26,21",
+      "25,22"
+     ]
+    },
+    "deposit-87": {
+     "id": "deposit-87",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "30,21",
+      "30,22"
+     ]
+    },
+    "deposit-91": {
+     "id": "deposit-91",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "46,22",
+      "45,22"
+     ]
+    },
+    "deposit-92": {
+     "id": "deposit-92",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "50,21",
+      "50,22",
+      "49,22"
+     ]
+    },
+    "deposit-93": {
+     "id": "deposit-93",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "54,21",
+      "54,22"
+     ]
+    },
+    "deposit-94": {
+     "id": "deposit-94",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "58,21",
+      "57,22",
+      "57,21"
+     ]
+    },
+    "deposit-95": {
+     "id": "deposit-95",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "62,21",
+      "61,22",
+      "61,21"
+     ]
+    },
+    "deposit-96": {
+     "id": "deposit-96",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "1,25"
+     ]
+    },
+    "deposit-98": {
+     "id": "deposit-98",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "10,25",
+      "10,26"
+     ]
+    },
+    "deposit-100": {
+     "id": "deposit-100",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "18,26"
+     ]
+    },
+    "deposit-101": {
+     "id": "deposit-101",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "22,25"
+     ]
+    },
+    "deposit-106": {
+     "id": "deposit-106",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "42,25",
+      "41,26",
+      "41,25"
+     ]
+    },
+    "deposit-107": {
+     "id": "deposit-107",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "45,25",
+      "46,26",
+      "45,26"
+     ]
+    },
+    "deposit-108": {
+     "id": "deposit-108",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "50,25",
+      "49,26"
+     ]
+    },
+    "deposit-110": {
+     "id": "deposit-110",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "58,25"
+     ]
+    },
+    "deposit-111": {
+     "id": "deposit-111",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "62,25"
+     ]
+    },
+    "deposit-114": {
+     "id": "deposit-114",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "10,29",
+      "9,30"
+     ]
+    },
+    "deposit-115": {
+     "id": "deposit-115",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "14,29"
+     ]
+    },
+    "deposit-116": {
+     "id": "deposit-116",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "17,30",
+      "17,29",
+      "18,30"
+     ]
+    },
+    "deposit-122": {
+     "id": "deposit-122",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "41,30",
+      "42,29"
+     ]
+    },
+    "deposit-123": {
+     "id": "deposit-123",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "46,29",
+      "45,30",
+      "45,29"
+     ]
+    },
+    "deposit-124": {
+     "id": "deposit-124",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "50,29",
+      "49,30"
+     ]
+    },
+    "deposit-125": {
+     "id": "deposit-125",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "54,29",
+      "53,30"
+     ]
+    },
+    "deposit-126": {
+     "id": "deposit-126",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "58,29"
+     ]
+    },
+    "deposit-127": {
+     "id": "deposit-127",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "62,29"
+     ]
+    },
+    "deposit-128": {
+     "id": "deposit-128",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "2,33"
+     ]
+    },
+    "deposit-130": {
+     "id": "deposit-130",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "10,33",
+      "9,34"
+     ]
+    },
+    "deposit-131": {
+     "id": "deposit-131",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "14,33",
+      "14,34"
+     ]
+    },
+    "deposit-132": {
+     "id": "deposit-132",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "18,33"
+     ]
+    },
+    "deposit-138": {
+     "id": "deposit-138",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "41,33",
+      "42,33"
+     ]
+    },
+    "deposit-139": {
+     "id": "deposit-139",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "45,33",
+      "46,33",
+      "45,34"
+     ]
+    },
+    "deposit-142": {
+     "id": "deposit-142",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "57,33",
+      "58,33"
+     ]
+    },
+    "deposit-143": {
+     "id": "deposit-143",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "62,33"
+     ]
+    },
+    "deposit-144": {
+     "id": "deposit-144",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "1,37",
+      "2,37"
+     ]
+    },
+    "deposit-145": {
+     "id": "deposit-145",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "5,37",
+      "6,37",
+      "5,38"
+     ]
+    },
+    "deposit-146": {
+     "id": "deposit-146",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "10,37",
+      "9,38"
+     ]
+    },
+    "deposit-147": {
+     "id": "deposit-147",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "14,37"
+     ]
+    },
+    "deposit-148": {
+     "id": "deposit-148",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "17,37"
+     ]
+    },
+    "deposit-149": {
+     "id": "deposit-149",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "22,37",
+      "22,38"
+     ]
+    },
+    "deposit-154": {
+     "id": "deposit-154",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "42,38",
+      "41,38",
+      "42,37"
+     ]
+    },
+    "deposit-155": {
+     "id": "deposit-155",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "45,38",
+      "46,37",
+      "45,37"
+     ]
+    },
+    "deposit-157": {
+     "id": "deposit-157",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "54,37",
+      "53,38"
+     ]
+    },
+    "deposit-160": {
+     "id": "deposit-160",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "1,42",
+      "2,41",
+      "2,42"
+     ]
+    },
+    "deposit-161": {
+     "id": "deposit-161",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "6,41",
+      "6,42"
+     ]
+    },
+    "deposit-162": {
+     "id": "deposit-162",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "10,41",
+      "9,42"
+     ]
+    },
+    "deposit-164": {
+     "id": "deposit-164",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "17,42",
+      "18,41"
+     ]
+    },
+    "deposit-165": {
+     "id": "deposit-165",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "21,41",
+      "22,41"
+     ]
+    },
+    "deposit-166": {
+     "id": "deposit-166",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "26,41"
+     ]
+    },
+    "deposit-168": {
+     "id": "deposit-168",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "34,41",
+      "34,42",
+      "33,42"
+     ]
+    },
+    "deposit-169": {
+     "id": "deposit-169",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "37,41"
+     ]
+    },
+    "deposit-171": {
+     "id": "deposit-171",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "46,41"
+     ]
+    },
+    "deposit-173": {
+     "id": "deposit-173",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "54,41",
+      "53,42"
+     ]
+    },
+    "deposit-174": {
+     "id": "deposit-174",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "58,41",
+      "57,42",
+      "58,42"
+     ]
+    },
+    "deposit-175": {
+     "id": "deposit-175",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "62,41",
+      "61,42",
+      "61,41"
+     ]
+    },
+    "deposit-177": {
+     "id": "deposit-177",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "5,45",
+      "6,46"
+     ]
+    },
+    "deposit-178": {
+     "id": "deposit-178",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "9,45",
+      "10,45",
+      "9,46"
+     ]
+    },
+    "deposit-180": {
+     "id": "deposit-180",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "17,45"
+     ]
+    },
+    "deposit-181": {
+     "id": "deposit-181",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "22,45",
+      "21,46",
+      "21,45"
+     ]
+    },
+    "deposit-182": {
+     "id": "deposit-182",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "26,45",
+      "25,46"
+     ]
+    },
+    "deposit-183": {
+     "id": "deposit-183",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "30,45",
+      "29,46",
+      "29,45"
+     ]
+    },
+    "deposit-185": {
+     "id": "deposit-185",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "37,46",
+      "38,45"
+     ]
+    },
+    "deposit-187": {
+     "id": "deposit-187",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "45,45",
+      "46,45",
+      "45,46"
+     ]
+    },
+    "deposit-188": {
+     "id": "deposit-188",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "49,45",
+      "50,45"
+     ]
+    },
+    "deposit-191": {
+     "id": "deposit-191",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "62,45",
+      "62,46"
+     ]
+    },
+    "deposit-192": {
+     "id": "deposit-192",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "1,49",
+      "2,50"
+     ]
+    },
+    "deposit-193": {
+     "id": "deposit-193",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "6,49",
+      "5,50"
+     ]
+    },
+    "deposit-194": {
+     "id": "deposit-194",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "10,50",
+      "9,50"
+     ]
+    },
+    "deposit-195": {
+     "id": "deposit-195",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "13,50"
+     ]
+    },
+    "deposit-197": {
+     "id": "deposit-197",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "21,49"
+     ]
+    },
+    "deposit-198": {
+     "id": "deposit-198",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "25,49",
+      "26,49",
+      "25,50"
+     ]
+    },
+    "deposit-200": {
+     "id": "deposit-200",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "34,49",
+      "33,50"
+     ]
+    },
+    "deposit-201": {
+     "id": "deposit-201",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "37,50"
+     ]
+    },
+    "deposit-202": {
+     "id": "deposit-202",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "42,50"
+     ]
+    },
+    "deposit-206": {
+     "id": "deposit-206",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "57,50",
+      "58,49"
+     ]
+    },
+    "deposit-208": {
+     "id": "deposit-208",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "2,53",
+      "1,54"
+     ]
+    },
+    "deposit-209": {
+     "id": "deposit-209",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "6,54"
+     ]
+    },
+    "deposit-211": {
+     "id": "deposit-211",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "14,53",
+      "13,54"
+     ]
+    },
+    "deposit-216": {
+     "id": "deposit-216",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "33,53"
+     ]
+    },
+    "deposit-217": {
+     "id": "deposit-217",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "37,54"
+     ]
+    },
+    "deposit-218": {
+     "id": "deposit-218",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "41,54",
+      "42,53",
+      "41,53"
+     ]
+    },
+    "deposit-219": {
+     "id": "deposit-219",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "46,54",
+      "45,53",
+      "46,53"
+     ]
+    },
+    "deposit-220": {
+     "id": "deposit-220",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "50,53"
+     ]
+    },
+    "deposit-221": {
+     "id": "deposit-221",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "53,54",
+      "54,53"
+     ]
+    },
+    "deposit-223": {
+     "id": "deposit-223",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "61,54",
+      "62,53",
+      "62,54"
+     ]
+    },
+    "deposit-226": {
+     "id": "deposit-226",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "9,58",
+      "10,57"
+     ]
+    },
+    "deposit-228": {
+     "id": "deposit-228",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "18,57",
+      "18,58",
+      "17,58"
+     ]
+    },
+    "deposit-229": {
+     "id": "deposit-229",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "21,57",
+      "22,57",
+      "21,58"
+     ]
+    },
+    "deposit-230": {
+     "id": "deposit-230",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "26,57",
+      "26,58"
+     ]
+    },
+    "deposit-231": {
+     "id": "deposit-231",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "29,58"
+     ]
+    },
+    "deposit-232": {
+     "id": "deposit-232",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "33,58",
+      "34,57"
+     ]
+    },
+    "deposit-234": {
+     "id": "deposit-234",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "41,58",
+      "42,57",
+      "41,57"
+     ]
+    },
+    "deposit-235": {
+     "id": "deposit-235",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "46,57"
+     ]
+    },
+    "deposit-236": {
+     "id": "deposit-236",
+     "phase": "BURIED",
+     "pool": 80,
+     "capacity": 80,
+     "size": 3,
+     "cells": [
+      "49,58",
+      "49,57",
+      "50,58"
+     ]
+    },
+    "deposit-237": {
+     "id": "deposit-237",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "54,57"
+     ]
+    },
+    "deposit-238": {
+     "id": "deposit-238",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "58,58",
+      "57,57"
+     ]
+    },
+    "deposit-239": {
+     "id": "deposit-239",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "62,57"
+     ]
+    },
+    "deposit-241": {
+     "id": "deposit-241",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "6,61"
+     ]
+    },
+    "deposit-242": {
+     "id": "deposit-242",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "9,62",
+      "9,61"
+     ]
+    },
+    "deposit-245": {
+     "id": "deposit-245",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "22,61",
+      "22,62"
+     ]
+    },
+    "deposit-247": {
+     "id": "deposit-247",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "29,61"
+     ]
+    },
+    "deposit-251": {
+     "id": "deposit-251",
+     "phase": "BURIED",
+     "pool": 40,
+     "capacity": 40,
+     "size": 1,
+     "cells": [
+      "46,61"
+     ]
+    },
+    "deposit-253": {
+     "id": "deposit-253",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "53,62",
+      "54,61"
+     ]
+    },
+    "deposit-254": {
+     "id": "deposit-254",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "58,61",
+      "57,62"
+     ]
+    },
+    "deposit-255": {
+     "id": "deposit-255",
+     "phase": "BURIED",
+     "pool": 60,
+     "capacity": 60,
+     "size": 2,
+     "cells": [
+      "62,61",
+      "61,62"
+     ]
+    }
+   }
+  },
+  "hive": {
+   "id": "hive-1",
+   "origin": {
+    "x": 31,
+    "y": 31
+   },
+   "size": {
+    "width": 2,
+    "height": 2
+   },
+   "phase": "SETTLED",
+   "spawned": 1,
+   "pressed": 19,
+   "progressMs": 200
+  },
+  "dunglings": [
+   {
+    "id": "dungling-1",
+    "tile": {
+     "x": 31,
+     "y": 33
+    },
+    "facing": 1,
+    "state": "WORKING",
+    "targetTileId": null,
+    "job": {
+     "kind": "EXTRACT",
+     "buildingId": "building-1",
+     "phase": "ATTEND",
+     "progressMs": 600,
+     "durationMs": 15000,
+     "origin": {
+      "x": 31,
+      "y": 33
+     },
+     "target": {
+      "x": 31,
+      "y": 33
+     },
+     "carrying": 0
+    },
+    "stones": [],
+    "invested": 0,
+    "battleEp": 0
+   },
+   {
+    "id": "dungling-2",
+    "tile": {
+     "x": 31,
+     "y": 33
+    },
+    "facing": 1,
+    "state": "IDLE",
+    "targetTileId": null,
+    "job": null,
+    "stones": [],
+    "invested": 0,
+    "battleEp": 0
+   },
+   {
+    "id": "dungling-3",
+    "tile": {
+     "x": 31,
+     "y": 33
+    },
+    "facing": 1,
+    "state": "IDLE",
+    "targetTileId": null,
+    "job": null,
+    "stones": [],
+    "invested": 0,
+    "battleEp": 0
+   },
+   {
+    "id": "dungling-4",
+    "tile": {
+     "x": 31,
+     "y": 33
+    },
+    "facing": 1,
+    "state": "IDLE",
+    "targetTileId": null,
+    "job": null,
+    "stones": [],
+    "invested": 0,
+    "battleEp": 0
+   },
+   {
+    "id": "dungling-5",
+    "tile": {
+     "x": 31,
+     "y": 33
+    },
+    "facing": 1,
+    "state": "IDLE",
+    "targetTileId": null,
+    "job": null,
+    "stones": [],
+    "invested": 0,
+    "battleEp": 0
+   }
+  ],
+  "essence": 3,
+  "buildings": [
+   {
+    "id": "building-1",
+    "type": "ESSENCE_EXTRACTOR",
+    "anchor": {
+     "x": 31,
+     "y": 33
+    },
+    "tileIds": [
+     "31,33"
+    ],
+    "state": "READY",
+    "delivered": 5,
+    "required": 5,
+    "workers": [
+     "dungling-1"
+    ],
+    "progressMs": 0
+   },
+   {
+    "id": "building-2",
+    "type": "SWARM_HOST",
+    "anchor": {
+     "x": 32,
+     "y": 33
+    },
+    "tileIds": [
+     "32,33"
+    ],
+    "state": "READY",
+    "delivered": 6,
+    "required": 6,
+    "workers": [],
+    "progressMs": 9200
+   },
+   {
+    "id": "building-3",
+    "type": "BRUTE_LORD",
+    "anchor": {
+     "x": 31,
+     "y": 29
+    },
+    "tileIds": [
+     "31,29",
+     "32,29",
+     "31,30",
+     "32,30"
+    ],
+    "state": "READY",
+    "delivered": 10,
+    "required": 10,
+    "workers": [],
+    "progressMs": 0
+   }
+  ],
+  "buildChoice": null,
+  "selectedBuildingId": "building-3",
+  "lab": {
+   "stones": [
+    {
+     "seed": 2654435761,
+     "rarity": "NORMAL",
+     "trait": null,
+     "capability": null,
+     "stats": [
+      {
+       "key": "atk",
+       "value": 4
+      }
+     ],
+     "visual": {
+      "slot": null,
+      "variant": 4,
+      "wobble": 0.9600501111708581
+     },
+     "slot": null,
+     "discovered": false,
+     "pityMisses": 1
+    }
+   ],
+   "pityMisses": 1,
+   "purchased": 1,
+   "open": true
+  },
+  "popups": [],
+  "popupSeq": 32,
+  "mining": {
+   "tileId": "32,29",
+   "phase": "COMPLETE",
+   "progress": 1,
+   "tick": 35,
+   "totalTicks": 35,
+   "burstCount": 0,
+   "workerId": "dungling-2"
+  },
+  "onboarding": {
+   "state": "BUILD_MENU_VISIBLE",
+   "trail": [
+    "INITIAL",
+    "HIVE_CLICKED",
+    "MUTATING",
+    "WAITING_FOR_DUNGLING",
+    "DUNGLING_SPAWNING",
+    "DUNGLING_IDLE",
+    "TILE_SELECTION",
+    "ACTION_MENU",
+    "MOVING_TO_TILE",
+    "MINING",
+    "TILE_DESTROYED",
+    "GRID_EXPANDED",
+    "BUILD_MENU_VISIBLE",
+    "ACTION_MENU",
+    "MOVING_TO_TILE",
+    "MINING",
+    "TILE_DESTROYED",
+    "GRID_EXPANDED",
+    "BUILD_MENU_VISIBLE",
+    "ACTION_MENU",
+    "MOVING_TO_TILE",
+    "MINING",
+    "TILE_DESTROYED",
+    "GRID_EXPANDED",
+    "BUILD_MENU_VISIBLE",
+    "ACTION_MENU",
+    "MOVING_TO_TILE",
+    "MINING",
+    "TILE_DESTROYED",
+    "GRID_EXPANDED",
+    "BUILD_MENU_VISIBLE",
+    "ACTION_MENU",
+    "MOVING_TO_TILE",
+    "MINING",
+    "TILE_DESTROYED",
+    "GRID_EXPANDED",
+    "BUILD_MENU_VISIBLE"
+   ]
+  },
+  "selectedTileId": null,
+  "highlightedTileId": null,
+  "expansion": {
+   "tileId": "32,29",
+   "addedTileIds": [
+    "32,29"
+   ]
+  },
+  "lastDestroyedTileId": "32,29",
+  "lastHarvest": null,
+  "usableTileCount": 6,
+  "buildMenuVisible": true
+ }
+}

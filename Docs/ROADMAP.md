@@ -29,6 +29,13 @@ genau einmal stehen soll:
 Der Bau steht, der Schwarm arbeitet. Was jetzt fehlt, ist Bestand — und ein
 Grund, ihn zu haben.
 
+- [x] **Das README ist Bühne, nicht Werkzeugkasten.** Die Anleitung früher im
+      README war eine Anleitung: Wie man Befehle laufen lässt, wie ein Gate
+      aussieht, welche Datei was prüft. Wer das liest, liest Werkzeug. Jetzt steht
+      dort, **was das Ding ist** — ein Hive, ein Geschwur, eine Kolonie — und was
+      daran ernst gemeint ist. Die Anleitung bleibt, wo sie hingehört: in
+      [`AGENTS.md`](../AGENTS.md) und [`Docs/`](ARCHITEKTUR.md).
+
 - [x] **Der Wächter prüft seine Basis nicht.** `hasRef()` sollte sagen, ob eine
       Referenz existiert, und tat es nicht: `git rev-parse --verify` gibt einen
       vierzigstelligen Hex-String unaufgelöst zurück und endet mit 0. Nach dem
@@ -208,10 +215,55 @@ Grund, ihn zu haben.
       Prüfungen, grün gegen Chromium 1.63; die Bilder liegen in `Docs/shots/`.
       Der Lauf ist nicht im Gate — er braucht einen Browser und einen Port —
       deshalb `npm run verify` für CI und `verify:browser` für Hand und Auge.
-- [ ] **Speichern.** Aktuell stirbt dein Hive beim Reload. Absicht für den
-      Slice, unbrauchbar für alles darüber. Mit Essenz und Bauten im Zustand ist
-      das jetzt mehr als eine Bequemlichkeit: wer zehn Minuten in einen Brutlord
-      gesteckt hat, verliert ihn sonst an einen versehentlichen F5.
+- [x] **Der szenariale Browserlauf mit einfrierbaren Zuständen.** Acht Fälle
+      unter `tools/tests/`, die das Spiel mit der **echten Uhr** und der echten
+      Konto-API fahren: `npm run verify:tests`. Das Fenster ist **sichtbar**,
+      `DL_HEADLESS=1` schaltet es ab, und ein roter Lauf **hält das Fenster
+      offen, bis Enter gedrückt wird** — ein Urteil, das man nicht sehen kann,
+      ist kein Urteil. Jeder Fall kann stattdessen aus einem **eingefrorenen
+      Zustand** unter `tools/tests/state/` starten (`DL_FROM=fixtures`):
+      `restoreState()` legt ihn in genau die Form, die `saveSnapshot()`
+      schreibt, und lädt neu — also durch **dieselbe Tür, die auch ein Spieler
+      nach einer Pause benutzt**. Kein Testzweig im Reducer, keine Testaktion im
+      Spiel. Der Live-Lauf erzeugt die Zustände, aus denen die Fixtures bestehen;
+      fehlt einer, bricht der Lauf ab, statt still zu überspringen.
+      Der Lauf hat beim ersten Mal zwei echte Fehler im Spiel gefunden, die kein
+      Node-Test sehen konnte: der **Dungling schluckte den Klick auf den
+      Bauplatz**, den er gerade bewacht, und die **Bremse des Kontos** hing am
+      festen Namen, sodass der zweite Lauf anders ausging als der erste.
+      — [x] **Eine Schlange, ein Browser.** Zwei Agenten, die gleichzeitig
+      `npm run verify:tests` starten, bekommen je eine **Platznummer**
+      (`tools/tests/lib/queue.mjs`); wer die niedrigere Nummer trägt, testet
+      zuerst, der andere wartet und sieht, wer vor ihm ist. Ein toter Prozess
+      gibt seinen Platz automatisch frei, sonst blockiert er die Schlange für
+      immer. Beides — sichtbar wie unsichtbar — läuft über **denselben
+      Browserprozess**: `tools/tests/browser-host.mjs` startet einmal einen
+      Browser**server** und gibt seine Adresse weiter, jeder Lauf hängt sich per
+      Websocket an. Kein Lauf startet einen zweiten Chrome. Braucht ein Lauf den
+      anderen Modus, bittet er den Wirt um Wechsel; die Schlange garantiert
+      dabei, dass gerade niemand testet. Stirbt dem Wirt der Browser-Driver,
+      behauptet er nicht weiter, er laufe, sondern geht mit.
+      — [x] **Die Caps gelten jetzt auch für `tools/`.** `TREE_ROOTS` im Gate
+      ist um `tools` gewachsen. Dafür musste der Scanner lernen, dass ein
+      **verdeckter Ordner kein Quelltext ist**: `.preview-profile/` enthielt
+      70 Verstöße aus einer installierten Chrome-Erweiterung, `.venv/` wäre
+      derselbe Fall wie in [`PITFALLS.md`](PITFALLS.md). Und `marker.js` unter
+      `tools/preview/` musste in der Tat zerlegt werden — 353 Zeilen, zwei
+      Funktionen mit je 41.
+- [x] **Speichern.** Der Hive überlebt das Reload. Der Zustand geht alle fünf
+      Sekunden in den `localStorage` und beim Verlassen der Seite noch einmal;
+      `initialGameState()` holt ihn zurück, bevor der Reducer den ersten Zug
+      sieht. **Der Spielstand schreibt nicht die Welt, sondern ihre Änderungen:**
+      das Raster ist eine Funktion des Seeds, also wandern nur die Kacheln mit,
+      die vom frisch abgeleiteten Zustand abweichen, plus `world.deposits`.
+      Gemessen an einem frischen Zustand: **783,6 KB → 18,1 KB**, Roundtrip
+      byte-identisch. Gepackt wird gegen den Seed-Zustand und **nicht** nach
+      Sichtbarkeit gefiltert — 333 Vorrats-Zellen liegen im Raster, davon sind
+      die meisten noch verborgen und ein Sichtbarkeitsfilter löscht sie. Die
+      Paketform kommt in [`PITFALLS.md`](PITFALLS.md). Vor dem Speichern kommen
+      jetzt **12 ms** statt 74 ms: die abgeleitete Welt wird gehalten statt je
+      Packvorgang neu gebaut, und der Vergleich läuft feldweise statt über
+      `JSON.stringify`.
 - [ ] **Die Leiter bei 47,47.** Steht als `LADDER_TILE` in der Config und wird
       gerendert, sobald die Wurzeln hinkommen. Sie ist Deko mit Tiefe — irgendwann
       wird sie der Eingang.

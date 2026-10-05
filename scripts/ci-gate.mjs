@@ -14,7 +14,7 @@ import {
 } from './lib/version-authority.mjs';
 import { HARD_CAPS, analyzeTree } from './lib/source-metrics.mjs';
 
-const TREE_ROOTS = ['src', 'scripts'];
+const TREE_ROOTS = ['src', 'scripts', 'tools'];
 
 function hasRef(ref) {
   try {

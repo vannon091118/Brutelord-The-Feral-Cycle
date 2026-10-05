@@ -2,7 +2,8 @@ import { readFileSync, appendFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { session } from './cdp.mjs'
 
-const MARKER = readFileSync(resolve(import.meta.dirname, 'marker.js'), 'utf8')
+const MARKER = readFileSync(resolve(import.meta.dirname, 'marker-core.js'), 'utf8')
+  + '\n' + readFileSync(resolve(import.meta.dirname, 'marker.js'), 'utf8')
 const LOG = resolve(import.meta.dirname, 'daemon.log')
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const say = (m) => {

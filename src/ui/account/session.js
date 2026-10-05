@@ -1,6 +1,6 @@
 /** Die Sitzung: Name, PlayerID und Seed. Das ist Identität, kein Spielstand —
  *  der Hive-Fortschritt bleibt weiter beim Reload verloren. */
-const KEY = 'dl.session';
+export const SESSION_KEY = 'dl.session';
 const SEED = /^[0-9a-f]{16}$/;
 
 function text(value) {
@@ -15,7 +15,7 @@ function isSeed(value) {
 
 export function readSession() {
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(KEY) ?? 'null');
+    const parsed = JSON.parse(window.localStorage.getItem(SESSION_KEY) ?? 'null');
     if (!isSeed(parsed?.playerseed)) return null;
     return { name: text(parsed.name), playerId: text(parsed.playerId), playerseed: parsed.playerseed };
   } catch {
@@ -26,9 +26,9 @@ export function readSession() {
 export function writeSession(session) {
   if (!isSeed(session?.playerseed)) return;
   const clean = { name: text(session.name), playerId: text(session.playerId), playerseed: session.playerseed };
-  window.localStorage.setItem(KEY, JSON.stringify(clean));
+  window.localStorage.setItem(SESSION_KEY, JSON.stringify(clean));
 }
 
 export function clearSession() {
-  window.localStorage.removeItem(KEY);
+  window.localStorage.removeItem(SESSION_KEY);
 }

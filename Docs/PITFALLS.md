@@ -419,6 +419,88 @@ Leere. Das ist kein Fehler im Code, sondern eine Folge des Umschreibens — und
 es bleibt stehen, bis ein weiterer Push eine gültige Basis mitbringt. Wer nach
 einem Force-Push `main` auf grün wartet, wartet auf sich selbst.
 
+### Ein Spielstand, der die ganze Welt mitschreibt
+
+Gemessen an einem frischen Zustand des Slice: `JSON.stringify(state)` ergibt
+**783,6 KB** — 4096 Kacheln zu je rund 185 Byte. Ein `localStorage` verkraftet
+das zwar, aber nicht fünfmal in fünf Sekunden.
+
+Der Ausweg ist nicht „die Kacheln wegkürzen", sondern **die Welt nicht
+mitzuschreiben**: sie ist eine Funktion ihres Seeds. `createWorld()` liefert für
+denselben Seed exakt denselben Zustand — **gemessen 0 abweichende Kacheln** —
+also trägt ein Spielstand nur die Kacheln mit, die vom frisch abgeleiteten
+Zustand abweichen, dazu `world.deposits`. Ergebnis: **18,1 KB**, Roundtrip
+byte-identisch.
+
+> **Die Falle im Ausweg:** man darf *nicht* nach Sichtbarkeit filtern. Im Raster
+> liegen **333 Vorrats-Zellen**, und nur **38 Kacheln** sind überhaupt sichtbar —
+> ein Sichtbarkeitsfilter löscht also rund **295 Vorräte im Verborgenen** und
+> verschiebt damit die Ökonomie, ohne dass irgendwo ein Fehler sichtbar wird.
+
+> **Gegenprobe:** `packState()` gefolgt von `JSON.parse(JSON.stringify(...))`
+> und `unpackState()` muss byte-identisch zum Ausgangszustand sein — auch für
+> einen Zustand, in dem abgebaut und geerntet wurde. Wer diese Prüfung weglässt,
+> verliert die Abweichungen still.
+
+### Dekoration schluckt den Klick
+
+Der erste szenariale Browserlauf blieb beim Bauen hängen: Playwright meldete
+`intercepts pointer events`, und das Element, das den Klick abfing, waren die
+**Augen des Dunglings** — `<ellipse cx="0.4" cy="-1.6" rx="4.6" ry="5.2">` direkt
+über dem Bauplatz, den der Dungling gerade bewacht. 30 Sekunden Timeout, dann
+Fehlschlag. Kein Node-Test sieht das, weil im Node nichts klickt.
+
+> **Ursache:** SVG trifft keine Aussage darüber, ob ein Teil Dekoration ist.
+> Ein `<g>` erbt `pointer-events: auto` und liegt damit über allem, was darunter
+> liegt. `MiningParticles` hatte `pointerEvents: 'none'` gesetzt, der Dungling
+> nicht.
+
+> **Gegenprobe:** `npm run verify:tests`, Station `extractor-loop`. Wer eine
+> Kreatur oder ein Effekt-`<g>` zeichnet, setzt `pointer-events: none` an der
+> Wurzelgruppe — nicht an jedem Teil einzeln.
+
+### Ein Testname ist Teil des Testzustands
+
+Der Konto-Test prüfte fünf Fehlversuche auf **401** und bekam beim zweiten Lauf
+`401,401,401,401,429`. Die Bremse hängt am **Namen**, und die Kontodatenbank des
+Laufs (`tools/tests/.data`) lebt zwischen den Läufen weiter — der Zähler war also
+schon bei 4, bevor der Fall anfing. Zusätzlich verbrauchte die erste Sonde des
+Falls selbst einen Versuch.
+
+> **Regel:** ein Fall, der einen **Zähler** prüft, braucht einen **eigenen
+> Namen je Lauf** (`bremse-${Date.now()}`). Ein fester Name ist kein Testfall,
+> sondern eine Restgröße aus dem letzten Lauf.
+
+> **Gegenprobe:** denselben Fall zweimal hintereinander laufen lassen. Wenn das
+> zweite Urteil anders ausfällt als das erste, hängt der Fall an etwas
+> Überlebtem.
+
+### Zwei Testläufe schreiben in dieselbe Protokolldatei
+
+Beim Aufräumen sah eine Prüfung „`from.selector is not a function" — ein Fehler,
+den der Code schon nicht mehr enthielt. Ursache: ein **alter Szenarienlauf**
+stand noch in `hold()` und schrieb in dasselbe `latest.jsonl` wie der neue. Die
+Datei war eine Mischung aus zwei Prozessen, und die Fehlermeldung gehörte zu
+dem alten.
+
+> **Gegenprobe:** ein Lauf, der eine Datei festhält, ist ein zweiter Lauf. Wer
+> einen Lauf abbricht, muss den Prozess tot kriegen — und ein Logpfad, der
+> von jedem Lauf neu geschrieben wird, ist kein Beweis, wer ihn zuletzt
+> angefasst hat.
+
+### Ein Wirt, dessen Browser tot ist, lügt
+
+Der geteilte Browserwirt meldete „bereit", während sein Browser-Driver längst
+gestorben war: sein HTTP-Kanal lebte noch, sein Websocket nicht. Der Lauf
+bekam `ECONNREFUSED` auf einer Adresse, die er eben noch selbst bekommen hatte.
+
+> **Ursache:** Der Wirt prüfte seinen eigenen Zustand statt den des Browsers.
+> Ein HTTP-Antwortcode sagt nichts über den Prozess dahinter.
+
+> **Gegenprobe:** stirbt der Browser-Driver, geht der Wirt mit. Und der Lauf,
+> der sich nicht anhängen kann, räumt auf und startet **einmal** neu — ein
+> zweiter Versuch ohne Ende ist schlechter als ein klarer Fehlschlag.
+
 ---
 
 ## Was daraus folgt

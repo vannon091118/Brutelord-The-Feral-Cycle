@@ -27,5 +27,11 @@ Thumbs.db
 tools/preview/daemon.log
 tools/preview/inbox.json
 
+# Der Szenarienlauf hinterlässt ein Protokoll, eine Schlange und die Adresse des
+# geteilten Browserwirts; die Zustände unter tools/tests/state/ sind versioniert.
+tools/tests/logs/
+tools/tests/.queue/
+tools/tests/.browser-host.json
+
 # Messprofile des Firefox-Profilers sind Gerätewerte, keine Doku
 Docs/Performance messungen*/

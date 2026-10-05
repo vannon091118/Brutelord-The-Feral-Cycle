@@ -8,7 +8,8 @@ const PORT = process.env.CDP_PORT ?? '9222'
 const URL_TO_OPEN = process.argv[2] ?? 'http://127.0.0.1:5173'
 const ROOT = resolve(import.meta.dirname, '../..')
 const PROFILE = resolve(ROOT, '.preview-profile')
-const MARKER = readFileSync(resolve(import.meta.dirname, 'marker.js'), 'utf8')
+const MARKER = readFileSync(resolve(import.meta.dirname, 'marker-core.js'), 'utf8')
+  + '\n' + readFileSync(resolve(import.meta.dirname, 'marker.js'), 'utf8')
 
 const alive = async () => {
   try {

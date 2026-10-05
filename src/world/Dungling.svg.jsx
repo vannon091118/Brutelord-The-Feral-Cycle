@@ -28,7 +28,7 @@ export const DunglingSvg = memo(function DunglingSvg({ dungling, tileSize, x, y,
   const lobes = useMemo(() => budLobes(dungling), [dungling.tile.x, dungling.tile.y]);
 
   return (
-    <g transform={`translate(${x} ${y}) scale(${unit * facing} ${unit})`}>
+    <g style={{ pointerEvents: 'none' }} transform={`translate(${x} ${y}) scale(${unit * facing} ${unit})`}>
       <g className={view.bodyAnimation}>
         <DunglingFeet step={step} />
         <g className="dl-anim dl-dungle-breathe">

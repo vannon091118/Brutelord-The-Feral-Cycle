@@ -39,6 +39,10 @@ export function stripNoise(code) {
 
 export function collectSourceFiles(root, extensions = SOURCE_EXTENSIONS, found = []) {
   for (const entry of readdirSync(root)) {
+    // Versteckte Ordner sind Maschinenzustand, kein Quelltext: ein .venv,
+    // ein Browserprofil mit Erweiterungen, ein .git. Sie stehen in keiner
+    // Dateiliste und trotzdem im Baum — der Scanner muss sie überspringen.
+    if (entry.startsWith('.')) continue;
     const full = join(root, entry);
     if (statSync(full).isDirectory()) collectSourceFiles(full, extensions, found);
     else if (extensions.some((extension) => full.endsWith(extension))) found.push(full);
