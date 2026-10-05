@@ -31,7 +31,7 @@ npm run gate                               # alle drei Wächter
 npm run gate -- --tree                     # nur Hard Caps
 npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
-npm run verify                             # Abnahmesimulation des Slice in node
+npm run verify                             # Abnahme inkl. Start im echten Browser
 npm run verify:commits                     # Regressionstests des Commit-Gates
 npm run build                              # Production-Build
 npm run version:bump -- patch              # auch minor | major
@@ -40,8 +40,12 @@ npm run version:check                      # Lock vs. Spiegel
 
 Es gibt **kein `npm test` und keinen Linter**. `gate` und `verify` sind die
 Qualitätswächter. `verify` ist die eigentliche Abnahmesimulation: sie spielt
-den Slice deterministisch mit einer virtuellen Uhr durch und importiert die
-echten Module aus `src/`.
+den Slice deterministisch mit einer virtuellen Uhr durch, importiert die
+echten Module aus `src/` — **und prüft zum Schluss, dass das Spiel wirklich
+startet**, also Server hoch, Seite da, Onboarding in Echtzeit im Browser. Das
+ist kein Extra: Wer nach einer Änderung `npm run verify` gelaufen hat, hat auch
+den Start geprüft. Fehlt dem Container der Browser, ist `npm run verify`
+unvollständig, nicht grün — die Reparatur steht in `PITFALLS.md`.
 
 **Gate und verify lesen Pfade relativ zum CWD** — immer aus dem
 Repo-Wurzelverzeichnis starten. Das Gate prüft Commits **ohne** `--commits`

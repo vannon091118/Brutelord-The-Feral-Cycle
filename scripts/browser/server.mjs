@@ -15,6 +15,7 @@ async function answers(url) {
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function startServer() {
+  if (BROWSER_CONFIG.external) return null;
   const flags = ['--port', String(BROWSER_CONFIG.port), '--strictPort'];
   const proc = spawn(process.execPath, [VITE_ENTRY, ...flags], { cwd: process.cwd(), stdio: 'ignore' });
   const tries = Math.ceil(BROWSER_CONFIG.bootTimeoutMs / 500);

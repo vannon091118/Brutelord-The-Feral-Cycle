@@ -64,6 +64,9 @@ jobs:
       - name: Commit-Gate-Regeln selbst prüfen
         run: npm run verify:commits
 
+      - name: Browser für die Startprüfung
+        run: npx playwright install --with-deps chromium
+
       - name: Slice-Prüfungen
         run: npm run verify
 

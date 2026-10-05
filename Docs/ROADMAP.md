@@ -93,6 +93,20 @@ Grund, ihn zu haben.
       `verify-slice.mjs` mit sieben von sieben erlaubten Imports an der
       Importgrenze steht und der Raid genau dort forkt: die
       Terrain-Klassifikation ist geteilt, die Kostenlogik nicht.
+      — [x] **Die Browser-Abnahme läuft, auch gegen einen verwalteten Server.**
+      `npm run verify:browser` startete bisher aus dem Grund nicht, den niemand
+      nachgesehen hat: Chromium war installiert, aber 24 Systembibliotheben
+      fehlten. Mit `npx playwright install-deps chromium` läuft sie und meldet
+      **20 von 20**. Für Umgebungen mit verwaltetem Dev-Server nimmt
+      `DL_BROWSER_URL` den eigenen Server aus dem Spiel; ohne die Variable bleibt
+      der eigene Pfad der Default. Befund und Gegenprobe stehen in
+      [`PITFALLS.md`](PITFALLS.md). — [x] **Und sie ist jetzt Standard.**
+      `npm run verify` prüft zum Schluss **selbst**, dass das Spiel startet:
+      dieselbe Browser-Stufe, über `checkStartup()`, im selben Lauf und mit
+      einem gemeinsamen Report statt eines zweiten. Das ist die Lücke, die
+      dieser Punkt ursprünglich meinte — ein Drittel des Ablaufs war ungetestet,
+      weil der Test im Node lief und der Ablauf im Browser. `ci.yml` installiert
+      den Browser vorher, damit der Lauf dort nicht stillschweigend ausfällt.
       — [x] **Die Gruppe hat einen Cursor, alle drei Traits sind übersetzt.**
       Der Einmarsch wird **halbautomatisch**: `at` gehört der Gruppe, Helden
       tragen keine Position, ein Befehl setzt einen Pfad (Dijkstra über

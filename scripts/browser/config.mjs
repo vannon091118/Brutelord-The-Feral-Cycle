@@ -1,7 +1,10 @@
 /** Konfiguration der Browser-Abnahme: Anschluss, Sitzung, Griffe, Startzeit. */
+const EXTERNAL_URL = process.env.DL_BROWSER_URL ?? null;
+
 export const BROWSER_CONFIG = Object.freeze({
   host: '127.0.0.1',
   port: 5199,
+  external: EXTERNAL_URL !== null,
   bootTimeoutMs: 45000,
   viewport: Object.freeze({ width: 1280, height: 800 }),
   playerSeed: '0c0ffee1deadbeef',
@@ -28,8 +31,9 @@ export const SEL = Object.freeze({
   passField: 'input[type="password"]',
 });
 
+/** Ein verwalteter Vorschau-Server schlägt den eigenen: DL_BROWSER_URL gewinnt. */
 export function baseUrl() {
-  return `http://${BROWSER_CONFIG.host}:${BROWSER_CONFIG.port}/`;
+  return EXTERNAL_URL ?? `http://${BROWSER_CONFIG.host}:${BROWSER_CONFIG.port}/`;
 }
 
 /** Die gepinnte Sitzung: gleicher Seed, gleiche Welt, in jedem Lauf. */

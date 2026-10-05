@@ -184,6 +184,29 @@ ist, wo sie hingehört, fällt im Bild sofort auf und in keiner Prüfung.
 
 ## Der Dev-Server
 
+### Ein vorhandener Chromium ist kein lauffähiger Chromium
+
+Gemessen in einem frischen Container: Playwright hat Chromium **installiert**
+(`~/.cache/ms-playwright/chromium-1243`), und trotzdem bricht der Start mit
+`Target page, context or browser has been closed` ab. Der Grund steht nicht in
+der Fehlermeldung, sondern in `ldd`: **24 fehlende Systembibliotheken**, die
+erste ist `libglib-2.0.so.0`. `npx playwright install-deps chromium` holt genau
+diese Liste und repariert es (setzt `root` voraus und ein erreichbares
+Paketarchiv — im Container muss vorher `apt-get update` laufen, sonst meldet apt
+„Unable to locate package“).
+
+> **Gegenprobe:** `node -e "chromium.launch()"` muss eine Version melden. Wer
+> `npm run verify:browser` als „kaputt“ abtut, hat sehr oft nur die Bibliotheken
+> nicht geprüft.
+
+### Der verwaltete Vorschau-Server schlägt den eigenen
+
+`scripts/browser/server.mjs` startet sonst selbst ein Vite auf Port 5199. Wer in
+einer Umgebung mit verwaltetem Dev-Server arbeitet, setzt `DL_BROWSER_URL` —
+`baseUrl()` nimmt die Adresse, `startServer()` liefert `null`, und
+`stopServer(null)` bleibt ein No-op. Der eigene Pfad bleibt der Default, damit
+CI nichts von der Umgebung weiß.
+
 ### `npm run dev` bindet auf 127.0.0.1
 
 Aus einem Container nicht erreichbar. Das ist Absicht — der Dev-Server bringt die

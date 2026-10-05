@@ -715,6 +715,21 @@ ihre Erwartungen aus den Configs ableiten. Neue Domänenlogik ist erst geprüft,
 wenn eine `check-*.mjs` sie aufruft; die echten Module aus `src/` werden
 importiert, nicht nachgebaut.
 
+**`npm run verify` prüft auch, dass das Spiel startet.** Die Startprüfung ist
+kein Extra und kein Opt-in: `checkStartup()` ruft dieselbe Browser-Stufe auf,
+die auch allein über `npm run verify:browser` läuft, und beide hängen an
+`checkBrowserStage()` in `scripts/browser/stage.mjs`. Wer nur im Node rechnet,
+prüft genau die Hälfte, die keine Uhr hat — der Abbau-Takt, der Spawn und das
+Onboarding leben im Browser, nicht in `verify-slice.mjs`. Deshalb steht in
+`ci.yml` vor der Verifikation `npx playwright install --with-deps chromium`, und
+deshalb ist `verify:browser` keine Abkürzung für den Lauf, sondern sein
+eigenständiger Zugang zu derselben Stufe.
+
+`scripts/verify/index.mjs` listet die Gruppen an **einer** Kante: der Runner
+stünde sonst mit acht Importen am Cap, und eine neue Gruppe müsste in ein Modul
+einhängen, das inhaltlich nichts mit ihr zu tun hat. Ein Feature-Check wie
+`check-raid-group.mjs` bleibt trotzdem bei seinem Feature.
+
 - `check-colony.mjs` bündelt Bauen und Beanspruchung, weil `verify-slice.mjs` an
   der Importgrenze steht. Dort hängen auch `check-traits.mjs` und sein Aufbau
   `lab-run.mjs`, das eine Kolonie mit verbautem Stein und offenem Bauplatz stellt.
