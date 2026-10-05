@@ -7,6 +7,8 @@ export { checkHitJuice } from './check-hit-juice.mjs';
 export { checkRooting } from './check-rooting.mjs';
 export { checkColony } from './check-colony.mjs';
 export { checkRaidGroup } from './check-raid-group.mjs';
+export { checkStorage } from './check-storage.mjs';
+export { checkRaidCap } from './check-raid-cap.mjs';
 export { checkVerticality } from './check-verticality.mjs';
 export { checkVerticalityWiring } from './check-verticality-wiring.mjs';
 export { checkStartup } from './check-startup.mjs';

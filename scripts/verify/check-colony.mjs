@@ -7,10 +7,10 @@ import { checkEconomy } from './check-economy.mjs';
 import { checkBruteLord } from './check-brutelord.mjs';
 import { checkMutant } from './check-mutant.mjs';
 
-export function checkColony(slice) {
+export async function checkColony(slice) {
   checkClaim(slice);
   checkBuild();
-  checkWorldViews();
+  await checkWorldViews();
   checkCamera();
   checkEconomy();
   checkBruteLord();

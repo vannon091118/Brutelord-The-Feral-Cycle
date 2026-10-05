@@ -1,8 +1,9 @@
 /** Die zwei Befehle der Konto-API. Reine Logik, damit npm run verify sie ohne
- *  Browser und ohne Entwicklungsdatenbank prüfen kann. */
+ *  Browser und ohne Entwicklungsdatenbank prüfen kann. Der erste Parameter ist
+ *  ein Speicher aus `storage-interface.mjs` und keine Datenbank: deshalb ist
+ *  jeder Aufruf asynchron, und derselbe Code liefe auch gegen D1. */
 import { accountProblem, normalizeName } from './account-config.mjs';
 import { decoyMatches, makeAccount, passwordMatches, playerIdOf } from './account-rules.mjs';
-import { findAccount, insertAccount } from './account-store.mjs';
 import { isLocked, noteFailure, noteSuccess, throttleKey } from './account-throttle.mjs';
 
 const LOCKED = 'Zu viele Versuche. Warte einen Moment.';
@@ -18,26 +19,27 @@ function refused(key) {
   return { status: 401, error: WRONG };
 }
 
-export function register(db, { name, password, remote = '' } = {}) {
+export async function register(store, { name, password, remote = '' } = {}) {
   const problem = accountProblem({ name, password });
   if (problem) return { status: 400, error: problem };
   const clean = normalizeName(name);
   const key = throttleKey({ name: clean, remote });
   if (isLocked(key)) return { status: 429, error: LOCKED };
-  if (findAccount(db, clean)) {
+  if (await store.getAccount(clean)) {
     noteFailure(key);
     return { status: 409, error: TAKEN };
   }
   const made = makeAccount({ name: clean, password });
   noteSuccess(key);
-  return { status: 201, ...publicOf(insertAccount(db, { ...made, name: clean, playerId: playerIdOf(made.playerseed) })) };
+  const gespeichert = await store.updateAccount(clean, { ...made, name: clean, player_id: playerIdOf(made.playerseed) });
+  return { status: 201, ...publicOf(gespeichert) };
 }
 
-export function login(db, { name, password, remote = '' } = {}) {
+export async function login(store, { name, password, remote = '' } = {}) {
   const clean = normalizeName(name);
   const key = throttleKey({ name: clean, remote });
   if (isLocked(key)) return { status: 429, error: LOCKED };
-  const account = findAccount(db, clean);
+  const account = await store.getAccount(clean);
   const whole = !accountProblem({ name: clean, password });
   const matches = account && whole
     ? passwordMatches({ password, salt: account.salt, verifier: account.verifier })

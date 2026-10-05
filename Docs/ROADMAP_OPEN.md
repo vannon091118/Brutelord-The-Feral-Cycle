@@ -29,6 +29,16 @@ Modul zu spalten.
 
 ## 0.0.24 — Bestand und Tor
 
+### Nachtrag: der Replay-Deckel (gemessen, nicht vermutet)
+
+Ein Angreifer durfte ein Aktions-Log beliebiger Länge einreichen. Gemessen mit
+`npm run bench:replay` kostet ein Log mit 2998 Schritten rund 29 ms, weil
+`record()` bei jedem Schritt das ganze Log kopiert — dreimal das CPU-Budget von
+Cloudflare aus **einem** HTTP-Request. `RAID_CONFIG.maxActions` steht jetzt bei
+512 und wird in `replayMatches()` geprüft, also in der Domäne und nicht im
+Server: das längste erlaubte Log kostet dort gemessen rund 3,6 ms. `raid-cap` in
+der Abnahme belegt beides, auch die Gegenprobe.
+
 Der Schwarm arbeitet, das Bestand-Problem ist adressiert. Diese Einträge
 tragen den offenen Rest des Raids und die zwei Lücken am Konto.
 
@@ -69,10 +79,12 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
       also fehlt die Route auch im Vorschau-Server und auf jedem statischen
       Hosting; der Client bekommt dort HTML statt JSON und meldet es jetzt mit
       einem verständlichen Satz statt mit einem stillen `Failed to fetch`.
-      **Offen ist die Entscheidung**, wohin das Backend wandert (derselbe
-      Node-Prozess neben dem Build, eine D1-Datenbank, oder ein Dienst) —
-      `account-store.mjs` ist dafür schon plain SQL, aber die Wahl ist nicht
-      getroffen. Gehört vor den Code in ein eigenes Plan-Dokument.
+      **Die Wahl ist getroffen** und steht mit dem Warum in
+      [`BACKEND-PLAN.md`](BACKEND-PLAN.md): Adapter statt Vendor, lokal
+      `node:sqlite`, am Rand D1, und ein Replay, das gemessen rund 2 ms kostet
+      und die 10 ms von Cloudflare nicht annähernd erreicht. Offen bleibt nur noch
+      der Ort, an dem der Worker in den Build kommt — kein Worker-Entrypoint,
+      kein D1-Schema.
   Status: geplant
   Scope: Konto
   Kategorie: Bugfix
@@ -84,6 +96,13 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
       Ticket und MMR schreiben langfristig in dieselbe Tabelle wie das Konto —
       die Spalte fehlt, und bis sie steht, wechselt der Hive den Rechner und ist
       weg. Gehört in denselben Zug wie die Backend-Entscheidung darüber.
+      **Der Speicher ist gebaut:** `getState`/`putState` stehen im Vertrag, die
+      Spalte `state` in der Kontotabelle, und `check-storage.mjs` belegt den
+      Kreislauf gegen die echte Datei. **Offen bleibt die Schreiblast** — der
+      Client speichert alle fünf Sekunden und über HTTP ist dasselbe Snapshot
+      ein Vielfaches größer; es braucht eine Zusammenfassung und eine Obergrenze.
+      Die Fragen stehen als offene Punkte 2 und 3 in
+      [`BACKEND-PLAN.md`](BACKEND-PLAN.md).
   Status: geplant
   Scope: Konto
   Kategorie: Feature

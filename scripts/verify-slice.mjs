@@ -2,8 +2,8 @@
 /** Führt die Slice-Akzeptanzprüfungen in fachlichen Gruppen aus. */
 import {
   checkArchitecture, checkColony, checkEdgeMaskGroup, checkHitJuice, checkMining,
-  checkOnboarding, checkRaidGroup, checkRooting, checkStart, checkStartup,
-  checkVerticality, checkVerticalityWiring, makeOnboardingRun, summary,
+  checkOnboarding, checkRaidCap, checkRaidGroup, checkRooting, checkStart, checkStartup,
+  checkStorage, checkVerticality, checkVerticalityWiring, makeOnboardingRun, summary,
 } from './verify/index.mjs';
 
 /** Die HTTP- und die Browser-Prüfungen am Ende brauchen einen laufenden Server
@@ -17,8 +17,10 @@ async function main() {
   checkHitJuice(run.state);
   checkRooting(run);
   checkEdgeMaskGroup();
-  checkColony(run);
+  await checkColony(run);
   checkRaidGroup();
+  checkRaidCap();
+  await checkStorage();
   checkVerticality();
   checkVerticalityWiring();
   await checkStartup();

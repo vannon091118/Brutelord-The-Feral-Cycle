@@ -28,9 +28,9 @@ function checkHiveWaiting() {
   check('Der Klick blitzt nur in HIVE_CLICKED', ONBOARDING_ORDER.filter((phase) => hiveVisualState({ hive: HIVE, onboardingState: phase }).hit).join('|') === ONBOARDING_STATE.HIVE_CLICKED);
 }
 
-export function checkWorldViews() {
+export async function checkWorldViews() {
   checkDunglingAnimations();
   checkHiveWaiting();
   checkSeed();
-  checkAccount();
+  await checkAccount();
 }

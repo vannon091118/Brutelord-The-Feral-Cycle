@@ -2,7 +2,7 @@
  *  kein zweiter Prozess. Begründung der Schranken in ARCHITEKTUR.md. */
 import { login, register } from './account-api.mjs';
 import { ACCOUNT_CONFIG } from './account-config.mjs';
-import { openAccounts } from './account-store.mjs';
+import { createLocalStore } from './account-store-local.mjs';
 
 const ROUTES = {
   '/api/register': register,
@@ -85,7 +85,7 @@ async function handle(request, response) {
   }
   const body = parseBody(raw);
   const remote = request.socket.remoteAddress ?? '';
-  const result = route(openAccounts(), { name: body.name, password: body.password, remote });
+  const result = await route(createLocalStore(), { name: body.name, password: body.password, remote });
   const { error, ...rest } = result;
   send(response, result.status, error ? { error } : rest);
   return true;

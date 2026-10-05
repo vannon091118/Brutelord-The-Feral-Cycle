@@ -15,6 +15,15 @@ const SCHEMA = `
   );
 `;
 
+/** Der Spielstand kam spaeter dazu. `IF NOT EXISTS` auf der Spalte gab es
+ *  nicht, also wird sie einmal nachgezogen, wenn sie fehlt — sonst waere ein
+ *  Konto, das vor dem Upgrade entstand, unlesbar. */
+function ensureStateColumn(db) {
+  const spalten = db.prepare('PRAGMA table_info(accounts)').all();
+  if (spalten.some((spalte) => spalte.name === 'state')) return;
+  db.exec('ALTER TABLE accounts ADD COLUMN state TEXT');
+}
+
 export function dataDir() {
   return process.env.DL_DATA_DIR ?? join(process.cwd(), '.data');
 }
@@ -27,6 +36,7 @@ export function openAccounts(file = databasePath()) {
   mkdirSync(dirname(file), { recursive: true });
   const db = new DatabaseSync(file);
   db.exec(SCHEMA);
+  ensureStateColumn(db);
   return db;
 }
 
@@ -47,4 +57,18 @@ export function insertAccount(db, account) {
 
 export function countAccounts(db) {
   return db.prepare('SELECT COUNT(*) AS n FROM accounts').get().n;
+}
+
+export function readState(db, name) {
+  const row = db.prepare('SELECT state FROM accounts WHERE name = ?').get(name);
+  if (!row?.state) return null;
+  try {
+    return JSON.parse(row.state);
+  } catch {
+    return null;
+  }
+}
+
+export function writeState(db, name, packed) {
+  return db.prepare('UPDATE accounts SET state = ? WHERE name = ?').run(JSON.stringify(packed), name).changes;
 }

@@ -19,7 +19,8 @@
     "verify:tests": "node tools/tests/run.mjs",
     "verify:tests:headless": "DL_HEADLESS=1 node tools/tests/run.mjs",
     "verify:commits": "node scripts/verify-commit-gate.mjs",
-    "purge": "node scripts/server/purge.mjs"
+    "purge": "node scripts/server/purge.mjs",
+    "bench:replay": "node scripts/bench/raid-replay-bench.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",

@@ -34,6 +34,7 @@ export const RAID_CONFIG = Object.freeze({
   obsidianCost: 12,
   attackApCost: 2,
   reviveWindowMs: 7200000,
+  maxActions: 512,
 });
 
 export const RAID_TERRAIN = Object.freeze({

@@ -12,6 +12,13 @@ Ecke ist (63,63), nicht (0,0). Erde ist offen. Hartgestein ist eine Berechtigung
 Aufpreisstufe. Fail closed: ohne die Berechtigung kostet der Weg nichts, weil er nicht geht
 — null.
 
+`maxActions` ist die Obergrenze eines eingereichten Logs und steht hier, weil sie eine Zahl
+über den Raid ist und nicht über den Server. Ihr Wert ist **gemessen**, nicht gesetzt: bei
+512 kostet das längste erlaubte Log rund 3,6 ms inklusive Weltbau, bei 2998
+Schritten sind es rund 29 ms — dreimal das Budget. Die Begründung und der
+Messlauf stehen in [`Docs/BACKEND-PLAN.md`](../../../Docs/BACKEND-PLAN.md),
+das Gate ist `npm run bench:replay`.
+
 ## Schnittstellen
 
 - `maxTeamGrit()`
