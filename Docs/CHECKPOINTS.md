@@ -43,6 +43,24 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.31
+
+- [x] **Der Produktname steht im Seitentitel und wird geprüft.** `index.html`
+      trug als `<title>` den Repository-Namen (`Dungeon-Breaker-Lord-of-the-Evil`)
+      statt „Dungeon Lord" — in jedem Browser-Tab, in jedem Lesezeichen und in
+      jeder geteilten Adresse stand damit der Slug statt des Spiels. Der Titel
+      ist zurückgesetzt, und `scripts/browser/gate.mjs` prüft in der
+      Browser-Abnahme, dass der Seitentitel „Dungeon Lord" enthält. Die
+      Gegenprobe mit dem Slug im Titel lässt genau diese eine Prüfung fallen und
+      den Lauf mit Exit 1 enden, statt grün danebenzustehen. Die Abnahme steht
+      damit bei 517 Prüfungen.
+  Status: fix
+  Scope: UI
+  Kategorie: Bugfix
+  Version: 0.0.31
+  Datum: 2026-10-05
+
+
 ## 0.0.30
 
 - [x] **Der Gang um den Hive, und die Erde verschmilzt auch an seinem Rand.**

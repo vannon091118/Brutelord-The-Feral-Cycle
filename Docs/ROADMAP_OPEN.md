@@ -122,21 +122,6 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
   Version: ausstehend
   Datum: ausstehend
 
-- [x] **Der Produktname steht im Seitentitel und wird geprüft.** `index.html`
-      trug als `<title>` den Repository-Namen (`Dungeon-Breaker-Lord-of-the-Evil`)
-      statt „Dungeon Lord" — in jedem Browser-Tab, in jedem Lesezeichen und in
-      jeder geteilten Adresse stand damit der Slug statt des Spiels. Der Titel
-      ist zurückgesetzt, und `scripts/browser/gate.mjs` prüft in der
-      Browser-Abnahme, dass der Seitentitel „Dungeon Lord" enthält. Die
-      Gegenprobe mit dem Slug im Titel lässt genau diese eine Prüfung fallen und
-      den Lauf mit Exit 1 enden, statt grün danebenzustehen. Die Abnahme steht
-      damit bei 517 Prüfungen.
-  Status: geplant
-  Scope: UI
-  Kategorie: Bugfix
-  Version: ausstehend
-  Datum: ausstehend
-
 ---
 
 ## Was hier NICHT steht
