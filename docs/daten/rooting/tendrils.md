@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/rooting/tendrils.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/rooting/tendrils.md#tendrils
+Deterministische Wurzeltentakel je Feld.
 
 ## Schnittstellen
 

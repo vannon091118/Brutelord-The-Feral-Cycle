@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/hive/HiveShell.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/hive/hiveshell.md#hiveshell
+Kein Kommentar im Bestand — die Verantwortung steht in den Schnittstellen.
 
 ## Schnittstellen
 

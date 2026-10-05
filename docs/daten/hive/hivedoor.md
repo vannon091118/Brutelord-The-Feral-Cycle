@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/hive/HiveDoor.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/hive/hivedoor.md#hivedoor
+Kein Kommentar im Bestand — die Verantwortung steht in den Schnittstellen.
 
 ## Schnittstellen
 

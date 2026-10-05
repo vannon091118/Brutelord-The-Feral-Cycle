@@ -6,7 +6,9 @@ Spiegel-Datei für `src/domain/raid/raid-traits.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/raid/raid-traits.md#raid-traits
+Die Trait-Faltung des Teams: der stärkste Stein zählt, nicht die Summe. Jeder Trait nennt
+genau eine Achse, also ist der fehlende Wert keine Luecke, sondern neutral. Was das Team aus
+dem fremden Dungeon heraushält — GREEDY zählt doppelt.
 
 ## Schnittstellen
 

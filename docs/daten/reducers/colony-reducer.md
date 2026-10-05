@@ -6,7 +6,7 @@ Spiegel-Datei für `src/state/reducers/colony-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/colony-reducer.md#colony-reducer
+Kolonie-Domäne: Bau-Befehle des Spielers und der Arbeitstakt.
 
 ## Schnittstellen
 

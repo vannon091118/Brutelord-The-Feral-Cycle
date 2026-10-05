@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/essence/EssencePopup.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/essence/essencepopup.md#essencepopup
+Essenzsymbol: getragen und als +1 über dem Abladeort.
 
 ## Schnittstellen
 

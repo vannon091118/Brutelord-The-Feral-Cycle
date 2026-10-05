@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/labour/work-tick.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/labour/work-tick.md#work-tick
+Der Arbeitstakt der Kolonie: Aufträge, Essenz, Brut, Bauplätze, Popups.
 
 ## Schnittstellen
 

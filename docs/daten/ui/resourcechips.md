@@ -6,7 +6,7 @@ Spiegel-Datei für `src/ui/ResourceChips.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/resourcechips.md#resourcechips
+Die drei Werteplaketten des HUD: Essenz im Hive, Raum und Etage.
 
 ## Schnittstellen
 

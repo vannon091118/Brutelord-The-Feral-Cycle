@@ -6,7 +6,9 @@ Spiegel-Datei für `src/ui/menu-position.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/menu-position.md#menu-position
+Bildschirmposition eines Tiles innerhalb der Bühne. Die Welt ist skaliert und Ausschnitt,
+Menüs sind DOM und bleiben in echter Größe — deshalb wird hier der Versatz des
+Kamerafensters herausgerechnet.
 
 ## Schnittstellen
 

@@ -6,7 +6,7 @@ Spiegel-Datei für `src/state/reducers/lab-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/lab-reducer.md#lab-reducer
+Labor-Domäne: Stein kaufen, Stein verbauen, Labor öffnen und schließen.
 
 ## Schnittstellen
 

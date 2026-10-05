@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/earth/HitArea.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/earth/hitarea.md#hitarea
+Klickfläche eines Tiles: leitet den Befehl weiter, wertet ihn nicht aus.
 
 ## Schnittstellen
 

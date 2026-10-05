@@ -6,7 +6,10 @@ Spiegel-Datei für `src/world/buildings/BruteLordArt.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/buildings/brutelordart.md#brutelordart
+Drei Panzerplatten übereinander — je weiter oben, desto schmaler. Die Hörner: zwei dunkle
+Sicheln, die den Panzer krönen. Das geschlossene Auge: ein Schlitz, unter dem es warm glüht.
+Der Brutlord: ein gepanzerter Leib, der auf seinen Herrn wartet. Der Umriss des Panzers:
+breit, mit flachem Rücken und schwerem Bauch.
 
 ## Schnittstellen
 

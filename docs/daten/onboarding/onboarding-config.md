@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/onboarding/onboarding-config.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/onboarding/onboarding-config.md#onboarding-config
+Zeiten und Tuning-Werte des Onboardings.
 
 ## Schnittstellen
 

@@ -6,7 +6,7 @@ Spiegel-Datei für `src/state/reducers/expansion-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/expansion-reducer.md#expansion-reducer
+Ausbau: zerstörter Block wird Raum, dann erscheint das Baumenü.
 
 ## Schnittstellen
 

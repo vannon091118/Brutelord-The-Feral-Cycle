@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/deposits/deposit-placement.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/deposits/deposit-placement.md#deposit-placement
+Die Platzierung: Blöcke, Isolation, Sperrzonen, Kapazität.
 
 ## Schnittstellen
 

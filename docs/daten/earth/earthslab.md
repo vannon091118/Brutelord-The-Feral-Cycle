@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/earth/EarthSlab.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/earth/earthslab.md#earthslab
+Die Masse selbst: eine einzige Fläche, die über die Nachbarn hinausragt. Kein Sockel, keine
+Kante — dadurch verschwindet das Raster.
 
 ## Schnittstellen
 

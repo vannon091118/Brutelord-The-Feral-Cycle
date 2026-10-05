@@ -6,7 +6,9 @@ Spiegel-Datei für `src/domain/brutelord/stone-roll.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/brutelord/stone-roll.md#stone-roll
+Der Wurf: Seltenheit aus dem Seed, Pity-Timer, Fähigkeiten, Trait. Aus demselben Seed kommt
+immer derselbe Stein — Neuladen ist kein Losgriff. Die Legende-Chance steigt unsichtbar mit
+jedem Fehlschlag.
 
 ## Schnittstellen
 

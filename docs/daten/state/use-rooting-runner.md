@@ -6,7 +6,7 @@ Spiegel-Datei für `src/state/use-rooting-runner.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/use-rooting-runner.md#use-rooting-runner
+Die Uhr der Verwurzelung.
 
 ## Schnittstellen
 

@@ -6,7 +6,8 @@ Spiegel-Datei für `src/ui/PhaseTrail.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/phasetrail.md#phasetrail
+Die vier Phasen des Slice als kleine Marken: Hive, Dungling, Erde, Bauen. Sie zeigen, wo im
+ersten Moment man gerade steht.
 
 ## Schnittstellen
 

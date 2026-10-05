@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/raid/raid-terrain.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/raid/raid-terrain.md#raid-terrain
+Hartgestein im fremden Dungeon: eigener Hash, eigene Konstanten, kein Zufall. Das Terrain
+einer Zelle im fremden Dungeon. Die Heimat kennt nur Erdreich.
 
 ## Schnittstellen
 

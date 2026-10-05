@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/earth/TileRing.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/earth/tilering.md#tilering
+Visuelle Darstellung der Auswahl, des Arbeitsziels und des Hinweises. Die Auswahl ist Licht,
+keine Kontur: die Masse selbst leuchtet auf.
 
 ## Schnittstellen
 

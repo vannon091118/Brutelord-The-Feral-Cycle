@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/deposits/DepositGlow.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/deposits/depositglow.md#depositglow
+Der grüne Schimmer über einem geöffneten Vorrat — weich, ohne Kante. Jeder Vorrat braucht
+einen eigenen Verlauf: ein gemeinsamer Gradient würde allen Kacheln die Helligkeit des
+ersten Vorrats aufzwingen.
 
 ## Schnittstellen
 

@@ -6,7 +6,7 @@ Spiegel-Datei für `src/ui/stone/LabBench.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/stone/labbench.md#labbench
+Der Arbeitstisch: der mutierte Dungling in der Mitte, vier Slots drumherum.
 
 ## Schnittstellen
 

@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/use-game-actions.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/use-game-actions.md#use-game-actions
+Die Befehle des Spielers. Die UI ruft sie auf — was daraus entsteht, entscheidet der
+Reducer.
 
 ## Schnittstellen
 

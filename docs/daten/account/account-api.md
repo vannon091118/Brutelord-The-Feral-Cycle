@@ -6,7 +6,7 @@ Spiegel-Datei für `src/ui/account/account-api.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/account/account-api.md#account-api
+Zwei Aufrufe, ein Ort: das Backend antwortet mit Status und Objekt.
 
 ## Schnittstellen
 

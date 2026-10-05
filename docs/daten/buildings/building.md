@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/buildings/building.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/buildings/building.md#building
+Bauplatz-Logik: Grundfläche, Platzprüfung, Lieferung, Zuweisung.
 
 ## Schnittstellen
 

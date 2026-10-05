@@ -6,7 +6,9 @@ Spiegel-Datei für `src/domain/world/floor-config.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/floor-config.md#floor-config
+Die Konstanten der Etagen: Tiefe, Salz und was ein Sprung kostet. [FUTURE] Der Wert ist eine
+Absicht, kein Limit: er wächst mit dem Content. Salz, damit Tiefe 0 nicht dieselbe Welt ist
+wie die anonyme Welt ohne Tiefe.
 
 ## Schnittstellen
 

@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/floor/substrate.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/floor/substrate.md#substrate
+Untergrund abgebauter Felder: heller Stein.
 
 ## Schnittstellen
 

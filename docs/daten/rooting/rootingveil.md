@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/rooting/RootingVeil.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/rooting/rootingveil.md#rootingveil
+Die Hülle der Verwurzelung über einem Feld.
 
 ## Schnittstellen
 

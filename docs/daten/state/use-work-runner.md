@@ -6,7 +6,9 @@ Spiegel-Datei für `src/state/use-work-runner.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/use-work-runner.md#use-work-runner
+Die Arbeitsuhr: Aufträge laufen weiter, egal was der Spieler tut. Solange niemand trägt,
+kein Bauplatz offen ist und kein Schwarmhort brütet, schweigt sie — wie die Wurzeluhr liest
+sie nur den Zustand, sie besitzt keinen.
 
 ## Schnittstellen
 

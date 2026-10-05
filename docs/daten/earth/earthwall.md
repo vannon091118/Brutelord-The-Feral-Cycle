@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/earth/EarthWall.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/earth/earthwall.md#earthwall
+Die Kantenwand: Felsfläche zur unbekannten Seite, helle Abrisskante davor.
 
 ## Schnittstellen
 

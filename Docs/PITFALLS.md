@@ -573,6 +573,31 @@ einzeln; die Cap gilt **pro Datei**, nicht pro Aenderung.
 > und [`ARCHITEKTUR.md`](ARCHITEKTUR.md), in den Code nur der Kopf. Das ist
 > keine Formalie: die Gate-Meldung sagt es bei jedem Verstoss.
 
+### Ein Migrator, der sein eigenes Ergebnis ueberschreibt
+
+Der Kommentar-Cap wurde in zwei Laeuufen eingefuehrt. Der erste schrieb die
+echte Prosa in die Spiegel-Dateien — richtig. Der zweite lief mit `--fresh`,
+gab es aber auf einen bereits migrierten Baum: `docs/daten` wurde geloescht und
+aus den Quellen neu erzeugt, und die Quellen trugen nur noch Pointer. Ergebnis:
+159 von 160 Dateien hatten unter `## Verantwortung` wieder den Pointer statt des
+Textes, **479 Kommentarzeilen aus `src/` waren weg** — sie standen nur noch im
+Git von `99da74e`. Das Gate blieb gruen: es prueft Pointer, Existenz, Orphans
+und Caps, aber keinen Inhalt.
+
+> **Ursache ist nicht der Schalter, sondern die Datenrichtung:** nach der
+> Migration ist `docs/daten` die Quelle der Erklaerung. Wer sie als Ausgabe
+> behandelt und loescht, kann sie nicht wiederherstellen, weil es nur noch
+> eine Quelle gibt.
+
+> **Gegenprobe:** zwei Dinge, die zusammen den Fehler unsichtbar machten. Erst
+> `proseOf()` muss den Pointer ueber `POINTER_RE` ausschliessen — ein zweiter
+> Lauf schrieb sonst die Adresse als Prosa zurueck. Zweitens darf der Migrator
+> keine Datei mit echter Prosa ueberschreiben und muss byteidentisch laufen:
+> drei Laeufe hintereinander melden nach dem ersten `0 neu aufgebaut, 155
+> behalten`. Beweis der Erholung ist nicht ein gruener Gate, sondern die
+> konkrete Datei: `docs/daten/world/grid.md` muss wieder „Das Raster: ein Tile
+> pro Koordinate …" tragen.
+
 ### 160 Drift-Verstoesse, die keine sind
 
 Der Spiegel-Umbau erzeugte 160 neue Doku-Dateien, alle noch ungetrackt.

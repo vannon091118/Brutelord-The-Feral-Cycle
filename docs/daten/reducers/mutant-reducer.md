@@ -6,7 +6,9 @@ Spiegel-Datei für `src/state/reducers/mutant-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/mutant-reducer.md#mutant-reducer
+Mutation: Steine in einen Dungling verbauen und ihn zurückentwickeln. Erschaffen braucht das
+offene Labor, einen Kandidaten und einen Stein im Slot. Zurückentwickeln geht jederzeit,
+auch mitten im Auftrag — er läuft weiter.
 
 ## Schnittstellen
 

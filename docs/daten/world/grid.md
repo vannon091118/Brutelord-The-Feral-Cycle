@@ -6,7 +6,10 @@ Spiegel-Datei für `src/domain/world/grid.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/grid.md#grid
+Das Raster: ein Tile pro Koordinate, Sichtbarkeit folgt der Sonde. Die eine Stelle, die aus
+einer Kachel-Id einen Platz im Raster macht. Dieselbe Kachel über Koordinaten — ohne Id und
+ohne Zwischendeklaration. Mehrere Kacheln in einem Zug: eine Kopie des Rasters statt einer
+je Kachel.
 
 ## Schnittstellen
 

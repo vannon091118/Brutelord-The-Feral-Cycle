@@ -6,7 +6,9 @@ Spiegel-Datei für `src/ui/GameHud.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/gamehud.md#gamehud
+Das HUD unten: das ausgewählte Bauwerk, das Baumenü (erst nach dem ersten freien Boden) und
+die Hinweiszeile. Alle drei lesen nur, was im Reducer passiert ist — keiner von ihnen
+entscheidet etwas.
 
 ## Schnittstellen
 

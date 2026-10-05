@@ -6,7 +6,9 @@ Spiegel-Datei für `src/domain/brutelord/mutation-formula.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/brutelord/mutation-formula.md#mutation-formula
+Die Mutations-Formel: Stein-Seed plus Slot-Position ergibt die Optik. Der Effekt bleibt
+derselbe, egal wo der Stein liegt — nur die Form folgt dem Platz. Gegenpol: wer eine Stelle
+aufbläht, zwingt die anderen zu weichen.
 
 ## Schnittstellen
 

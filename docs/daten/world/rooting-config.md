@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/world/rooting-config.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/rooting-config.md#rooting-config
+Zeiten der Verwurzelung.
 
 ## Schnittstellen
 

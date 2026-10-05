@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/game-state.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/game-state.md#game-state
+Der Startzustand des Slices und die eine Tür, auf der ein gespeicherter Spielstand zurück in
+den Reducer kommt.
 
 ## Schnittstellen
 

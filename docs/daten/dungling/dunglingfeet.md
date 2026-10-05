@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/dungling/DunglingFeet.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/dungling/dunglingfeet.md#dunglingfeet
+Das Geschwur hat keine Füße, sondern Wurzelfasern, die sich in den Boden schieben. Position
+und Länge kommen aus dem Zustand, damit die Fasern nicht in jedem Schritt gleich aussehen.
 
 ## Schnittstellen
 

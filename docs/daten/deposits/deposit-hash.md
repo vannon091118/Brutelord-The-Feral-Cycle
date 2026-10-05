@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/deposits/deposit-hash.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/deposits/deposit-hash.md#deposit-hash
+Eigener Hash und Zufallsstrom — die Domäne zieht nichts aus src/world/. Der Spielerseed
+kommt als dritter Wert dazu: ohne ihn hat jeder dieselbe Welt.
 
 ## Schnittstellen
 

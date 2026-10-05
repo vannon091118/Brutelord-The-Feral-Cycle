@@ -6,7 +6,7 @@ Spiegel-Datei für `src/state/selectors.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/selectors.md#selectors
+Selektoren: Ableitungen aus dem Zustand.
 
 ## Schnittstellen
 

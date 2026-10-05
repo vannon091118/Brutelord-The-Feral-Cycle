@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/dungling/DunglingTool.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/dungling/dunglingtool.md#dunglingtool
+Wurzelspitzen statt Werkzeug: drei Zähne, die ins Gestein greifen. Wurzelspitzen und die
+kleine Staubspur beim Kriechen.
 
 ## Schnittstellen
 

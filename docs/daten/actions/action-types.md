@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/actions/action-types.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/actions/action-types.md#action-types
+Die Aktionen, die der zentrale Reducer versteht.
 
 ## Schnittstellen
 

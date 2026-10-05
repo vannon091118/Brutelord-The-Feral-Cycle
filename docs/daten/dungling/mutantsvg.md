@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/dungling/MutantSvg.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/dungling/mutantsvg.md#mutantsvg
+Der mutierte Dungling: echte Basis-Grafik plus die Stein-Overlays aus `mutant-overlays.jsx`.
+Jede Instanz braucht einen eigenen Verlauf, sonst teilen sich zwei Mutanten eine Definition
+und der zweite färbt den ersten.
 
 ## Schnittstellen
 

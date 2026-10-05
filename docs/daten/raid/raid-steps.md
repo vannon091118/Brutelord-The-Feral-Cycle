@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/raid/raid-steps.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/raid/raid-steps.md#raid-steps
+Die Übergänge: gehen ist gratis, graben kostet Ausdauer, beides fail closed. Der Preis kommt
+aus der Pfadfindung, damit Plan und Schritt dieselbe Zahl nennen.
 
 ## Schnittstellen
 

@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/reducers/world-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/world-reducer.md#world-reducer
+Die Welt-Kette: Abbau, Ausbau, Verwurzelung. Drei Themen, eine Verteidigung — so bleibt der
+zentrale Reducer unter dem Import-Cap.
 
 ## Schnittstellen
 

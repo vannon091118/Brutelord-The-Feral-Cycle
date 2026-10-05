@@ -6,7 +6,9 @@ Spiegel-Datei für `src/ui/BuildMenu.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/buildmenu.md#buildmenu
+Das Baumenü: erscheint, sobald ein Feld nutzbarer Boden ist. Es zeigt die Essenz im Hive,
+die drei Bauten und in einem Satz, was gerade zu tun ist. Was gerade zu tun ist — ein Satz,
+kein Handbuch.
 
 ## Schnittstellen
 

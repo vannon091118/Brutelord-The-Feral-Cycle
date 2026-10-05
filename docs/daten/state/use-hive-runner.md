@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/use-hive-runner.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/use-hive-runner.md#use-hive-runner
+Die Uhr des Hive-Vorrats. Sie läuft auch dann, wenn sonst nichts zu tun ist — ein Motor, der
+an einem Idle-Stopp hängt, wäre keiner. Schweigt, sobald das Budget aufgebraucht ist.
 
 ## Schnittstellen
 

@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/HiveNode.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/hivenode.md#hivenode
+Der Hive als Ganzes: Mulde, Zeichnung, Einladung, Klickfläche.
 
 ## Schnittstellen
 

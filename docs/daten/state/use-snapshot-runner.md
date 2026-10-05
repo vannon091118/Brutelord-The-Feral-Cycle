@@ -6,7 +6,7 @@ Spiegel-Datei für `src/state/use-snapshot-runner.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/use-snapshot-runner.md#use-snapshot-runner
+Die Speicher-Uhr: ein Takt, der den Stand sichert, und ein Abschied, der ihn eilt.
 
 ## Schnittstellen
 

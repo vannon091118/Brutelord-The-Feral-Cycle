@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/EarthTile.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/earthtile.md#earthtile
+Ein Erdblock als Ganzes: Masse, Wand zur Unbekannten, Spuren, Klickfläche. Die Masse federt
+beim Einschlag — der Key zwingt die Animation je Tick neu.
 
 ## Schnittstellen
 

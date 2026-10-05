@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/labour/jobs.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/labour/jobs.md#jobs
+Der Auftrag eines Dunglings: fünf Phasen, Wege und Zeiten.
 
 ## Schnittstellen
 

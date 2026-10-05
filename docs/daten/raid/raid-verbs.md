@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/raid/raid-verbs.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/raid/raid-verbs.md#raid-verbs
+Der Angriff ist kein Schritt: er hat kein Ziel-Feld, sondern eine Richtungslosigkeit. Jeder
+Held mit AP zahlt mit; ohne AP gibt es keinen Schlag (fail closed).
 
 ## Schnittstellen
 

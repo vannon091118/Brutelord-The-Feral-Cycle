@@ -6,7 +6,9 @@ Spiegel-Datei für `src/domain/raid/raid-state.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/raid/raid-state.md#raid-state
+Der Raid-Zustand: eine zweite Instanz, isoliert vom Heimat-Zustand. Helden tragen keine
+Position: `at` gehört der Gruppe (D32). Fail closed: reicht die Ausdauer nicht, bleibt der
+Zustand unverändert.
 
 ## Schnittstellen
 

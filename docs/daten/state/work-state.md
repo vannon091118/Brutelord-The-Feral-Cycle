@@ -6,7 +6,7 @@ Spiegel-Datei für `src/state/work-state.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/work-state.md#work-state
+Die Arbeitssicht des Zustands für Reducer und Uhr.
 
 ## Schnittstellen
 

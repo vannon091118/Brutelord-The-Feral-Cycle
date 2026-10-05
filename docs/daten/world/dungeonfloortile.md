@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/DungeonFloorTile.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/dungeonfloortile.md#dungeonfloortile
+Nutzbarer Boden: Masse, Untergrund, Spuren, Lichtschein.
 
 ## Schnittstellen
 

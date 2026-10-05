@@ -6,7 +6,8 @@ Spiegel-Datei für `src/ui/TileActionMenu.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/tileactionmenu.md#tileactionmenu
+Kontextmenü an genau einem Erdblock. Die Welt bleibt darunter vollständig sichtbar. Das Menü
+enthält genau eine Aktion: Abbau.
 
 ## Schnittstellen
 

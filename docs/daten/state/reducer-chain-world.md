@@ -6,7 +6,9 @@ Spiegel-Datei für `src/state/reducer-chain-world.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/reducer-chain-world.md#reducer-chain-world
+Die zweite Haelfte der Kette. Zusammen mit `reducer-chain.js` ergibt sie die vollstaendige
+Reihenfolge — aufgeteilt am Import-Cap, nicht an einer Grenze der Spiellogik: der
+Etagen-Reducer gehoert genauso zur Welt wie der Abbau.
 
 ## Schnittstellen
 

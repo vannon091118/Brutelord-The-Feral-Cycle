@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/floor/floor-geometry.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/floor/floor-geometry.md#floor-geometry
+Geometrie eines Bodenfelds.
 
 ## Schnittstellen
 

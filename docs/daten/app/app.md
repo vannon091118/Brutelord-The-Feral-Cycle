@@ -6,7 +6,8 @@ Spiegel-Datei für `src/app/App.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/app/app.md#app
+App ist Komposition und jetzt auch das Konto-Tor: ohne Sitzung gibt es kein Spiel, mit
+Sitzung startet der Seed die Welt. Lichtstimmung der Kammer hinter der Welt
 
 ## Schnittstellen
 

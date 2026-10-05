@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/economy/essence-economy.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/economy/essence-economy.md#essence-economy
+Essenz-Ökonomie: Der Hive presst passiv, der Abbau kostet. Der Hive ist der Motor für den
+Anfang, nie ein Vorrat fürs Endgame — deshalb sein Budget.
 
 ## Schnittstellen
 

@@ -6,7 +6,9 @@ Spiegel-Datei für `src/domain/brutelord/stone-config.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/brutelord/stone-config.md#stone-config
+Essenz-Steine: Seltenheit, Fähigkeiten, Traits und Slots. Die Gewichte sind absichtlich grob
+— der Pity-Timer in stone-roll.js fängt die Extreme auf. Unbenutzt die Hälfte zurück, ab dem
+ersten Kampf-EP achtzig Prozent.
 
 ## Schnittstellen
 

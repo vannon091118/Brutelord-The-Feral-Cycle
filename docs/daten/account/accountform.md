@@ -6,7 +6,7 @@ Spiegel-Datei für `src/ui/account/AccountForm.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/account/accountform.md#accountform
+Kein Kommentar im Bestand — die Verantwortung steht in den Schnittstellen.
 
 ## Schnittstellen
 

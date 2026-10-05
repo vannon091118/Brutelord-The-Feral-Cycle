@@ -6,7 +6,10 @@ Spiegel-Datei für `src/world/tile-shapes.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/tile-shapes.md#tile-shapes
+Deterministische Formgebung für die Weltgrafik. Die Masse läuft an verbundenen Seiten flach
+über die Grenze, an freien Seiten wölbt sie sich organisch — die Rinne zwischen zwei
+Erdblöcken stirbt. Das Band der Kantenwand: Bruchfläche zur unbekannten Seite, helle
+Abrisskante am Rand — die Wand folgt der Fläche, nie dem Rechteck.
 
 ## Schnittstellen
 

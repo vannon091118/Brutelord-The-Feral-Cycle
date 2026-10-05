@@ -91,6 +91,20 @@ function docCapsViolations(docPath, lines) {
   return problems;
 }
 
+// Der Abschnitt muss Erklaerung tragen: besteht er nur aus dem Pointer, ist die
+// Doku eine Wegweisung ohne Weg, und der Modultext existiert nirgends mehr.
+function responsibilityViolations(docPath, lines) {
+  const start = lines.findIndex((line) => line.trim() === '## Verantwortung');
+  if (start === -1) return [{ rule: 'Abschnitt "## Verantwortung" vorhanden', detail: docPath }];
+  const body = lines.slice(start + 1);
+  const end = body.findIndex((line) => line.startsWith('## '));
+  const section = (end === -1 ? body : body.slice(0, end))
+    .map((line) => line.trim())
+    .filter((line) => line !== '');
+  if (section.some((line) => !line.startsWith('@doc:'))) return [];
+  return [{ rule: 'Verantwortung trägt Inhalt, nicht den Pointer', detail: `${docPath} — der Abschnitt besteht nur aus @doc:` }];
+}
+
 function pointerViolations({ path, docPath, code, text }) {
   const pointerAnchor = anchorOf(code);
   if (!pointerAnchor) return [];
@@ -111,7 +125,12 @@ export function checkSpiegelDoc(path, code) {
     return [{ rule: 'Spiegel-Datei vorhanden', detail: `${path} — ${docPath} fehlt` }];
   }
   const text = readFileSync(docPath, 'utf8');
-  return [...docCapsViolations(docPath, text.split('\n')), ...pointerViolations({ path, docPath, code, text })];
+  const lines = text.split('\n');
+  return [
+    ...docCapsViolations(docPath, lines),
+    ...responsibilityViolations(docPath, lines),
+    ...pointerViolations({ path, docPath, code, text }),
+  ];
 }
 
 export function analyzeSpiegel() {

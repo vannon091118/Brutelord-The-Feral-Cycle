@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/earth/EarthDamage.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/earth/earthdamage.md#earthdamage
+Kein Kommentar im Bestand — die Verantwortung steht in den Schnittstellen.
 
 ## Schnittstellen
 

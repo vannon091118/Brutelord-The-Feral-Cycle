@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/actions/mining.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/actions/mining.md#mining
+Abbau-Logik: wer darf, wie weit, welcher Erd-Zustand. Der Abbau kostet — die einzige Stelle,
+die entscheidet, ob er bezahlt ist.
 
 ## Schnittstellen
 

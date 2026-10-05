@@ -6,7 +6,9 @@ Spiegel-Datei für `src/domain/brutelord/stone-effects.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/brutelord/stone-effects.md#stone-effects
+Die Wirkung der Steine hängt an der Einheit, nicht am Labor: ein Mutant trägt seine eigenen
+Aufträge und seine Tragekraft, und er strahlt auf die anderen. Ohne Stein ist ein Dungling
+neutral.
 
 ## Schnittstellen
 

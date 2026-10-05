@@ -6,7 +6,7 @@ Spiegel-Datei für `src/state/reducers/mining-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/mining-reducer.md#mining-reducer
+Abbau-Domäne: Befehl, Laufweg, Takt, Ernte, Abschluss.
 
 ## Schnittstellen
 

@@ -6,7 +6,7 @@ Spiegel-Datei für `src/ui/build-options.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/build-options.md#build-options
+Die Bauoptionen als Daten: Reihenfolge und Formen.
 
 ## Schnittstellen
 

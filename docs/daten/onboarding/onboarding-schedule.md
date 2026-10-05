@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/onboarding/onboarding-schedule.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/onboarding/onboarding-schedule.md#onboarding-schedule
+Der Zeitplan des Onboardings als Tabelle. Was der Intervall-Tick tun soll: null heisst, der
+Job laeuft gerade nicht.
 
 ## Schnittstellen
 

@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/use-schedule-runner.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/use-schedule-runner.md#use-schedule-runner
+Die Sim-Uhr. Sie kennt keine Zeiten und keine Regeln: sie holt den Plan aus der Domäne
+(`scheduleFor`) und führt ihn aus. Der Spielzustand entsteht ausschließlich im Reducer.
 
 ## Schnittstellen
 

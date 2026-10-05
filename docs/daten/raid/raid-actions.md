@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/raid/raid-actions.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/raid/raid-actions.md#raid-actions
+Die zwei Verbformen des Einmarschs: gehen und graben, je vier Richtungen.
 
 ## Schnittstellen
 

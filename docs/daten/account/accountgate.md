@@ -6,7 +6,8 @@ Spiegel-Datei für `src/ui/account/AccountGate.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/account/accountgate.md#accountgate
+Das Tor: ohne Konto kein Spiel. Wer sich anmeldet, bekommt Seed und PlayerID zurück und
+landet damit in seiner eigenen Welt.
 
 ## Schnittstellen
 

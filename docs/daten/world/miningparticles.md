@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/MiningParticles.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/miningparticles.md#miningparticles
+Erdkrümel springen kurz weg und verfallen — kein Konfetti-Feuerwerk.
 
 ## Schnittstellen
 

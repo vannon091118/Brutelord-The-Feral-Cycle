@@ -6,7 +6,8 @@ Spiegel-Datei für `src/ui/MiningMenuItem.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/miningmenuitem.md#miningmenuitem
+Die eine Aktion des Menüs: Abbau. Sie schickt nur den Befehl — was daraus folgt, entscheidet
+der Reducer.
 
 ## Schnittstellen
 

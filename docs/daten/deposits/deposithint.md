@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/deposits/DepositHint.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/deposits/deposithint.md#deposithint
+Der atmende Hinweis: ein geclaimtes Nachbarfeld macht den Vorrat spürbar.
 
 ## Schnittstellen
 

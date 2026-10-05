@@ -6,7 +6,9 @@ Spiegel-Datei für `src/state/reducers/hive-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/hive-reducer.md#hive-reducer
+Hive-Domäne: Klick, Mutation, Ruhe. Ein Befehl ändert hier genau eine Sache — es gibt keine
+Event-Kette, die weitere Befehle auslöst. Der Fortschritt wächst auch ohne Ertrag, sonst
+käme die Uhr nie an ihre Schwelle.
 
 ## Schnittstellen
 

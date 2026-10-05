@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/brutelord/mutant.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/brutelord/mutant.md#mutant
+Die Fusion: Steine wandern in einen Dungling, die Rückentwicklung löst sie. Mutieren darf
+jeder; freie Dunglinge gehen den arbeitenden vor.
 
 ## Schnittstellen
 

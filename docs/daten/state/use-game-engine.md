@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/use-game-engine.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/use-game-engine.md#use-game-engine
+Der Spielmotor des Slices — reine Komposition: Reducer (Wahrheit) + Zeitpläne der Domäne
+(Uhren) + Befehle (UI-Eingang). Die Uhren fragen den Zustand, sie besitzen ihn nicht.
 
 ## Schnittstellen
 

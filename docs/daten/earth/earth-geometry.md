@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/earth/earth-geometry.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/earth/earth-geometry.md#earth-geometry
+Geometrie eines Erdblocks: Umriss, Körner, Risse — die Form folgt Nachbarn. Geometrie haengt
+an Koordinate, Groesse, Zustand und Nachbarschaft.
 
 ## Schnittstellen
 

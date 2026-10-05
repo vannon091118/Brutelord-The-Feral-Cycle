@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/buildings/BuildingArt.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/buildings/buildingart.md#buildingart
+Ein Bauwerk zeichnet sich nach Typ: der Bauplatz zeigt nur seinen Umriss.
 
 ## Schnittstellen
 

@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/WorkerLayer.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/workerlayer.md#workerlayer
+Alles, was über der Welt lebt: der Schwarm bei der Arbeit und die Essenzsymbole, die kurz
+über dem Abladeort aufsteigen. Beides hängt an Positionen aus dem Auftrag — deshalb eine
+Ebene.
 
 ## Schnittstellen
 

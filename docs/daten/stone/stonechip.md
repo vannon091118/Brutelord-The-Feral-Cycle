@@ -6,7 +6,7 @@ Spiegel-Datei für `src/ui/stone/StoneChip.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/stone/stonechip.md#stonechip
+Eine Essenz-Kachel im Inventar: Die Seltenheit verrät sich, der Inhalt bleibt ???.
 
 ## Schnittstellen
 

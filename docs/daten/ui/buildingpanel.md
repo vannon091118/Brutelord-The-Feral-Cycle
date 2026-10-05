@@ -6,7 +6,9 @@ Spiegel-Datei für `src/ui/BuildingPanel.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/buildingpanel.md#buildingpanel
+Ein ausgewähltes Bauwerk: was es ist, wie weit es ist und — beim Extraktor — wer daran
+arbeitet. Zuweisen und Freigeben sind die einzigen Befehle hier. Nur der Extraktor
+beschäftigt Dunglinge — nur dort gibt es die Bedienung.
 
 ## Schnittstellen
 

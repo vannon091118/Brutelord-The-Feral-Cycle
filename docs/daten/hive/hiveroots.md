@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/hive/HiveRoots.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/hive/hiveroots.md#hiveroots
+Wurzeln und Steine am Fuß: verbinden den Hive mit der Erde und verankern ihn sichtbar im
+Boden.
 
 ## Schnittstellen
 

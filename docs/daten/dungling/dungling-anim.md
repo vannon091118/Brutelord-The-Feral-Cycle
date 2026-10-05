@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/dungling/dungling-anim.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/dungling/dungling-anim.md#dungling-anim
+Zustand → Animation. Der Dungling führt keine Regie über sich selbst: die Domäne sagt Idle,
+Move oder Work, hier wird es nur sichtbar.
 
 ## Schnittstellen
 

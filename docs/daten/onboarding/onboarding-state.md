@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/onboarding/onboarding-state.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/onboarding/onboarding-state.md#onboarding-state
+Zustände und Übergänge des Onboardings.
 
 ## Schnittstellen
 

@@ -6,7 +6,9 @@ Spiegel-Datei für `src/domain/brutelord/stone-seed.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/brutelord/stone-seed.md#stone-seed
+Deterministische Streuung für den Brutlord. Eigener Hash, eigene Konstanten — ein Stein muss
+aus seinem Seed exakt denselben Stein wiedergeben. Zieht einen Wert aus [0, max) aus einem
+Seed mit Salz.
 
 ## Schnittstellen
 

@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/buildings/BuildingLayer.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/buildings/buildinglayer.md#buildinglayer
+Wo der gewählte Bau stehen dürfte: ein Umriss je freiem Platz. Die Fläche zeigt gleich die
+ganze Grundfläche — beim Brutlord also 2 × 2 Felder. Ein Bauplatz darf auch mit der Tastatur
+gewählt werden.
 
 ## Schnittstellen
 

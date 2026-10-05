@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/game-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/game-reducer.md#game-reducer
+Der zentrale Reducer als Verteiler. Die Reihenfolge der Reducer, und damit die Reihenfolge
+der Themen, steht in den beiden Ketten.
 
 ## Schnittstellen
 

@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/snapshot-config.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/snapshot-config.md#snapshot-config
+Der Spielstand auf der Platte: welche Fassung, welcher Schlüssel, wie oft. Fassung 2 traegt
+die Tiefe der Etage; ein Stand aus Fassung 1 wird verworfen.
 
 ## Schnittstellen
 

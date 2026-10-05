@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/buildings/SwarmHostArt.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/buildings/swarmhostart.md#swarmhostart
+Der Beutel: eine weiche Birne mit engem Hals, aus dem die Arbeiter kommen. Drei Brutknospen,
+die im Takt des Horts pulsieren. Der Schwarmhort: ein pulsender Brutbeutel im Erdreich des
+Hive.
 
 ## Schnittstellen
 

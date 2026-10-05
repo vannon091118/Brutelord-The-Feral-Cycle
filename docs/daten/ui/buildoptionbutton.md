@@ -6,7 +6,9 @@ Spiegel-Datei für `src/ui/BuildOptionButton.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/buildoptionbutton.md#buildoptionbutton
+Eine Bauoption: Form, Name, Hinweis und Preis. Fehlt die Essenz, bleibt der Knopf stehen,
+aber kraftlos — der Preis erklärt, warum. Gewählt trägt er einen Kernrand; ein zweiter Klick
+nimmt die Wahl zurück.
 
 ## Schnittstellen
 

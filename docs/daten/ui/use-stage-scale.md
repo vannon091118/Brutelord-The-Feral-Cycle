@@ -6,7 +6,9 @@ Spiegel-Datei für `src/ui/use-stage-scale.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/use-stage-scale.md#use-stage-scale
+Misst die verfügbare Spielfläche und liefert Skalierung und Sichtfeld. Auf Desktop bleiben
+die Tiles 64px, auf schmalen Geräten schrumpft das Sichtfeld proportional (Tiles landen bei
+etwa 48–56px). Keine Scrollbar.
 
 ## Schnittstellen
 

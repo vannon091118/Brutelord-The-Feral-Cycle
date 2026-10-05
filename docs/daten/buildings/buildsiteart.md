@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/buildings/BuildSiteArt.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/buildings/buildsiteart.md#buildsiteart
+Der Bauplatz: Umriss, Gerüst, Essenzpunkte.
 
 ## Schnittstellen
 

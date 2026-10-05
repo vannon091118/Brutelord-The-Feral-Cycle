@@ -6,7 +6,10 @@ Spiegel-Datei für `src/domain/deposits/deposit-state.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/deposits/deposit-state.md#deposit-state
+Ein Vorrat: Lesen, Phase setzen, Ernte — alles über die Cluster-Id. Ein toter Vorrat bleibt
+tot: der Abbau darf ihn nicht wieder öffnen. Der Vorrat leert sich im Takt des Grabens: was
+am Ende übrig bleibt, gehört zur verbleibenden Grabzeit. So erreicht der Pool die Null mit
+dem letzten Takt.
 
 ## Schnittstellen
 

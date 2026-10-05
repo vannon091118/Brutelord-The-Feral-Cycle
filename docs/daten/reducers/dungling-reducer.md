@@ -6,7 +6,7 @@ Spiegel-Datei für `src/state/reducers/dungling-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/dungling-reducer.md#dungling-reducer
+Dungling-Domäne: geboren werden, kriechen, bereit sein.
 
 ## Schnittstellen
 

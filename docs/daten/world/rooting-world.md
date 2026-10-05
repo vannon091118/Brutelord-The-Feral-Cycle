@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/world/rooting-world.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/rooting-world.md#rooting-world
+Verwurzelung auf Weltebene: wachsen, ruhen, nur abgebauten Boden beanspruchen.
 
 ## Schnittstellen
 

@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/WorldDefs.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/worlddefs.md#worlddefs
+Verläufe, Filter und Muster der Welt. Erde trägt die Tiefe: warm nahe am Hive, kalt an den
+Rändern des Ausschnitts.
 
 ## Schnittstellen
 

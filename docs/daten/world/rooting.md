@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/world/rooting.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/rooting.md#rooting
+Die vier Phasen eines Feldes: DARK, GROWING, RESTING, CLAIMED.
 
 ## Schnittstellen
 

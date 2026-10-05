@@ -109,7 +109,13 @@ Fließtext, Inline-Erklärungen, `TODO` und Blockkommentare führen über
 | Kommentarzeilen pro src-Modul | 1 (nur der `@doc`-Pointer) |
 | Zeilen pro Spiegel-Doku | 80 — der SRP-Trigger |
 | Mindestinhalt pro Spiegel-Doku | 4 gefüllte Zeilen, höchstens 100 Zeichen je Zeile |
+| `## Verantwortung` | echter Inhalt — nie nur der `@doc`-Pointer |
 | Code-LOC pro Modul | 300 (unverändert, siehe Tabelle oben) |
+
+**Der Inhalts-Check:** `## Verantwortung` trägt den Kommentartext des Moduls.
+Besteht der Abschnitt nur aus dem Pointer, ist die Spiegel-Datei eine
+Wegweisung ohne Weg — der Modultext existiert dann nirgends mehr, nur noch in
+der Git-Historie. `npm run gate -- --spiegel` weist das mit einer Zeile ab.
 
 **Der Architektur-Trigger:** Reichen 80 Zeilen nicht, um ein Modul zu
 erklären, ist nicht die Doku zu stauchen (`Anti-Squash`: das Gate misst die
@@ -121,9 +127,21 @@ Dateien mit n Docs von je höchstens 80 Zeilen; jede weitere Spaltung
 verkleinert den übertretenden Umfang strikt, also endet der Prozess.
 
 **Migration bestehender Kommentare** ist mechanisch
-(`node tools/spiegel-migrate.mjs`): Kommentare wandern wortgetreu in die
-Spiegel-Datei, der Code behält den Pointer. Kommentare sind zur Laufzeit
-inert — die Abnahme (`npm run verify`) beweist, dass kein Verhalten kippt.
+(`node tools/spiegel-migrate.mjs`): Kommentare wandern wortgetreu unter
+`## Verantwortung` der Spiegel-Datei, der Code behält den Pointer. Kommentare
+sind zur Laufzeit inert — die Abnahme (`npm run verify`) beweist, dass kein
+Verhalten kippt.
+
+**Nach der Migration ist `docs/daten` eine Quelle, keine Ausgabe.** Der
+Migrator überschreibt deshalb nie eine Spiegel-Datei, die echte Prosa trägt,
+und ein zweiter Lauf liefert dieselben Bytes — er schreibt nur neu, was keine
+Prose hat oder nur den Pointer. Zwei Fehler waren hier teuer und beide sind
+gemessen: Ein früherer `--fresh`-Schalter löschte den ganzen Baum und erzeugte
+ihn aus den bereits migrierten Quellen neu, wodurch 479 Kommentarzeilen nur
+noch im Git des Vor-Migrations-Commits existierten; und `proseOf()` hielt den
+Pointer für Prosa, sodass ein zweiter Lauf die Adresse als Erklärung
+zurückschrieb. Wer nach der Migration die Prosa verliert, holt sie mit
+`git checkout <vor-migration> -- src` und einem erneuten Lauf zurück.
 
 **Drift-Regel:** Wird eine src-Datei im Änderungsbereich berührt, wandert
 ihre Spiegel-Datei im selben Bereich mit — das Gate vergleicht die Pfade

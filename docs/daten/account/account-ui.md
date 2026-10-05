@@ -6,7 +6,8 @@ Spiegel-Datei für `src/ui/account/account-ui.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/account/account-ui.md#account-ui
+Beschriftung und Farben der Konto-Seite — eine Quelle, damit Tor und Kopfzeile dasselbe
+reden.
 
 ## Schnittstellen
 

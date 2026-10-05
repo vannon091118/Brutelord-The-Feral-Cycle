@@ -6,7 +6,9 @@ Spiegel-Datei für `src/state/reducers/selection-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/selection-reducer.md#selection-reducer
+Auswahl-Domäne: Erdblock wählen, Auswahl verwerfen. Die Domäne entscheidet, welche Erde
+überhaupt wählbar ist. Wer Erde wählt, lässt ein ausgewähltes Bauwerk los — es gibt nur eine
+Auswahl.
 
 ## Schnittstellen
 

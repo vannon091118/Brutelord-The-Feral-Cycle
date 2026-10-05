@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/hive/hive-state.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/hive/hive-state.md#hive-state
+Was der Hive gerade tut — als reine Zuordnung von Domänenzustand zu Darstellung. Keine
+Animation entscheidet hier etwas, sie zeigt nur.
 
 ## Schnittstellen
 

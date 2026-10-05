@@ -43,6 +43,21 @@ Modul zu spalten.
   Version: ausstehend
   Datum: ausstehend
 
+- [x] **159 Spiegel-Dateien trugen den Pointer statt des Textes.** Der zweite
+      Migrationslauf hatte `docs/daten` geloescht und aus den bereits
+      migrierten Quellen neu erzeugt: 479 Kommentarzeilen aus `src/` waren aus
+      dem Baum verschwunden und nur noch im Git des Vor-Migrations-Commits zu
+      finden, waehrend das Gate gruen blieb. Der Migrator schreibt jetzt Prosa
+      nie ueber, laeuft byteidentisch und haelt den Pointer fuer eine Adresse;
+      eine neue Regel laesst `## Verantwortung` nur dann durch, wenn sie mehr
+      als den Pointer traegt. Die Prosa ist aus `99da74e` zurueckgeholt und in
+      155 Dateien wieder da, 5 Module hatten nie einen Kommentar.
+  Status: geplant
+  Scope: CI
+  Kategorie: Bugfix
+  Version: ausstehend
+  Datum: ausstehend
+
 ## 0.0.24 — Bestand und Tor
 
 Der Schwarm arbeitet, das Bestand-Problem ist adressiert. Diese Einträge

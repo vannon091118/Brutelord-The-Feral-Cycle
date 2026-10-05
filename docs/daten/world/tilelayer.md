@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/TileLayer.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/tilelayer.md#tilelayer
+Das Feld in vier Durchgängen: Erde, Boden, Wurzeln, Vorräte, Bauten.
 
 ## Schnittstellen
 

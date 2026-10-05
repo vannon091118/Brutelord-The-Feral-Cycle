@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/use-colony-clock.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/use-colony-clock.md#use-colony-clock
+Die drei Daueruhren der Kolonie als eine Komposition. Jede Uhr behält ihre eigene Datei und
+ihre eigene Bedingung — hier laufen sie nur im selben Zug.
 
 ## Schnittstellen
 

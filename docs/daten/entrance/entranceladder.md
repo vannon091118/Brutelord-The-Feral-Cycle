@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/entrance/EntranceLadder.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/entrance/entranceladder.md#entranceladder
+Der Eingang: eine Leiter in einen dunklen Schacht, erst sichtbar, wenn die Verwurzelung
+herangewachsen ist. [FUTURE] Kulisse, kein Uebergang — Handler, State und Etagenwechsel
+kommen mit der Vertikalitaet als Task in der ROADMAP_OPEN.
 
 ## Schnittstellen
 

@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/buildings/building-config.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/buildings/building-config.md#building-config
+Baubare Objekte: Typen, Grundflächen, Preise, Startvorrat. Der Startraum des Onboardings
+kostet sechs Abbauten — der Hive muss sie tragen.
 
 ## Schnittstellen
 

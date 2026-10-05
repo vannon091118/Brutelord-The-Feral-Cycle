@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/entities/dungling.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/entities/dungling.md#dungling
+Der Dungling: Zustand, Auftrag, Tile, Position und seine Fusionssteine.
 
 ## Schnittstellen
 

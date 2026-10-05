@@ -6,7 +6,8 @@ Spiegel-Datei für `src/ui/stone/LabPanel.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/stone/labpanel.md#labpanel
+Das Labor des Brutlords: Inventar links, Arbeitstisch rechts, Kauf oben. Ohne Stein im Slot
+und ohne freien Dungling gibt es nichts zu erschaffen.
 
 ## Schnittstellen
 

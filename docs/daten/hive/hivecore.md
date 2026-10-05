@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/hive/HiveCore.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/hive/hivecore.md#hivecore
+Der Kern: das organische Zentrum des Hive. Er bleibt ruhig atmend, bis der Spieler ihn weckt
+— dann öffnet er sich sichtbar.
 
 ## Schnittstellen
 

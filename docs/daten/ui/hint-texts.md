@@ -6,7 +6,8 @@ Spiegel-Datei für `src/ui/hint-texts.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/ui/hint-texts.md#hint-texts
+Die Hinweiszeile als Daten: pro Onboarding-Zustand ein Satz plus Erklärung, dazu die vier
+Phasen des Slice. Texte sind Darstellung, nicht Spielzustand.
 
 ## Schnittstellen
 

@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/hive/HiveHitArea.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/hive/hivehitarea.md#hivehitarea
+Klickfläche des Hive, etwas größer als seine zwei mal zwei Tiles.
 
 ## Schnittstellen
 

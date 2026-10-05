@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/floor/NewFloorFx.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/floor/newfloorfx.md#newfloorfx
+Der Moment, in dem ein Feld nutzbar wird: Lichtschein und Ring, einmalig. Das ist die
+sichtbare Grid-Erweiterung — genau ein Feld, deutlich markiert, aber ohne Kanten: der Ring
+folgt der Fläche, nicht dem Rechteck.
 
 ## Schnittstellen
 

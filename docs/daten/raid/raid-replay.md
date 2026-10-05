@@ -6,7 +6,8 @@ Spiegel-Datei für `src/domain/raid/raid-replay.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/raid/raid-replay.md#raid-replay
+Der Replay-Check: das Log nachrechnen und den Endzustand vergleichen — ohne Server. Der
+Client behauptet einen Endzustand; der Server hält seinen eigenen daneben.
 
 ## Schnittstellen
 

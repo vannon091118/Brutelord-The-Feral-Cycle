@@ -6,7 +6,7 @@ Spiegel-Datei für `src/world/deposits/DepositLayer.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/deposits/depositlayer.md#depositlayer
+Die Ebenen der Vorräte: Schimmer, Hinweis, Splitter und Asche.
 
 ## Schnittstellen
 

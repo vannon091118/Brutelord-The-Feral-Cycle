@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/labour/job-config.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/labour/job-config.md#job-config
+Zeiten der Arbeit und der Essenz-Popups.
 
 ## Schnittstellen
 

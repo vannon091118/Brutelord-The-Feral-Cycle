@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/DungeonWorld.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/dungeonworld.md#dungeonworld
+Die Welt: 2D, direkter Vogelblick, handgemachte Flächen. Diese Komponente schichtet nur die
+Ebenen — sie entscheidet nichts. Das Bild ist ein Ausschnitt. Der Ruck sitzt auf einer
+Huelle: die Animation ueberschriebe sonst das inline-`transform`.
 
 ## Schnittstellen
 

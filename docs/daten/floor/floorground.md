@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/floor/FloorGround.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/floor/floorground.md#floorground
+Der freigelegte Boden. Eine einzige Fläche aus hellem Stein, die über die Nachbarn
+hinausragt — der Raum wächst als Höhle, nicht als Raster.
 
 ## Schnittstellen
 

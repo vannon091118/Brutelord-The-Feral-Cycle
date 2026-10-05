@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/deposits/deposit-hint.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/deposits/deposit-hint.md#deposit-hint
+Der Hinweiskanal: geclaimte Nachbarn machen verborgene Vorräte spürbar.
 
 ## Schnittstellen
 

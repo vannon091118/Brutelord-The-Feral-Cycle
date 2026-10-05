@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/WorldContext.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/world/worldcontext.md#worldcontext
+Unerforschte Masse: dunkel, körnig, ohne Kanten. Die unbearbeitete Erde, Kulisse und
+Auswahl-Hintergrund. Der Rand des Bildes: die Höhle verliert sich, das Sichtfeld ist
+begrenzt.
 
 ## Schnittstellen
 

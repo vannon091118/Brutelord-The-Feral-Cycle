@@ -6,7 +6,7 @@ Spiegel-Datei für `src/ui/account/AccountField.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/account/accountfield.md#accountfield
+Ein Feld der Anmeldung: Beschriftung und Eingabe gehören zusammen.
 
 ## Schnittstellen
 

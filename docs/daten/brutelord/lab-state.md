@@ -6,7 +6,9 @@ Spiegel-Datei für `src/domain/brutelord/lab-state.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/brutelord/lab-state.md#lab-state
+Das Labor des Brutlords: Inventar, belegte Slots und der Pity-Zähler. Steine werden über
+ihren Seed identifiziert, nicht über ihre Position. Der Kauf erzeugt den Seed und schreibt
+den Stein sofort fest.
 
 ## Schnittstellen
 

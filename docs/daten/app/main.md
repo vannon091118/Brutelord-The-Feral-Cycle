@@ -6,7 +6,7 @@ Spiegel-Datei für `src/main.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/app/main.md#main
+Kein Kommentar im Bestand — die Verantwortung steht in den Schnittstellen.
 
 ## Schnittstellen
 

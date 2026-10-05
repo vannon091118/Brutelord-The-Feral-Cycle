@@ -6,7 +6,9 @@ Spiegel-Datei für `src/state/reducers/rooting-reducer.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/reducers/rooting-reducer.md#rooting-reducer
+Ausbau der Verwurzelung: ein Takt vergeht, jedes wachsende Feld kommt ein Stück weiter,
+ruhende ruhen aus. Erst danach stoßen die Tentakel in alle Nachbarfelder — und legen dabei
+den Boden frei, den sie erreichen.
 
 ## Schnittstellen
 

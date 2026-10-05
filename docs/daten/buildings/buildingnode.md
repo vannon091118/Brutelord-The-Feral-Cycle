@@ -6,7 +6,9 @@ Spiegel-Datei für `src/world/buildings/BuildingNode.jsx`.
 
 ## Verantwortung
 
-@doc: docs/daten/buildings/buildingnode.md#buildingnode
+Die Klickfläche liegt unsichtbar über der ganzen Grundfläche. Ein Bauwerk als Ganzes:
+Zeichnung, Auswahlring und Klickfläche über der ganzen Grundfläche. Klicken wählt es aus —
+der Rest passiert im Reducer.
 
 ## Schnittstellen
 

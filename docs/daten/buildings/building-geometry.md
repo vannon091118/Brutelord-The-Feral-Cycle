@@ -6,7 +6,8 @@ Spiegel-Datei für `src/world/buildings/building-geometry.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/buildings/building-geometry.md#building-geometry
+Maße eines Bauwerks in Pixeln — einmal gerechnet, überall gleich. Die Grundfläche steht in
+der Domäne, hier wird sie nur in Pixel übersetzt.
 
 ## Schnittstellen
 

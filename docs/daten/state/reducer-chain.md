@@ -6,7 +6,8 @@ Spiegel-Datei für `src/state/reducer-chain.js`.
 
 ## Verantwortung
 
-@doc: docs/daten/state/reducer-chain.md#reducer-chain
+Die Reihenfolge der Fach-Reducer als zwei Ketten, weil acht Imports das Cap sprengen.
+Zusammengefuegt wird in `game-reducer.js`, dort steht die Reihenfolge.
 
 ## Schnittstellen
 
