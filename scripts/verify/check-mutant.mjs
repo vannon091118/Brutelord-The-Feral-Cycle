@@ -4,6 +4,7 @@ import { STONE_CONFIG, STONE_TRAIT } from '../../src/domain/brutelord/stone-conf
 import { investedIn, isMutant, nextCandidate, refundFor } from '../../src/domain/brutelord/mutant.js';
 import { gameReducer } from '../../src/state/game-reducer.js';
 import { check, section } from './expect.mjs';
+import { checkTraits } from './check-traits.mjs';
 import { labState, withStones } from './lab-run.mjs';
 
 function create(state) {
@@ -84,6 +85,7 @@ function checkBred() {
 }
 
 export function checkMutant() {
+  checkTraits();
   checkCreate();
   checkEligibility();
   checkRevert();

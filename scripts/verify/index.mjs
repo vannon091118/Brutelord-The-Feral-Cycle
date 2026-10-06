@@ -21,4 +21,5 @@ export { checkDeterminism } from './check-determinism.mjs';
 export { checkGameClock } from './check-game-clock.mjs';
 export { checkStartup } from './check-startup.mjs';
 export { checkArchitecture } from './check-architecture.mjs';
+export { checkOrganicCache } from './check-organic-cache.mjs';
 export { summary } from './expect.mjs';

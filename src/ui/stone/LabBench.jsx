@@ -1,5 +1,6 @@
 // @doc: docs/daten/stone/labbench.md#labbench
 import { SLOT_ORDER, STONE_DEFS, STONE_SLOT } from '../../domain/brutelord/stone-config.js';
+import { genomeForStones } from '../../domain/brutelord/mutant.js';
 import { MutantSvg } from '../../world/dungling/MutantSvg.jsx';
 
 const SLOT_LABEL = Object.freeze({
@@ -39,11 +40,12 @@ function StoneSlot({ slot, stone, armed, onPlace }) {
 }
 
 export function LabBench({ placed, selected, onPlace }) {
+  const genome = placed.length > 0 ? genomeForStones(placed) : null;
   return (
     <div className="relative mx-auto h-64 w-64">
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative w-40 h-40">
-          <MutantSvg stones={placed} size={160} id="lab" />
+          <MutantSvg genome={genome} size={160} id="lab" />
         </div>
       </div>
       {SLOT_ORDER.map((slot) => (

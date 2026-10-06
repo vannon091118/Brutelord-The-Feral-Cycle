@@ -33,6 +33,7 @@ Begründung für diese Kette steht im Kapitel *Zustand*.
 | Wie funktionieren die Vorräte unterm Boden? | [Vorräte unter der Erde](#vorräte-unter-der-erde) |
 | Wie züchte ich Steine, was tun Traits? | [Der Brutlord als Labor](#der-brutlord-als-labor) |
 | Wie wird gezeichnet, was kostet ein Render? | [Welt und Darstellung](#welt-und-darstellung), [Was ein Render kostet](#was-ein-render-kostet) |
+| Wie entsteht der Körper eines Mutanten? | [Der organische Mutant](#der-organische-mutant) |
 | Woher kommt die Welt eines Kontos? | [Konto und Spielerseed](#konto-und-spielerseed) |
 | Wie hängen Ausdauer und Steinwerte zusammen? | [Der Eco-Stakes-Raid](#der-eco-stakes-raid) |
 | Welche Prüfung prüft was? | [Prüfungen](#prüfungen), und die Fallen in [`PITFALLS.md`](PITFALLS.md) |
@@ -354,6 +355,76 @@ steht absichtlich nirgends in diesem Dokument** — die letzte Zeile von
 `npm run verify` schreibt sie, und eine abgeschriebene Zahl in einem Text wäre
 ab dem nächsten Commit still falsch. Siehe *Messe, bevor du behauptest* in
 `GOVERNANCE.md`.
+
+## Der organische Mutant
+
+Ein mutierter Dungling ist kein Dungling mit aufgeklebten Steinen mehr. Sein
+Körper ist eine Kontur, die aus seinem **Genom** fällt. Die Kette ist strikt
+und in einer Richtung: `phenotypeOf()` macht aus dem Genom Merkmale und Haut,
+`skeletonOf()` daraus ein Knochengerüst aus einer L-System-Grammatik,
+`fieldOf()` daraus ein Metaball-Feld und aus dessen Iso-Linie die Ringe, und
+`anchorsOf()` setzt auf jeden markierten Gelenkpunkt einen Anker auf der
+Kante. Nichts davon sieht SVG, nichts davon kennt die Steine.
+
+Die Steine sind nur noch der **Ursprung** des Genoms: `genomeForStones()`
+würfelt es aus ihren Seeds, `genomeOf()` fällt darauf zurück, wenn eine alte
+Ablage Steine trägt, aber noch kein Genom. Der Renderer fragt nie nach Steinen
+— `WorkerLayer.jsx` und `LabBench.jsx` reichen `genome` hinein, und im ganzen
+Baum liegt genau ein Ort, der diese Regel kennt.
+
+### Der Balken entscheidet über die Dicke, nicht das Symbol
+
+Die Grammatik schreibt `S -> F[L]` und `L -> FL`. Innerhalb einer Klammer ist
+**jedes** Segment eine Gliedmaße, auch das `F` zwischen den `L` — Dicke, Länge
+und Rolle hängen an der Klammer, nicht am Buchstaben. Vorher entschied der
+Walker den Sack nach der Klammer und die Dicke nach dem Symbol; das erste
+Gliedmaßen-Segment trug damit Rumpffleisch und die Rumpfrolle. Gemessen über
+zwölf Phänotypen reichten die Gliedmaßen so nur **1,01- bis 1,21-mal** über den
+Rumpf — Stummel. Nach der Korrektur sind es **1,46- bis 3,56-mal**, und die
+Gliedmaßen stehen als Arme und Beine vor der Silhouette statt in ihr.
+
+### Der Schlüssel ist diskret, sonst ist der Cache ein Leck
+
+`organicFrame(genome, phase)` baut eine Kontur aus Gitterproben und
+Marching-Squares — teuer genug, dass ein Aufruf pro Frame nicht in Frage kommt.
+Der Cache-Schlüssel ist deshalb `${genomHash}_f${phase}`: **eine ganze Zahl
+zwischen 0 und 3**, das Ergebnis von `phaseOf()`. Ein Takt, eine Kommazahl oder
+eine Systemzeit im Schlüssel ergäbe pro Frame einen neuen Eintrag, ein neues
+Objekt und eine neue Kontur. Bei drei Genomen und vier Phasen sind es gemessen
+zwölf Objekte über 2008 Frames; mit dem rohen Takt als Schlüssel wären es 2008.
+
+Der Rahmen (`view`) hängt am Phänotyp, nicht an der Phase: er wird aus dem
+Skelett der weitesten Atemphase gerechnet. Sonst würde die Atmung beim
+Einpassen wieder herausgerechnet, und vier verschiedene Konturen sähen gleich
+groß aus.
+
+### Ein Takt für alle
+
+Die Phase kommt nicht mehr als `step` aus dem Bergbau, sondern aus
+`organic-phase-clock.js`: ein Zähler, `phaseOf()` darüber, und ein Intervall,
+das nur läuft, solange ein Mutant zuhört. Dadurch atmen Welt und Labortisch
+denselben Körper im selben Bild, und der Arbeitstakt kann den Atem nicht mehr
+verzerren. Der Takt ist frei von React und frei von Systemzeit — er kommt aus
+dem Zähler.
+
+### Die Konturen stecken im Golden
+
+Die Geometrie ist Spielwahrheit ohne Zustand: sie ändert keinen Spielstand,
+als nur ein Bild. Deshalb faltet `state-digest.mjs` je Genom die Ringe aller
+vier Phasen in den Zustands-Hash des Determinismus-Laufs. Eine verschobene
+Zahl an `ORGANIC_CONFIG` reißt damit den **Slice-Lauf** rot, mit Zug und
+Aktion im Befund — nicht nur die eigene Geometrie-Suite. Die erste Abweichung
+liegt exakt auf `MUTANT_CREATED`; alles davor bleibt unverändert.
+
+### Die Schichten und die IDs
+
+Gezeichnet wird in einer festen 2.5D-Kette: Schatten, Unterlage (Knochen als
+sichtbare Anatomie), Körper (Kachelmuster), Wäsche, Rim, Merkmale. Die
+`<defs>`-IDs sind **instanz-eigen** (`data-unit` wandert in jede `id`) — zwei
+Mutanten mit derselben Kennung würden sich eine Definition teilen, und der
+zuletzt gezeichnete färbte den ersten. `organic-features.jsx` setzt Hörner,
+Zähne und Augen auf den Ankerpunkt und entlang der Ankernormale, damit sie auf
+der Kante sitzen und nicht daneben.
 
 ## Welt und Darstellung
 

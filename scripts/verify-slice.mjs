@@ -4,7 +4,7 @@ import {
   checkActionTypes, checkArchitecture, checkBurrowRing, checkColony, checkDeterminism, checkDunglingLook,
   checkEdgeMaskGroup, checkFixtures, checkGameClock, checkHitJuice, checkMining, checkOnboarding, checkRaidCap,
   checkRaidGroup, checkReveal, checkSoilMass, checkRooting, checkStart, checkStartup, checkStorage,
-  checkVerticality, checkVerticalityWiring, makeOnboardingRun, summary,
+  checkVerticality, checkVerticalityWiring, checkOrganicCache, makeOnboardingRun, summary,
 } from './verify/index.mjs';
 
 /** Die HTTP- und die Browser-Prüfungen am Ende brauchen einen laufenden Server
@@ -19,6 +19,7 @@ async function main() {
   checkRooting(run);
   checkEdgeMaskGroup();
   await checkColony(run);
+  checkOrganicCache();
   checkRaidGroup();
   checkRaidCap();
   checkSoilMass();

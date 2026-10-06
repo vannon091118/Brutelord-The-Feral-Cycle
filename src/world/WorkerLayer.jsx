@@ -1,19 +1,20 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { DunglingSvg } from './Dungling.svg.jsx';
 import { MutantSvg } from './dungling/MutantSvg.jsx';
 import { MiningParticles } from './MiningParticles.jsx';
 import { CarriedEssence, EssencePopup } from './essence/EssencePopup.jsx';
-import { isMutant } from '../domain/brutelord/mutant.js';
+import { genomeOf, isMutant } from '../domain/brutelord/mutant.js';
 
 function WorkerBody({ worker, tileSize }) {
   const { dungling, position, step } = worker;
+  const genome = useMemo(() => (isMutant(dungling) ? genomeOf(dungling) : null), [dungling]);
   if (!isMutant(dungling)) {
     return <DunglingSvg dungling={dungling} tileSize={tileSize} x={position.x} y={position.y} step={step} />;
   }
   const facing = dungling.facing >= 0 ? 1 : -1;
   return (
     <g transform={`translate(${position.x} ${position.y}) scale(${facing} 1)`}>
-      <MutantSvg stones={dungling.stones} size={tileSize * 0.9} id={worker.id} />
+      <MutantSvg genome={genome} size={tileSize * 0.9} id={worker.id} />
     </g>
   );
 }

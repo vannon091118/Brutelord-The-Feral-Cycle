@@ -1,0 +1,188 @@
+/** Die Organik: Metaball-Konturen des Brutlords, deterministisch, geschlossen und symmetrisch. */
+import { FEATURE_ANCHOR, ORGANIC_CONFIG } from '../../src/domain/brutelord/genome-config.js';
+import { createGenome } from '../../src/domain/brutelord/genome-roll.js';
+import { phenotypeOf } from '../../src/domain/brutelord/phenotype.js';
+import { phaseOf } from '../../src/domain/brutelord/organic-bones.js';
+import { fieldOf, sampleField } from '../../src/domain/brutelord/organic-field.js';
+import { anchorsOf } from '../../src/domain/brutelord/organic-anchors.js';
+import { check, section } from './expect.mjs';
+
+const ORG = ORGANIC_CONFIG;
+const SAMPLE = Array.from({ length: 40 }, (unused, index) => phenotypeOf(createGenome(index * 7919 + 3)));
+const PHASES = Array.from({ length: ORG.phaseCount }, (unused, index) => index);
+let pool = null;
+
+function fields() {
+  if (pool === null) pool = SAMPLE.flatMap((phenotype) => PHASES.map((phase) => fieldOf(phenotype, phase)));
+  return pool;
+}
+
+function areaOf(ring) {
+  return ring.reduce((sum, point, index) => {
+    const next = ring[(index + 1) % ring.length];
+    return sum + point.x * next.y - next.x * point.y;
+  }, 0) / 2;
+}
+
+function turnOf(ring) {
+  let total = 0;
+  for (let index = 0; index < ring.length; index += 1) {
+    const a = ring[index];
+    const b = ring[(index + 1) % ring.length];
+    const c = ring[(index + 2) % ring.length];
+    const cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+    const dot = (b.x - a.x) * (c.x - b.x) + (b.y - a.y) * (c.y - b.y);
+    total += Math.atan2(cross, dot);
+  }
+  return total / (2 * Math.PI);
+}
+
+function minEdge(ring) {
+  return ring.reduce((best, point, index) => {
+    const next = ring[(index + 1) % ring.length];
+    return Math.min(best, Math.hypot(next.x - point.x, next.y - point.y));
+  }, Infinity);
+}
+
+function widthOf(field) {
+  const xs = field.rings.flat().map((point) => point.x);
+  return Math.max(...xs) - Math.min(...xs);
+}
+
+function signature(field) {
+  return JSON.stringify(field.rings);
+}
+
+function checkDeterminism() {
+  section('Organik: deterministische Konturen');
+  const phenotype = SAMPLE[0];
+  const first = fieldOf(phenotype, 0);
+  const again = fieldOf(phenotype, 0);
+  check('Derselbe Phaenotyp und dieselbe Phase ergeben dieselben Ringe', signature(first) === signature(again));
+  check('Dasselbe Skelett kommt zweimal heraus', JSON.stringify(first.skeleton) === JSON.stringify(again.skeleton));
+  check('Ein anderer Phaenotyp ergibt andere Ringe', signature(fieldOf(SAMPLE[1], 0)) !== signature(first));
+  check('Eine andere Phase ergibt andere Ringe', signature(fieldOf(phenotype, 1)) !== signature(first));
+  check('Die Anker sind reproduzierbar', JSON.stringify(anchorsOf(first)) === JSON.stringify(anchorsOf(again)));
+}
+
+function shapeOf(values) {
+  return values.slice(0, -1).map((value, index) => Math.sign(value - values[index + 1]));
+}
+
+function checkPhases() {
+  section('Organik: vier Phasen');
+  const { breathe, phaseCount } = ORG;
+  const peak = breathe.indexOf(Math.max(...breathe));
+  const frames = SAMPLE.map((unused, index) => fields().slice(index * PHASES.length, (index + 1) * PHASES.length));
+  const widths = frames.map((frame) => frame.map((field) => widthOf(field)));
+  const distinct = frames.filter((frame) => new Set(frame.map((field) => signature(field))).size === phaseCount).length;
+  check('Die Config kennt genau vier Phasen', phaseCount === 4, `${phaseCount}`);
+  check('Die Phase laeuft von 0 bis 3', PHASES.every((phase) => phaseOf(phase) === phase));
+  check('Die Phase laeuft um', phaseOf(phaseCount) === 0 && phaseOf(-1) === phaseCount - 1, `${phaseOf(-1)}`);
+  check('Vier Phasen tragen vier verschiedene Atemwerte', new Set(breathe).size === phaseCount, breathe.join(', '));
+  check('Vier Phasen ergeben vier verschiedene Konturen', distinct === frames.length, `${distinct}/${frames.length} Phaenotypen`);
+  check('Die Breite folgt der Atemkurve', widths.every((row) => shapeOf(row).join() === shapeOf(breathe).join()), widths[0].map((width) => width.toFixed(2)).join(', '));
+  check('Die Peak-Phase weitet am meisten', widths.every((row) => row.indexOf(Math.max(...row)) === peak), `Phase ${peak}`);
+}
+
+function ringProblems(ring) {
+  const issues = [];
+  const area = areaOf(ring);
+  const turn = turnOf(ring);
+  if (ring.length < ORG.ringMinPoints) issues.push(`kurz ${ring.length}`);
+  if (Math.abs(area) < ORG.ringMinArea) issues.push(`flach ${area.toFixed(4)}`);
+  if (Math.abs(Math.abs(turn) - 1) > 1e-9) issues.push(`offen ${turn.toFixed(4)}`);
+  if (Math.abs(turn - 1) > 1e-9) issues.push(`winding ${turn.toFixed(4)}`);
+  if (ring.some((point) => !Number.isFinite(point.x) || !Number.isFinite(point.y))) issues.push('unendlich');
+  return issues;
+}
+
+function checkRings() {
+  section('Organik: Ringe geschlossen und nicht entartet');
+  const problems = [];
+  const all = fields();
+  let count = 0;
+  let smallest = Infinity;
+  for (const field of all) {
+    count += field.rings.length;
+    if (field.rings.length === 0) problems.push(`leer ${field.skeleton.seed}`);
+    for (const ring of field.rings) {
+      problems.push(...ringProblems(ring));
+      smallest = Math.min(smallest, minEdge(ring));
+    }
+  }
+  const kind = (prefix) => problems.filter((entry) => entry.startsWith(prefix));
+  const degenerated = problems.filter((entry) => /^(kurz|flach|unendlich)/.test(entry));
+  check('Jede Kontur hat mindestens einen Ring', count >= all.length, `${count} Ringe in ${all.length} Konturen`);
+  check('Kein Ring ist entartet', degenerated.length === 0 && kind('leer').length === 0, degenerated.slice(0, 3).join(', '));
+  check('Kein Ring ist offen', kind('offen').length === 0, kind('offen').slice(0, 3).join(', '));
+  check('Jeder Ring laeuft gegen den Uhrzeigersinn', kind('winding').length === 0, kind('winding').slice(0, 3).join(', '));
+  check('Die Ringe tragen keine Nullkanten', smallest > 0, smallest.toExponential(2));
+}
+
+function mirrorGap(points, point) {
+  return points.reduce((best, other) => Math.min(best, Math.hypot(other.x + point.x, other.y - point.y)), Infinity);
+}
+
+function checkSymmetry() {
+  section('Organik: Spiegel-Symmetrie');
+  const all = fields();
+  let worst = 0;
+  let total = 0;
+  for (const field of all) {
+    const points = field.rings.flat();
+    total += points.length;
+    for (const point of points) worst = Math.max(worst, mirrorGap(points, point));
+  }
+  check('Jeder Konturpunkt hat sein Spiegelbild', worst < 1e-6, `groesster Abstand ${worst.toExponential(2)}`);
+  check('Die Konturen tragen genug Punkte fuer den Vergleich', total > all.length * 20, `${total} Punkte`);
+}
+
+function nearestGap(field, joint) {
+  return field.rings.reduce(
+    (best, ring) => ring.reduce((inner, point) => Math.min(inner, Math.hypot(point.x - joint.x, point.y - joint.y)), best),
+    Infinity,
+  );
+}
+
+function anchorProblems(field) {
+  const tagged = field.skeleton.joints.filter((joint) => joint.role !== null).length;
+  const anchors = anchorsOf(field);
+  const problems = [];
+  if (anchors.length !== tagged) problems.push(`zahl ${anchors.length}/${tagged}`);
+  for (const anchor of anchors) {
+    const point = field.rings[anchor.ring]?.[anchor.index];
+    if (!point || point.x !== anchor.point.x || point.y !== anchor.point.y) problems.push(`ort ${anchor.role}`);
+    if (Math.abs(sampleField(field.skeleton, anchor.point) - ORG.iso) > 0.05) problems.push(`niveau ${anchor.role}`);
+    if (Math.abs(anchor.gap - nearestGap(field, anchor.joint)) > 1e-9) problems.push(`ferne ${anchor.role}`);
+  }
+  return { anchors, problems };
+}
+
+function checkAnchors() {
+  section('Organik: Anker liegen auf ihren Ringen');
+  const all = fields();
+  const problems = [];
+  const roles = new Set();
+  let count = 0;
+  for (const field of all) {
+    const found = anchorProblems(field);
+    problems.push(...found.problems);
+    found.anchors.forEach((anchor) => roles.add(anchor.role));
+    count += found.anchors.length;
+  }
+  check('Jeder markierte Gelenkpunkt bekommt einen Anker', !problems.some((entry) => entry.startsWith('zahl')), problems.slice(0, 3).join(', '));
+  check('Der Ankerpunkt ist ein Punkt seines Rings', !problems.some((entry) => entry.startsWith('ort')), problems.slice(0, 3).join(', '));
+  check('Der Anker ist der naechste Ringpunkt', !problems.some((entry) => entry.startsWith('ferne')), problems.slice(0, 3).join(', '));
+  check('Der Ankerpunkt liegt auf der Iso-Linie', !problems.some((entry) => entry.startsWith('niveau')), problems.slice(0, 3).join(', '));
+  check('Augen, Kiefer und Ruecken sind verankert', ['EYE_SOCKET', 'JAW', 'BACK'].every((role) => roles.has(role)) && count >= all.length, `${count} Anker`);
+  check('Gliedmassen tragen Spitzenanker', roles.has(FEATURE_ANCHOR.LIMB_TIP));
+}
+
+export function checkOrganic() {
+  checkDeterminism();
+  checkPhases();
+  checkRings();
+  checkSymmetry();
+  checkAnchors();
+}

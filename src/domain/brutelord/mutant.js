@@ -28,13 +28,17 @@ export function nextCandidate(dunglings) {
   return free.find((worker) => !worker.job) ?? free[0] ?? null;
 }
 
-function genomeFromStones(stones) {
+export function genomeForStones(stones) {
   return createGenome(stones.reduce((acc, stone) => mixSeed(acc, stone.seed), 0x5eed));
+}
+
+export function genomeOf(worker) {
+  return worker.genome ?? genomeForStones(unitStones(worker));
 }
 
 export function fuse(worker, stones) {
   if (stones.length === 0 || isMutant(worker)) return null;
-  return { ...worker, stones, genome: genomeFromStones(stones), invested: investedIn(stones), battleEp: 0 };
+  return { ...worker, stones, genome: genomeForStones(stones), invested: investedIn(stones), battleEp: 0 };
 }
 
 export function refundFor(worker) {

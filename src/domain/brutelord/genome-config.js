@@ -56,3 +56,32 @@ export const GENOME_CONFIG = Object.freeze({
   hpBase: 10,
   hpPerPoint: 4,
 });
+
+export const ORGANIC_SALT = Object.freeze({
+  plan: 3301,
+  spine: 4517,
+  limb: 5507,
+  head: 6211,
+});
+
+export const ORGANIC_CONFIG = Object.freeze({
+  phaseCount: 4,
+  phaseMs: 420,
+  breathe: Object.freeze([1, 1.06, 1.1, 1.04]),
+  spineNodes: 3,
+  spineLength: 0.58,
+  tailLength: 0.46,
+  bodyGirth: 0.22,
+  limbSplay: 0.62,
+  limbLength: 0.34,
+  limbGirth: 0.14,
+  headRadius: 0.44,
+  jointBulge: 1.3,
+  featureGirth: 0.07,
+  iso: 1,
+  cell: 0.09,
+  pad: 0.7,
+  sealRounds: 8,
+  ringMinPoints: 8,
+  ringMinArea: 0.02,
+});

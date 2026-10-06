@@ -66,8 +66,10 @@ export function determinismRun(seed) {
   const ticks = [];
   const types = [];
   const kalteTreffer = [];
+  const genomes = new Set();
   const record = (state, now, action) => {
     types.push(action.type);
+    for (const worker of state.dunglings ?? []) if (worker.genome) genomes.add(worker.genome);
     if (ticks.length % PROBEN_ABSTAND === 0 && stateDigest(state) !== coldStateDigest(state)) {
       kalteTreffer.push(ticks.length);
     }
@@ -75,5 +77,5 @@ export function determinismRun(seed) {
   };
   const run = buildRun({ seed, onDispatch: record });
   derRest(run.clock);
-  return { seed, ticks, types, kalteTreffer, state: run.clock.state };
+  return { seed, ticks, types, kalteTreffer, genomes: [...genomes], state: run.clock.state };
 }

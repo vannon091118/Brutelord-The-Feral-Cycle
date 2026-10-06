@@ -8,6 +8,7 @@ import { writeFileSync } from 'node:fs';
 import { SAMPLE_SEEDS } from '../scripts/verify/floor-sample.js';
 import { determinismRun } from '../scripts/verify/determinism-run.mjs';
 import { abweichung, ciNodeMajor, nodeMajor } from '../scripts/lib/node-laufzeit.mjs';
+import { contourEntries } from '../scripts/verify/contour-digest.mjs';
 
 const DATEI = 'scripts/verify/determinism-golden.json';
 const ZEILE = 80;
@@ -20,13 +21,15 @@ function zeilen(ticks) {
 }
 
 function seeds() {
-  const golden = {};
+  const ticks = {};
+  const contours = {};
   for (const seed of SAMPLE_SEEDS.map(String)) {
     const lauf = determinismRun(seed);
-    golden[seed] = zeilen(lauf.ticks);
-    console.log(`${seed}: ${lauf.ticks.length} Zuege, ${new Set(lauf.types).size} Aktionen, Cache-Widersprueche ${lauf.kalteTreffer.length}`);
+    ticks[seed] = zeilen(lauf.ticks);
+    contours[seed] = contourEntries(lauf.genomes);
+    console.log(`${seed}: ${lauf.ticks.length} Zuege, ${new Set(lauf.types).size} Aktionen, Cache-Widersprueche ${lauf.kalteTreffer.length}, Genome ${lauf.genomes.length}`);
   }
-  return golden;
+  return { ticks, contours };
 }
 
 function main() {
@@ -38,7 +41,8 @@ function main() {
     process.exitCode = 1;
     return;
   }
-  writeFileSync(DATEI, `${JSON.stringify({ nodeMajor: gepinnt, seeds: seeds() }, null, 2)}\n`);
+  const { ticks, contours } = seeds();
+  writeFileSync(DATEI, `${JSON.stringify({ nodeMajor: gepinnt, seeds: ticks, contours }, null, 2)}\n`);
   console.log(`Geschrieben: ${DATEI} — Node ${gepinnt}, ${SAMPLE_SEEDS.length} Seeds`);
 }
 

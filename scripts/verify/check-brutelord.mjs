@@ -16,8 +16,8 @@ import {
 import { createStone, rarityFor, rarityWeights } from '../../src/domain/brutelord/stone-roll.js';
 import { buyStone, createLab, labStoneCount, nextSeed, placeStone, stoneLabel } from '../../src/domain/brutelord/lab-state.js';
 import { counterScales, emptySlots, formFor, torsoScale } from '../../src/domain/brutelord/mutation-formula.js';
-import { checkTraits } from './check-traits.mjs';
 import { checkGenome } from './check-genome.mjs';
+import { checkOrganic } from './check-organic.mjs';
 import { check, section } from './expect.mjs';
 
 const LEGENDARY = STONE_RARITY.LEGENDARY;
@@ -108,8 +108,8 @@ export function checkBruteLord() {
   checkPity();
   checkMasking();
   checkSlots();
-  checkTraits();
   checkGenome();
+  checkOrganic();
 
   section('Brutlord: Optik folgt dem Slot');
   check('Der Effekt bleibt beim Slotwechsel gleich', arm.rarity === leg.rarity && arm.trait === leg.trait && JSON.stringify(arm.stats) === JSON.stringify(leg.stats));

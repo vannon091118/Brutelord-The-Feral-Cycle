@@ -321,6 +321,25 @@ der erste.
 genau auf den Feldern, für die der Veil steht. Eine Ebene, die nicht mehr da
 ist, wo sie hingehört, fällt im Bild sofort auf und in keiner Prüfung.
 
+### Der Cache-Schlüssel darf kein Float sein
+
+`organic-cache.js` baut die Kontur eines Mutanten aus Gitterproben und
+Marching-Squares. Der Schlüssel ist `${genomHash}_f${phase}` — Genom-Hash und
+**die ganze Zahl 0 bis 3**, die `phaseOf()` liefert. Wer den rohen Takt, einen
+`step` oder `Date.now()` in den Schlüssel schreibt, bekommt pro Frame einen
+neuen Eintrag: das ist kein Cache mehr, sondern ein Leck. Ein wachsender `Map`
+und ein neues SVG-Objekt je Bild sind die Folge, und auf schwacher Hardware
+stirbt der Tab.
+
+> **Gegenprobe:** den Takt an den Schlüssel hängen, `check-organic-cache.mjs`
+> laufen lassen. Gemessen fielen **14 von 17** Prüfungen, darunter
+> „2008 Frames liefern nur 12 verschiedene Objekte — 2008".
+
+**Was zu tun ist:** die Phase ist die einzige Zeitgröße im Schlüssel. `phaseOf()`
+normalisiert auch Kommazahlen und negative Takte, damit kein Aufrufer den
+Schlüssel aufweichen kann; die Kontur entsteht trotzdem höchstens einmal je
+Genom und Phase.
+
 ---
 
 ## Der Dev-Server

@@ -8,6 +8,7 @@ import { ACTION } from '../../src/domain/actions/action-types.js';
 import { SAMPLE_SEEDS } from './floor-sample.js';
 import { determinismRun } from './determinism-run.mjs';
 import { abweichung, ciNodeMajor, nodeMajor } from '../lib/node-laufzeit.mjs';
+import { contourEntries } from './contour-digest.mjs';
 import { check, section } from './expect.mjs';
 
 const GOLDEN = 'scripts/verify/determinism-golden.json';
@@ -51,6 +52,34 @@ function befund({ lauf, soll, ist, ab }) {
   return `Zug ${ab + 1} von ${schritte} (${lauf.types[ab] ?? 'kein Zug'}) — erwartet ${fenster(soll)}, gelesen ${fenster(ist)}`;
 }
 
+function konturAbweichung(soll, ist) {
+  for (const hash of Object.keys(ist)) {
+    const erwartet = soll[hash];
+    if (!erwartet) return { hash, phase: 0, soll: 'unbekannt', ist: 'neu' };
+    for (let phase = 0; phase < ist[hash].length; phase += 1) {
+      if (erwartet[phase] !== ist[hash][phase]) return { hash, phase, soll: erwartet[phase], ist: ist[hash][phase] };
+    }
+  }
+  const fehlt = Object.keys(soll).find((hash) => !(hash in ist));
+  return fehlt ? { hash: fehlt, phase: 0, soll: 'vorhanden', ist: 'fehlt' } : null;
+}
+
+function konturBefund(ab, anzahl) {
+  if (ab === null) return `${anzahl} Genome`;
+  return `Genom ${ab.hash}, Phase ${ab.phase} — erwartet ${ab.soll}, gelesen ${ab.ist}`;
+}
+
+function checkContours(golden, laeufe) {
+  const werte = typeof golden.contours === 'object' && golden.contours !== null ? golden.contours : {};
+  const fehlend = laeufe.map((lauf) => String(lauf.seed)).filter((seed) => !werte[seed]);
+  check('Der Golden-Wert traegt je Seed einen Kontur-Abschnitt', fehlend.length === 0, fehlend.join(', '));
+  for (const lauf of laeufe) {
+    const ist = contourEntries(lauf.genomes);
+    const ab = konturAbweichung(werte[String(lauf.seed)] ?? {}, ist);
+    check(`Seed ${lauf.seed} trifft die Konturen aller vier Atemphasen`, ab === null && Object.keys(ist).length > 0, konturBefund(ab, Object.keys(ist).length));
+  }
+}
+
 function pruefeForm(seeds, gemessen) {
   const fremd = Object.keys(gemessen).filter((key) => !seeds.includes(key));
   const fehlend = seeds.filter((seed) => !(seed in gemessen));
@@ -83,4 +112,5 @@ export function checkDeterminism() {
   const folgen = new Set(laeufe.map((lauf) => lauf.ticks[0]));
   check('Verschiedene Seeds ergeben verschiedene Zustandsfolgen', folgen.size === laeufe.length, `${folgen.size} von ${laeufe.length} verschieden`);
   check('Nach dem Durchlauf arbeitet keine Wurzel mehr', laeufe.every((lauf) => lauf.state.world.rootingWorkIds.length === 0));
+  checkContours(golden, laeufe);
 }
