@@ -122,28 +122,6 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
   Version: ausstehend
   Datum: ausstehend
 
-- [x] **Die Erde ist wieder eine Masse.** Die Enthüllung entschied je Zelle einzeln,
-      und der Ring um die Sonde blieb in rund der Hälfte der Zellen Dunkelheit:
-      schwarze Sockel mitten im Erdreich, dreiseitige Kerben und zwei bis drei
-      Einzelkacheln, die in der Finsternis schwammen. Jede dieser Lücken bekommt
-      seit 904fa2b obendrein die Kantenwand an das Verdeckte, also einen Felsrahmen —
-      daraus las sich ein Kieselmosaik statt einer Fläche, und das geht gegen §8.
-      `revealed()` zieht jetzt nach, an genau einer Stelle: `attached()` verwirft
-      jede frisch geschenkte Kachel, die keinen Weg zu dem hat, was schon sichtbar
-      war, und `closeHoles()` holt jede Kachel von drei Seiten nach. Beide ziehen
-      nur nach, nie zurück, die Sichtbarkeit wächst also weiter ausschließlich.
-      Gemessen auf Etage 0, 4 und 8, frisch und nach durchlaufener Expansion: null
-      Löcher, null Kerben, genau eine zusammenhängende Masse. Die Gegenprobe in
-      `scripts/verify/check-reveal.mjs` zählt achtzehn Prüfungen und fällt rot,
-      sobald eine der beiden Regeln einzeln wegfällt. Ein Aufruf kostet gemessen
-      31 Mikrosekunden statt 4 Mikrosekunden, ruft aber nur an, wenn der Boden
-      wirklich wächst — je Etage also ein paar Mal, gegen einen Takt von 200 ms.
-  Status: geplant
-  Scope: Welt
-  Kategorie: Bugfix
-  Version: ausstehend
-  Datum: ausstehend
-
 ---
 
 ## Was hier NICHT steht
