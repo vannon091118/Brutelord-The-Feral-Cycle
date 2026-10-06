@@ -42,6 +42,7 @@ export const GROUPS = Object.freeze([
   { id: 'ladder', file: `${V}check-ladder.mjs`, run: (m) => m.checkLadder() },
   { id: 'depth-reward', file: `${V}check-depth-reward.mjs`, run: (m) => m.checkDepthReward() },
   { id: 'account-worker', file: `${V}check-account-worker.mjs`, run: (m) => m.checkAccountWorker() },
+  { id: 'account-api-client', file: `${V}check-account-api-client.mjs`, run: (m) => m.checkAccountApiClient() },
   { id: 'account-http', file: `${V}check-account-http.mjs`, run: (m) => m.checkAccountHttp() },
   { id: 'verticality', file: `${V}check-verticality.mjs`, run: (m) => m.checkVerticality() },
   { id: 'verticality-wiring', file: `${V}check-verticality-wiring.mjs`, run: (m) => m.checkVerticalityWiring() },

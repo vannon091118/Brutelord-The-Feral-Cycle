@@ -29,6 +29,7 @@ export { checkDepthReward } from './check-depth-reward.mjs';
 export { checkRaidPhases } from './check-raid-phases.mjs';
 export { checkRaidSiege } from './check-raid-siege.mjs';
 export { checkAccountWorker } from './check-account-worker.mjs';
+export { checkAccountApiClient } from './check-account-api-client.mjs';
 export { checkAccountHttp } from './check-account-http.mjs';
 export { checkRaidCap } from './check-raid-cap.mjs';
 export { checkSoilMass } from './check-soil-mass.mjs';
