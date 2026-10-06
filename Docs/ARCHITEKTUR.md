@@ -126,24 +126,62 @@ enthält kein `<svg>`-Markup. Die Importrichtung prüft er nicht — wer
 `src/domain/` etwas aus `src/world/` importieren lässt, fällt durch keine dieser
 drei Zeilen.
 
-Vier Uhren halten die Simulation in Bewegung, alle ohne eigenen Zustand.
-`use-colony-clock.js` ruft die drei Daueruhren zusammen, weil
-`use-game-engine.js` sonst am Import-Cap steht; jede behält ihre eigene Datei
-und ihre eigene Bedingung.
+**Eine Uhr, gemessene Schritte.** Bis 0.0.32 hielten fünf Uhren die Simulation
+in Bewegung: drei `setInterval` der Kolonie, die einen **festen** `dtMs` von
+200 ms abfeuerten, die Wurzeluhr mit 100 ms ganz ohne `dtMs`, und der
+Onboarding-Plan als Kette von `setTimeout`s. Das waren zwei Zeitbasen. Ein
+gedrosselter Hintergrundtab dehnt Intervalle auf eine Sekunde und mehr: die
+Kolonie kam 200 ms Spielzeit pro Schuss voran, die Onboarding-Kette lief
+weiter in Wanduhrzeit — nach einer Minute im Hintergrund war der Abbau weit
+hinter seinem eigenen Timer.
 
-- `use-schedule-runner.js` führt den Onboarding-Plan aus `onboarding-schedule.js`
-  aus. Timer verfallen bei jedem Phasenwechsel — deshalb liegt der Abbau in
-  einem Plan und nicht in einer Kette.
-- `use-rooting-runner.js` tickt die Verwurzelung unabhängig, weil die Wurzeln
-  weiterkriechen, während der Spieler nichts tut. Sie fragt `rootingWorkCount()`
-  und läuft damit über einer Liste aktiver Felder statt über alle 4.096 Kacheln.
-- `use-work-runner.js` tickt die Arbeit.
-- `use-hive-runner.js` presst die Essenz des Hive.
+Jetzt gibt es einen Herzschlag. `use-game-clock.js` hält genau einen
+`setInterval` über `GAME_TIME.heartbeatMs` (100 ms, abgeleitet aus dem
+kleinsten Domänen-Takt, nicht gesetzt); `game-clock.js` misst die tatsächlich
+vergangene Zeit und legt fest, was in dieser Zeit fällig wurde; `game-time.js`
+trägt die Tabelle, welcher Takt in welchem Abstand fällt und wann er schweigt.
 
-Alle drei schweigen, wenn es nichts zu tun gibt; sie lesen den Zustand, sie
-besitzen ihn nicht. Die Hive-Uhr ist die Ausnahme: sie läuft auch im Leerlauf
-weiter, weil ein Motor, der an einem Idle-Stopp hängt, keiner wäre. Nachdem
-das Budget aufgebraucht ist, schweigt auch sie.
+**Der Schritt ist die Wahrheit, nicht der Schuss.** Jeder Takt führt einen Rest
+über den Takt hinaus mit und arbeitet bei einem langen Schritt die ausgefallenen
+Runden nach — und jede Runde trägt ihren **eigenen Konfigurationstakt** als
+`dtMs`, statt einen gestreckten Wert durchzureichen, den der Reducer an der
+Phasengrenze anders klemmt. Gemessen in `check-game-clock.mjs`: 100 Schritte à
+100 ms und 10 Schritte à 1000 ms ergeben denselben Taktstrom. Derselbe
+Rest-Mechanismus trägt den Phasenwechsel weiter: eine Phase zählt nicht ab dem
+Takt, in dem sie begann, sondern ab dem Moment, in dem ihr Vorgänger-Timer
+fällig war. Ohne diesen Übertrag sammelt die
+Onboarding-Kette pro Phase einen Takt Drift an — gemessen 6700 statt 6600 ms im
+Testlauf, mit Übertrag getroffen auf die Millisekunde.
+
+`GAME_TIME.maxStepMs` deckelt den einzelnen Schritt bei 1000 ms. Ohne den Deckel
+wäre ein eine Stunde verborgener Tab ein Zug mit achtzehntausend Takten; mit dem
+Deckel ist er Abwesenheit. Der Deckel gilt für alle Takte zusammen, weil es nur
+einen Schritt gibt — vorher hatte jede Uhr ihre eigene Vorstellung von „jetzt",
+und der gestreckte Ausschlag der einen interessierte die andere nicht.
+
+`onboarding-schedule.js` bleibt der Zeitplan, `armPhase()` erkennt den
+Phasenwechsel selbst, statt auf einen React-Effekt zu warten: der Plan wechselt
+dort, wo der Zustand wechselt. Die Auflösung des Taktgebers ist damit auch die
+Auflösung des Onboardings — ein Timer feuert am Ende des Taktes, in dem er
+fällig wurde, also höchstens einen Herzschlag zu spät.
+
+Die Bedingungen bleiben, wo sie waren: `TICKS` in `game-time.js` fragt
+`rootingWorkCount()`, `workIsIdle()` und `hiveHasBudget()` — dieselben Prädikate,
+die vorher die Runner gefragt haben, keine Kopie der Regel. Verwurzelung und
+Arbeit schweigen, wenn es nichts zu tun gibt; die Hive-Uhr ist die Ausnahme und
+läuft auch im Leerlauf weiter, weil ein Motor, der an einem Idle-Stopp hängt,
+keiner wäre. Nachdem das Budget aufgebraucht ist, schweigt auch sie. Die
+Wurzeluhr läuft über eine Liste aktiver Felder statt über alle 4.096 Kacheln,
+weil sie `rootingWorkCount()` und nicht das Raster fragt.
+
+Die Zeit kommt aus einer Naht: `monotonicNow()` in `game-clock.js` ist die
+einzige Stelle in `src/`, die die Systemzeit liest, und `createGameClock()` nimmt
+sie als Parameter. Deshalb prüft `check-game-clock.mjs` die Uhr mit vorgegebener
+Zeit im Node-Prozess, ohne Browser und ohne Warten — mit einem festen Schritt
+statt gemessener Zeit fallen dort 6 von 20 Prüfungen. In `src/domain/` wird
+weiterhin keine Zeit gelesen: die Sperre gegen `Math.random(` und `Date.now(`
+gilt unverändert, und `src/state/reducers/rooting-reducer.js` nimmt seine
+Taktlänge jetzt aus `action.dtMs` statt sie aus der Config zu wiederholen.
 
 Der Schwarm ist eine Liste. Der erste Dungling trägt das Onboarding, der Abbau
 bedient den ersten freien Arbeiter.
@@ -342,8 +380,9 @@ Zwischenposition zwischen zwei Feldern, damit ein Träger läuft statt zu spring
 
 ### Was ein Render kostet
 
-Vier Uhren ticken bis zu 20-mal pro Sekunde, und jeder Takt ist ein vollständiger
-Durchlauf durch `App`. Was pro Durchlauf teuer war, stand an vier Stellen:
+Der Herzschlag tickt zehnmal pro Sekunde, und jeder Takt ist ein vollständiger
+Durchlauf durch `App` — Kolonie, Wurzeln und Hive fallen dabei in denselben Zug.
+Was pro Durchlauf teuer war, stand an vier Stellen:
 
 **Das Raster war ein Objekt mit viertausend String-Schlüsseln.** `world.tiles`
 ist jetzt ein dichtes Array, Index `y * width + x`. Das ist kein Kosmetikum,
@@ -752,6 +791,48 @@ einhängen, das inhaltlich nichts mit ihr zu tun hat. Ein Feature-Check wie
 - `virtual-clock.mjs` führt denselben Zeitplan wie der Browser aus, nur ohne
   Wartezeit. Der Arbeitstakt wird als `WORK_TICK` mit festem `dtMs` getaktet —
   auch hier gibt es keine Systemzeit.
+- Die Browser-Uhr in `scripts/browser/page.mjs` ist installiert **und
+  angehalten** (`install` + `pauseAt`): sonst läuft sie mit der Wanduhr
+  weiter, und die Spielzeit hängt an der Lesegeschwindigkeit des Laufs.
+  `scripts/browser/drive.mjs` hält die Fahrbefehle — sie warten mit der Uhr
+  auf ein Ziel, das sichtbar und bedienbar ist, weil ein Klick auf eine
+  angehaltene Uhr sonst auf ein Element wartet, das erst eine Phase später
+  entsteht. Zwei Folgen davon standen in `src/`: der `ResizeObserver` in
+  `use-stage-scale.js` lieferte ohne Bildaufbau keine Fläche (die erste Messung
+  läuft deshalb synchron beim Einhängen), und der Knopf „+ Dungling" bleibt
+  gesperrt, solange der letzte Dungling einen Auftrag hat.
+- `check-determinism.mjs` friert den ganzen Slice als Zustands-Hash **je Zug**
+  ein. `determinism-run.mjs` spielt ihn: den Bau-Durchlauf aus `build-run.mjs`
+  und danach die Züge, die sonst nur der Browser auslöst — Wachstum, Labor,
+  Mutation, Etagensprung. Damit feuert der Durchlauf **jede** Aktion der Kette
+  (30 von 30), und die Prüfung leitet das aus `ACTION` ab, statt eine Liste zu
+  pflegen. Der Golden-Wert liegt in `determinism-golden.json`: zehn Hashes je
+  Zeile, acht Zeichen je Hash, rund 72 KB über die vier Sample-Seeds. Er wird
+  vom Prüfer **nie** geschrieben — `npm run golden:determinism` ist der einzige
+  Weg, und ein neu geschriebener Golden-Wert ist eine Verhaltensänderung, die
+  in den Commit-Body gehört. Der Befund nennt bei einer Abweichung die
+  Zugnummer, die Aktion und beide Hashes, also die Stelle statt einer
+  Enddifferenz.
+- **Der Golden-Wert trägt seine Laufzeit im Kopf.** `nodeMajor` steht über den
+  Seeds, gelesen und geprüft wird gegen `node-version` aus
+  `.github/workflows/ci.yml` — nicht gegen eine abgeschriebene Zahl daneben.
+  Der Erzeuger bricht auf jeder anderen Node-Major ab, **bev** er rechnet, sonst
+  entsteht ein zweiter Wert über denselben Slice und die Prüfung vergleicht
+  fortan nur noch den, der gerade passt. Der Prüfer meldet eine fremde
+  Laufzeit als Befund statt als Hash-Differenz, weil sie keine ist: zwei
+  Laufzeiten sind nicht derselbe Zustand. Gemessen an der Gegenprobe: Node 24
+  gegen eine auf 22 gepinnte CI — der Erzeuger endet mit Exit 1 und einer
+  unveränderten Datei, der Prüfer fällt mit „im Wert 24, gepinnt 22", während
+  die übrigen elf Zusicherungen grün bleiben.
+- `state-digest.mjs` hasht den ganzen Zustand trotzdem in **0,14 ms je Zug**,
+  weil er den Wert jedes Objekts unter seiner Identität wiederverwendet. Ein
+  Zustand misst gemessen 784 KB; ohne diesen Speicher kostet ein Hash **39 ms**,
+  über 2008 Züge also 65 Sekunden statt 0,3. Der Speicher setzt voraus, dass
+  niemand an Ort und Stelle verändert — derselbe Vertrag, auf dem schon das
+  Rendern ruht (`memo()` auf den Kacheln, `centerCache` über `world.tiles`) —,
+  und er wird alle 250 Züge kalt nachgerechnet. Der Mischer ist bewusst keine
+  reine FNV-Kette: die kippt bei einer Änderung an einem einzelnen Feld
+  gemessen nur 9 von 32 Bits, die Murmur-Finalisierung 16,1.
 - Erwartungen werden aus den Configs **abgeleitet**, nicht als Literale neben
   sie geschrieben: `check-start.mjs` liest die erwartete Hive-Fläche aus
   `world.hiveSize`. Wo ein Literal unvermeidbar ist — `check-mining-progress.mjs`

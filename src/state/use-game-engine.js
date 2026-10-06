@@ -2,8 +2,7 @@
 import { useReducer, useRef } from 'react';
 import { gameReducer } from './game-reducer.js';
 import { initialGameState } from './game-state.js';
-import { useScheduleRunner } from './use-schedule-runner.js';
-import { useColonyClock } from './use-colony-clock.js';
+import { useGameClock } from './use-game-clock.js';
 import { useSnapshotRunner } from './use-snapshot-runner.js';
 import { useGameActions } from './use-game-actions.js';
 
@@ -13,8 +12,7 @@ export function useGameEngine(playerseed) {
   const latest = useRef(state);
   latest.current = state;
 
-  useScheduleRunner({ phase: state.onboarding.state, latest, dispatch });
-  useColonyClock({ latest, dispatch });
+  useGameClock({ latest, dispatch });
   useSnapshotRunner({ latest, playerseed });
 
   return { state, actions: useGameActions(dispatch) };

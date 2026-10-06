@@ -131,6 +131,39 @@ Und noch eine, die danebenlag: die Kamera-Huelle bekam zuerst
 Klick. Das ist derselbe Fehler wie bei den Augen des Dunglings unten, an anderer
 Stelle.
 
+### Ein eingefrorener Wert ohne Laufzeit ist zwei Werte wert
+
+Der Golden-Wert der Deterministizität ist Beweismaterial: 2008 Zustands-Hashes
+je Seed, gefroren. Er wurde von jedem geschrieben, der `npm run
+golden:determinism` aufrufen konnte — auch auf einer anderen Node-Major als der
+in der CI. Damit existieren zwei Goldens über denselben Slice, und die Abnahme
+vergleicht stillschweigend gegen das, was gerade passt: **der Happy Path des
+jüngeren Werts**, während der ältere nur als kryptische Abweichung wartet.
+
+> **Symptom:** Kein Fehler im Spiel, sondern zwei Wahrheiten nebeneinander. Der
+> Unterschied wird erst sichtbar, wenn jemand die Node-Version wechselt: dann
+> schlägt der Lauf entweder rot an einem Slice, der sich nicht geändert hat, oder
+> — schlimmer — er wird mit einem neu erzeugten Wert wieder grün, ohne dass
+> jemand den Grund kennt.
+
+> **Ursache:** Der Wert war an eine Laufzeit gebunden, ohne es zu sagen. Eine
+> Zahl wie `22` neben dem Wert zu notieren wäre derselbe Fehler an anderer
+> Stelle: die gepinnte Node-Version steht in `.github/workflows/ci.yml` und wird
+> dort geändert.
+
+> **Gegenprobe:** Zwei Sabotagen. Erstens der Erzeuger unter Node 24 gegen eine
+> auf 22 gepinnte CI (`node -e` mit überschriebenem `process.versions.node`):
+> Exit 1, die Meldung nennt laufende und gepinnte Version, und die Datei ist
+> danach **bytegleich** — es entstand kein zweiter Wert. Zweitens ein Golden mit
+> `nodeMajor: 24`: die Prüfung fällt mit „im Wert 24, gepinnt 22", während die
+> übrigen elf Zusicherungen grün bleiben. Beides zurückgesetzt, 12 von 12 grün.
+
+**Was zu tun ist:** Was festgeschrieben wird, nennt die Laufzeit, auf der es
+entstanden ist — und diese Laufzeit wird an der Stelle gelesen, an der sie
+entschieden wird, nicht daneben notiert. Abbrechen vor dem Rechnen ist der
+wichtigere Teil: ein Erzeuger, der erst rechnet und dann verweigert, hat schon
+den zweiten Wert gebaut.
+
 ---
 
 ## Die Abnahme
@@ -153,6 +186,55 @@ selbst steht an der Importgrenze.
 
 Beim Nachtreiben von Hand: nicht nur die Kachel. Wer die Welt weglässt, prüft
 gegen eine Welt, die es so nicht gibt.
+
+### Ein Golden-Wert aus der Zahl ist ein anderer Seed als aus dem String
+
+`worldSeed('12345678')` ist **305419896** (hex gelesen), `worldSeed(12345678)`
+ist **12345678**. Der Golden-Wert wird über `String(seed)` geschlüsselt, der Lauf
+bekam beim ersten Versuch aber die Rohwerte aus `SAMPLE_SEEDS` — die Zahl gegen
+den String —, und die Prüfung fiel deshalb schon im **ersten** Zug um, mit
+„erwartet …, gelesen …" bei `HIVE_CLICKED`. Nicht der Hash war falsch, sondern
+die verglichene Welt.
+
+> **Symptom:** Der Golden-Wert ist gerade frisch erzeugt und trotzdem rot, und
+> zwar ab Zug 1. Das sieht nach einem kaputten Prüfer aus und ist ein anderer
+> Seed.
+
+**Was zu tun ist:** Beide Seiten benutzen dieselbe Form.
+`check-determinism.mjs` bildet `String(seed)`, `tools/golden-determinism.mjs`
+seitdem auch — das Spiel übergibt seinen Seed ohnehin als String.
+
+### Ein Hash über den ganzen Zustand muss lawinieren, nicht addieren
+
+Der erste Mischer war FNV-1a, `Math.imul(h ^ value, 16777619)`. Gemessen über
+zweihundert Änderungen an **einem** Feld (Essenz + 1 … + 200): im Schnitt kippten
+**9 von 32 Bits**, im schlechtesten Fall **3**, und bei **47 von 200** Änderungen
+weniger als 8. Eine Ein-Feld-Drift hätte damit mit zweistelliger
+Wahrscheinlichkeit dieselbe Zahl ergeben wie der Golden-Wert — ein Detektor, der
+genau den Fehler übersieht, für den er gebaut wurde.
+
+> **Gegenprobe:** dieselbe Messung mit der Murmur-Finalisierung (drei Zeilen,
+> `0x85ebca6b`, `0xc2b2ae35`, je ein `>>>` davor): **16,1 von 32 Bits** im
+> Schnitt, Minimum 7, genau **1 von 200** unter 8. Der Idealwert ist 16.
+
+**Was zu tun ist:** Der Mischer bleibt die Finalisierung. Wer sie „vereinfacht",
+holt die 9 Bits zurück.
+
+### Ein Hash über Objekt-Identität lügt bei In-place-Änderung
+
+Der Digest merkt sich den Wert jedes Objekts unter seiner **Identität**; das ist
+der Grund, warum er 0,14 ms statt 39 ms je Zug kostet. Er stimmt aber nur,
+solange niemand ein Objekt an Ort und Stelle verändert: ein
+`state.dunglings[0].job = …` ließe den gespeicherten Hash stehen, der Zustand
+wäre ein anderer und die Prüfung trotzdem grün.
+
+> **Gegenprobe:** `coldStateDigest()` rechnet an jedem 250. Zug mit einem
+> frischen Speicher nach. Gehen beide Werte auseinander, meldet die Prüfung
+> „Der Hash-Cache luegt nicht" mit der Zugnummer.
+
+**Was zu tun ist:** Der Zustand bleibt unveränderlich — derselbe Vertrag, auf dem
+schon das Rendern ruht (`memo()` auf den Kacheln, `centerCache` über
+`world.tiles`). Die Abnahme verlässt sich nicht darauf, sie misst nach.
 
 ### `check-workflow.mjs` prüft den Versions-Bot
 
@@ -711,6 +793,136 @@ angenommen" als fehlgeschlagen — im gruenen Lauf.
 > **Gegenprobe:** Wer `isSavedShape` pruft, prueft `packState(state)`. Geht es um
 > die Form, nicht um die Wirkung, ist das der Unterschied zwischen einem Befund
 > und einem Verwirrungsfehler.
+
+## Die Reducerkette
+
+### Ein Case-Label auf eine fehlende Konstante trifft jede namenlose Aktion
+
+`ACTION.HIVE_MUTATION_STARTED` stand nicht im Register
+`src/domain/actions/action-types.js`, wurde aber an zwei Stellen benutzt: als
+Case in `src/state/reducers/hive-reducer.js` und als Timer in
+`src/domain/onboarding/onboarding-schedule.js`. Der Zugriff auf einen fehlenden
+Schluessel ist kein Fehler, er liefert `undefined` — der Case-Wert war also
+selbst `undefined`, und der Zeitplan feuerte `{ type: undefined }`. Ein `switch`
+vergleicht seinen Case-Wert mit dem Ausdruck, `switch (undefined)` traf
+`case undefined`, und der Zwischenschritt `HIVE_CLICKED → MUTATING` lief.
+
+> **Symptom:** Der Spielzug funktioniert, obwohl die Konstante fehlt. Nimmt man
+> sie zur Gegenprobe zurueck, bleibt die bestehende Abnahme vollstaendig
+> **gruen** — alle 15 Pruefungen in `check-onboarding.mjs`, einschliesslich der
+> Mutationszeit, weil der Wildcard-Case sie weiter bedient. Der Fehler war
+> unsichtbar, nicht ungetestet.
+
+> **Ursache:** Zwei Fehler hoben sich auf, und jeder einzelne haette gereicht:
+> die fehlende Konstante und ein Aufrufer, der ihren Wert ohne Nachweis gegen
+> das Register weiterreicht. Zusaetzlich stand ein Case-Label auf `undefined`
+> als Wildcard bereit und haette jede kuenftige namenlose Aktion im richtigen
+> Onboarding-Zustand als „Hive-Mutation starten" ausgefuehrt.
+
+> **Gegenprobe:** `scripts/verify/check-action-types.mjs` faellt mit
+> zurueckgenommener Konstante in 3 von 6 Pruefungen — mit der Diagnose
+> `HIVE_CLICKED → undefined` aus dem Zeitplan, dem Fundort
+> `src/domain/onboarding/onboarding-schedule.js` und dem Nachweis, dass ein
+> Dispatch ohne Typ den Zustand nicht mehr bewegt. Danach wiederhergestellt:
+> 6 von 6 gruen.
+
+**Was zu tun ist:** Eine Aktion ist nur dann eine Aktion, wenn sie im Register
+steht und ihr Wert ihren Namen wiederholt. Wer eine Aktion umbenennt, benennt
+beide Seiten gleichzeitig um; keine Seite darf auf `undefined` stehenbleiben.
+
+---
+
+## Die Spielzeit
+
+### Ein fest verdrahteter `dtMs` macht aus einem gedrosselten Tab eine Zeitlupe
+
+Die drei Kolonie-Uhren feuerten `setInterval(JOB_CONFIG.tickMs)` ab und gaben
+jeder Aktion einen **festen** `dtMs` von 200 ms mit, die Wurzeluhr gab gar
+keinen mit (der Reducer fiel auf `ROOTING_CONFIG.tickMs` zurück), und der
+Onboarding-Plan lief als Kette von `setTimeout`s daneben. Zwei Zeitbasen: die
+Kette maß Wanduhrzeit, die Kolonie maß Schüsse. Ein Browser dehnt Intervalle in
+verborgenen Tabs auf eine Sekunde und mehr — die Kolonie kam dann 200 ms
+Spielzeit pro Schuss voran, während der Onboarding-Timer weiterlief wie eine
+Uhr. Der Dungling stand nach dem Zurückkommen vor einem Erdblock, dessen Abbau
+längst vorbei sein sollte.
+
+> **Symptom:** Gemessen in `check-game-clock.mjs` — 100 Schritte à 100 ms und 10
+> Schritte à 1000 ms umfassen dieselben zehn Sekunden Wanduhr, lieferten aber 50
+> gegen 5 Hive-Takte. Ein gedrosselter Tab war nicht langsam, er war falsch.
+
+> **Ursache:** Der Takt hat die Länge seines Schrittes **behauptet**, statt sie
+> zu messen. Dazu kam ein zweiter Fehler, der ihn verdeckte: es gab keinen Ort,
+> an dem „jetzt“ stand. Fünf Uhren hatten fünf Vorstellungen davon, und keine
+> konnte einen gestreckten Ausschlag an die anderen weitergeben.
+
+> **Gegenprobe:** `check-game-clock.mjs` (20 Zusicherungen, 1,3 s) fällt mit
+> festem Schritt statt gemessener Zeit in 6 von 20 Prüfungen: beide
+> Drossel-Prüfungen, beide Deckel-Prüfungen, der Onboarding-Timer und der Abbau.
+> Der Determinismus-Golden bleibt dabei unberührt, weil die Abnahme die neue Uhr
+> nicht treibt.
+
+**Was zu tun ist:** Ein Takt misst, wie viel Zeit vergangen ist, und gibt sie
+weiter. Gibt er sie gestreckt weiter, klemmt der Reducer sie an der nächsten
+Phasengrenze (`advanceJob` in `src/domain/labour/jobs.js` schneidet `progressMs`
+bei `durationMs` ab) — deshalb trägt jede nachgeholte Runde ihren eigenen
+Config-Takt als `dtMs` und nicht den ganzen Rückstand.
+
+### Ein Phasenwechsel ohne Übertrag sammelt pro Phase einen Takt Drift an
+
+Der Onboarding-Plan wechselt die Phase am Ende des Taktes, in dem ihr Timer
+fällig wurde; der Rest zwischen Fälligkeit und Taktgrenze ist die Zeit, die die
+nächste Phase schon gelaufen ist. Wird die neue Phase bei null gestartet, fehlen
+ihr diese Millisekunden — die Kette wird mit jeder Phase ein Stück länger, und
+zwar genau um die Auflösung des Taktgebers.
+
+> **Symptom:** Gemessen 6700 ms für 6600 ms geplante Wartezeit bis zum
+> Abbau-Beginn — ein Herzschlag zu viel pro Phasenwechsel.
+
+> **Ursache:** `armPhase()` setzte `phaseMs` auf `0` statt auf den Rest des
+> gefeuerten Timers. Ein Fehler, den man sieht, sobald man die geplante Summe
+> der Phasendauern gegen die verstrichene Zeit stellt — und nicht sieht, solange
+> jede Prüfung nur eine einzelne Phase misst.
+
+> **Gegenprobe:** `run.phaseMs = 0` in `armPhase()` zurückgesetzt: genau die
+> Zusicherung *Die Kette läuft auf der Wanduhr, ohne Drift* fällt, alle anderen
+> 19 bleiben grün. Danach wiederhergestellt: 20 von 20 grün, 6600 auf 6600 ms.
+
+**Was zu tun ist:** Wer eine Phase neu aufzieht, übernimmt den Rest der alten.
+Sonst misst jede Phase für sich genommen richtig und die Kette trotzdem falsch.
+
+### Eine angehaltene Uhr, die nie angehalten wurde
+
+`page.clock.install()` ersetzt `Date`, Timer und `performance` — die Uhr **läuft
+aber weiter**, bis man sie ausdrücklich anhält. `scripts/browser/page.mjs`
+versprach in seinem ersten Kommentarzeile seit dem Anlegen eine angehaltene
+Uhr; aufgerufen wurde nur `install()`.
+
+> **Symptom:** Die Onboarding-Kette war im echten Browser je nach Lauf
+> unterschiedlich schnell — der Dungling erschien nach 1500 oder nach 1850
+> "ms", obwohl die Kette exakt 5600 ms dauert. Gemessen mit einem eingebauten
+> Protokoll: zwischen zwei Lesevorgängen sprang die Uhr um 15,5 s weiter, und
+> ein 600-ms-Schritt fiel zwischen zwei Proben durch. `floor-grows` meldete
+> 4800 ms und war bei 4850 fertig — nicht weil die Simulation langsamer war,
+> sondern weil der Prüfer zu grob las.
+
+> **Ursache:** Zwei Zeitbasen im Abnahmelauf statt im Spiel, plus eine
+> Behauptung im Kommentar, die niemand nachgeprüft hatte. Eine gemessene Spieluhr
+> macht den Fehler sichtbar, eine fest verdrahtete Schrittlänge verdeckt ihn —
+> sie ist von der Wanduhr unabhängig und läuft deshalb auch daneben zu Ende.
+
+> **Gegenprobe:** `page.clock.pauseAt()` ergänzt und `npm run verify:browser`
+> gefahren: 21 von 21 grün, und die Zeiten stehen auf die Millisekunde genau auf
+> der Config (500 ms Laufweg, 4200 ms Abbau, 600 ms Bodenausbau). Zwei
+> Folgen kamen mit und waren beide gemessen: `use-stage-scale.js` meldete ohne
+> Bildaufbau eine Fläche von 0 — kein `ResizeObserver`, kein Feld, jeder Klick
+> lief ins Timeout — und die Fahrbefehle klickten Ziele an, die erst eine Phase
+> später entstehen oder noch gesperrt sind, bis ein Dungling frei ist. Beide
+> warten jetzt mit der Uhr.
+
+**Was zu tun ist:** Wer eine Uhr anhalten will, hält sie an — `pauseAt` ist eine
+eigene Zeile und keine Voreinstellung. Und wer misst, misst weiter: unter einer
+laufenden Uhr ist `performance.now()` nicht die Uhr des Ablaufs, sondern die des
+Rechners.
 
 ---
 

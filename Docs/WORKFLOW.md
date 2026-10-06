@@ -38,7 +38,7 @@ npm run gate -- --docs                     # Metadaten-Pflicht der Doku-Einträg
 npm run docs:sync --check                  # Pre-Flight des Doku-Syncs (liest nur)
 npm run docs:sync                          # Sync ausführen — im Bot-Workflow
 npm run commit:draft                       # Commit-Body-Vorprüfung für gestagete Dateien
-npm run verify                             # Abnahmesimulation des Slice in node
+npm run verify                             # Volllauf: Abnahme inkl. Browser — läuft in der CI
 npm run verify:commits                     # Regressionstests des Commit-Gates
 npm run verify:browser                      # Abnahme im echten Browser (einmal Chromium holen)
 npm run build                              # Production-Build
@@ -49,6 +49,45 @@ npm run purge                              # löscht .data/ samt Datenbank
 
 **Gate und verify lesen Pfade relativ zum CWD** — immer aus dem
 Repo-Wurzelverzeichnis starten.
+
+---
+
+## Die Testlaufzeit
+
+Gemessen am 2026-10-06. Die Einteilung ist keine Bequemlichkeit, sondern eine
+Grenze: lokal bleibt jeder Aufruf **unter zehn Sekunden**.
+
+| Lauf | Gemessen | Wo er läuft |
+| --- | --- | --- |
+| `node scripts/verify/check-action-types.mjs` | 1,3 s | lokal |
+| `npm run gate` mit allen Wächtern | 5,4 s | lokal |
+| `node scripts/verify/check-determinism.mjs` | 6,4 s | lokal |
+| `npm run build` | 10,2 s | lokal, einmal je Task |
+| `npm run verify` — Server, Chromium, Onboarding in Echtzeit | 2 m 13 s | **CI auf Push** |
+
+**Prüfgruppen sind einzeln aufrufbar.** Jede Gruppe ist eine Funktion in
+`scripts/verify/check-*.mjs`; so läuft sie lokal, und so läuft auch die
+**Gegenprobe**, die [`GOVERNANCE.md`](GOVERNANCE.md) verlangt — gesehen, dass
+eine Prüfung rot wird, nicht nur dass sie grün ist:
+
+```sh
+node --input-type=module -e "
+const m = await import('./scripts/verify/check-determinism.mjs')
+const e = await import('./scripts/verify/expect.mjs')
+m.checkDeterminism()
+process.exitCode = e.summary()
+"
+```
+
+**Kein Hintergrundprozess lokal.** Ein `fire-and-forget`-Lauf auf derselben
+Maschine verbraucht dieselbe CPU und denselben Chromium; gespart wird die
+Wartezeit, nicht die Last. Der asynchrone Lauf ist die CI — ihr Ergebnis ist der
+Workflow-Lauf, nicht ein Log im Dateisystem.
+
+**Der Preis, und er ist bewusst:** Zwischen dem Push und dem CI-Bericht kann
+`main` rot sein. Der Volllauf ist die Gegenprobe **nach** dem Push, nicht die
+Vorprüfung davor. Wer ihn vorher braucht, fährt ihn lokal — dann weiß er, wofür
+zwei Minuten draufgehen.
 
 ---
 
@@ -76,16 +115,18 @@ Regelverstöße — der eigentliche Test ist der PR-Check. Deshalb lokal immer m
 expliziter Range. `<base>` ist der Commit **vor** deinem ersten Commit auf
 diesem Branch, `<head>` der letzte eigene Commit.
 
-### 3. Abnahme und Build
+### 3. Schnelle Spur lokal, Volllauf in der CI
 
 ```sh
-npm run verify
+node --input-type=module -e "const m = await import('./scripts/verify/<check>.mjs'); const e = await import('./scripts/verify/expect.mjs'); Object.values(m).forEach((f) => f()); process.exitCode = e.summary()"
 npm run build
 ```
 
-Ein Fehlpfad fällt nur hier auf, nicht im Gate. `verify` prüft Verhalten im
-Node-Prozess, `build` prüft Importauflösung im echten Bundler — es gibt keine
-andere Instanz, die einen fehlenden Export bemerkt.
+Ein Fehlpfad fällt nur hier auf, nicht im Gate. Die betroffene Prüfgruppe prüft
+Verhalten im Node-Prozess, `build` prüft Importauflösung im echten Bundler — es
+gibt keine andere Instanz, die einen fehlenden Export bemerkt, deshalb bleibt
+`build` lokal. Der Volllauf `npm run verify` mit Server und Chromium läuft in
+der CI auf Push; die Zeiten und die Grenze stehen in *Die Testlaufzeit* oben.
 
 ### 4. Commit vorprüfen, dann committen
 

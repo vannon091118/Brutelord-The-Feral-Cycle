@@ -69,6 +69,7 @@ function buildExtractor(clock) {
   const site = place(clock, SITE_TILES.extractor);
   const builtInMs = tickUntil(clock, 30000, (state) => paid(state.buildings[0]));
   return {
+    id: site.id,
     required: site.required,
     stateBefore: site.state,
     state: clock.state.buildings[0].state,
@@ -131,6 +132,7 @@ function buildBruteLord(clock) {
   const site = place(clock, SITE_TILES.bruteLord);
   const builtInMs = tickUntil(clock, 60000, (state) => paid(state.buildings.at(-1)));
   return {
+    id: site.id,
     required: site.required,
     tileCount: site.tileIds.length,
     state: clock.state.buildings.at(-1).state,
@@ -149,8 +151,8 @@ function prepare(clock) {
   };
 }
 
-export function buildRun() {
-  const clock = new VirtualClock();
+export function buildRun({ seed, onDispatch } = {}) {
+  const clock = new VirtualClock({ seed, onDispatch });
   const start = prepare(clock);
   const extractor = { ...buildExtractor(clock), essenceStart: start.essenceStart };
   const cycle = runExtractorCycle(clock);
@@ -161,5 +163,5 @@ export function buildRun() {
   const earthRefused = tryPlace(clock, SITE_TILES.earth);
   const bruteLord = buildBruteLord(clock);
   swarm.dunglingsAtEnd = clock.state.dunglings.length;
-  return { ...start, extractor, cycle, swarm, bruteLord, occupiedRefused, earthRefused, essence: clock.state.essence };
+  return { ...start, clock, extractor, cycle, swarm, bruteLord, occupiedRefused, earthRefused, essence: clock.state.essence };
 }

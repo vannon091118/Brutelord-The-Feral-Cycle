@@ -1,0 +1,29 @@
+# game-clock
+
+## game-clock
+
+Spiegel-Datei für `src/state/game-clock.js`.
+
+## Verantwortung
+
+Die Sim-Uhr selbst, ohne React: ein Takt misst die vergangene Zeit, und was in dieser Zeit
+fällig wurde, kommt als Aktionsliste heraus. Sie besitzt keinen Spielzustand — sie liest ihn,
+um zu prüfen, welche Uhr schweigt, und schreibt ihn nie.
+
+Die Simulation bringt einen Schritt nicht als feste Länge mit: `monotonicNow()` misst ihn,
+`createGameClock()` nimmt die Messung als Parameter, damit die Prüfung sie vorgeben kann.
+Drei Quellen der Fälligkeit: die Timer der aktuellen Onboarding-Phase (aus `scheduleFor`), die
+Dauertakte aus `TICKS` und der Abbau-Intervall. Jeder trägt einen Rest über den Takt hinaus
+mit; ein langer Schritt holt die ausgefallenen Takte nach, statt sie zu verlieren.
+
+`armPhase` erkennt den Phasenwechsel selbst, statt auf einen React-Effekt zu warten — der
+Plan wechselt dort, wo der Zustand wechselt, und übernimmt dabei den Rest des gefeuerten
+Timers in die neue Phase. Ohne diesen Übertrag startet jede Phase bei null und die Kette
+sammelt pro Wechsel einen Takt Drift an.
+
+## Schnittstellen
+
+- `monotonicNow()`
+- `createGameClock()`
+
+Aus der Vereinheitlichung der Spielzeit vom 2026-10-06 hervorgegangen.

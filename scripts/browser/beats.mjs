@@ -3,7 +3,15 @@ import { ONBOARDING_CONFIG } from '../../src/domain/onboarding/onboarding-config
 import { ONBOARDING_ORDER, ONBOARDING_STATE } from '../../src/domain/onboarding/onboarding-state.js';
 import { JOB_CONFIG } from '../../src/domain/labour/job-config.js';
 import { BUILDING_TYPE, BUILDING_DEFS } from '../../src/domain/buildings/building-config.js';
-import { SEL } from './config.mjs';
+import {
+  assignWorker,
+  clickEarth,
+  clickHive,
+  clickMine,
+  pickExtractor,
+  placeSpot,
+  selectBuilding,
+} from './drive.mjs';
 import { HINTS } from '../../src/ui/hint-texts.js';
 import { countFloorTiles, createWorld } from '../../src/domain/world/grid.js';
 
@@ -12,20 +20,10 @@ const START_RAUM = countFloorTiles(createWorld());
 const S = ONBOARDING_STATE;
 const EXTRACTOR = BUILDING_TYPE.ESSENCE_EXTRACTOR;
 const LABEL = BUILDING_DEFS[EXTRACTOR].label;
-const EARTH = `[role="button"][aria-label="Erdblock bei ${C.firstEarthBlock.x}, ${C.firstEarthBlock.y} abbauen"]`;
 
-const clickHive = async ({ page }) => page.locator(SEL.hive).click();
-const clickEarth = async ({ page }) => page.locator(EARTH).click();
-const clickMine = async ({ page }) => page.locator(SEL.mine).click();
-const pickExtractor = async ({ page }) => page.locator(SEL.buildMenu).getByRole('button', { name: LABEL }).click();
-
-const placeSpot = async ({ page }) => page.locator(SEL.spot).first().click();
-
-const selectBuilding = async ({ page }) => page.locator(`[aria-label="${LABEL} anklicken"]`).click();
-
-const assignWorker = async ({ page }) => page.locator(SEL.buildingPanel).getByRole('button', { name: SEL.assign }).click();
-
-const miningBudget = C.workerMoveDurationMs + C.miningDurationMs + 800;
+// Der Schritt misst ab dem Beginn des Abbaus: Abbau, Zerstörung des Blocks und der
+// Puffer fuer die Taktaufloesung des Herzschlags und einen Lese-Schritt.
+const miningBudget = C.miningDurationMs + C.tileDestructionMs + 4 * C.miningTickMs;
 
 /** Jeder Onboarding-Zustand als sein Hinweistext — die Soll-Reihenfolge. */
 export const CHAIN_TEXTS = ONBOARDING_ORDER.map((state) => HINTS[state].text);

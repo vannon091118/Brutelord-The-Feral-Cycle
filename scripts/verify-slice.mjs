@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /** Führt die Slice-Akzeptanzprüfungen in fachlichen Gruppen aus. */
 import {
-  checkArchitecture, checkBurrowRing, checkColony, checkDunglingLook, checkEdgeMaskGroup, checkFixtures,
-  checkHitJuice, checkMining,
-  checkOnboarding, checkRaidCap, checkRaidGroup, checkReveal, checkSoilMass, checkRooting, checkStart, checkStartup,
-  checkStorage, checkVerticality, checkVerticalityWiring, makeOnboardingRun, summary,
+  checkActionTypes, checkArchitecture, checkBurrowRing, checkColony, checkDeterminism, checkDunglingLook,
+  checkEdgeMaskGroup, checkFixtures, checkGameClock, checkHitJuice, checkMining, checkOnboarding, checkRaidCap,
+  checkRaidGroup, checkReveal, checkSoilMass, checkRooting, checkStart, checkStartup, checkStorage,
+  checkVerticality, checkVerticalityWiring, makeOnboardingRun, summary,
 } from './verify/index.mjs';
 
 /** Die HTTP- und die Browser-Prüfungen am Ende brauchen einen laufenden Server
@@ -29,6 +29,9 @@ async function main() {
   checkVerticality();
   checkVerticalityWiring();
   checkFixtures();
+  checkActionTypes();
+  checkDeterminism();
+  checkGameClock();
   await checkStartup();
   await checkArchitecture();
   process.exitCode = summary();

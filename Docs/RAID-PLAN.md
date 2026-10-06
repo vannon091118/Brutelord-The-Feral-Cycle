@@ -475,7 +475,8 @@ Nicht die Mechanik. Diese Reihenfolge:
    kein Vorteil.
 7. **Erst dann die Mechanik.** Kantenwände, Rundenmodus und Wächter-Koma kommen
    zuletzt, weil Kantenwände ein zweites Objektmodell im selben Grid sind und
-   das Rundenmodus ein zweites Zeitmodell neben vier Uhren mit je bis zu 20 Hz.
+   das Rundenmodus ein zweites Zeitmodell neben dem einen Herzschlag der
+   Sim-Uhr, der alles mit 10 Hz treibt.
 
 **Was bereits steht:** `src/domain/raid/` trägt `raid-config.js` mit der
 Ausdauerrechnung, den Grabkosten und der Grabregel, `raid-spawn-seed.js` mit dem

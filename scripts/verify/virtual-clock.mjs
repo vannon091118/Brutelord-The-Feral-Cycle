@@ -11,8 +11,8 @@ import { ESSENCE_ECONOMY } from '../../src/domain/economy/essence-economy.js';
 import { JOB_CONFIG } from '../../src/domain/labour/job-config.js';
 
 export class VirtualClock {
-  constructor({ onTransition, onDispatch } = {}) {
-    this.state = createInitialGameState();
+  constructor({ onTransition, onDispatch, seed } = {}) {
+    this.state = createInitialGameState(seed);
     this.now = 0;
     this.queue = [];
     this.interval = null;
@@ -35,14 +35,15 @@ export class VirtualClock {
 
   dispatch(type, payload) {
     const before = this.state.onboarding.state;
-    this.state = gameReducer(this.state, { type, ...payload });
+    const action = { type, ...payload };
+    this.state = gameReducer(this.state, action);
     if (this.state.onboarding.state !== before) {
       this.queue = [];
       this.interval = null;
       this.schedule();
       this.onTransition(this.state.onboarding.state, this.now, before);
     }
-    this.onDispatch(this.state, this.now);
+    this.onDispatch(this.state, this.now, action);
   }
 
   planHorizon() {

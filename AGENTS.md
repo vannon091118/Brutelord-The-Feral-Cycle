@@ -39,8 +39,9 @@ npm run gate                               # alle drei Wächter
 npm run gate -- --tree                     # nur Hard Caps
 npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
-npm run verify                             # Abnahme inkl. Start im echten Browser
+npm run verify                             # VOLLLAUF inkl. Browser — gehört in die CI, nicht lokal
 npm run verify:commits                     # Regressionstests des Commit-Gates
+npm run golden:determinism                 # Golden-Wert der Deterministizität neu schreiben
 npm run build                              # Production-Build
 npm run version:bump -- patch              # auch minor | major
 npm run version:check                      # Lock vs. Spiegel
@@ -51,9 +52,22 @@ Qualitätswächter. `verify` ist die eigentliche Abnahmesimulation: sie spielt
 den Slice deterministisch mit einer virtuellen Uhr durch, importiert die
 echten Module aus `src/` — **und prüft zum Schluss, dass das Spiel wirklich
 startet**, also Server hoch, Seite da, Onboarding in Echtzeit im Browser. Das
-ist kein Extra: Wer nach einer Änderung `npm run verify` gelaufen hat, hat auch
-den Start geprüft. Fehlt dem Container der Browser, ist `npm run verify`
-unvollständig, nicht grün — die Reparatur steht in `PITFALLS.md`.
+ist kein Extra. Der Lauf dauert gemessen 2 m 13 s und gehört deshalb in die
+**CI**, nicht auf den Laptop; lokal fährt man die betroffene Prüfgruppe
+**einzeln**. Fehlt dem Container der Browser, ist `npm run verify` unvollständig,
+nicht grün — die Reparatur steht in `PITFALLS.md`.
+
+`verify` vergleicht den ganzen Slice außerdem Zug für Zug gegen einen
+festgeschriebenen Zustands-Hash (`scripts/verify/determinism-golden.json`, vier
+Sample-Seeds, 2008 Züge je Seed). Ein **absichtlicher** Verhaltenswechsel macht
+diese Prüfung rot: Wer ihn will, schreibt den Golden-Wert mit
+`npm run golden:determinism` neu und erklärt die Änderung im Commit-Body — von
+Hand fasst ihn niemand an. Geschrieben wird **nur auf der Node-Major, die die
+CI pinnt** (gelesen aus `.github/workflows/ci.yml`); auf jeder anderen bricht
+der Befehl ab, bevor eine Datei entsteht, denn zwei Goldens wären zwei
+Wahrheiten über denselben Slice — und getestet würde der Happy Path des
+jüngeren. Der Wert nennt seine Node-Major im Kopf, und der Prüfer meldet eine
+fremde Laufzeit, statt zu vergleichen.
 
 **Gate und verify lesen Pfade relativ zum CWD** — immer aus dem
 Repo-Wurzelverzeichnis starten. Das Gate prüft Commits **ohne** `--commits`
@@ -70,9 +84,15 @@ Nach **jedem** abgeschlossenen Task, in dieser Reihenfolge:
    des Doku-Syncs, nicht der Hand. Vor dem Commit `npm run docs:sync --check`
    — er lässt einen invaliden Metadaten-Block nicht durch.
 2. **`npm run gate -- --commits=<base>..<head>`** — explizit, mit echter Range.
-3. **`npm run verify`**, dann **`npm run build`**. Ein Fehlpfad fällt nur hier
-   auf, nicht im Gate.
-4. **Commit**, dann **Push auf `main`**. Kein PR, kein Branch-Zirkus.
+3. **Schnelle Spur lokal, Volllauf in der CI.** Lokal die betroffene
+   Prüfgruppe als Einzelaufruf und **`npm run build`** — `build` ist die einzige
+   Instanz, die einen toten Import bemerkt. `npm run verify` läuft **nicht**
+   mehr lokal, sondern in der CI auf Push: 2 m 13 s gegen zehn Sekunden. Die
+   Einteilung mit den gemessenen Zeiten steht in
+   [`Docs/WORKFLOW.md`](Docs/WORKFLOW.md), *Die Testlaufzeit*.
+4. **Commit**, dann **Push auf `main`**. Kein PR, kein Branch-Zirkus. Zwischen
+   Push und CI-Bericht kann `main` rot sein — der Volllauf ist die Gegenprobe
+   **nach** dem Push, nicht die Vorprüfung davor.
 
 Bleibt die Version stehen, muss auch die `revision` stehen bleiben. Regel- und
 Doku-Commits brauchen deshalb keinen Bump, ihr Eintrag wandert trotzdem als

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { TILE_SIZE, computeWorldScale, viewportPixelSize } from '../domain/world/world-config.js';
 
 // @doc: docs/daten/ui/use-stage-scale.md#use-stage-scale
@@ -10,12 +10,15 @@ export function useStageScale(tileSize = TILE_SIZE) {
     setNode(element);
   }, []);
 
-  useEffect(() => {
-    if (!node || typeof ResizeObserver === 'undefined') return undefined;
-    const observer = new ResizeObserver((entries) => {
-      const rect = entries[0].contentRect;
+  useLayoutEffect(() => {
+    if (!node) return undefined;
+    const measure = () => {
+      const rect = node.getBoundingClientRect();
       setAvailable({ width: rect.width, height: rect.height });
-    });
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(measure);
     observer.observe(node);
     return () => observer.disconnect();
   }, [node]);

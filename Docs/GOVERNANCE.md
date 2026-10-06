@@ -334,9 +334,11 @@ Regel ist kein Redundanz-Bonus, sie ist eine zweite Wahrheit.
 
 Eine Prüfung, die grün ist, beweist nichts, solange niemand gesehen hat, dass sie
 rot wird. Zu jeder Behauptung gehört der Sabotage-Versuch: Regel oder Verdrahtung
-entfernen, `npm run verify` laufen lassen, notieren, welche Prüfungen fallen.
-Fallen keine, prüft die Prüfung nichts. Der Gegenbeweis ist der eigentliche
-Ergebnisbericht — „grün" allein ist eine Behauptung.
+entfernen, die **betroffene Prüfgruppe einzeln** laufen lassen
+(`node --input-type=module -e "…"` mit `scripts/verify/check-*.mjs`, siehe
+*Die Testlaufzeit* in [`WORKFLOW.md`](WORKFLOW.md)), notieren, welche Prüfungen
+fallen. Fallen keine, prüft die Prüfung nichts. Der Gegenbeweis ist der
+eigentliche Ergebnisbericht — „grün" allein ist eine Behauptung.
 
 Aus demselben Grund ist ein Fehlpfad des **Builds** ernst zu nehmen: Rollup
 findet einen fehlenden Export beim Auflösen und stirbt. Unter
