@@ -17,7 +17,7 @@ const FORBIDDEN = [
   { id: 'generated-with', pattern: /generated\s+with/i },
   { id: 'generated-by', pattern: /generated\s+by/i },
   { id: 'co-authored', pattern: /co-authored/i },
-  { id: 'bot-signature', pattern: /\b(codebuff|copilot|claude|cursor)\s*(🤖|bot)?\s*$/im },
+  { id: 'bot-signature', pattern: /\b(codebuff|copilot|claude|cursor|freebuff|jules)\s*(🤖|bot)?\s*$/im },
   { id: 'footer-separator', pattern: /^\s*(-{3,}|_{3,}|={3,})\s*$/m },
   { id: 'generic-trailer', pattern: /^[A-Za-z][A-Za-z0-9-]*:\s+\S.*$/m },
 ];

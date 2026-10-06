@@ -177,7 +177,7 @@ umbenennen kann, ohne dass eine zweite Wahrheit zurückbleibt.
   `Generated with …`, Footer-Trenner (`---`) und generische `Key: value`-Trailer.
   Kein anderer Footer ersetzt das VANNON-Label. Dateien also in Prosa nennen,
   selbst wenn das den Body länger macht.
-- Zeilen, die auf `codebuff`, `copilot`, `claude` oder `cursor` enden, gelten
+- Zeilen, die auf `codebuff`, `copilot`, `claude`, `cursor`, `freebuff` oder `jules` enden, gelten
   als Bot-Signatur.
 
 Der Body ist das Memory. In drei Monaten erinnerst du dich nicht, warum du
