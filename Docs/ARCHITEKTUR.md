@@ -623,6 +623,53 @@ Passwörter und Seeds dürfen nicht ins Repo. `npm run verify` fasst die
 Entwicklungsdatenbank nicht an: `check-account.mjs` legt sein eigenes
 Temporärverzeichnis an und räumt es ab.
 
+### Derselbe Server an drei Orten
+
+Der Dev-Server ist nicht mehr der einzige Ort, an dem die Konto-Endpunkte
+existieren. `accountApi()` registriert `configureServer` **und**
+`configurePreviewServer`, und beide Haken hängen dieselbe Funktion ein. Das ist
+kein Detail: `vite preview` liefert genau das `dist/`, das ausgeliefert wird,
+und ohne den zweiten Haken kennt dieser Stand kein `/api/login`. Gemessen, vor
+der Änderung: `POST /api/login` gegen den Vorschau-Server ergab **404 ohne
+Content-Type** — kein `index.html`, weil ein POST keinen SPA-Fallback bekommt —,
+und der Client sah den fehlenden JSON-Typ und meldete „Der Konto-Server
+antwortet nicht". Nach der Änderung: 201 auf `/api/register`, 200 auf `/api/login`, beides
+`application/json` mit den vier Schranken, und die Konto-Kette im Browser lief
+gegen diesen gebauten Stand durch.
+
+**Die Regel steht einmal, die Rohre sind zwei.** Routen, Antwortköpfe, Absagen
+(405, 403, 413 und 500 samt Wortlaut) und das Lesen des Rumpfs liegen in
+`scripts/server/account-http.mjs`; `scripts/server/plugin.mjs` (node:http, für
+Dev- und Vorschau-Server) und `workers/index.mjs` (Fetch, für die Auslieferung)
+lesen dieselbe Datei. Der Transport bleibt getrennt, weil er wirklich ein
+anderer ist: der Node-Weg zählt Bytes im `data`-Ereignis und bricht die
+Verbindung erst nach der Antwort ab, der Worker liest einen `ArrayBuffer`. Was
+gleich sein muss — was eine Absage heißt und wann sie kommt —, ist es damit
+strukturell und nicht durch Disziplin.
+
+**Der Weg in die Auslieferung.** `workers/index.mjs` beantwortet die zwei
+Konto-Wege und gibt alles andere an `env.ASSETS` weiter; `wrangler.jsonc` bindet
+`dist/` als Assets (mit SPA-Fallback) und D1 als `DB`. Das Schema liegt als
+Migration in `workers/d1/0001-accounts.sql` und trägt die Spalte `state` von
+Anfang an: D1 kennt kein `ALTER TABLE ... IF NOT EXISTS`, und Wrangler führt die
+Datei über `d1_migrations` ohnehin genau einmal aus — deshalb steht dort kein
+`IF NOT EXISTS`. Angelegt wird die Datenbank mit
+`wrangler d1 create brutalord-accounts`, das Schema mit
+`wrangler d1 migrations apply brutalord-accounts --remote`. Beide Befehle laufen
+nicht in diesem Baum, weil `wrangler` keine Abhängigkeit des Repos ist; geprüft
+ist der Transport des Workers gegen den echten lokalen Speicher
+(`check-account-worker.mjs`), nicht die Cloudflare-Datenbank.
+
+**Der Fund auf diesem Weg.** Der D1-Speicher kannte nur `UPDATE`, während
+`register()` ein Konto über `updateAccount()` anlegt. Ein `UPDATE` auf eine
+Zeile, die es noch nicht gibt, ändert null Zeilen — `getAccount()` lieferte
+danach `null` und die Antwort fiel beim Auslesen in einen TypeError: **jedes
+neue Konto wäre in der Auslieferung auf einen 500 gelaufen**, und keine Prüfung
+hätte es gesehen, weil D1 in der Abnahme nicht läuft. Beide Speicher ziehen die
+fehlende Zeile jetzt mit denselben Helfern nach (`knownFields`, `insertIfNew`,
+`applyPatch`) — der D1-Speicher ist damit wirklich nur noch eine andere
+Datenbank hinter demselben Ablauf.
+
 ### Die Konto-API nimmt Angriffe an
 
 `scripts/server/account-api.mjs` ist die einzige Tür zum Konto, und sie hat vier

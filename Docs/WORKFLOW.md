@@ -130,20 +130,25 @@ der CI auf Push; die Zeiten und die Grenze stehen in *Die Testlaufzeit* oben.
 
 ### 4. Commit vorprüfen, dann committen
 
-**Empfohlener Weg: der Draft-Generator.** `npm run commit:draft -- "Betreff"
-"Absatz eins" "Absatz zwei"` generiert aus den **gestageten** Dateien einen
-regelkonformen Body — Prosa je Datei, das VANNON-Label allein in der letzten
-Zeile — und entfernt fremde Footer (`Co-Authored-By`, `Generated with …`,
+**Empfohlener Weg: der Draft-Generator.** `node scripts/commit-draft.mjs
+"Betreff" "Absatz eins" "Absatz zwei"` generiert aus den **gestageten** Dateien
+einen regelkonformen Body — Prosa je Datei, das VANNON-Label allein in der
+letzten Zeile — und entfernt fremde Footer (`Co-Authored-By`, `Generated with …`,
 Bot-Signaturen, `Key: value`-Trailer), bevor sie jemals in einen Commit
 gelangen. Die Ausgabe nach `/tmp/commit-msg.txt` schreiben, mit
 `git diff --cached --name-only` gegen die Vorprüfung spiegeln, dann aus
 derselben Datei committen:
 
 ```sh
-npm run commit:draft -- "Betreff" "Erster Absatz." "Noch einer." > /tmp/commit-msg.txt
+node scripts/commit-draft.mjs "Betreff" "Erster Absatz." "Noch einer." > /tmp/commit-msg.txt
 git diff --cached --name-only
 git commit -F /tmp/commit-msg.txt
 ```
+
+**Nicht über `npm run` umleiten.** Das npm-Banner geht auf stdout und steht
+danach in der Datei; `git commit -F` nimmt es als Betreff, und das Gate sieht
+darin keinen Verstoß. Gemessen und aufgeschrieben in
+[`PITFALLS.md`](PITFALLS.md), *Das Gate*.
 
 Die Vorprüfung ohne Generator — billiger als ein Commit, der am Gate
 scheitert. `commitViolations({ sha, message, paths })` aus

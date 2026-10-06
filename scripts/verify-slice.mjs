@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Führt die Slice-Akzeptanzprüfungen in fachlichen Gruppen aus. */
 import {
-  checkActionTypes, checkArchitecture, checkBurrowRing, checkColony, checkDeterminism, checkDunglingLook,
+  checkAccountWorker, checkActionTypes, checkArchitecture, checkBurrowRing, checkColony, checkDeterminism, checkDunglingLook,
   checkEdgeMaskGroup, checkFixtures, checkGameClock, checkHitJuice, checkMining, checkOnboarding, checkRaidCap,
   checkRaidGroup, checkReveal, checkSoilMass, checkRooting, checkStart, checkStartup, checkStorage,
   checkVerticality, checkVerticalityWiring, checkOrganicCache, makeOnboardingRun, summary,
@@ -35,6 +35,7 @@ async function main() {
   checkGameClock();
   await checkStartup();
   await checkArchitecture();
+  await checkAccountWorker();
   process.exitCode = summary();
 }
 

@@ -49,6 +49,27 @@ das Commit-Gate meldete „leerer Betreff".
 Betreff bleibt unangetastet, alles darunter unterliegt den Footer-Regeln. Der
 Draft-Generator schreibt ihn ohnehin aus dem Argument, nicht aus der Quelle.
 
+### `npm run … > datei` schreibt den npm-Banner in den Commit
+
+Gemessen: `npm run commit:draft -- "Betreff" "Absatz" > /tmp/commit-msg.txt`
+schreibt das npm-Banner auf **stdout** (stderr bleibt leer) — die Datei beginnt
+danach mit einer Leerzeile und zwei Zeilen `> brutalord-the-feral-cycle@0.0.40
+commit:draft`. `git commit -F` räumt führende Leerzeilen weg (`git stripspace`)
+und nimmt die **nächste** Zeile als Betreff. Das Gate sieht darin keinen
+Verstoß: die Bannerzeile ist 46 Zeichen kurz und beginnt mit `>`, fällt also
+weder unter die Betrefflänge noch unter die Trailer-Regel `^[A-Za-z]…`.
+
+> **Symptom:** Der Commit ist regelkonform, signiert — und sein Betreff ist die
+> Zeile von npm. Kein Gate schlägt an, kein Prüfer liest den Betreff nach.
+
+> **Gegenprobe:** `head -1 /tmp/commit-msg.txt` muss der eigene Betreff sein.
+> Sauber wird die Datei auf zwei gemessenen Wegen: direkt über
+> `node scripts/commit-draft.mjs … > /tmp/commit-msg.txt`, oder über
+> `npm run --silent …`.
+
+**Was zu tun ist:** `AGENTS.md` und `WORKFLOW.md` nennen deshalb den direkten
+Aufruf des Skripts, nicht den Umweg über `npm run`.
+
 ### Der Vorrat an `Math.random()` und `Date.now()` gilt für ganz `src/`
 
 Die Architekturprüfung verbietet `Math.random(` und `Date.now(` in **ganz**
@@ -493,6 +514,30 @@ Schwelle, prüft die Bremse nicht.**
 > **Gegenprobe:** `attempts - 1` Fehlversuche müssen **frei** bleiben, erst der
 > letzte sperrt. Steht diese Zahl in der Prüfung oder ist sie im Skript fest
 > verdrahtet, ist sie beim Umstellen von `attempts` schon wieder eine Abschreibung.
+
+### Ein zweiter Speicher, der nur `UPDATE` kennt, verliert die Registrierung
+
+`register()` legt ein neues Konto **über `updateAccount()`** an, nicht über ein
+eigenes `INSERT`. Der lokale Speicher zog die fehlende Zeile deshalb nach
+(`insertIfNew`), der D1-Adapter nicht: er kannte nur `UPDATE`, und ein `UPDATE`
+auf eine Zeile, die es noch nicht gibt, ändert null Zeilen. `getAccount()`
+danach lieferte `null`, und `register()` lief beim Auslesen der Antwort in einen
+TypeError — **500 statt 201, auf jedem neuen Konto**, und zwar erst in der
+Auslieferung.
+
+> **Symptom:** Anmelden mit einem bestehenden Konto ginge, Registrieren nicht.
+> Der Dev-Server bleibt grün, weil er den lokalen Speicher benutzt — und der
+> zweite Speicher hat vor dem Bau des Worker-Entrypoints niemand aufgerufen.
+
+> **Gegenprobe:** `check-account-worker.mjs` fährt den Worker-Transport gegen
+den echten lokalen Speicher; die erste Prüfung dort ist „Registrieren liefert
+> 201 und JSON". Beide Speicher nennen ihre Helfer jetzt gleich (`knownFields`,
+> `insertIfNew`, `applyPatch`) — wer die zwei Dateien nebeneinanderlegt, sieht
+> die Abweichung, ohne sie zu suchen.
+
+**Regel:** Zwei Speicher hinter einem Vertrag sind nicht zwei Abläufe. Was der
+eine nachziehen muss, muss der andere auch — sonst prüft die Abnahme den einen,
+und der Spieler benutzt den anderen.
 
 ---
 

@@ -1,0 +1,23 @@
+{
+  // Die Auslieferung: `workers/index.mjs` beantwortet /api/*, alles andere
+  // kommt aus `dist/`. Angelegt wird die Datenbank mit
+  // `wrangler d1 create brutalord-accounts` — die Kennung, die der Befehl
+  // ausgibt, gehoert unten in `database_id`. Das Schema liegt in `d1/` und
+  // wird mit `wrangler d1 migrations apply brutalord-accounts --remote` gesetzt.
+  "name": "brutalord-the-feral-cycle",
+  "main": "workers/index.mjs",
+  "compatibility_date": "2025-09-23",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "brutalord-accounts",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "workers/d1"
+    }
+  ]
+}

@@ -1,16 +1,38 @@
 /** D1 am Rand. Gegenueber `account-store-local.mjs` ist nur die Datenbank
- *  anders — dieselben vier Methoden, dieselbe Schreibweise. Wer die zwei
- *  vergleicht, sieht genau die Stellen, an denen eine Datenbank ihre eigene
- *  Sprache spricht: vorbereitete Saetze, `.bind()`, und ein Handle, das
- *  wirklich existieren muss.
+ *  anders — dieselben vier Methoden, dieselben Helfernamen, dieselbe
+ *  Schreibweise. Wer die zwei vergleicht, sieht genau die Stellen, an denen
+ *  eine Datenbank ihre eigene Sprache spricht: vorbereitete Saetze, `.bind()`,
+ *  und ein Handle, das wirklich existieren muss.
  *
- *  Achtung fuer spaeter: D1 hat kein `ALTER TABLE ... IF NOT EXISTS`. Das
- *  Schema gehoert als Migration in `d1/` neben diese Datei, nicht in einen
- *  Aufruf beim Start — ein Schema, das bei jedem Kaltstart mitlaeuft, ist ein
- *  Schema, das im Streitfall genau einmal laeuft. */
+ *  Achtung: D1 hat kein `ALTER TABLE ... IF NOT EXISTS`. Das Schema liegt
+ *  deshalb als Migration in `d1/0001-accounts.sql` — ein Schema, das bei jedem
+ *  Kaltstart mitlaeuft, ist ein Schema, das im Streitfall genau einmal laeuft. */
 import { ACCOUNT_COLUMNS } from '../scripts/server/storage-contract.mjs';
 
 const SELECT = `SELECT ${ACCOUNT_COLUMNS.join(', ')} FROM accounts WHERE name = ?`;
+const INSERT = `INSERT INTO accounts (name, player_id, playerseed, verifier, salt) VALUES (?, ?, ?, ?, ?)`;
+
+/** Nur Spalten der Tabelle sind erlaubt: ein Schluessel wandert sonst in den
+ *  SQL-Text, und ein Patch ist Angreiferinhalt. */
+function knownFields(patch) {
+  return ACCOUNT_COLUMNS.filter((feld) => patch[feld] !== undefined);
+}
+
+/** Ohne diesen Schritt bliebe das erste Konto leer: `register()` schreibt ein
+ *  neues Konto ueber `updateAccount()`, und ein `UPDATE` auf eine Zeile, die es
+ *  noch nicht gibt, aendert null Zeilen. */
+async function insertIfNew(db, patch) {
+  if (!knownFields(patch).includes('name') || patch.verifier === undefined) return;
+  await db.prepare(INSERT).bind(patch.name, patch.player_id, patch.playerseed, patch.verifier, patch.salt).run();
+}
+
+async function applyPatch(db, accountId, patch) {
+  const aenderbar = knownFields(patch).filter((feld) => feld !== 'name');
+  if (!aenderbar.length) return;
+  await db.prepare(`UPDATE accounts SET ${aenderbar.map((f) => `${f} = ?`).join(', ')} WHERE name = ?`)
+    .bind(...aenderbar.map((feld) => patch[feld]), accountId)
+    .run();
+}
 
 export function createD1Store(env) {
   const db = env?.DB;
@@ -21,13 +43,8 @@ export function createD1Store(env) {
     },
 
     async updateAccount(accountId, patch = {}) {
-      const felder = Object.keys(patch).filter((key) => ACCOUNT_COLUMNS.includes(key));
-      if (felder.length) {
-        const werte = felder.map((feld) => patch[feld]);
-        await db.prepare(`UPDATE accounts SET ${felder.map((f) => `${f} = ?`).join(', ')} WHERE name = ?`)
-          .bind(...werte, accountId)
-          .run();
-      }
+      if (!(await this.getAccount(accountId))) await insertIfNew(db, patch);
+      await applyPatch(db, accountId, patch);
       return this.getAccount(accountId);
     },
 

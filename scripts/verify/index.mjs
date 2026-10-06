@@ -8,6 +8,7 @@ export { checkRooting } from './check-rooting.mjs';
 export { checkColony } from './check-colony.mjs';
 export { checkRaidGroup } from './check-raid-group.mjs';
 export { checkStorage } from './check-storage.mjs';
+export { checkAccountWorker } from './check-account-worker.mjs';
 export { checkRaidCap } from './check-raid-cap.mjs';
 export { checkSoilMass } from './check-soil-mass.mjs';
 export { checkBurrowRing } from './check-burrow-ring.mjs';

@@ -1,20 +1,9 @@
-/** Das Konto-Backend haengt sich in den Vite-Dev-Server: ein zweiter Befehl,
- *  kein zweiter Prozess. Begründung der Schranken in ARCHITEKTUR.md. */
-import { login, register } from './account-api.mjs';
+/** Das Konto-Backend haengt sich in den Vite-Server: ein zweiter Befehl, kein
+ *  zweiter Prozess — im Dev-Server und, weil `dist/` sonst am Konto-Tor
+ *  scheitert, auch im Vorschau-Server. Begruendung in Docs/ARCHITEKTUR.md. */
 import { ACCOUNT_CONFIG } from './account-config.mjs';
+import { API_ROUTES, POLICY, SECURITY_HEADERS, parseBody, sameOrigin } from './account-http.mjs';
 import { createLocalStore } from './account-store-local.mjs';
-
-const ROUTES = {
-  '/api/register': register,
-  '/api/login': login,
-};
-
-const SECURITY_HEADERS = Object.freeze({
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'Referrer-Policy': 'no-referrer',
-  'Cache-Control': 'no-store',
-});
 
 /** `null` heisst: zu gross nach Bytes oder abgebrochen — der Aufrufer antwortet 413. */
 function readBody(request) {
@@ -47,39 +36,22 @@ function send(response, status, payload) {
   response.end(JSON.stringify(payload));
 }
 
-function sameOrigin(request) {
-  const origin = request.headers.origin;
-  if (!origin) return true;
-  try {
-    return new URL(origin).host === request.headers.host;
-  } catch {
-    return false;
-  }
-}
-
-function parseBody(raw) {
-  try {
-    return JSON.parse(raw || '{}') ?? {};
-  } catch {
-    return {};
-  }
+function refuse(response, absage) {
+  send(response, absage.status, { error: absage.error });
+  return true;
 }
 
 async function handle(request, response) {
-  const route = ROUTES[new URL(request.url, 'http://127.0.0.1').pathname];
+  const route = API_ROUTES[new URL(request.url, 'http://127.0.0.1').pathname];
   if (!route) return false;
-  if (request.method !== 'POST') {
-    send(response, 405, { error: 'Nur POST.' });
-    return true;
-  }
-  if (!sameOrigin(request)) {
-    send(response, 403, { error: 'Fremde Herkunft.' });
-    return true;
+  if (request.method !== 'POST') return refuse(response, POLICY.method);
+  if (!sameOrigin({ origin: request.headers.origin, host: request.headers.host })) {
+    return refuse(response, POLICY.origin);
   }
   const raw = await readBody(request);
   if (raw === null) {
     response.setHeader('Connection', 'close');
-    send(response, 413, { error: 'Anfrage zu gross.' });
+    refuse(response, POLICY.tooLarge);
     response.on('finish', () => request.destroy());
     return true;
   }
@@ -91,20 +63,22 @@ async function handle(request, response) {
   return true;
 }
 
+function install(server) {
+  // Pro Anfrage geoeffnet: sonst haelt der Server eine Datei offen, die npm run purge gerade geloescht hat.
+  server.middlewares.use(async (request, response, next) => {
+    try {
+      if (!(await handle(request, response))) next();
+    } catch (error) {
+      console.error('[konto-api]', error);
+      refuse(response, POLICY.server);
+    }
+  });
+}
+
 export function accountApi() {
   return {
     name: 'brutalord-the-feral-cycle-accounts',
-    configureServer(server) {
-      // Pro Anfrage geoeffnet, nicht einmal beim Start: sonst haelt ein laufender
-      // Server eine Datei offen, die npm run purge gerade geloescht hat.
-      server.middlewares.use(async (request, response, next) => {
-        try {
-          if (!(await handle(request, response))) next();
-        } catch (error) {
-          console.error('[konto-api]', error);
-          send(response, 500, { error: 'Der Server hat einen Fehler.' });
-        }
-      });
-    },
+    configureServer: install,
+    configurePreviewServer: install,
   };
 }

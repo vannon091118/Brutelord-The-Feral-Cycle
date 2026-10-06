@@ -76,19 +76,27 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
   Version: ausstehend
   Datum: ausstehend
 
-- [ ] **Der Konto-Server fehlt im Production-Build.** Das Backend hängt als
-      Vite-Plugin im Dev-Server, also gibt es in `dist/` keine `/api/login` —
-      das ausgelieferte Spiel scheitert am Konto-Tor. `accountApi()` registriert
-      nur `configureServer` — es gibt keinen `configurePreviewServer`-Haken,
-      also fehlt die Route auch im Vorschau-Server und auf jedem statischen
-      Hosting; der Client bekommt dort HTML statt JSON und meldet es jetzt mit
-      einem verständlichen Satz statt mit einem stillen `Failed to fetch`.
-      **Die Wahl ist getroffen** und steht mit dem Warum in
-      [`BACKEND-PLAN.md`](BACKEND-PLAN.md): Adapter statt Vendor, lokal
-      `node:sqlite`, am Rand D1, und ein Replay, das gemessen rund 2 ms kostet
-      und die 10 ms von Cloudflare nicht annähernd erreicht. Offen bleibt nur noch
-      der Ort, an dem der Worker in den Build kommt — kein Worker-Entrypoint,
-      kein D1-Schema.
+- [x] **Der Konto-Server fehlt im Production-Build.** Das Backend hing als
+      Vite-Plugin nur im Dev-Server, also kannte `dist/` keine `/api/login` —
+      das ausgelieferte Spiel scheiterte am Konto-Tor. `accountApi()`
+      registriert jetzt **beide** Haken, `configureServer` und
+      `configurePreviewServer`, und beide hängen dieselbe Middleware ein; die
+      Regeln der Route (Wege, Köpfe, Absagen, Rumpfschranke) stehen einmal in
+      `scripts/server/account-http.mjs`, damit Dev-Server und Auslieferung
+      nicht zwei Wortlaute für dieselbe Absage führen. **Am gebauten Stand
+      belegt:** der Vorschau-Server über `dist/` antwortet `POST /api/register`
+      mit 201 und `POST /api/login` mit 200, beide als `application/json` mit
+      den vier Schranken — vorher war es dort 404 ohne Typ. Die Konto-Kette im
+      echten Browser lief gegen genau diesen Stand durch (Konto-Tor plus
+      Onboarding, 21 Prüfungen). Für die Auslieferung steht der Worker
+      (`workers/index.mjs`) mit D1-Bindung, Schema und Migration
+      (`workers/d1/0001-accounts.sql`) — und der **Fund auf dem Weg**: der
+      D1-Adapter legte neue Konten nie an, weil `register()` über
+      `updateAccount()` schreibt und er nur `UPDATE` kannte. Was D1 selbst
+      angeht, bleibt eine Grenze: ohne `wrangler` läuft die
+      Cloudflare-Datenbank in diesem Baum nicht, geprüft ist der Transport
+      gegen den echten lokalen Speicher. Der Entwurf mit dem Warum steht in
+      [`BACKEND-PLAN.md`](BACKEND-PLAN.md).
   Status: geplant
   Scope: Konto
   Kategorie: Bugfix

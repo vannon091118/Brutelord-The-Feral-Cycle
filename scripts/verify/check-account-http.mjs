@@ -1,6 +1,5 @@
-/** Die HTTP-Schicht und das Loesch-Werkzeug gegen einen echten Node-Server: eine
- *  413, die nie ankommt, und ein Purge, der das falsche Verzeichnis leert,
- *  bleiben sonst unentdeckt, weil beide erst im Browser auffallen. */
+/** Die HTTP-Schicht und das Loesch-Werkzeug gegen einen echten Node-Server: ein
+ *  Purge im falschen Ordner und eine 413, die nie ankommt, fallen sonst erst im Browser auf. */
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -17,20 +16,32 @@ function tempDir(tag) {
   return mkdtempSync(`${tmpdir()}/${tag}`);
 }
 
-async function withServer(run, eigenerDir) {
+/** Dev-Server und Vorschau-Server registrieren dieselbe Middleware. */
+function middlewareOf(register) {
   let middle = null;
-  accountApi().configureServer({ middlewares: { use: (fn) => { middle = fn; } } });
+  accountApi()[register]({ middlewares: { use: (fn) => { middle = fn; } } });
+  return middle;
+}
+
+/** Der Vorschau-Haken entscheidet, ob es die Route im dist/ ueberhaupt gibt. */
+function previewHookReady() {
+  const api = accountApi();
+  return typeof api.configurePreviewServer === 'function' && api.configurePreviewServer === api.configureServer;
+}
+
+async function withServer(run, options = {}) {
+  const middle = middlewareOf(options.register ?? 'configureServer');
   const server = createServer((request, response) => {
     middle(request, response, () => { response.statusCode = 404; response.end('next'); });
   });
   await new Promise((done) => server.listen(0, '127.0.0.1', done));
-  const dir = eigenerDir ?? tempDir('/dl-http-');
+  const dir = options.dir ?? tempDir('/dl-http-');
   process.env.DL_DATA_DIR = dir;
   try {
     return await run(`${OWN}:${server.address().port}`);
   } finally {
     server.close();
-    if (!eigenerDir) rmSync(dir, { recursive: true, force: true });
+    if (!options.dir) rmSync(dir, { recursive: true, force: true });
     delete process.env.DL_DATA_DIR;
   }
 }
@@ -93,12 +104,26 @@ async function checkFehlerleck() {
       check('Ein Datenbankfehler liefert 500', failed.status === 500, `${failed.status}`);
       check('Die Meldung verraet nicht den Grund', !JSON.stringify(failed.json).match(/ENOTDIR|EACCES|node:fs/), failed.json.error);
       check('und ist trotzdem eine Meldung', typeof failed.json.error === 'string' && failed.json.error.length > 0);
-    }, `${blocker}/daten`);
+    }, { dir: `${blocker}/daten` });
   } finally {
     console.error = original;
     rmSync(blocker, { recursive: true, force: true });
     delete process.env.DL_DATA_DIR;
   }
+}
+
+async function checkVorschau() {
+  section('Konto: der ausgelieferte Stand');
+  check('Der Vorschau-Server haengt an derselben Middleware wie der Dev-Server', previewHookReady());
+  if (!previewHookReady()) return;
+  await withServer(async (base) => {
+    const created = await post({ base, path: '/api/register', body: { name: 'vorschau-1', password: PASSWORD } });
+    check('Der Vorschau-Server beantwortet /api/register mit JSON',
+      created.status === 201 && Boolean(created.json.playerId), `${created.status}`);
+    check('und /api/login ebenso',
+      (await post({ base, path: '/api/login', body: { name: 'vorschau-1', password: PASSWORD } })).status === 200);
+    check('Was keine Konto-Route ist, bleibt dort der Seite', (await fetch(`${base}/nichtda`)).status === 404);
+  }, { register: 'configurePreviewServer' });
 }
 
 function purgeExit({ dir, cwd }) {
@@ -128,5 +153,6 @@ export function checkAccountHttp() {
   return checkRouten()
     .then(checkBodyLimit)
     .then(checkFehlerleck)
+    .then(checkVorschau)
     .then(() => checkPurgeSchranke());
 }

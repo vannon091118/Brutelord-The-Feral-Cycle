@@ -134,15 +134,29 @@ Jede mit dem Warum.
 | `scripts/server/storage-interface.mjs` | Der Vertrag und `storageViolations()` |
 | `scripts/server/account-store-local.mjs` | `node:sqlite` in Promises — Entwicklung, Dev-Server, Abnahme |
 | `scripts/server/account-api.mjs` | Zwei Befehle, async, nur noch gegen den Vertrag (B6) |
+| `scripts/server/account-http.mjs` | Routen, Köpfe, Absagen und die Rumpfschranke — von beiden Transporten gelesen |
+| `scripts/server/plugin.mjs` | Der Vite-Haken: `configureServer` **und** `configurePreviewServer` |
+| `workers/index.mjs` | Der Worker-Entrypoint: Fetch statt `node:http`, D1 statt SQLite |
 | `workers/account-store-d1.mjs` | D1-Bindung — Produktion |
+| `workers/d1/0001-accounts.sql` | Das Schema als Migration, samt Spalte `state` |
+| `wrangler.jsonc` | Die Bindung: `main`, `dist/` als Assets, D1 als `DB` |
 | `scripts/server/raid-validator.mjs` | Die Einreichung, gerechnet in der Domäne (B3) |
 | `scripts/bench/raid-replay-bench.mjs` | `npm run bench:replay`, die Messung oben |
 | `scripts/verify/check-storage.mjs` | Vertrag, Spielstand, Deckel, Validator |
+| `scripts/verify/check-account-worker.mjs` | Der Worker-Transport gegen den echten lokalen Speicher |
 
-**Was noch nicht steht:** kein Worker-Entrypoint, kein D1-Schema, keine
-Migration. D1 kennt kein `ALTER TABLE ... IF NOT EXISTS`, das Schema gehört
-als Migrationsdatei daneben — ein Schema, das bei jedem Kaltstart mitläuft,
-läuft im Streitfall genau einmal. Das ist der offene Punkt 1.
+**Was inzwischen steht:** der Worker-Entrypoint (`workers/index.mjs`), das
+Schema als Migration (`workers/d1/0001-accounts.sql`) und die Bindung in
+`wrangler.jsonc`. Die Migration trägt die Spalte `state` von Anfang an: D1
+kennt kein `ALTER TABLE ... IF NOT EXISTS`, und ein Schema, das bei jedem
+Kaltstart mitläuft, läuft im Streitfall genau einmal — Wrangler führt die
+Datei über `d1_migrations` selbst genau einmal aus, deshalb steht dort kein
+`IF NOT EXISTS`. Der zweite Fund auf diesem Weg war der D1-Speicher selbst: er
+kannte nur `UPDATE`, während `register()` ein neues Konto über
+`updateAccount()` anlegt — jedes neue Konto wäre in der Auslieferung auf einen
+500 gelaufen. Beide Speicher ziehen die fehlende Zeile jetzt mit denselben
+Helfern nach. Die Einzelheiten stehen in
+[`ARCHITEKTUR.md`](ARCHITEKTUR.md), *Derselbe Server an drei Orten*.
 
 ---
 
@@ -150,12 +164,23 @@ läuft im Streitfall genau einmal. Das ist der offene Punkt 1.
 
 Nach Wichtigkeit geordnet.
 
-### 1. Wie kommt der Worker in den Production-Build?
+### 1. Wie kommt der Worker in den Production-Build? — beantwortet
 
-Der Konto-Server hängt heute als Vite-Plugin im Dev-Server, also gibt es in
-`dist/` keine `/api/login`, und das ausgelieferte Spiel scheitert am
-Konto-Tor. Das ist der Bug, den der Plan lösen soll, und er ist unabhängig von
-allen Fragen hier. Der Adapter ist gebaut; es fehlt der Ort, an dem er läuft.
+Der Konto-Server hing als Vite-Plugin nur im Dev-Server, also gab es in
+`dist/` keine `/api/login`, und das ausgelieferte Spiel scheiterte am
+Konto-Tor. Der Bug war unabhängig von allen Fragen hier, und gelöst ist er in
+zwei Stufen, die beide nötig sind. **Im Vorschau-Server** registriert
+`accountApi()` jetzt auch `configurePreviewServer` und hängt dieselbe
+Middleware ein — damit bedient der gebaute Stand, den man lokal ausliefert, die
+Endpunkte. **In der Auslieferung** lief der Adapter bis hierher ohne Ort; jetzt
+läuft derselbe Befehl als Worker (`workers/index.mjs`) gegen D1, gebunden über
+`wrangler.jsonc` an `dist/` als Assets und an die Datenbank, deren Schema als
+Migration bereitliegt.
+Angewendet wird sie mit `wrangler d1 migrations apply brutalord-accounts
+--remote`, angelegt mit `wrangler d1 create brutalord-accounts` — beide
+Befehle laufen nicht in diesem Baum, weil `wrangler` keine Abhängigkeit des
+Repos ist. Die Begründung der Aufteilung steht als *Derselbe Server an drei
+Orten* in [`ARCHITEKTUR.md`](ARCHITEKTUR.md).
 
 ### 2. Wie groß ist der Spielstand, und wann wird er geschrieben?
 
