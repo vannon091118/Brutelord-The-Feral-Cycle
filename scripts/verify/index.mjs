@@ -16,4 +16,5 @@ export { checkVerticality } from './check-verticality.mjs';
 export { checkVerticalityWiring } from './check-verticality-wiring.mjs';
 export { checkStartup } from './check-startup.mjs';
 export { checkArchitecture } from './check-architecture.mjs';
+export { checkGrid } from './check-grid.mjs';
 export { summary } from './expect.mjs';
