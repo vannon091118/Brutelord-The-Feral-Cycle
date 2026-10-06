@@ -7,7 +7,12 @@ Spiegel-Datei für `src/domain/raid/raid-config.js`.
 ## Verantwortung
 
 Eco-Stakes-Raid: Regeln und Zahlen, jede aus einer Config abgeleitet. Fassung des
-Replay-Formats: gehört in den State-Hash (D38); Fassung 3 führt die siebenstufige
+Replay-Formats: gehört in den State-Hash (D38); Fassung 4 trug die Reihenfolge der
+Kandidatenliste (D45), und **Fassung 5 hasht den Text des Erkundungsstroms**:
+`textSeed()` statt einer blanken Zeichenkette, weil `mixRaid` einen Text als 0 liest und
+sonst jedes Ticket denselben Strom bekam. Die Fassung steigt, weil sich damit die
+Erkundung jedes Zuges verschiebt — der Golden-Wert des Raids wurde mit
+`npm run golden:raid` neu geschrieben. Fassung 3 führt die siebenstufige
 Phasenkette, die `raid-phases.js` hält — `RAID_PHASE` wird von dort weitergereicht, damit
 es die Werte nur einmal gibt. Der Einmarsch gräbt orthogonal; die ferne Ecke ist (63,63),
 nicht (0,0). Erde ist offen. Hartgestein ist eine Berechtigung, keine Aufpreisstufe. Fail

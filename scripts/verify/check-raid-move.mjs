@@ -11,6 +11,10 @@ function pathPrice(state, world) {
   return state.path.reduce((sum, id) => sum + cellCost(state, world, id), 0);
 }
 
+/** Die Grabefolge der Idle-Erkundung, gemessen. Sie haengt an der Reihenfolge
+ *  von `frontierOf()`, und die kommt aus `Object.keys(state.dug)`. */
+const EXPLORE_ORDER = '60,28|59,28|61,28|61,27|62,27|62,26|60,27';
+
 function checkOneCursor() {
   section('Ein Cursor für das Team');
   const state = raidState();
@@ -62,6 +66,8 @@ function checkIdleExplores() {
   check('Der Idle-Takt handelt von selbst', runTicks(state, world, 1).log.length > 0);
   check('Die Erkundung führt keinen Angriff aus', explored.log.every((entry) => entry.verb !== RAID_VERB.ATTACK));
   check('Die Erkundung wiederholt sich', runTicks(explored, world, 8).dug !== explored.dug);
+  const weit = Object.keys(runTicks(state, world, 12).dug).join('|');
+  check('Die Reihenfolge der Erkundung ist Teil des Replay-Formats', weit === EXPLORE_ORDER, weit);
 }
 
 function checkAttack() {

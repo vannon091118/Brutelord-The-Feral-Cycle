@@ -1,6 +1,6 @@
 // @doc: docs/daten/raid/raid-move.md#raid-move
 import { tileId } from '../world/tile.js';
-import { mixRaid, unitOf } from './raid-spawn-seed.js';
+import { mixRaid, textSeed, unitOf } from './raid-spawn-seed.js';
 import { RAID_ACTION, RAID_STEP, neighborOf } from './raid-actions.js';
 import { applyAction, resolveLoss } from './raid-steps.js';
 import { cellCost, planPath, frontierOf } from './raid-path.js';
@@ -12,7 +12,7 @@ const SALT_EXPLORE = 1103515245;
 function exploreGoal(state, world) {
   const frontier = frontierOf(state, world);
   if (frontier.length === 0) return null;
-  const stream = mixRaid(`${state.ticketId}|${state.round}|${tileId(state.at.x, state.at.y)}`, SALT_EXPLORE);
+  const stream = mixRaid(textSeed(`${state.ticketId}|${state.round}|${tileId(state.at.x, state.at.y)}`), SALT_EXPLORE);
   return frontier[Math.floor(unitOf(stream) * frontier.length)];
 }
 

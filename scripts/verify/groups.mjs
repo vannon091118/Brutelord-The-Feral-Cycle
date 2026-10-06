@@ -19,6 +19,7 @@ export const GROUPS = Object.freeze([
   { id: 'selection', file: `${V}check-selection.mjs`, run: (m) => m.checkSelection() },
   { id: 'world-views', file: `${V}check-world-views.mjs`, run: (m) => m.checkWorldViews() },
   { id: 'seed', file: `${V}check-seed.mjs`, run: (m) => m.checkSeed() },
+  { id: 'seed-domain', file: `${V}check-seed-domain.mjs`, run: (m) => m.checkSeedDomain() },
   { id: 'account', file: `${V}check-account.mjs`, run: (m) => m.checkAccount() },
   { id: 'account-brake', file: `${V}check-account-brake.mjs`, run: (m) => m.checkAccountBrake() },
   { id: 'camera', file: `${V}check-camera.mjs`, run: (m) => m.checkCamera() },

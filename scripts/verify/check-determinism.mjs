@@ -87,6 +87,15 @@ function pruefeForm(seeds, gemessen) {
   check('Der Golden-Wert ist wohlgeformt', seeds.every((seed) => wohlgeformt(gemessen[seed])), seeds.filter((seed) => !wohlgeformt(gemessen[seed])).join(', '));
 }
 
+function checkWiederholung(lauf) {
+  const nochmal = determinismRun(lauf.seed);
+  section('Determinismus: derselbe Seed nochmal im selben Prozess');
+  const soll = lauf.ticks.join('');
+  const ist = nochmal.ticks.join('');
+  const ab = ersteAbweichung(soll, ist);
+  check(`Seed ${lauf.seed} legt zweimal dieselbe Bahn`, ab === -1 && soll.length === ist.length, befund({ lauf, soll, ist, ab }));
+}
+
 export function checkDeterminism() {
   section('Determinismus: ein Zustands-Hash je Zug gegen den Golden-Wert');
   const golden = JSON.parse(readFileSync(GOLDEN, 'utf8'));
@@ -113,4 +122,5 @@ export function checkDeterminism() {
   check('Verschiedene Seeds ergeben verschiedene Zustandsfolgen', folgen.size === laeufe.length, `${folgen.size} von ${laeufe.length} verschieden`);
   check('Nach dem Durchlauf arbeitet keine Wurzel mehr', laeufe.every((lauf) => lauf.state.world.rootingWorkIds.length === 0));
   checkContours(golden, laeufe);
+  checkWiederholung(laeufe[0]);
 }

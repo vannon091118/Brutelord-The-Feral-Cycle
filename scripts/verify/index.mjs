@@ -13,6 +13,7 @@ export { checkPlacement } from './check-placement.mjs';
 export { checkSelection } from './check-selection.mjs';
 export { checkWorldViews } from './check-world-views.mjs';
 export { checkSeed } from './check-seed.mjs';
+export { checkSeedDomain } from './check-seed-domain.mjs';
 export { checkAccount } from './check-account.mjs';
 export { checkAccountBrake } from './check-account-brake.mjs';
 export { checkCamera } from './check-camera.mjs';

@@ -965,6 +965,120 @@ Hive, Vorräte und Bauten. Das ist der offene Roadmap-Punkt, und die Konto-Schic
 ist so gebaut, dass der Spielstand später als eine Spalte in derselben Tabelle
 dazukommt, ohne das Passwortmodell anzufassen.
 
+## Wer den Seed liest
+
+Die Landkarte ist eine Messung und keine Absicht: sie zählt **Aufrufer**, nicht
+Exporte.
+
+**Der Namensraum ist noch keine Grenze im Lauf.** `deriveSeed()` in
+`src/domain/seed/seed-domain.js` hat keinen einzigen Aufrufer. Vier Domänen mit
+je eigenem `DOMAIN_SALT` stehen bereit, und `SALT_HOME` ordnet jedes bestehende
+Salz-Set genau einer zu — aber jede echte Ableitung rechnet weiter mit ihrem
+eigenen Mixer und ihren eigenen Zahlen. Die Trennung ist damit ein **Ort für
+neue Salze**, keine Prüfung zwischen den alten. `check-seed-domain.mjs` prüft,
+was da ist: dass jede Zuordnung eine Domäne aus `SEED_DOMAIN` und ein Modul
+nennt, das es wirklich gibt, und dass `deriveSeed()` je Domäne eine eigene Zahl
+liefert.
+
+| Aufrufer | Datei | Domäne | Zweck | Risiko |
+| --- | --- | --- | --- | --- |
+| `worldSeed32()` / `worldSeed()` | `seed/seed-input.js`, `world/world-seed.js` | Eingang | legt die Eingabe als Zahl aus, `null` bzw. `SeedError` | keins — fail closed geprüft |
+| `deriveSeed()` | `seed/seed-domain.js` | alle vier | Ableitung aus Wurzel, Domäne, Thema und Index | **unbenutzt** |
+| `floorSeed()` | `world/floor.js` | WORLD | Etagensaat, Etage 0 ist der Rohseed | Golden-gesichert |
+| `blockHash()` / `depositSalt()` | `deposits/deposit-hash.js` | WORLD | Vorratskarte und Vorratssalz | teilt Zahlen mit dem Raid |
+| Wackeln der Kontur | `world/reveal.js` | WORLD | freie Bahn um den Hive | — |
+| `mixSeed()` | `brutelord/stone-seed.js` | ORGANISM | Mixer für Genom und Stein | `MIX` = `SALT_GEGNER` (EVENT) |
+| `GENOME_SALT` | `brutelord/genome-config.js` | ORGANISM | Allel, Kreuzung, Mutation, Fair | — |
+| `genomeHash()` | `brutelord/genome-roll.js` | ORGANISM | faltet das Genom zum Schlüssel | Reihenfolge aus `LOCUS_ORDER`, geprüft |
+| `breedSeed()` | `brutelord/mutant.js` | ORGANISM | Saat der Kreuzung | „Salt“ ist ein zweites Genom |
+| `nextSeed()` | `brutelord/lab-state.js` | ORGANISM | Saat des gekauften Steins | hängt nicht am Spielerseed |
+| `textSeed()` / `seedOf()` | `raid/raid-spawn-seed.js` | EVENT | Text zu uint32, Zahl bleibt Zahl | der richtige Weg für Text |
+| `entrySeed()` | `raid/raid-spawn-seed.js` | EVENT | Einmarschsaat aus beiden Kennungen | teilt Zahlen mit `deposit-hash` |
+| `mixTerrain` + `SALT_ROW/COLUMN` | `raid/raid-terrain.js` | EVENT | Terrain des fremden Dungeons | dritter Mixer |
+| `SALT_WARDEN` / `SALT_HP` | `raid/raid-warden.js` | EVENT | Aufstellung und Leben der Wächter | — |
+| `SALT_EXPLORE` | `raid/raid-move.js` | EVENT | Idle-Erkundung | **Text in einem Zahlenmixer** |
+| `RAID_SIM.seed` / `.salt` | `raid/raid-sim.js` | EVENT | das Skript der Simulation | das Vokabular bestimmt das Skript |
+| `tileSeed()` | `world/tile-shapes.js` | PRESENTATION | Kachelform | nimmt den Seed **nicht** |
+| `makeRng()` | `world/tile-shapes.js` | PRESENTATION | LCG für Boden, Sprenkel, Risse, Schutt, Wandbänder — sieben Funktionen nehmen `seed` und rufen sie | je Aufruf ein eigener Strom, kein Zustand über Aufrufe hinweg |
+| `soilBlob()`, `wallBand()`, `scatterRocks()` … | `world/tile-shapes.js` | PRESENTATION | sieben Funktionen mit `seed`-Parameter | bekommen den Zustand, den der Aufrufer wählt — wer ihnen einen Spielstand übergibt, macht Optik zu Spielwahrheit |
+
+### `NaN` schlägt an einer zweiten Stelle zu
+
+`raid-move.js` baut den Erkundungsstrom aus einer Zeichenkette:
+`mixRaid(\`${state.ticketId}|${state.round}|${tileId(...)}\`, SALT_EXPLORE)`.
+`mixRaid` rechnet `Math.imul(hash ^ salt, MIX)`, und `^` ruft auf einer
+Zeichenkette `ToInt32(ToNumber(text))` auf: `ToNumber('ticket-1|1|60,30')` ist
+`NaN`, `ToInt32(NaN)` ist **0**. Der Strom ist damit für jedes Ticket, jede Runde
+und jede Position derselbe — gemessen `2887743147` für zwei beliebige Texte.
+
+Das ist derselbe Fund wie vor der einen Tür, nur eine Ebene tiefer: dort ergab
+`'a1b2c3d4' + 3266489917` eine andere Welt als `'12345678' + 3266489917`, hier
+ergibt jeder Text dieselbe Zahl. Diesmal ist er nicht folgenlos für die Absicht
+des Codes — die Zeile will offensichtlich nach Ticket, Runde und Ort streuen und
+tut es nicht. `textSeed()` steht im selben Modul und ist seit dem Seed-Audit die
+Tür: `mixRaid(textSeed(\`${id}|${round}|${tileId}\`), SALT_EXPLORE)`. Weil das die
+Erkundung **jedes** Zuges verschiebt, ist `RAID_FORMAT_VERSION` von 4 auf 5
+gestiegen und der Raid-Golden mit `npm run golden:raid` neu geschrieben — der
+Vorgang, den D45 für genau diese Bauform vorschreibt (`index = hash * list.length`).
+Der Golden hat sich dabei nur an der Fassungsmarke geändert, die Grabpunkte
+blieben 15, 15 und 12: er spielt ein festes Skript über `applyAction()` und ruft
+`tickMove()` nie auf. Die Erkundung hatte also gar keinen eingefrorenen Wert —
+die Zusage steht seitdem als **Prüfung** da: 32 Tickets sind 32 Ströme, und
+Runde wie Ort ändern den Strom.
+
+### Zwei Ableitungen verlassen den uint32-Raum
+
+Der Rest der Landschaft liefert `uint32`, zwei Stellen nicht. **`entrySeed()`**
+endet auf `… ^ mixRaid(defenderSeed, SALT_Y)`; die äußere Exklusivverknüpfung
+gibt ein **vorzeichenbehaftetes** int32 zurück (gemessen: 13 von 32 Kennungen
+negativ, z. B. `-1589856680`). **`depositSalt()`** rechnet `1511 + index *
+2654435761 + Math.imul(seed, 7919)` und verlässt damit beide Enden (gemessen:
+`-388517677` bei Index 0, `4920353845` bei Index 2). Beide sind deterministisch
+und beide funktionieren, weil jeder Verbraucher sie durch `Math.imul` oder
+`^` schickt, das ohnehin auf int32 beschneidet. Der Preis ist die Form: ein
+„Seed“, der negativ sein kann, ist mit `worldSeed32()` nicht vergleichbar und in
+`String(seed)` eine andere Zeichenkette als seine Bytes. Wer eine der beiden je
+in einen Spielstand, eine Datenbankspalte oder einen Vergleich mit dem
+Wurzelseed schreibt, muss vorher normalisieren.
+
+### Die Null als Rückfall, nach Risiko sortiert
+
+Ein Rückfall auf Null ist eine erfundene Welt — deshalb gibt es die eine Tür.
+Die verbliebenen Stellen sind gemessen und nach Reichweite sortiert:
+
+| Stelle | Rückfall | Reichweite | Risiko |
+| --- | --- | --- | --- |
+| `world-config.js` `WORLD_SEED.anonymous` | `0xc0ffee` | `worldSeed32()` für eine **fehlende** Eingabe | keins — gewollt und benannt |
+| `raid-state.js` `ticket.snapshotSeed ?? 0` | 0 | `createRaidWorld` **und** `createWardens` eines Tickets ohne Snapshot | **latent, aber der schlimmste**: Terrain und Wächter wären für jedes solche Ticket identisch. Der Server setzt ihn immer (`raid-ticket-http.mjs` nimmt `lage.state.world.seed`), und `isSavedShape` verlangt `Number.isInteger` — deshalb heute unerreichbar |
+| `raid-warden.js` `createWardens({ seed = 0 })` | 0 | derselbe Pfad | wie oben |
+| `raid-spawn-seed.js` `entryPointFor({ seed = 0 })` | 0 | alle Aufrufer geben einen Seed mit | unerreichbar |
+| `deposit-placement.js` `context.seed ?? 0` | 0 | `grid.js` gibt immer `world.seed` mit | unerreichbar |
+| `tile-shapes.js` `(seed >>> 0) \|\| 1` | 1 | Darstellung: die Maskenfunktion | Null und Eins zeichnen dasselbe; ohne Spielwirkung |
+
+Keine dieser Stellen wurde geändert: die erreichbaren sind unerreichbar, und die
+latente Stelle zu schließen (ein `null` statt `0` weiterreichen) würde jedes
+solche Ticket zum Fehlschlag machen, statt eine Welt zu erfinden — eine Frage
+für den Ticket-Vertrag, nicht für den Seed.
+
+### Die Steinfolge des Labors ist weltunabhängig
+
+`nextSeed(lab)` rechnet `(lab.purchased + 1) * 2654435761 % 4294967296` — aus dem
+**Kaufzähler**, nicht aus dem Spielerseed. Zwei Konten mit verschiedenen Welten
+kaufen damit in derselben Reihenfolge dieselben Steine: Seltenheit, Trait und
+Fähigkeit fallen alle aus dieser einen Zahl. Das ist kein Determinismusfehler,
+sondern eine fehlende Domäne — die ORGANISM-Ableitung des Labors hängt an einem
+Zähler statt an der Wurzel. Wer sie umstellt, ändert die Steinfolge jedes Kontos
+und braucht dafür einen Versionssprung.
+
+### `tileSeed(x, y)` nimmt den Seed nicht
+
+Die Kachelformen kommen aus einem Hash über die **Koordinaten**. Dieselbe
+Koordinate hat damit in jeder Welt dieselbe Form. Für die Darstellung ist das
+Absicht — der Untergrund soll nicht bei jedem Konto neu würfeln —, und deshalb
+liegt sie in der Domäne PRESENTATION und nicht in WORLD. Wer sie an den Seed
+hängt, ändert nur die Optik; wer sie umgekehrt in eine Spielentscheidung einbaut,
+baut eine weltunabhängige Regel ein.
+
 ## Der Eco-Stakes-Raid
 
 Der Plan steht vollständig in [`RAID-PLAN.md`](RAID-PLAN.md). Hier trägt, was

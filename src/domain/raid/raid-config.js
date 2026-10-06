@@ -8,7 +8,7 @@ import { RAID_EVENT, RAID_PHASE, RAID_TRANSITIONS, phasePath } from './raid-phas
 
 export { RAID_EVENT, RAID_PHASE, RAID_TRANSITIONS, phasePath };
 
-export const RAID_FORMAT_VERSION = 4;
+export const RAID_FORMAT_VERSION = 5;
 
 const MAX_APPROACH = Math.max(HIVE_ORIGIN.x, GRID_WIDTH - 1 - HIVE_ORIGIN.x)
   + Math.max(HIVE_ORIGIN.y, GRID_HEIGHT - 1 - HIVE_ORIGIN.y);

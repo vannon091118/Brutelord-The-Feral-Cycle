@@ -1122,6 +1122,92 @@ Quelle ihn eingeholt hat.
 
 ---
 
+## Determinismus
+
+### Ein `NaN` aus `parseInt` wird mit `>>> 0` still zur Null
+
+`worldSeed()` las einen Hex-String mit `parseInt('ZZZZZZZZ', 16)`; das ist
+`NaN`, und `NaN >>> 0` ist **0**. Ein Tippfehler war damit still die Welt des
+Seeds `00000000` — von einer gültigen Null nicht zu unterscheiden. Dieselbe
+Zeile verschluckte mehr: `12xyz` wurde zu `18`, `-1` zu `4294967295` und `1.5`
+zu `1`, weil `parseInt` liest, solange es kann, und der Schiebeoperator den
+Rest glattbügelt. Der Fehler ist unsichtbar, weil beide Ergebnisse gültig
+aussehen — und weil die Welt der Null eine echte Welt ist.
+
+> **Symptom:** keine Meldung. Der Spieler sieht eine Welt, nur nicht seine.
+
+> **Gegenprobe:** `check-seed.mjs` führt 17 Bestandswerte Zeichen für Zeichen
+> und wirft die Gültigkeitsmatrix in `INVALID`: `ZZZZZZZZ`, `1234ZZZZ`, leer,
+> `NaN`, `-1` und `1.5` liefern `null`. Eine halb gültige Saat wird eigens
+> gegen die Null geprüft — vorher war beides dieselbe Welt.
+
+**Was zu tun ist:** Die Auslegung steht in `src/domain/seed/seed-input.js` an
+einer Stelle: eine Zahl gilt nur als ganze Zahl bis `4294967295`, eine
+Zeichenkette nur als 1 bis 16 Hex-Zeichen. Wer fragen will, nimmt
+`worldSeed32()` und bekommt `null`; wer werfen will, nimmt `worldSeed()` und
+bekommt `SeedError`. Der stille Rückfall war nicht harmlos: `check-raid-siege.mjs`
+baute seinen Heimatstand aus dem Text `raid-beute` und lief nur, weil daraus
+still die Null wurde.
+
+### `Object.keys` liefert Einfügereihenfolge — und die ist ein Spielergebnis
+
+`frontierOf()` baut seine Kandidaten aus `Object.keys(state.dug)`, und
+`exploreGoal()` greift mit `frontier[hash * frontier.length]` hinein. Die
+Reihenfolge dieser Liste ist nirgends zugesichert: sie ist die
+Einfügereihenfolge der gegrabenen Felder, also ein Nebeneffekt des Grabens.
+Wer sie sortiert, um die Schleife lesbarer zu machen, verschiebt das
+Erkundungsziel **jedes** Zuges.
+
+> **Symptom:** keines. Gemessen an der Vorlage gräbt die Erkundung unverändert
+> `60,30|60,31|59,30|60,29|59,31|59,29`, mit `Object.keys(...).sort()`
+> `60,30|60,31|59,30|60,29|61,30|59,29` — ein anderes Feld bei gleicher Anzahl.
+
+> **Gegenprobe:** `check-raid-move.mjs` friert die Grabefolge der Idle-Erkundung
+> als `EXPLORE_ORDER` ein; das Sortieren fällt damit an genau einer Prüfung um.
+> Vorher fing **keine** Prüfung das: `raidSeries()` spielt ein festes Skript über
+> `applyAction()` und ruft `tickMove()` und damit `frontierOf()` nie auf — der
+> Golden-Wert des Raids und der der Deterministizität blieben mit sortierter
+> Liste beide grün, obwohl ein anderer Zug gegraben wurde.
+
+**Was zu tun ist:** Die Reihenfolge angleichen heißt das Spielergebnis ändern —
+das ist ein Replay-Formatwechsel hinter einem Versionssprung mit neuem Golden,
+kein Aufräumen. Bis dahin gilt das Muster aus „Die Reihenfolge einer
+Kandidatenliste ist Teil des Replay-Formats“ an einer zweiten Stelle: Wer eine
+`Object.keys`-Liste in einen Index umrechnet, schuldet ihrer Reihenfolge eine
+Prüfung. Bekannt sind `entryPointFor()` über `candidates()` und
+`exploreGoal()` über `frontierOf()`.
+
+### Ein Text in einem Zahlenmixer ist für alle Texte derselbe
+
+`mixRaid(hash, salt)` rechnet `Math.imul(hash ^ salt, MIX)`. Bekommt `hash` eine
+Zeichenkette, ruft `^` `ToInt32(ToNumber(text))` auf: `ToNumber('ticket-1|1|60,30')`
+ist `NaN`, und `ToInt32(NaN)` ist **0**. `src/domain/raid/raid-move.js` schickt
+genau so einen Text hinein — und erwartet Streuung nach Ticket, Runde und
+Position. Derselbe Mechanismus wie bei `parseInt('ZZZZZZZZ', 16)`: `NaN`
+verschwindet in einem bitweisen Operator, ohne dass eine Zeile klagt.
+
+> **Symptom:** die Erkundung wirkt zufällig und ist es nicht. Gemessen an der
+> Vorlage ergibt `mixRaid('ticket-1|1|60,30', 1103515245)` exakt denselben Wert
+> wie `mixRaid('ticket-999|7|12,44', 1103515245)` — beide `2887743147`.
+
+> **Gegenprobe:** `check-seed-domain.mjs` nennt den Fund beim Namen und prüft
+die Richtung: 32 Tickets ergeben 32 Ströme, Runde und Ort ändern den Strom,
+`textSeed()` trennt dieselben Texte. Der Goldene der Deterministizität und der
+des Raids fangen ihn **nicht** — `raidSeries()` spielt ein festes Skript über
+`applyAction()` und ruft `tickMove()` nie auf, also wächst dort kein einziger
+Erkundungszug.
+
+**Was zu tun ist:** Der Fund ist behoben — der Text geht jetzt durch
+`textSeed()` —, und weil das die Erkundung jedes Zuges verschiebt, ist
+`RAID_FORMAT_VERSION` von 4 auf **5** gestiegen und der Raid-Golden neu
+geschrieben. Der Golden hat sich dabei nur durch die Fassungsmarke
+geändert (die Grabpunkte blieben 15, 15 und 12) — der Beleg dafür, dass er die Erkundung
+gar nicht abdeckt. Deshalb steht die Zusage seitdem als Prüfung da und nicht
+nur als eingefrorener Wert. Die Lehre bleibt für jeden neuen Aufrufer: ein Text
+gehört durch `seedOf()` oder `textSeed()`, bevor er einen Mixer sieht.
+
+---
+
 ## Was daraus folgt
 
 Die meisten Einträge hier sind keine Fehler, sondern **Kanten des Projekts, an

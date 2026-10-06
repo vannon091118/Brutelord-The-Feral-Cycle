@@ -19,13 +19,14 @@ const sample = Array.from({ length: SEEDS }, (_, index) => worldSeed((index * 26
 const LEGACY = [
   ['a1b2c3d4', 2712847316], ['00ff00ff', 16711935], ['7fffffff', 2147483647],
   ['12345678', 305419896], ['00000000', 0], ['FFFFFFFF', 4294967295],
+  ['1234ABCD', 305441741], ['1234abcd', 305441741],
   ['a'.repeat(16), 2863311530], ['c0ffee', 12648430], ['deaf', 57007],
   ['0', 0], ['9', 9], ['a1b2c3d4ef', 2712847316],
   [12345678, 12345678], [0, 0], [4294967295, 4294967295],
 ];
 
 /** Vorher fiel jede davon still auf 0, auf einen Teillesewert oder auf einen Riesenzahl-Rest. */
-const INVALID = ['ZZZZZZZZ', '', ' ', '  ', '12xyz', 'a1b2c3d4z', NaN, -1, 1.5, Infinity, 4294967296, 'a'.repeat(17)];
+const INVALID = ['ZZZZZZZZ', '1234ZZZZ', '', ' ', '  ', '12xyz', 'a1b2c3d4z', NaN, -1, 1.5, Infinity, 4294967296, 'a'.repeat(17)];
 
 function fingerprint(world) {
   const lit = allTiles(world).filter((tile) => tile.visibility === TILE_VISIBILITY.VISIBLE).map((tile) => tile.id);
@@ -41,12 +42,23 @@ function checkLegacyValues() {
   check('Dieselbe Eingabe ergibt immer denselben Wert', new Set(twice).size === 1, `${new Set(twice).size} verschiedene`);
 }
 
+function checkGoldenObservables() {
+  section('Seed: Wackelkontur und Vorratskarte bleiben gemessen');
+  const world = createWorld({ playerseed: 'a1b2c3d4' });
+  const sichtbar = allTiles(world).filter((tile) => tile.visibility === TILE_VISIBILITY.VISIBLE).length;
+  const pool = Object.values(world.deposits).reduce((sum, deposit) => sum + deposit.pool, 0);
+  check('Die Wackelkontur oeffnet 75 Felder', sichtbar === 75, `${sichtbar} Felder`);
+  check('Die Vorratskarte traegt 9660 Essenz', pool === 9660, `${pool} Essenz`);
+}
+
 function checkInvalidIsNoSeed() {
   section('Seed: eine ungueltige Eingabe ist kein Seed');
   const refused = INVALID.filter((input) => worldSeed32(input) !== null);
   check('Ungueltige Eingaben liefern null statt 0', refused.length === 0, refused.map((input) => String(input)).join(', '));
   check('Die Null bleibt ein gueltiger Seed', worldSeed32('00000000') === 0 && worldSeed32(0) === 0);
   check('Ein Teillesewert wird nicht mehr gelesen', worldSeed32('12xyz') === null && worldSeed32('a1b2c3d4z') === null);
+  const halb = '1234ZZZZ';
+  check('Eine halbgueltige Saat ist nicht die Null', worldSeed32(halb) === null && worldSeed32(halb) !== worldSeed32('00000000') && worldSeed32(halb) !== 0);
   const missing = [undefined, null, true, {}, []].map((input) => worldSeed32(input));
   check('Eine fehlende Eingabe ergibt die anonyme Welt', new Set(missing).size === 1 && missing[0] === createWorld().seed, missing.join(', '));
 }
@@ -119,6 +131,7 @@ function checkBudgetBand() {
 
 export function checkSeed() {
   checkLegacyValues();
+  checkGoldenObservables();
   checkInvalidIsNoSeed();
   checkThrowingDoor();
   checkSameSeedTwice();
