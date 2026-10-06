@@ -196,6 +196,23 @@ prüft das bei jedem `npm run verify`. Der Grund: Bot-Commits lösen mit
 `GITHUB_TOKEN` keine CI aus, ein Verstoß bliebe also unentdeckt, bis jemand die
 Range über einen Bot-Commit zieht.
 
+**Die Signaturpflicht ist geprüft, nicht behauptet.** `classifySignature` in
+`scripts/lib/commit-rules.mjs` bewertet jeden Commit des geprüften Bereichs,
+`scripts/ci-gate.mjs` hängt das Urteil an die Commit-Regeln, und
+`npm run verify:commits` testet die Bewertung selbst. Ein Nicht-Bot-Commit ohne
+Signatur ist ein Gate-Verstoß, und der Hinweis nennt die Reparatur
+(`git config commit.gpgsign true`).
+
+**Gemessen wird das Commit-Objekt, nicht das Urteil der Maschine.** `%G?`
+liefert ohne Schlüsselbund `N` — auch für korrekt signierte Commits; auf diesem
+Rechner ist genau das der Fall, weil eine `gpg.ssh.allowedSignersFile` fehlt.
+Eine Regel, die darauf baut, würde echte Signaturen verurteilen. Geprüft wird
+deshalb das Vorhandensein des `gpgsig`-Kopfes im Commit-Objekt; das gilt für
+GPG und SSH und braucht weder Netz noch Schlüssel. Ob die Signatur einem
+bekannten Schlüssel zugeordnet werden kann, ist eine **zweite** Frage — sie
+beantwortet `git log --show-signature`, und wer `G` statt `N` sehen will,
+hinterlegt seinen Schlüssel und die Signer-Datei.
+
 ### Globale Versionierung
 
 `version.lock.json` ist die Autorität; `VERSION`, `package.json` und

@@ -41,8 +41,9 @@ npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
 npm run check                              # LOKAL: betroffene Wächter + geänderte Gruppen, gecacht
 npm run check -- --list                    # sagt, welche Gruppe unverändert ist
+npm run check -- --all                     # VOLLLAUF ohne Browser, lokal auf Abruf
 npm run check:browser                       # die Browser-Stufe allein (sonst nur in der CI)
-npm run verify                             # VOLLLAUF inkl. Browser — gehört in die CI, nicht lokal
+npm run verify                             # VOLLLAUF inkl. Browser — dieselbe Zeile, gehört in die CI
 npm run verify:commits                     # Regressionstests des Commit-Gates
 npm run golden:determinism                 # Golden-Wert der Deterministizität neu schreiben
 npm run build                              # Production-Build
@@ -174,8 +175,9 @@ vorige voraus und ist ohne sie nicht sinnvoll:
 4. `src/ui/` — HUD und Menüs. Liest, entscheidet nichts.
 5. `src/world/` — SVG-Ebenen. Bekommt Geometrie, keine Spielwahrheit.
 
-Für die Prüfungen: `scripts/verify-slice.mjs` ist der Einstiegspunkt,
-`scripts/verify/expect.mjs` das Gerüst.
+Für die Prüfungen: `scripts/check.mjs` ist die **einzige** Zeile — lokal gecacht,
+`--all` für den Volllauf, `--browser` für die Browser-Stufe; `scripts/verify/expect.mjs`
+ist das Gerüst, `scripts/verify/groups.mjs` die Reihenfolge.
 
 ## 7. Konventionen
 
@@ -244,7 +246,7 @@ häufigsten zuschlagen:
   verschiebt, muss `world-config.js` *und* `onboarding-config.js` mitziehen.
 - **`expect.mjs` ist global zustandsbehaftet.** `lines`, `failures` und
   `summary()` zählen über den ganzen Lauf; die Reihenfolge in
-  `verify-slice.mjs` ist deshalb fest.
+  `scripts/verify/groups.mjs` ist deshalb fest.
 
 Zwei weitere, die man vor dem ersten Task kennen muss: Ein lokales `.venv/`
 taucht in keiner `.gitignore` und in keiner Dateiliste auf — `git status` ist

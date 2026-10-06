@@ -75,6 +75,12 @@ und gedeckelt bleibt; **der Volllauf gehört der CI**.
 | `npm run verify` — Volllauf, lokal | ~4 m 15 s | ~2 m 25 s | nur wenn es sein muss |
 | `npm run verify` — Volllauf, auf der CI | 22 s | **11–14 s** | **CI auf Push** |
 
+**Nach der Zusammenführung gemessen (2026-10-06).** `npm run verify` fährt
+dieselbe Zeile wie `npm run check`, nur mit `--all --browser`: **33 s** für alle
+38 Gruppen samt Wächtern, davon rund 19 s die Browser-Stufe (Node 22.23.3,
+headless, FX-6300, je Last). Die Zahl ist ein Lauf, kein Versprechen — sie
+nachzuprüfen heißt: `npm run verify` fahren und den Bericht lesen.
+
 **Die alte Zahl war abgeschrieben.** `npm run verify` stand hier mit 2 m 13 s
 und war gemessen rund **vier Minuten** lang: die Browser-Stufe allein kostete
 194,8 s, weil ihre Schritte alle 50 ms nachsahen. Gemessen wird jetzt vor und
@@ -84,7 +90,7 @@ nach jedem Umbau an dieser Zeile, siehe *Messe, bevor du behauptest*.
 `check-*.mjs` hat seine eigene Zeile in `scripts/verify/groups.mjs` und seinen
 eigenen Fingerabdruck: eine Änderung an der Ökonomie fährt die Ökonomie, nicht
 das ganze Bündel. Vorher hing der Zuschnitt an der Importgrenze von
-`verify-slice.mjs` — acht Importe waren das Cap, also wurden `check-deposits`
+der damalige Volllauf — acht Importe waren das Cap, also wurden `check-deposits`
 an `checkRooting()`, `check-traits` an `checkMutant()`, `check-seed` und
 `check-account` an `checkWorldViews()` gebündelt. **Dieser Grund ist weg:**
 `index.mjs` reiht `export … from`-Zeilen, und die zählen nicht als Import.
@@ -95,9 +101,15 @@ nächsten gespiegelten — gemessen 10,8 s von 15,6 s der Gruppe. Er sucht jetzt
 im Fenster der gespiegelten x-Achse auf einer sortierten Liste; geprüft wird
 dieselbe Aussage (`< 1e-6`), nur ohne jedes Paar.
 
-**`npm run check` ist die lokale Zeile.** Er fährt die betroffenen Wächter und
-danach nur die Prüfgruppen, deren **Eingaben** sich geändert haben — der
-Fingerabdruck einer Gruppe ist ihre ganze Import-Hülle plus jede Datei, die
+**Es gibt genau eine Zeile, `scripts/check.mjs`.** Ihr Schalter entscheidet,
+welche Spur läuft: ohne Schalter lokal die betroffenen Wächter und nur die
+Prüfgruppen, deren **Eingaben** sich geändert haben; `--all` alle Gruppen ohne
+Browser; `--browser` die Browser-Stufe allein; beides zusammen der Volllauf, den
+die CI fährt. Ein zweites Skript gibt es bewusst nicht: zwei Einstiege über
+derselben Gruppenliste laufen still auseinander, und die Doku zitiert dann den
+falschen. Der Lauf sagt zu Beginn, welche Spur er fährt.
+
+Der **Fingerabdruck** einer Gruppe ist ihre ganze Import-Hülle plus jede Datei, die
 ihre Module namentlich nennen (goldene Werte, Workflows, gestartete Skripte).
 Nichts geändert heißt: nichts läuft. Die **Browser-Stufe läuft dort nicht** —
 sie ist der teuerste Teil und hängt an einem Server; die CI fährt sie bei
@@ -305,7 +317,8 @@ siehe `GOVERNANCE.md`. `scripts/verify/check-workflow.mjs` prüft bei jedem
 
 ## Die Abnahme
 
-`scripts/verify-slice.mjs` ist der Einstiegspunkt. Sie spielt den Slice mit
+`npm run verify` ist der Einstiegspunkt — dieselbe Zeile wie `npm run check`,
+nur mit `--all --browser`. Sie spielt den Slice mit
 einer **virtuellen Uhr** durch und importiert die **echten** Module aus `src/` —
 keine Nachbauten, kein Browser, keine Flakiness.
 
@@ -327,7 +340,8 @@ Der Gerüstbau ist `scripts/verify/expect.mjs`. Daraus folgen zwei feste Regeln:
   `makeOnboardingRun()`, weil der Start-Zustand der Run-Erzeugung zugrunde liegt.
 - **Wer eine Prüfung hinzufügt, gibt ihr eine eigene Zeile in
   `scripts/verify/groups.mjs`.** Dort steht die Reihenfolge einmal, gelesen vom
-  Volllauf (`verify-slice.mjs`) und vom lokalen Lauf (`check.mjs`). Gebündelt
+  Volllauf (`npm run verify`) und vom lokalen Lauf (`npm run check`) — dieselbe
+  Zeile mit anderem Schalter. Gebündelt
   wird nichts mehr: jede `check-*.mjs` hat ihren eigenen Einstieg, sonst
   bezahlt eine Änderung an einer Sache die Prüfungen von sieben anderen.
 

@@ -41,6 +41,7 @@ export const GROUPS = Object.freeze([
   { id: 'game-clock', file: `${V}check-game-clock.mjs`, run: (m) => m.checkGameClock() },
   { id: 'architecture', file: `${V}check-architecture.mjs`, run: (m) => m.checkArchitecture() },
   { id: 'workflow', file: `${V}check-workflow.mjs`, inputs: ['.github/workflows/auto-bump.yml'], run: (m) => m.checkWorkflow() },
+  { id: 'commands', file: `${V}check-commands.mjs`, inputs: ['AGENTS.md', 'Docs/WORKFLOW.md'], run: (m) => m.checkCommands() },
   { id: 'browser', file: `${V}check-startup.mjs`, inputs: ['src'], browser: true, run: (m) => m.checkStartup() },
 ]);
 

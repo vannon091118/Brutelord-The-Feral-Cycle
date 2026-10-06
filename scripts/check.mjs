@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-/** Der lokale Lauf: nur die Gruppen, deren Eingaben sich geaendert haben, dazu
- *  die betroffenen Waechter. Den Volllauf faehrt die CI — siehe Docs/WORKFLOW.md. */
+/** Die eine Prueflinie: lokal nur Betroffenes, `--all` alles, `--browser` die
+ *  Browser-Stufe — die CI ruft dieselbe Zeile, siehe Docs/WORKFLOW.md. */
 import { execFileSync } from 'node:child_process';
 import { fingerprintOf, loadCache, saveCache } from './lib/check-cache.mjs';
 import { GROUPS, groupById, runGroups } from './verify/groups.mjs';
@@ -9,7 +9,8 @@ import { failureCount, summary } from './verify/expect.mjs';
 const args = process.argv.slice(2);
 const named = args.filter((arg) => !arg.startsWith('-'));
 const nodeMajor = Number(process.versions.node.split('.')[0]);
-const useCache = !args.includes('--no-cache') && !args.includes('--all');
+const all = args.includes('--all');
+const useCache = !args.includes('--no-cache') && !all;
 const cache = loadCache();
 
 function git(argsToRun) {
@@ -31,7 +32,13 @@ export function changedPaths() {
   return { paths: [...offen, ...(git(['diff', '--name-only', 'origin/main..HEAD']) ?? '').split('\n').filter(Boolean)], commits };
 }
 
+function explicitGuardianArgs() {
+  const explicit = args.filter((arg) => arg.startsWith('--base=') || arg.startsWith('--commits='));
+  return explicit.length > 0 ? ['--tree', '--spiegel', '--docs', '--version', ...explicit] : [];
+}
+
 export function guardianArgs({ paths, commits }) {
+  if (all) return explicitGuardianArgs();
   const any = (pattern) => paths.some((path) => pattern.test(path));
   const flags = [];
   if (any(/^(src|scripts|tools)\//)) flags.push('--tree');
@@ -43,13 +50,12 @@ export function guardianArgs({ paths, commits }) {
 }
 
 function gate({ paths, commits }) {
-  if (args.includes('--no-gate')) return;
   const flags = guardianArgs({ paths, commits });
-  if (flags.length === 0) {
+  if (!all && flags.length === 0) {
     console.log('Waechter: nichts betroffen, keiner laeuft.');
     return;
   }
-  console.log(`Waechter: gate ${flags.join(' ')}`);
+  console.log(`Waechter: gate ${flags.join(' ') || '(alle)'}`);
   try {
     execFileSync(process.execPath, ['scripts/ci-gate.mjs', ...flags], { stdio: 'inherit' });
   } catch {
@@ -64,9 +70,9 @@ const unveraendert = (group) => cache[group.id] === fingerprintOf(group, { nodeM
 function select() {
   const gewaehlt = named.map((name) => groupById(name)).filter(Boolean);
   if (gewaehlt.length) return gewaehlt;
-  const kandidaten = args.includes('--browser')
-    ? GROUPS.filter((group) => group.browser)
-    : GROUPS.filter((group) => !group.browser);
+  const mitBrowser = args.includes('--browser');
+  if (all) return mitBrowser ? GROUPS : GROUPS.filter((group) => !group.browser);
+  const kandidaten = mitBrowser ? GROUPS.filter((group) => group.browser) : GROUPS.filter((group) => !group.browser);
   if (!useCache) return kandidaten;
   return kandidaten.filter((group) => !unveraendert(group));
 }
@@ -121,10 +127,16 @@ function protokoll(bericht) {
   }
 }
 
+function modus() {
+  if (!all) return 'lokaler Lauf: betroffene Waechter und geaenderte Gruppen';
+  return args.includes('--browser') ? 'Volllauf mit Browser (die Zeile der CI)' : 'Volllauf ohne Browser';
+}
+
 async function main() {
   if (args.includes('--list')) return liste();
   const unbekannt = named.filter((name) => !groupById(name));
   if (unbekannt.length) throw new Error(`Unbekannte Gruppe(n): ${unbekannt.join(', ')} — npm run check -- --list`);
+  console.log(`${modus()}\n`);
   gate(changedPaths());
   const groups = select();
   if (groups.length === 0) {

@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 /** Offline regression tests for the commit-gate policy. */
 import {
+  BOT_AUTHOR,
   REQUIRED_LABEL,
+  SIGNED,
+  UNSIGNED,
   buildDraftMessage,
+  classifySignature,
+  commitIdentity,
   commitViolations,
   stripForeignFooters,
 } from './lib/commit-rules.mjs';
@@ -61,6 +66,10 @@ const draft = buildDraftMessage({
 const draftViolations = commitViolations(makeEntry(draft));
 const draftStripped = stripForeignFooters(`${draft}\nReviewed-by: Niemand`);
 
+const signatur = (signature, author = 'Vannon') => classifySignature({ sha: 'abc12345', signature, author });
+const kopf = commitIdentity('HEAD');
+const identitaetVollstaendig = kopf.author.length > 0 && [SIGNED, UNSIGNED].includes(kopf.signature);
+
 const checks = [
   ['100–1000 Wörter und korrektes Label bestehen', validViolations.length === 0],
   ['Co-Authored Trailer wird abgewiesen', trailerViolations.some((item) => item.rule.includes('Footer/Trailer'))],
@@ -83,6 +92,11 @@ const checks = [
   ['Der Draft-Generator liefert eine policy-feste Message', draftViolations.length === 0, draftViolations.map((i) => i.rule).join('; ')],
   ['Der Draft-Generator stellt das Label ans Ende', draft.trimEnd().endsWith(REQUIRED_LABEL)],
   ['Der Draft-Generator entfernt fremde Footer', !draftStripped.includes('Reviewed-by')],
+  ['Eine vorhandene Signatur besteht', signatur(SIGNED).length === 0, SIGNED],
+  ['Eine fehlende Signatur faellt durch', signatur(UNSIGNED).length > 0, UNSIGNED],
+  ['Der Bot braucht keine Signatur', signatur(UNSIGNED, BOT_AUTHOR).length === 0],
+  ['Eine fehlende Signatur nennt die Reparatur', signatur(UNSIGNED)[0].detail.includes('commit.gpgsign')],
+  ['Die Signaturlage kommt aus dem Commit-Objekt', identitaetVollstaendig, `${kopf.author}: ${kopf.signature}`],
 ];
 
 for (const [label, passed] of checks) console.log(`${passed ? '  ok  ' : ' FAIL '} ${label}`);

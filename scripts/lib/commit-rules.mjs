@@ -5,6 +5,9 @@ export const COMMIT_LIMITS = { subjectLength: 72, bodyMinWords: 100, bodyMaxWord
 export const REQUIRED_LABEL =
   'created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.';
 export const MIRRORS = ['VERSION', 'version.lock.json', 'package.json', 'package-lock.json'];
+export const BOT_AUTHOR = 'github-actions[bot]';
+export const SIGNED = 'signed';
+export const UNSIGNED = 'missing';
 export const DOC_FILES = ['Docs/ROADMAP_OPEN.md', 'Docs/CHECKPOINTS.md'];
 export const SHOTS_PREFIX = 'Docs/shots/';
 // Kennzeichnet die Zeilen, die ein Generator schreibt und die kein Mensch liest.
@@ -116,6 +119,23 @@ export function commitViolations(entry) {
 
 function isForeign(line) {
   return FORBIDDEN.some((rule) => rule.pattern.test(line));
+}
+
+export function classifySignature(entry) {
+  if (entry.author === BOT_AUTHOR) return [];
+  if (entry.signature !== SIGNED) {
+    return [{
+      rule: 'Hand-Commits sind signiert',
+      detail: `${entry.sha} traegt keine Signatur im Commit-Objekt (git log -1 --show-signature) — git config commit.gpgsign true`,
+    }];
+  }
+  return [];
+}
+
+export function commitIdentity(sha) {
+  const objekt = git(['cat-file', 'commit', sha]);
+  const [author = '', email = ''] = git(['log', '-1', '--format=%an%x00%ae', sha]).split('\u0000');
+  return { author, email, signature: /^gpgsig /m.test(objekt) ? SIGNED : UNSIGNED };
 }
 
 export function stripForeignFooters(message) {

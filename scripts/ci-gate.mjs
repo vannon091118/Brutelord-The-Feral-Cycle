@@ -2,6 +2,8 @@
 /** Das CI-Gate: Hard Caps, Version, Commit-Regeln. */
 import { execFileSync } from 'node:child_process';
 import {
+  classifySignature,
+  commitIdentity,
   commitViolations,
   changedFiles,
   commitMessage,
@@ -114,8 +116,9 @@ function runCommitCheck(range) {
     message: commitMessage(sha),
     paths: changedFiles(sha),
     isMerge: false,
+    ...commitIdentity(sha),
   }));
-  const problems = entries.flatMap(commitViolations);
+  const problems = entries.flatMap((entry) => [...commitViolations(entry), ...classifySignature(entry)]);
   console.log(`Commit-Regeln: ${entries.length} Commit(s) in ${range} geprüft.`);
   return problems;
 }

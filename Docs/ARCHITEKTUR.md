@@ -924,7 +924,7 @@ Die Fallstricke dahinter — Registrierung des Markers über die CDP-Session, da
 
 ## Prüfungen
 
-`scripts/verify-slice.mjs` ist der Einstiegspunkt und ruft Prüfgruppen auf, die
+`scripts/check.mjs` ist die einzige Zeile und ruft Prüfgruppen auf, die
 ihre Erwartungen aus den Configs ableiten. Neue Domänenlogik ist erst geprüft,
 wenn eine `check-*.mjs` sie aufruft; die echten Module aus `src/` werden
 importiert, nicht nachgebaut.
@@ -934,14 +934,14 @@ kein Extra und kein Opt-in: `checkStartup()` ruft dieselbe Browser-Stufe auf,
 die auch allein über `npm run verify:browser` läuft, und beide hängen an
 `checkBrowserStage()` in `scripts/browser/stage.mjs`. Wer nur im Node rechnet,
 prüft genau die Hälfte, die keine Uhr hat — der Abbau-Takt, der Spawn und das
-Onboarding leben im Browser, nicht in `verify-slice.mjs`. Deshalb steht in
+Onboarding leben im Browser, nicht im Node-Lauf. Deshalb steht in
 `ci.yml` vor der Verifikation `npx playwright install --with-deps chromium`, und
 deshalb ist `verify:browser` keine Abkürzung für den Lauf, sondern sein
 eigenständiger Zugang zu derselben Stufe.
 
 `scripts/verify/groups.mjs` listet die Gruppen an **einer** Kante und in ihrer
-Reihenfolge: `verify-slice.mjs` (Volllauf, CI) und `check.mjs` (lokal, gecacht)
-lesen dieselbe Liste. Jede `check-*.mjs` hat dort ihre **eigene Zeile** — das
+Reihenfolge: `npm run verify` (Volllauf, CI) und `npm run check` (lokal, gecacht)
+lesen dieselbe Liste — dieselbe Zeile, andere Schalter. Jede `check-*.mjs` hat dort ihre **eigene Zeile** — das
 Bündeln ist weg. Es war eine Folge der Importgrenze: acht Importe waren das Cap,
 also hingen `check-deposits.mjs` an `checkRooting()`, `check-traits.mjs` an
 `checkMutant()`, `check-seed.mjs` und `check-account.mjs` an `checkWorldViews()`.
