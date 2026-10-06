@@ -20,7 +20,7 @@ function LabHeader({ onClose }) {
         <h2 className="text-[14px] font-semibold tracking-widest text-[#ffdca0]" style={{ fontFamily: 'Georgia, serif' }}>⬡ LABOR</h2>
         <span className="text-[10px] text-[#9c8a6e]">Stein-Fusion • Rückentwicklung</span>
       </div>
-      <button type="button" onClick={onClose} className="shrink-0 rounded-full border border-[#e0983a]/30 px-2 py-[2px] text-[10px] text-[#c3b294] hover:border-[#e0983a]/60 transition-colors">
+      <button type="button" aria-label="Labor schließen" onClick={onClose} className="shrink-0 rounded-full border border-[#e0983a]/30 px-2 py-[2px] text-[10px] text-[#c3b294] hover:border-[#e0983a]/60 transition-colors">
         ×
       </button>
     </header>
@@ -44,7 +44,7 @@ function LabTray({ essence, full, onBuy }) {
   return (
     <div className="flex items-center justify-between rounded-xl border border-bone-400/10 bg-soil-900/60 px-3 py-2">
       <span className="text-[11px] text-bone-200">Essenz {essence}</span>
-      <button type="button" className={BUTTON_CLASS} disabled={full || !canAffordStone(essence)} onClick={onBuy}>
+      <button type="button" className={BUTTON_CLASS} disabled={full || !canAffordStone(essence)} title={full ? "Labor ist voll" : !canAffordStone(essence) ? "Nicht genug Essenz" : undefined} onClick={onBuy}>
         Stein kaufen · {STONE_CONFIG.cost}
       </button>
     </div>
@@ -57,7 +57,7 @@ function MakeRow({ placed, candidate, onCreate }) {
       <span className="text-[11px] text-bone-200">
         {candidate ? `Mutieren: ${candidate.id}` : 'Kein freier Dungling'}
       </span>
-      <button type="button" className={MAKE_CLASS} disabled={placed === 0 || !candidate} onClick={onCreate}>
+      <button type="button" className={MAKE_CLASS} disabled={placed === 0 || !candidate} title={placed === 0 ? "Keine Steine platziert" : !candidate ? "Kein freier Dungling" : undefined} onClick={onCreate}>
         Erschaffen · {placed}
       </button>
     </div>

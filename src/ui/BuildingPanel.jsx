@@ -30,21 +30,17 @@ function PanelHeader({ def, onClose }) {
 function WorkerControls({ building, maxWorkers, freeWorkers, onAssign, onRelease }) {
   const buttonClass =
     'rounded-lg border border-bone-400/15 bg-soil-900/70 px-2.5 py-1 text-[11px] text-bone-200 transition hover:border-core-400/40 disabled:opacity-40';
+  const c = building.workers.length;
+  const t1 = c >= maxWorkers ? "Maximum erreicht" : freeWorkers === 0 ? "Kein freier Dungling" : undefined;
+  const t2 = c === 0 ? "Kein Dungling zugewiesen" : undefined;
   return (
     <div className="flex items-center justify-between rounded-xl border border-bone-400/10 bg-soil-900/60 px-3 py-2">
-      <span className="text-[11px] text-bone-200">
-        Zugewiesen {building.workers.length} / {maxWorkers}
-      </span>
+      <span className="text-[11px] text-bone-200">Zugewiesen {c} / {maxWorkers}</span>
       <div className="flex gap-2">
-        <button
-          type="button"
-          className={buttonClass}
-          disabled={building.workers.length >= maxWorkers || freeWorkers === 0}
-          onClick={onAssign}
-        >
+        <button type="button" className={buttonClass} disabled={c >= maxWorkers || freeWorkers === 0} title={t1} onClick={onAssign}>
           + Dungling
         </button>
-        <button type="button" className={buttonClass} disabled={building.workers.length === 0} onClick={onRelease}>
+        <button type="button" className={buttonClass} disabled={c === 0} title={t2} aria-label="Dungling abziehen" onClick={onRelease}>
           −
         </button>
       </div>
