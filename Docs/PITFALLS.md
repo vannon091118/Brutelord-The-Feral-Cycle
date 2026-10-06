@@ -368,6 +368,31 @@ und fragen, wie alt der Prozess ist. Der Waisen ist ein Kind von
 `scripts/browser/server.mjs` und gehört einem — nur den killen, nie den
 Vorschau-Server, der auf 5173 ohne `--port` läuft.
 
+### Der lokale Prüfspeicher sieht kein Markup
+
+`check-cache.mjs` baut den Fingerabdruck einer Gruppe aus ihrer Import-Hülle
+plus den Dateipfaden, die im Text der Hülle als Zeichenkette stehen. Die
+Erkennung `PATH_RE` zählt aber die Endungen auf, die sie als Pfad annimmt:
+`mjs|js|json|sql|yml|yaml|css` — **`.jsx` ist nicht dabei.**
+
+> **Symptom:** keines. Eine Gruppe, die ein Markup-Modul liest, bleibt grün,
+> obwohl genau dieses Modul geändert wurde: `npm run check` überspringt sie,
+> weil ihr Fingerabdruck steht. `npm run check -- --all` und die CI finden den
+> Fehler weiterhin, die lokale schnelle Spur nicht.
+
+> **Gegenprobe:** `mentionedFiles()` aus `check-cache.mjs` an einer Datei mit
+> einem `src/…jsx`-Literal in der Eingabe liefert gemessen die leere Menge; mit
+> derselben Zeichenkette auf eine vorhandene `.js`-Datei liefert sie genau diese
+> Datei. Die Gruppe `creature-states` steht mit zehn `.jsx`-Pfaden im Text da
+> und landet mit **null** davon im Fingerabdruck — ihre zwei `.css`-Pfade aber
+> mit beiden.
+
+**Was zu tun ist:** wer Markup liest, nennt es in `inputs` seiner Zeile in
+`groups.mjs`; `creature-states` tut das für seine zehn Zeichenebenen und ist
+damit die einzige Gruppe, deren Fingerabdruck den Wesen folgt. Der eigentliche
+Fund ist die Endungsliste in `PATH_RE` — sie um `jsx` zu erweitern ändert den
+Fingerabdruck **jeder** Gruppe und gehört in einen eigenen Commit.
+
 ---
 
 ## Zwei Dateien, eine Wahrheit

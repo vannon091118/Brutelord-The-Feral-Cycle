@@ -1,8 +1,10 @@
 /** Die Prüfgruppen in ihrer Reihenfolge — einmal hier, gelesen vom Volllauf und
  *  vom lokalen Lauf. Die Reihenfolge ist keine Bequemlichkeit: `expect.mjs`
- *  zaehlt global, und die Run-Erzeugung liegt vor ihren Verbrauchern. `file`
- *  ist der Einstieg der Gruppe; daraus baut der lokale Lauf ihren Fingerabdruck. */
+ *  zaehlt global. `file` ist der Einstieg der Gruppe; daraus baut der lokale Lauf
+ *  ihren Fingerabdruck. `inputs` nennt, was kein Import erreicht — Markup etwa. */
 const V = 'scripts/verify/';
+
+const WESEN_MARKUP = ['src/world/Dungling.svg.jsx', 'src/world/dungling/DunglingBody.jsx', 'src/world/dungling/DunglingFeet.jsx', 'src/world/dungling/DunglingFace.jsx', 'src/world/dungling/DunglingTool.jsx', 'src/world/dungling/organic-skin.jsx', 'src/world/dungling/organic-features.jsx', 'src/world/dungling/MutantSvg.jsx', 'src/world/WorkerLayer.jsx', 'src/ui/stone/LabBench.jsx'];
 
 export const GROUPS = Object.freeze([
   { id: 'start', file: `${V}check-start.mjs`, run: (m) => m.checkStart() },
@@ -39,6 +41,7 @@ export const GROUPS = Object.freeze([
   { id: 'burrow-ring', file: `${V}check-burrow-ring.mjs`, run: (m) => m.checkBurrowRing() },
   { id: 'reveal', file: `${V}check-reveal.mjs`, run: (m) => m.checkReveal() },
   { id: 'dungling-look', file: `${V}check-dungling-look.mjs`, run: (m) => m.checkDunglingLook() },
+  { id: 'creature-states', file: `${V}check-creature-states.mjs`, inputs: WESEN_MARKUP, run: (m) => m.checkCreatureStates() },
   { id: 'storage', file: `${V}check-storage.mjs`, run: (m) => m.checkStorage() },
   { id: 'snapshot', file: `${V}check-snapshot.mjs`, run: (m) => m.checkSnapshot() },
   { id: 'aether', file: `${V}check-aether.mjs`, run: (m) => m.checkAether() },

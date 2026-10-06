@@ -275,7 +275,7 @@ und mit einem Lauf, den ein zweiter nachspielen kann.
       Aethermutant tragen dieselbe Vokabel — Ruhe, Schritt, Arbeit, gesperrt —, der
       arbeitende Dungling hebt sich mit Luft, Bodenring, Sporenflug und Trefferblitz ab, der
       Mutant hat seine Aetherkante und glänzende Augen, und auf dem Labortisch steht er auf
-      einem Sockel und hebt sich unter dem Zeiger an. **Offen bleiben drei Dinge.** Der Hover
+      einem Sockel und hebt sich unter dem Zeiger an. **Über dem Stand liegt seit dem 2026-10-06 ein Wächter:** die Gruppe `creature-states` liest die vier Stände, die Zuordnung der fünf Domänenzustände und die Materialkennungen nicht aus dem Stylesheet, sondern aus `creatureClasses()`, `dunglingAnimation()`, `materialIds()` und den Klassen, die das Markup wirklich vergibt — eine neue Wirkung ohne CSS-Regel fällt damit auch ohne eigenen Eintrag um.        **Offen bleiben drei Dinge.** Der Hover
       auf dem Spielfeld fehlt: dort bleibt die Figur für den Zeiger unsichtbar
       (`pointer-events: none` in `Dungling.svg.jsx`), weil ein treffbares Wesen den Klick auf
       die Kachel darunter schluckt — und darunter liegt im Zweifel der Erdblock oder der

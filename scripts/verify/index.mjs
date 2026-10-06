@@ -41,6 +41,7 @@ export { checkSoilMass } from './check-soil-mass.mjs';
 export { checkBurrowRing } from './check-burrow-ring.mjs';
 export { checkReveal } from './check-reveal.mjs';
 export { checkDunglingLook } from './check-dungling-look.mjs';
+export { checkCreatureStates } from './check-creature-states.mjs';
 export { checkFixtures } from './check-fixtures.mjs';
 export { checkVerticality } from './check-verticality.mjs';
 export { checkVerticalityWiring } from './check-verticality-wiring.mjs';

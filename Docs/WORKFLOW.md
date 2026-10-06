@@ -80,7 +80,7 @@ und gedeckelt bleibt; **der Volllauf gehört der CI**.
 
 **Nach der Zusammenführung gemessen (2026-10-06).** `npm run verify` fährt
 dieselbe Zeile wie `npm run check`, nur mit `--all --browser`: **33 s** für alle
-38 Gruppen samt Wächtern, davon rund 19 s die Browser-Stufe (Node 22.23.3,
+Gruppen samt Wächtern, davon rund 19 s die Browser-Stufe (Node 22.23.3,
 headless, FX-6300, je Last). Die Zahl ist ein Lauf, kein Versprechen — sie
 nachzuprüfen heißt: `npm run verify` fahren und den Bericht lesen.
 
