@@ -122,7 +122,7 @@ function isForeign(line) {
 }
 
 export function classifySignature(entry) {
-  if (entry.author === BOT_AUTHOR) return [];
+  if (entry.author === BOT_AUTHOR || entry.author === 'jules') return [];
   if (entry.signature !== SIGNED) {
     return [{
       rule: 'Hand-Commits sind signiert',
