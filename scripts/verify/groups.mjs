@@ -12,6 +12,7 @@ export const GROUPS = Object.freeze([
   { id: 'rooting', file: `${V}check-rooting.mjs`, needsRun: true, run: (m, ctx) => m.checkRooting(ctx.run) },
   { id: 'deposits', file: `${V}check-deposits.mjs`, run: (m) => m.checkDeposits() },
   { id: 'edge-mask', file: `${V}check-edge-mask.mjs`, run: (m) => m.checkEdgeMaskGroup() },
+  { id: 'tile-shapes', file: `${V}check-tile-shapes.mjs`, run: (m) => m.checkTileShapes() },
   { id: 'claim', file: `${V}check-claim.mjs`, needsRun: true, run: (m, ctx) => m.checkClaim(ctx.run) },
   { id: 'build', file: `${V}check-build.mjs`, run: (m) => m.checkBuild() },
   { id: 'world-views', file: `${V}check-world-views.mjs`, run: (m) => m.checkWorldViews() },
