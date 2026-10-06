@@ -43,6 +43,110 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.45
+
+- [x] **Die Leiter bei 47,47 ist der Eingang.** Sie stand als `LADDER_TILE`
+      in der Config, wurde als Deko gerendert, und beim Erreichen geschah null
+      Zeilen Code. **Jetzt führt sie hinunter:** sie steht in jeder Etage an
+      denselben Koordinaten (`world.entrance`), liegt dort unter Gestein und
+      wird gegraben — erst wenn ihre Kachel `isUsable()` ist, ist sie klickbar
+      und schickt denselben `ACTION.FLOOR_DESCEND` wie die Plakette, also
+      entscheidet weiterhin der Reducer der Etage über Preis und Grenze. Wer
+      sie freilegt, steigt ab. **Der Anreiz ist gemessen:** jede Etage trägt
+      über `DEPOSIT_DEPTH.gainPerFloor` ein Viertel mehr Essenz je Kammer, in
+      ihrem eigenen Budgetband, und die noch freie zweite Etage liegt gemessen
+      bei 12.900 gegen 9.660 Essenz der ersten. Etage 0 hat den Zuwachs exakt
+      null und ist Zeichen für Zeichen dieselbe Welt wie zuvor. Belegt von
+      `check-ladder.mjs` und `check-verticality-wiring.mjs`. **Offen bleibt:**
+      die Leiter wird per Klick betreten, nicht durch einen laufenden Dungling,
+      und der Boden um sie herum entsteht als Tunnel von Hand — es gibt keinen
+      automatischen Gang zum Eingang, und den soll es nicht geben.
+  Status: fix
+  Scope: Welt
+  Kategorie: Feature
+  Version: 0.0.45
+  Datum: 2026-10-06
+
+- [x] **Die Schichtung von `src/` ist ein Abbruchgrund im Gate.** Die Tabelle
+      (`scripts/lib/import-rules.mjs`) gab es, aber `npm run gate` kannte sie
+      nicht — die Richtung war eine Pruefung im Verify-Lauf und laut `AGENTS.md`
+      ausdruecklich „Konvention, nicht Gate". **Jetzt liest das Gate dieselbe
+      Funktion** (`Importrichtungen`, einzeln `npm run gate -- --imports`), und
+      zwei Tueren sind zu, die ein Muster uebersieht: ein dynamisches `import()`
+      zaehlt wie ein statischer Import, und ein Verzeichnis unter `src/`, das
+      keine Schicht ist, ist selbst ein Verstoss — eine neue Schicht braucht eine
+      Zeile in der Tabelle, nicht nur einen Ordner. Die Gruppe `imports` faehrt
+      damit 16 Zusicherungen, acht davon erfundene Kanten. **Gegenprobe gemessen:**
+      eine echte Datei `src/domain/zz-verstoss.js` mit `import … '../world/grid.js'`
+      bricht das Gate mit `FAIL Importrichtung … (domain darf nicht nach world)`
+      ab, nach dem Rueckbau ist es wieder gruen; dasselbe mit einem dynamischen
+      `import()`. Die Dokumentation nennt die Regel jetzt ueberall als erzwungen
+      (`AGENTS.md`, `GOVERNANCE.md`, `ARCHITEKTUR.md`, `WORKFLOW.md`,      `COMMIT_POLICY.md`).
+  Status: fix
+  Scope: Gate
+  Kategorie: Abnahme
+  Version: 0.0.45
+  Datum: 2026-10-06
+
+- [x] **Die Sim-Uhr ist gegen ihre Raender geprueft.** `check-game-clock-edges.mjs`
+      faehrt 32 Zusicherungen ohne Browser und ohne Warten: gedrosselter
+      Hintergrundtab (100 Schritte à 100 ms gegen 10 à 1000 ms — derselbe Strom),
+      Tab-Wechsel, schlafender Rechner, drei Stunden Abwesenheit, CPU-Spikes
+      (zwoelf Schritte zwischen 1 und 1000 ms), drei verpasste Takte, eine
+      schweigende Uhr und einen Ruecksprung der Systemzeit. **Dabei fiel ein
+      echter Fehler auf:** `run.last = at` gegen eine Quelle, die zurueckspringt,
+      holte Spielzeit nach, die nie vergangen ist (gemessen 45 statt 30 Takte) —
+      der Zeiger ist jetzt `Math.max(run.last, at)`. Zwei Gegenproben: ohne den
+      Deckel fallen 5 von 32 Pruefungen, ohne den vorwaerts laufenden Zeiger 3      von 32. Der Fund steht in `PITFALLS.md`.
+  Status: fix
+  Scope: Uhr
+  Kategorie: Test
+  Version: 0.0.45
+  Datum: 2026-10-06
+
+- [x] **Der Lauf ist reproduzierbar.** `src/domain/replay/run-log.js` haelt Seed
+      und Eingaben (`BFC1-…`), `run-report.js` nennt die erste Abweichung mit
+      Aktionsnamen, `use-game-engine.js` zeichnet jeden Befehl auf — den des
+      Spielers **und** den Takt der Uhr. Die Wiedergabe faehrt denselben Reducer
+      von `createInitialGameState(seed)` aus und trifft jeden Zustands-Hash:
+      gemessen Seed `a1b2c3d4`, 1669 Eingaben, Digest `970a7b9b`. Dazu der Raid
+      als deterministische Simulation (`raid-sim.js`, elf Woerter, Salt je
+      Schritt) mit einem eigenen Golden-Wert (`npm run golden:raid`, drei
+      Tickets, 96/96/32 Schritte, 37/39/20 verschiedene Zustaende). Entwurf,
+      Grenzen und offene Fragen stehen in [`REPLAY-PLAN.md`](REPLAY-PLAN.md).
+  Status: fix
+  Scope: Domaene
+  Kategorie: Feature
+  Version: 0.0.45
+  Datum: 2026-10-06
+
+- [x] **Der Server kennt den Spieler, den Spielstand und den Raid.** Fünf Lücken,
+      die zusammenhingen. **Identität:** `login`/`register` geben zusätzlich zum
+      Seed einen Traeger-Token aus, `sessions` hält ihn, und `/api/state` wie
+      `/api/raid` lösen ihn serverseitig auf — der Server glaubt keinem
+      `playerseed` aus dem Rumpf mehr (B9). **Spielstand:** `POST`/`GET
+      /api/state` tragen den Envelope über HTTP, mit der Snapshot-Obergrenze als
+      eigener Rumpfschranke; der Speicher-Takt schickt denselben Envelope, den er
+      lokal sichert, und schweigt ohne Token. **Atomar:** die Revision steht als
+      Spalte und wird in der Bedingung der `UPDATE` geprueft — zwei Tabs buchen
+      nicht mehr dieselbe naechste Revision (B10). **Bremse:** `login_attempts`
+      haelt den Zaehler je Name und Herkunft statt eines `new Map()` im
+      Prozessspeicher, das bei verteilten Workern nichts bremst (B11). **Raid:**
+      `POST /api/raid` ruft `validateRaidReplay()` — Spieler, Server, Pruefer.
+      **PlayerID:** eigene Kennung statt `seed.slice(0, 8)`, das bei rund 65.000
+      Konten zur Haelfte kollidiert (B12). **Bindung:** `npm run deploy:guard`
+      weist den Null-Platzhalter des `wrangler.jsonc` vor dem Ausliefern ab
+      (B13). Belegt von `check-storage`, `check-account`, `check-account-brake`,
+      `check-account-worker` und `check-account-http`; die Migration liegt als
+      `0002` bei. **Offen bleibt:** Ticketausstellung und MMR — die Zeile, die
+      vor dem Ergebnis in die Datenbank schreibt, fehlt weiterhin.
+  Status: fix
+  Scope: Server
+  Kategorie: Feature
+  Version: 0.0.45
+  Datum: 2026-10-06
+
+
 ## 0.0.42
 
 - [x] **Die Testzeile: granular, gecacht, ohne Browser lokal.** Der Volllauf war
