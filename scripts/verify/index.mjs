@@ -11,6 +11,7 @@ export { checkStorage } from './check-storage.mjs';
 export { checkRaidCap } from './check-raid-cap.mjs';
 export { checkSoilMass } from './check-soil-mass.mjs';
 export { checkBurrowRing } from './check-burrow-ring.mjs';
+export { checkReveal } from './check-reveal.mjs';
 export { checkVerticality } from './check-verticality.mjs';
 export { checkVerticalityWiring } from './check-verticality-wiring.mjs';
 export { checkStartup } from './check-startup.mjs';
