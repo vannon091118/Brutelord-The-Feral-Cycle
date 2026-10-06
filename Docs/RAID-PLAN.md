@@ -254,8 +254,10 @@ Bilanzierung.
 - **D26** Ein Verb, zwei Währungen, ein Ort: `DIG` bleibt ein Verb und eine
   Aktion, und die Währung wird nach Zustand gewählt. Der Heimatpreis von einer
   Essenz je Block bleibt unangetastet.
-- **D28** **Anti-Aufkundschaffen durch Ticketbindung.** Die Vergabe des
-  Tickets sperrt das Team serverseitig. Schließt der Angreifer den Tab nach
+- **D46** **Anti-Aufkundschaffen durch Ticketbindung.** Die Vergabe des
+  Tickets sperrt das Team serverseitig. *(Stand als `D28`, das schon an den
+  Wänden vergeben war — siehe die Nummernhinweise in „Kosten und Fähigkeiten"
+  und „Die Gruppe, die Traits und das Graben-Tor".)* Schließt der Angreifer den Tab nach
   dem blinden Aufdecken der ersten Felder, bleibt das Team in der Raid-Instanz
   gefangen; reicht kein valides Log für einen legitimen Rückzug oder Sieg ein,
   erklärt ein serverseitiger Timeout-Job den Raid zum Totalverlust. Die
@@ -295,32 +297,41 @@ Bilanzierung.
 Diese Entscheidungen kamen nach dem Gerüst aus PR #13 und ändern daran nichts,
 was dort steht — sie sagen, **wie** sich die Gruppe im fremden Dungeon bewegt.
 
-- **D32** **Ein Cursor ist die Position der Gruppe.** `state.at` gehört der
+**Die Nummern dieses Abschnitts standen doppelt.** `D32`, `D33` und `D34` waren
+schon einmal vergeben, und die zitierten Fassungen sind die älteren: offene
+Frage 1 verweist auf das Ausdauer-`D33`, die Checkpoints auf das Ausdauer-`D33`
+und das Hive-`D34`. Der ganze Abschnitt ist deshalb geschlossen auf `D39` bis
+`D45` umgezogen und behält seine Reihenfolge — `D39` ist der Cursor, `D45` die
+Reihenfolge von `candidates()`. Die spätere Doppelung von `D28` heißt jetzt
+`D46`. Eine Nummer benennt wieder genau eine Entscheidung; keine Zitation
+musste sich dafür ändern.
+
+- **D39** **Ein Cursor ist die Position der Gruppe.** `state.at` gehört der
   Gruppe, und `state.heroes` trägt **keine** eigene Position. In der Kolonie ist
   die Position je Dungling Spielwahrheit, weil sie sich Kacheln teilen; im Raid
   entscheidet sie nichts, gegen einen eingefrorenen Snapshot gibt es keine
   Zugsorge. Zwei Helden einzeln zu setzen erzeugt eine Zugverschiebung, die
   nichts entscheidet, dafür aber Zustand, Hash und Replay-Format verdoppelt.
-- **D33** **Im Idle erkundet die Gruppe von selbst und handelt nicht.** Ohne
+- **D40** **Im Idle erkundet die Gruppe von selbst und handelt nicht.** Ohne
   Befehl zieht sie in die **Frontlinie** — grabbare Felder am Rand des
   gelaufenen Bereichs, gewählt aus dem Seed im Ticket. Sie **gräbt** dabei, denn
   Graben ist Bewegung durch Erdreich, führt aber **keine** Aktion aus: kein
   Angriff, kein Zielwechsel. Der Idle-Takt kostet damit Ausdauer statt AP, und
   das ist der Preis des eigenen Explorierens.
-- **D34** **Ein Befehl setzt den Pfad, nicht das Ziel.** Die Pfadfindung ist
+- **D41** **Ein Befehl setzt den Pfad, nicht das Ziel.** Die Pfadfindung ist
   **Dijkstra über Ausdauer**, nicht BFS über Schritte: bekannter Boden ist
   gratis, ungegrabener kostet `digCost()`, und ein Weg, dessen Summe das Budget
   übersteigt, wird nicht ausgegeben. Die Schritte selbst bleiben die Verbote des
   Replays (`DIG_S`, `MOVE_N`), damit Replay und Erkundung dieselbe Sprache
   reden. **Wege, die frei werden, werden weiter erkundet**, und ein unerfüllbarer
   Befehl fällt auf die Erkundung zurück, statt zu blockieren.
-- **D35** **Alle drei Traits sind in der Währung des Raids gerechnet**, nicht
+- **D42** **Alle drei Traits sind in der Währung des Raids gerechnet**, nicht
   abgeschrieben: `lootScale = 1 + carryBonus`, `apScale = 1 + speedBonus`,
   `digScale = 1 / (1 - trailSlow)`. Im Raid gibt es keine Bauaufträge und keine
   fremden Dunglinge, also fällt `buildOrders` weg, die Aura wird bedingungslos,
   weil die Gruppe eine Einheit ist, und aus der Schleimspur wird ein **Preis für
   das Grabfeld am eigenen Tunnel**. Gefaltet wird mit `peak()`.
-- **D36** **Das Graben-Tor: Erde ist immer offen, Hartgestein nur mit der
+- **D43** **Das Graben-Tor: Erde ist immer offen, Hartgestein nur mit der
   Fähigkeit.** `canDig(terrain, heroes)` ist genau das und `raid-steps.js`
   prüft es fail closed. Die Berechtigung ist `RAID_CAPABILITY.DIG` aus dem
   Mutationssystem und gilt **in beiden Welten**: dasselbe Team, das im eigenen
@@ -328,10 +339,10 @@ was dort steht — sie sagen, **wie** sich die Gruppe im fremden Dungeon bewegt.
   Mechanismus (ein Verb mit eigener Kostenlogik) und Berechtigung (ein Kanal in
   `STONE_SALT`) sind zwei Dinge; D2 bleibt damit unangetastet, denn Erde bleibt
   grabbar und nur das Hartgestein ist das Gate.
-- **D37** `entryRadius` und `baseStamina` werden gegeneinander gerechnet:
+- **D44** `entryRadius` und `baseStamina` werden gegeneinander gerechnet:
   `worstEntryDistance()` ist `min(entryRadius, MAX_APPROACH)` — der schlimmste
   Einmarsch ist der Ring, nicht die Kartenecke.
-- **D38** Die Reihenfolge von `candidates()` ist Teil des Replay-Formats, weil
+- **D45** Die Reihenfolge von `candidates()` ist Teil des Replay-Formats, weil
   `entryPointFor()` mit `index = hash * list.length` daraus wählt. Deshalb trägt
   `RAID_FORMAT_VERSION` den Zustand mit in `stateHashInput()`, und die Abnahme
   friert Länge, ersten und letzten Punkt ein.

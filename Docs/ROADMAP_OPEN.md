@@ -51,7 +51,11 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
       das Ticket **auszustellen** kann nur der Server — dieser Baum führt die
       Instanz aus, er vergibt sie nicht. Das ist die Grenze zwischen Client
       und Matchmaking, nicht ein Fehler im Ticket. Die Regeln und offenen
-      Fragen stehen in [`RAID-PLAN.md`](RAID-PLAN.md).
+      Fragen stehen in [`RAID-PLAN.md`](RAID-PLAN.md). Die zweite Hälfte dieses
+      Rests — Biomasse und der Wächter, der sie verbraucht — ist als Entwurf
+      vermessen und in [`WARDEN-PLAN.md`](WARDEN-PLAN.md) entschieden: die
+      Quelle liegt danach in der eigenen Erde und braucht diesen Raid nicht,
+      das Heilen schon.
   Status: geplant
   Scope: Domäne
   Kategorie: Feature
@@ -119,6 +123,43 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
   Status: geplant
   Scope: Welt
   Kategorie: Abnahme
+  Version: ausstehend
+  Datum: ausstehend
+
+- [ ] **Blutstein als Tier-3-Ressource.** Der Preis für eine neue Etage und die
+      einzige Ressource, die **nicht** aus dem eigenen Keller kommt: die
+      Ressourcenmatrix in [`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md) legt sie
+      ausschließlich aus feindlichen Hives, und daraus zieht der Entwurf seine
+      Begründung, warum das Spiel den Spieler irgendwann hinauszwingt. Heute hat
+      sie weder Quelle noch Abnehmer: die Phantom-Beute steht als Absicht in der
+      VISION und **nicht** im Raid-Entwurf, in dem das Wort gar nicht vorkommt,
+      und der Raid-Rest oben nennt Opfer und Extraktion als unerreicht. Solange
+      die Phase hinter `EXTRACTING` verhindert wird, gibt es nichts, was
+      Blutstein liefern könnte. **Korrektur an der Vorlage:** die Vorlage
+      zitiert `D13` und `D26`; `D13` ist der Preis des Lootlings und nicht die
+      Herkunft der Beute, und `D26` regelt, dass `DIG` ein Verb bleibt. Wer hier
+      baut, entscheidet zuerst, **wo** die Ressource entsteht — sie ist die
+      einzige, die der Client nicht erzeugen darf.
+  Status: geplant
+  Scope: Domäne
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+- [ ] **Aether als Tier-2-Ressource.** Die Währung der Tiefe: Mutationen,
+      fortgeschrittene Anlagen und tiefere Etagen speisen sich laut
+      [`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md) aus dem Inneren der eigenen
+      Basis. Ihr fehlt damit nicht nur der Verbraucher, sondern der **Ort**: die
+      Etagen sind im Raid-Entwurf ausdrücklich vollständig unbestimmt, und die
+      Leiter bei 47,47 ist Kulisse ohne Verhalten. **Korrektur an der Vorlage:**
+      die Vorlage zitiert `D2` und `D33`; `D2` beschreibt das Erd-Tor des Raids,
+      und `D33` war doppelt vergeben — der Raid-Entwurf hat die spätere Doppelung
+      aufgelöst, die zitierte Nummer zeigt jetzt auf die Ausdauer-Rechnung und
+      nicht auf die Tiefe. Der belastbare Anker ist allein die Vertikalität: ein
+      Modul `aether.js` vor Etage 2 hätte keinen Ort, an dem es entsteht.
+  Status: geplant
+  Scope: Domäne
+  Kategorie: Feature
   Version: ausstehend
   Datum: ausstehend
 
