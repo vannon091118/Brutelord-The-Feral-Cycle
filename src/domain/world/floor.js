@@ -1,16 +1,18 @@
 // @doc: docs/daten/world/floor.md#floor
 import { createWorld } from './grid.js';
-import { worldSeed } from './world-seed.js';
+import { worldSeed32 } from '../seed/seed-input.js';
 import { FLOOR } from './floor-config.js';
 
 export const DEEPEST_FLOOR = FLOOR.deepest;
 
 export function createFloorWorld(playerseed, depth = FLOOR.start) {
-  return createWorld({ playerseed, seed: floorSeed(playerseed, depth), depth });
+  const seed = floorSeed(playerseed, depth);
+  return seed === null ? null : createWorld({ playerseed, seed, depth });
 }
 
 export function floorSeed(playerseed, depth = FLOOR.start) {
-  const base = worldSeed(playerseed);
+  const base = worldSeed32(playerseed);
+  if (base === null) return null;
   if (depth <= FLOOR.start) return base;
   let hash = (base ^ FLOOR.seedSalt) >>> 0;
   for (let level = 0; level < depth; level += 1) {

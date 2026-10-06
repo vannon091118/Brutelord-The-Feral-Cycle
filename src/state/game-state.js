@@ -9,6 +9,7 @@ import { readSavedState } from './snapshot.js';
 
 export function createInitialGameState(playerseed) {
   const world = createWorld({ playerseed });
+  if (world === null) throw new Error(`Ungueltiger Spielerseed "${String(playerseed)}" — der Start baut keine Welt.`);
   return {
     world,
     playerseed: world.seed,

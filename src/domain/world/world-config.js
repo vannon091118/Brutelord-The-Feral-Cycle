@@ -25,6 +25,7 @@ const MAX_WORLD_SCALE = 1;
 
 export const WORLD_SEED = Object.freeze({
   anonymous: 0xc0ffee,
+  canonicalHex: 16,
   hexLength: 8,
 });
 

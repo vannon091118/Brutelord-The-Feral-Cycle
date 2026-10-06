@@ -18,7 +18,7 @@ import {
   tileId,
 } from './tile.js';
 import { revealWorld } from './reveal.js';
-import { worldSeed } from './world-seed.js';
+import { worldSeed32 } from '../seed/seed-input.js';
 import { ONBOARDING_CONFIG } from '../onboarding/onboarding-config.js';
 import { createDeposits } from '../deposits/deposit-placement.js';
 
@@ -75,13 +75,15 @@ export function createWorld({
   hiveOrigin = HIVE_ORIGIN,
   spawnTile = ONBOARDING_CONFIG.dunglingSpawnTile,
   playerseed,
-  seed = worldSeed(playerseed),
+  seed,
   depth = 0,
 } = {}) {
+  const resolved = seed === undefined ? worldSeed32(playerseed) : seed;
+  if (resolved === null || resolved === undefined) return null;
   const world = {
     width,
     height,
-    seed,
+    seed: resolved,
     depth,
     hiveOrigin: { ...hiveOrigin },
     hiveSize: { ...HIVE_SIZE },

@@ -383,6 +383,29 @@ und mit einem Lauf, den ein zweiter nachspielen kann.
   Version: ausstehend
   Datum: ausstehend
 
+- [x] **Der Seed ist eine Auslegung, kein stiller Rückfall auf Null.** `worldSeed()`
+      las einen Hex-String mit `parseInt`, und `parseInt('ZZZZZZZZ', 16)` ist `NaN`;
+      `NaN >>> 0` ist **0**. Ein Tippfehler war damit still die Welt des Seeds
+      `00000000` — von einer gültigen Null nicht zu unterscheiden —, `12xyz` wurde zu
+      `18` statt abgelehnt, `-1` zu `4294967295` und `1.5` zu `1`. Die Auslegung steht
+      jetzt in `src/domain/seed/seed-input.js`: Eine Zahl gilt nur als ganze Zahl bis
+      `4294967295`, eine Zeichenkette nur als 1 bis 16 Hex-Zeichen, alles andere ist
+      `null`; `worldSeed()` ist die werfende Projektion davon, und `createWorld()`
+      liefert für eine ungültige Saat `null` statt eines Rasters. Vier Domänen
+      (WORLD, ORGANISM, EVENT, PRESENTATION) bekommen mit `seed-domain.js` ihren
+      Namensraum, und `SALT_HOME` ordnet jedes bestehende Salz-Set genau einer Domäne
+      zu, **ohne einen einzigen Wert umzunummerieren**; `DERIVATION_VERSION` steht
+      bei 1. Der Fund auf diesem Weg war echt: `check-raid-siege.mjs` baute seinen
+      Heimatstand aus dem Text `raid-beute` und funktionierte nur, weil daraus still
+      die Null wurde. `check-seed` belegt 21 Zusicherungen, darunter 15 Bestandswerte
+      Zeichen für Zeichen und die Gültigkeitsmatrix samt `SeedError`; die Golden-Werte
+      der Deterministizität und des Raids sind unverändert.
+  Status: geplant
+  Scope: Domäne
+  Kategorie: Bugfix
+  Version: ausstehend
+  Datum: ausstehend
+
 ---
 
 ## Was hier NICHT steht

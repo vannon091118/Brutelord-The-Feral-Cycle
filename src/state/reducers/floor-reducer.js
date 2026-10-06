@@ -19,6 +19,7 @@ function descended(state, target) {
 
 function moved(state, target, economy) {
   const world = createFloorWorld(state.playerseed, target);
+  if (world === null) return state;
   return {
     ...state,
     world,

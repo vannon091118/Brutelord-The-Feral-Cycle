@@ -18,6 +18,11 @@ Feld wirklich nicht, und der Rückfall ist hier die richtige Antwort statt eines
 Das ist ausdrücklich **nicht** das verbotene `??`-Muster für Tabellen, die vollständig sein
 müssen — ein alter Stand *hat* den Wert nicht, und ein fehlendes Feld ist kein halber Wert.
 
+Ein ungültiger Spielerseed baut **keinen** Startzustand. `createWorld()` liefert dafür
+`null`, und `createInitialGameState()` weigert sich statt eine Welt aus dem Seed `0` zu
+basteln. Erreichbar ist das nicht: Die Sitzung laesst nur sechzehn Hex-Zeichen durch. Waere
+es erreichbar, waere es eine kaputte Sitzung, und die soll man sehen statt sie zu spielen.
+
 ## Schnittstellen
 
 - `createInitialGameState()` — mit leerem `economy`

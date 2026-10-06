@@ -14,6 +14,10 @@ der Offline-Bau bekommen.
 wenn eine Startkachel gesetzt ist — die Raid-Welt ruft `createWorld` mit `spawnTile: null`
 und bekommt ihren Ring damit nicht.
 
+`WORLD_SEED` trennt die kanonische Saat von der abgeleiteten: `canonicalHex` ist die Breite
+des Kontoseeds, `hexLength` die Breite, die die Domäne liest. Der Ableger ist damit ein
+Praefix der Saat und kein zweiter Wert neben ihr.
+
 ## Schnittstellen
 
 - `worldPixelSize()`

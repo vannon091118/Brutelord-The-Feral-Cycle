@@ -122,7 +122,7 @@ function checkAuszahlung(zurueck) {
   check('Der aufgeloeste Raid zahlt aus', beute.ok === true);
   check('Der Blutstein kommt aus dem Blutstein-Kreislauf',
     beute.loot?.bloodstone === BLOODSTONE_CONFIG.hiveYield, `${beute.loot?.bloodstone}`);
-  const heim = createInitialGameState('raid-beute');
+  const heim = createInitialGameState('beefcafe00000001');
   const bezahlt = applyRaidLoot(heim, beute.loot ?? leer);
   check('Die Essenz landet im Heimatstand', bezahlt.essence === heim.essence + (beute.loot ?? leer).essence);
   check('Der Heimatstand bleibt sonst unberuehrt', bezahlt.world === heim.world && bezahlt.hive === heim.hive);

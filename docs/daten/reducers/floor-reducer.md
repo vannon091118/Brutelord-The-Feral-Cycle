@@ -18,7 +18,9 @@ wo `canDescend()` falsch ist — versucht er den Kauf über `buyFloor()`. Geling
 Sprung eine Etage weiter, als die Config allein hergäbe, und die bezahlte Tiefe wandert in
 denselben Zustand, den die neue Welt trägt. Gelingt er nicht, gibt der Reducer **denselben**
 Stand zurück: kein halber Sprung, keine zweite Wahrheit über die Tiefe, und die Plakette an
-der Grenze bleibt stehen.
+der Grenze bleibt stehen. Dasselbe gilt, wenn `createFloorWorld()` wegen eines ungültigen
+Spielerseeds `null` liefert — der Reducer gibt dann denselben Stand zurück und nie eine leere
+Welt.
 
 ## Schnittstellen
 

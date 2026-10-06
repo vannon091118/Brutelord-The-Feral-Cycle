@@ -24,6 +24,11 @@ haelt die Kachel frei. `burrowAnchorIds()` setzt dieselben Zellen als Sondenanke
 Reveal eine Reihe weiter aussen garantiert sichtbar wird — sonst truege der frische Boden
 eine Wand zur verborgenen Erde und `check-edge-mask.mjs` waere zu Recht rot.
 
+`createWorld()` ist total: Ohne ausdruecklichen Seed fragt es `worldSeed32()` nach der
+Spielersaat, und eine ungueltige Eingabe liefert **kein** Raster, sondern `null`. Eine Welt
+mit dem falschen Seed ist schlimmer als keine Welt — sie ist von einer richtigen nicht zu
+unterscheiden.
+
 ## Schnittstellen
 
 - `isHiveCell()`
