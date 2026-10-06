@@ -18,7 +18,6 @@ also auch denselben Cache.
 
 ## Schnittstellen
 
-- `depthOf()`
 - `EarthDepth()`
 
 Aus dem Ring- und Schattenzug vom 2026-10-06 hervorgegangen.
