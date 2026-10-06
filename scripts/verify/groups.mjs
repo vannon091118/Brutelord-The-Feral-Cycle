@@ -33,6 +33,7 @@ export const GROUPS = Object.freeze([
   { id: 'burrow-ring', file: `${V}check-burrow-ring.mjs`, run: (m) => m.checkBurrowRing() },
   { id: 'reveal', file: `${V}check-reveal.mjs`, run: (m) => m.checkReveal() },
   { id: 'dungling-look', file: `${V}check-dungling-look.mjs`, run: (m) => m.checkDunglingLook() },
+  { id: 'grid', file: `${V}check-grid.mjs`, run: (m) => m.checkGrid() },
   { id: 'storage', file: `${V}check-storage.mjs`, run: (m) => m.checkStorage() },
   { id: 'snapshot', file: `${V}check-snapshot.mjs`, run: (m) => m.checkSnapshot() },
   { id: 'aether', file: `${V}check-aether.mjs`, run: (m) => m.checkAether() },

@@ -50,4 +50,5 @@ export { checkImports } from './check-imports.mjs';
 export { checkWorkflow } from './check-workflow.mjs';
 export { checkCommands } from './check-commands.mjs';
 export { checkOrganicCache } from './check-organic-cache.mjs';
+export { checkGrid } from './check-grid.mjs';
 export { summary } from './expect.mjs';
