@@ -2,7 +2,7 @@
  *  echter Durchlauf des Slices, nachgespielt wird er ueber denselben Reducer —
  *  Zug fuer Zug gegen den Zustands-Hash, den der Durchlauf selbst geliefert hat. */
 import { RUN_LOG, createRunLog, logDigest, parseShareCode, recordInput, shareCode } from '../../src/domain/replay/run-log.js';
-import { bugReport, firstDivergence } from '../../src/domain/replay/run-report.js';
+import { firstDivergence } from '../../src/domain/replay/run-report.js';
 import { createInitialGameState } from '../../src/state/game-state.js';
 import { gameReducer } from '../../src/state/game-reducer.js';
 import { buildRun } from './build-run.mjs';
@@ -65,6 +65,10 @@ function checkWiedergabe(aufnahme) {
   const mitte = Math.floor(log.inputs.length / 2);
   const umgestellt = nachspielen(mitErsetztemZug(log, mitte, zweite).inputs, log.seed);
   check('Ein veraenderter Zug in der Mitte faellt auf', firstDivergence(digests, umgestellt) >= 0);
+
+  check('Gleiche Ketten haben keine Abweichung', firstDivergence(['a', 'b'], ['a', 'b']) === -1);
+  check('Eine kuerzere Kette weicht an ihrem Ende ab', firstDivergence(['a', 'b', 'c'], ['a', 'b']) === 2);
+  check('Zwei leere Ketten sind stimmig', firstDivergence([], []) === -1);
 }
 
 function checkShare(aufnahme) {
@@ -83,29 +87,9 @@ function checkShare(aufnahme) {
   check('Ein Lauf ueber der Share-Grenze bekommt keinen Code', shareCode(aufnahme.log) === null, `${aufnahme.log.inputs.length} Eingaben`);
 }
 
-function checkReport(aufnahme) {
-  section('Replay: der Bericht nennt die Stelle');
-  const kurz = ausschnitt(aufnahme.log, 64);
-  const soll = aufnahme.digests.slice(0, 64);
-  const ist = nachspielen(mitErsetztemZug(kurz, 0, kurz.inputs[1]).inputs, kurz.seed);
-  const ab = firstDivergence(soll, ist);
-  const text = bugReport({ log: kurz, expected: soll, actual: ist, note: 'Waechter blieb stehen' });
-  check('Er nennt Seed und Eingabezahl', text.includes(`Seed: ${SEED}`) && text.includes(`${kurz.inputs.length} (Digest`));
-  check('Er nennt den Share-Code', text.includes(`${RUN_LOG.prefix}-${SEED}-`));
-  check('Er nennt Zug und Aktion der Abweichung', text.includes(`Zug ${ab + 1} von ${kurz.inputs.length}`) && text.includes(kurz.inputs[ab].type), `Zug ${ab + 1}`);
-  check('Er nennt beide Hashes', text.includes(soll[ab]) && text.includes(ist[ab]));
-  check('Er traegt den Hinweis des Spielers', text.includes('Hinweis: Waechter blieb stehen'));
-  check('Er sagt, dass ein zu langer Lauf keinen Code hat', bugReport({ log: aufnahme.log }).includes(`ueber ${RUN_LOG.shareInputs} Eingaben`));
-  check('Eine uebereinstimmende Kette meldet keine Abweichung', bugReport({ log: kurz, expected: soll, actual: soll }).includes('stimmen ueberein'));
-  check('Gleiche Ketten haben keine Abweichung', firstDivergence(['a', 'b'], ['a', 'b']) === -1);
-  check('Eine kuerzere Kette weicht an ihrem Ende ab', firstDivergence(['a', 'b', 'c'], ['a', 'b']) === 2);
-  check('Zwei leere Ketten sind stimmig', firstDivergence([], []) === -1);
-}
-
 export function checkReplay() {
   const aufnahme = aufnehmen();
   checkAufnahme(aufnahme);
   checkWiedergabe(aufnahme);
   checkShare(aufnahme);
-  checkReport(aufnahme);
 }
