@@ -122,29 +122,6 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
   Version: ausstehend
   Datum: ausstehend
 
-- [x] **Das Artensystem: ein Spezies-Locus schaltet vier Skelett-Grammatiken.**
-      Der Mutant war bisher eine Art: derselbe L-System-Bauplan fuer jedes Genom, nur die
-      Proportionen schwankten. Jetzt traegt das Genom einen zehnten, dominanten Locus — die
-      Art —, und `SPECIES_GRAMMAR` haengt an jede der vier Arten ihren eigenen Bauplan.
-      Humanoid baut zwei Rumpfknoten mit Armen ab dem zweiten, Daemon drei mit Armen ganz
-      oben und groesserem Kopf, Insekt drei ohne Arme mit duennen langen Beinen, Spinne
-      zwei Knoten mit je zwei Sprossen (`S -> F[L][L]`) und damit acht Beinen. Knotenzahl,
-      Armgrenze und Regeln kommen aus der Tabelle, nicht aus dem Walker; der zaehlt nur
-      Knoten und Sprossen mit, damit die zweite Sprosse eines Knotens nicht auf der ersten
-      liegt. Weil ein dominanter Locus das hoechste Allel zeigt, ist die Verteilung schief —
-      gemessen ueber vierzig Genome Spinne 23, Insekt 11, Humanoid 4, Daemon 2 —, und das
-      liest sich richtig: der Mensch ist die reinerbige Ausnahme, das Monstroese dominiert.
-      Die Artprobe in `scripts/verify/check-organic.mjs` belegt vier verschiedene Konturen
-      sowie Knotenzahl und Sprossen je Seite je Art. Eine Pruefung des Iso-Pegels am Anker
-      wurde dabei an die Gitterweite `ORG.cell` gebunden, weil die alte Toleranz kleiner war
-      als die Zelle, mit der Marching-Squares die Kontur ueberhaupt findet; eine Gegenprobe
-      mit einem verschobenen Punkt belegt, dass sie weiter beisst.
-  Status: geplant
-  Scope: Domäne
-  Kategorie: Feature
-  Version: ausstehend
-  Datum: ausstehend
-
 ---
 
 ## Was hier NICHT steht
