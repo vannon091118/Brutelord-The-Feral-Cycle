@@ -8,6 +8,12 @@ Spiegel-Datei für `src/domain/deposits/deposit-placement.js`.
 
 Die Platzierung: Blöcke, Isolation, Sperrzonen, Kapazität.
 
+Die Tiefe der Etage kommt als `context.depth` herein und geht nur in die Kapazität: Wo ein
+Block liegt und wie viele Kammern er trägt, entscheidet allein der Seed, damit die Karte
+einer Etage mit der Tiefe nicht umzieht. Was die Tiefe ändert, ist der Inhalt — über
+`capacityAtDepth()` fasst jede Kammer je Etage ein Viertel mehr, und `pool` startet voll mit
+diesem Wert. Auf Etage 0 ist der Zuwachs null; die Startwelt bleibt deshalb unberührt.
+
 ## Schnittstellen
 
 - `createDeposits()`

@@ -1,21 +1,28 @@
 /** Die Schreibregel des Spielstands fuer jede Datenbank: Groesse und monotone
- *  Revision. Dieselbe Regel und dieselbe Obergrenze wie im Client, damit ein
- *  Server nicht anders urteilt als das Spiel. Ein Stand ohne Revision darf
- *  schreiben, solange kein revisionierter Stand liegt — sonst wuerde der erste
- *  Schreibvorgang eines Kontos an seiner eigenen Neuheit scheitern. */
+ *  Revision, dieselbe Anweisung in beiden Speichern. Die Groesse rechnet der
+ *  Plan vorher, die Revision steckt in der Bedingung der Anweisung — pruefen
+ *  und schreiben in einem Schritt. */
 import { SNAPSHOT_MAX_BYTES, SNAPSHOT_REVISION_FIELD } from '../../src/state/snapshot-config.js';
-import { envelopeBytes, writeDecision } from '../../src/state/snapshot-rule.js';
+import { SNAPSHOT_WRITE, envelopeBytes } from '../../src/state/snapshot-rule.js';
+
+export const STATE_WRITE_SQL = Object.freeze({
+  revisioned: 'UPDATE accounts SET state = ?, revision = ? WHERE name = ? AND (revision IS NULL OR revision < ?)',
+  unrevisioned: 'UPDATE accounts SET state = ? WHERE name = ? AND revision IS NULL',
+});
 
 export function revisionOf(packed) {
   const wert = packed?.[SNAPSHOT_REVISION_FIELD];
   return Number.isInteger(wert) ? wert : undefined;
 }
 
-export function stateWriteDecision(packed, current) {
-  return writeDecision({
-    bytes: envelopeBytes(packed),
-    storedRevision: revisionOf(current),
-    incomingRevision: revisionOf(packed),
-    maxBytes: SNAPSHOT_MAX_BYTES,
-  });
+export function stateWritePlan(packed) {
+  const bytes = envelopeBytes(packed);
+  if (!Number.isFinite(bytes) || bytes > SNAPSHOT_MAX_BYTES) return { decision: SNAPSHOT_WRITE.tooLarge };
+  return { decision: SNAPSHOT_WRITE.ok, revision: revisionOf(packed) };
+}
+
+export function stateWriteArgs(packed, accountId, revision) {
+  const state = JSON.stringify(packed);
+  if (revision === undefined) return { sql: STATE_WRITE_SQL.unrevisioned, args: [state, accountId] };
+  return { sql: STATE_WRITE_SQL.revisioned, args: [state, revision, accountId, revision] };
 }

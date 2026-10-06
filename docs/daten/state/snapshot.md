@@ -14,6 +14,12 @@ unter der Obergrenze und mit höherer Revision: ein abgelehnter Schreibvorgang l
 letzten guten Stand stehen und überschreibt ihn nicht mit einem halben. Ein Stand aus einer
 älteren Fassung wird beim Lesen verworfen, statt beim Zeichnen an fehlendem Allel zu
 scheitern. Was Konsole und Szenarienlauf brauchen: denselben Zugang, aber nur im Dev-Bau.
+Dort hängt die Tür seit dem Replay zusätzlich das Lauf-Protokoll heraus: `share()` gibt den
+Share-Code des aufgezeichneten Laufs, `run()` den Lauf selbst — ohne Protokoll beide `null`,
+damit ein Aufruf ohne Motor nicht stillschweigend etwas Falsches liefert. Der Weg zum Server
+ist ein zweiter Abnehmer desselben Envelope: `latestEnvelope()` und `pushEnvelope()` schicken
+ihn mit dem Traeger-Token, und ohne Token oder ohne `fetch` bleibt der Aufruf still aus — der
+Browser darf ohne Server spielbar bleiben.
 
 ## Schnittstellen
 
@@ -35,6 +41,8 @@ scheitern. Was Konsole und Szenarienlauf brauchen: denselben Zugang, aber nur im
 - `saveSnapshot()`
 - `writeIfChanged()`
 - `clearSnapshot()`
+- `latestEnvelope()` — der zuletzt lokal geschriebene Envelope
+- `pushEnvelope()` — derselbe Stand mit Traeger-Token an `/api/state`
 - `openTestDoor()`
 
 Aus der Migration vom 2026-10-05 hervorgegangen.

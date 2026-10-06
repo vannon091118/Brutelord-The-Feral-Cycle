@@ -1070,6 +1070,31 @@ eigene Zeile und keine Voreinstellung. Und wer misst, misst weiter: unter einer
 laufenden Uhr ist `performance.now()` nicht die Uhr des Ablaufs, sondern die des
 Rechners.
 
+### Ein Rücksprung der Systemzeit holt Spielzeit nach, die nie vergangen ist
+
+`performance.now()` läuft monoton — der Zeiger auf „jetzt" in der Sim-Uhr war
+davon aber nicht gedeckt. Er wurde bei jedem Takt blind auf die letzte Messung
+gelegt: `run.last = at`. Sinkt die Quelle, misst der nächste Schritt die Lücke
+bis zu diesem alten Stand noch einmal als vergangene Zeit.
+
+> **Symptom:** Gemessen in `check-game-clock-edges.mjs` — fünf Sekunden spielen,
+> die Quelle um drei Sekunden zurücksetzen, vier Sekunden weiter: **45**
+> Hive-Takte für 6000 ms, wo 30 richtig sind. Die Spanne wurde nachgeholt,
+> obwohl keine Sekunde vergangen ist.
+
+> **Ursache:** `dtMs = max(0, at - last)` gegen eine Vergangenheit, die schon
+> vorbei war. Der Rest landet als Taktguthaben und wird im nächsten Schritt
+> fällig.
+
+> **Gegenprobe:** `Math.max(run.last, at)` statt `run.last = at`: 32 von 32
+> grün. Ohne die Zeile fallen 3 von 32 Prüfungen der Gruppe, und nur diese drei.
+> Der Deckel bleibt davon unberührt — wer `GAME_TIME.maxStepMs` aus dem Schritt
+> nimmt, verliert 5 von 32, und der Schlaf trägt dann 9000 statt 5 Takte nach.
+
+**Was zu tun ist:** Wer die Zeit misst, führt einen Zeiger, der nur vorwärts
+läuft. Ein Rücksprung ist keine Spielzeit: er lässt die Uhr stehen, bis die
+Quelle ihn eingeholt hat.
+
 ---
 
 ## Was daraus folgt

@@ -4,6 +4,7 @@ import {
   advanceMiningJob,
   canAffordMining,
   createMiningJob,
+  digInto,
   earthHealthForProgress,
   miningCost,
   mineTile,
@@ -104,11 +105,13 @@ function completed(state) {
   if (state.onboarding.state !== ONBOARDING_STATE.MINING || !state.mining) return state;
   const tile = getTile(state.world, state.mining.tileId);
   if (!tile) return state;
+  const economy = digInto(state.economy, state.world.depth);
   return {
     ...withWorker(state, state.mining.workerId, idle),
     world: mineTile(state.world, tile),
     mining: { ...state.mining, phase: MINING_PHASE.COMPLETE, progress: 1 },
     lastDestroyedTileId: tile.id,
     onboarding: enterOnboarding(state.onboarding, ONBOARDING_STATE.TILE_DESTROYED),
+    ...(economy ? { economy } : {}),
   };
 }

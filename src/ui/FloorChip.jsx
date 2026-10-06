@@ -1,9 +1,9 @@
-import { canDescend } from '../domain/world/floor.js';
+import { descendOpen } from '../domain/economy/resource-cycle.js';
 
 // @doc: docs/daten/ui/floorchip.md#floorchip
-export function FloorChip({ depth, onDescend }) {
+export function FloorChip({ depth, cycle, onDescend }) {
   if (!Number.isInteger(depth)) return null;
-  const open = canDescend(depth);
+  const open = descendOpen({ depth, cycle });
 
   return (
     <span className="flex shrink-0 items-center gap-1 rounded-full border border-bone-400/15 bg-soil-950/60 py-1 pl-2.5 pr-1 text-[10px] leading-none text-bone-300">

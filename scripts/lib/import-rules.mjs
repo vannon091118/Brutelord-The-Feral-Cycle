@@ -1,7 +1,8 @@
-/** Die erlaubten Importrichtungen zwischen den Schichten von `src/`. Die
- *  Tabelle ist die Regel; der Prueflauf liest sie, statt sie nachzuerzaehlen.
- *  Eine Richtung, die hier nicht steht, ist verboten — fail-closed. */
-import { dirname, relative, resolve } from 'node:path';
+/** Die erlaubten Importrichtungen zwischen den Schichten von `src/`. Gate und
+ *  Prueflauf lesen diese Tabelle, statt sie nachzuerzaehlen; was nicht darin
+ *  steht, ist verboten (GOVERNANCE.md, *Importrichtungen*). */
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 
 export const SRC_LAYERS = Object.freeze(['domain', 'state', 'world', 'ui', 'app', 'styles']);
 
@@ -18,7 +19,8 @@ export const ALLOWED_TARGETS = Object.freeze({
 export const BARE_ALLOWED = Object.freeze(['react', 'react-dom', 'react/jsx-runtime']);
 
 export function importSpecifiers(code) {
-  return [...code.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)].map((match) => match[1]);
+  const muster = [/from\s+['"]([^'"]+)['"]/g, /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g, /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g];
+  return muster.flatMap((regex) => [...code.matchAll(regex)].map((match) => match[1]));
 }
 
 export function layerOf(path) {
@@ -26,6 +28,10 @@ export function layerOf(path) {
   const [first] = rest.split('/');
   if (rest === first) return 'root';
   return SRC_LAYERS.includes(first) ? first : null;
+}
+
+export function layerViolation(path) {
+  return path.startsWith('src/') && layerOf(path) === null ? `${path} (unbekannte Schicht)` : null;
 }
 
 function bareProblem({ path, layer, spec }) {
@@ -45,6 +51,11 @@ function relativeProblem({ path, layer, spec }) {
 export function importViolations(entries) {
   const fehler = [];
   for (const { path, code } of entries) {
+    const fremd = layerViolation(path);
+    if (fremd) {
+      fehler.push(fremd);
+      continue;
+    }
     const layer = layerOf(path);
     if (!layer) continue;
     for (const spec of importSpecifiers(code)) {
@@ -53,4 +64,17 @@ export function importViolations(entries) {
     }
   }
   return fehler;
+}
+
+export function treeEntries(root = 'src', found = []) {
+  for (const name of readdirSync(root)) {
+    const path = join(root, name);
+    if (statSync(path).isDirectory()) treeEntries(path, found);
+    else if (/\.(js|jsx)$/.test(path)) found.push({ path, code: readFileSync(path, 'utf8') });
+  }
+  return found;
+}
+
+export function treeViolations(root = 'src') {
+  return importViolations(treeEntries(root));
 }

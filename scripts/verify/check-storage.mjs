@@ -1,24 +1,31 @@
-/** Der Speicher-Vertrag, der Spielstand neben dem Konto und die Schreibregel.
- *  Die Rechnung des Raids steht in check-raid-cap.mjs. */
+/** Der Speicher-Vertrag, der Spielstand neben dem Konto, die atomare Schreibregel
+ *  und der Waechter der Auslieferungsbindung. Die Rechnung des Raids steht in
+ *  check-raid-cap.mjs. */
 import { SNAPSHOT_MAX_BYTES } from '../../src/state/snapshot-config.js';
 import { SNAPSHOT_WRITE } from '../../src/state/snapshot-rule.js';
-import { storageProbe, storageViolations } from '../server/storage-interface.mjs';
+import { STORAGE_METHODS, storageProbe, storageViolations } from '../server/storage-interface.mjs';
+import { PLACEHOLDER_D1_ID, databaseIdProblems } from '../server/binding-config.mjs';
 import { check, section } from './expect.mjs';
 import { withTempStore } from './temp-store.mjs';
+
+const NAMES = ['getAccount', 'updateAccount', 'getState', 'putState', 'getSession', 'putSession', 'getAttempt', 'putAttempt'];
+
+function syncStore() {
+  const store = { getAccount: () => null };
+  for (const name of STORAGE_METHODS) store[name] = async () => null;
+  store.getAccount = () => null;
+  return store;
+}
 
 async function checkContract() {
   section('Speicher: der Vertrag, nicht die Datenbank');
   await withTempStore(async (store) => {
     check('Der lokale Speicher erfuellt den Vertrag', (await storageProbe(store)).join(' ') === '');
     check('Ein unvollstaendiger Speicher wird gemeldet, nicht benutzt',
-      storageViolations({ getAccount: async () => null }).length === 3);
+      storageViolations({ getAccount: async () => null }).length === STORAGE_METHODS.length - 1);
+    check('Alle acht Namen stehen im Vertrag', STORAGE_METHODS.join(' ') === NAMES.join(' '));
     check('Ein synchroner Speicher faellt durch — der Vertrag sagt asynchron',
-      storageViolations({
-        getAccount: () => null,
-        updateAccount: async () => null,
-        getState: async () => null,
-        putState: async () => null,
-      }).some((mangel) => mangel.includes('nicht als async')));
+      storageViolations(syncStore()).some((mangel) => mangel.includes('nicht als async')));
   });
 }
 
@@ -41,6 +48,22 @@ async function checkState() {
     check('Ein zweiter Speichervorgang ueberschreibt den ersten',
       (await store.getState('hal'))?.world?.depth === 4);
     check('Ein unbekannter Name liefert null, nicht einen Fehler', (await store.getAccount('niemand')) === null);
+  });
+}
+
+async function checkSession() {
+  section('Speicher: Sitzung und Bremse liegen neben dem Konto');
+  await withTempStore(async (store) => {
+    check('Ohne Token gibt es keine Sitzung', (await store.getSession('gibtsnicht')) === null);
+    await store.putSession('tok-1', 'hal');
+    check('Eine Sitzung kommt mit ihrem Namen zurueck', (await store.getSession('tok-1'))?.name === 'hal');
+    await store.putSession('tok-2', 'hal');
+    check('Zwei Sitzungen desselben Kontos stehen nebeneinander', (await store.getSession('tok-2'))?.name === 'hal');
+    check('Die Bremse startet leer', (await store.getAttempt('k')) === null);
+    await store.putAttempt('k', { count: 3, until: 42 });
+    check('Ein Bremsstand ueberlebt den Zugriff', (await store.getAttempt('k'))?.count === 3);
+    await store.putAttempt('k', { count: 0, until: 0 });
+    check('Ein erfolgreicher Aufruf setzt die Bremse zurueck', (await store.getAttempt('k'))?.count === 0);
   });
 }
 
@@ -67,6 +90,7 @@ async function checkWriteRule() {
     check('Eine hoehere Revision kommt durch',
       (await store.putState('still', { version: 3, revision: 5, world: { depth: 3 } })) === SNAPSHOT_WRITE.ok);
     await checkWriteLimit(store);
+    await checkLostUpdate(store);
   });
 }
 
@@ -80,8 +104,25 @@ async function checkWriteLimit(store) {
     (await store.putState('niemand', { version: 3, revision: 1 })) === 'kein konto');
 }
 
+async function checkLostUpdate(store) {
+  const zehn = { version: 3, revision: 10, world: { depth: 7 } };
+  check('Der erste Schreiber mit Revision 10 kommt durch', (await store.putState('still', zehn)) === SNAPSHOT_WRITE.ok);
+  check('Der zweite mit derselben Revision nicht mehr',
+    (await store.putState('still', { ...zehn, world: { depth: 8 } })) === SNAPSHOT_WRITE.stale);
+  check('und liess den ersten Stand stehen', (await store.getState('still'))?.world?.depth === 7);
+}
+
+function checkBinding() {
+  section('Speicher: die Bindung der Auslieferung');
+  check('Der Null-Platzhalter wird abgewiesen', databaseIdProblems(PLACEHOLDER_D1_ID).length === 1);
+  check('Eine echte UUID kommt durch', databaseIdProblems('12345678-1234-1234-1234-123456789abc').length === 0);
+  check('Ein leerer Wert wird abgewiesen', databaseIdProblems('').length === 1);
+}
+
 export async function checkStorage() {
   await checkContract();
   await checkState();
+  await checkSession();
   await checkWriteRule();
+  checkBinding();
 }

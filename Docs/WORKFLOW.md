@@ -10,12 +10,13 @@ die Versionierung, die CI und die Arbeitsumgebung. **Was gilt** steht in
 
 ## Die Wächter
 
-Es gibt **kein `npm test` und keinen Linter.** `gate` hat drei Modi, dazu kommen
-`verify` und `build`. Alles andere ist Sorgfalt — siehe *Sorgfaltspflicht* in
-[`GOVERNANCE.md`](GOVERNANCE.md).
+Es gibt **kein `npm test` und keinen Linter.** `gate` fährt sechs Blöcke, dazu
+kommen `verify` und `build`. Alles andere ist Sorgfalt — siehe *Sorgfaltspflicht*
+in [`GOVERNANCE.md`](GOVERNANCE.md).
 
 | Wächter | Prüft | Blockiert |
 | --- | --- | --- |
+| `npm run gate -- --imports` | Die Schichtung von `src/` (`domain` → `state` → `world` → `ui`/`app`), fail-closed gegen die Tabelle in `scripts/lib/import-rules.mjs` — inklusive dynamischem `import()` und einem Verzeichnis unter `src/`, das keine Schicht ist | CI |
 | `npm run gate -- --tree` | Die fünf Hard Caps pro Datei unter `src/` und `scripts/` — die Werte stehen in [`GOVERNANCE.md`](GOVERNANCE.md) | CI |
 | `npm run gate -- --commits=<base>..<head>` | Betreff, Body-Länge, genannte Dateien, VANNON-Label, Bot-Signaturen | CI |
 | `npm run gate -- --version --base=<sha>` | Monotonie der `revision`, Übereinstimmung von Lock und Spiegeln | CI |
@@ -36,10 +37,12 @@ npm run check                              # lokal: betroffene Wächter + geänd
 npm run check -- --list                    # welche Gruppe ist unverändert
 npm run check -- <gruppe>                  # genau diese Prüfgruppe
 npm run check:browser                      # die Browser-Stufe allein
+npm run gate -- --imports                  # nur die Importrichtungen
 npm run gate -- --tree                     # nur Hard Caps
 npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
 npm run gate -- --docs                     # Metadaten-Pflicht der Doku-Einträge
+npm run golden:raid                        # Golden-Wert der Raid-Simulation neu schreiben
 npm run docs:sync --check                  # Pre-Flight des Doku-Syncs (liest nur)
 npm run docs:sync                          # Sync ausführen — im Bot-Workflow
 npm run commit:draft                       # Commit-Body-Vorprüfung für gestagete Dateien

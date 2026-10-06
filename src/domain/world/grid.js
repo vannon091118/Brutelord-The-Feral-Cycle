@@ -110,6 +110,7 @@ function withDeposits(world, spawnTile) {
     hiveOrigin: world.hiveOrigin,
     spawnTile,
     seed: world.seed,
+    depth: world.depth,
   });
   const tiles = world.tiles.slice();
   for (const deposit of Object.values(deposits)) {

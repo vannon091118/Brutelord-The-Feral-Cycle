@@ -14,9 +14,15 @@ je Kachel.
 Der Start bekommt einen Gang: `isBurrowCell()` legt jede Kachel im Abstand `BURROW_RING` um
 den Hive als Burrow-Boden an, bei einem 2 × 2-Hive sind das zwölf Felder. Der Gang hängt an
 der Startkachel, nicht am Hive: ohne `spawnTile` gibt es keinen Ring, die Raid-Welt bleibt
-unberührt. `burrowAnchorIds()` setzt dieselben Zellen als Sondenanker, damit der Reveal eine
-Reihe weiter außen garantiert sichtbar wird — sonst trüge der frische Boden eine Wand zur
-verborgenen Erde und `check-edge-mask.mjs` würde zu Recht rot.
+unberührt. `withDeposits()` reicht die Tiefe der Welt an die Vorratsplatzierung weiter —
+dieselbe Etage bekommt damit eine andere Karte (eigener Seed) und reichere Kammern, ohne
+dass die Verteilung selbst umzieht.
+
+Der Start bekommt ausserdem eine Leiter: `LADDER_TILE` bei 47,47 steht als `world.entrance`
+in jeder Etage und wird dort als begehbarer Höhlengang angelegt, und `createDeposits()`
+haelt die Kachel frei. `burrowAnchorIds()` setzt dieselben Zellen als Sondenanker, damit der
+Reveal eine Reihe weiter aussen garantiert sichtbar wird — sonst truege der frische Boden
+eine Wand zur verborgenen Erde und `check-edge-mask.mjs` waere zu Recht rot.
 
 ## Schnittstellen
 

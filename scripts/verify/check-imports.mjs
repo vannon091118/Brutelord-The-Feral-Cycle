@@ -1,9 +1,8 @@
 /** Die Importrichtungen als technische Grenze. Der echte Baum wird geprueft,
  *  und danach laeuft die Regel gegen erfundene Kanten, die sie fangen MUSS —
- *  eine Pruefung, die nie rot wird, prueft nichts. */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
-import { ALLOWED_TARGETS, importViolations } from '../lib/import-rules.mjs';
+ *  eine Pruefung, die nie rot wird, prueft nichts. Dieselbe Funktion liest das
+ *  Gate (`npm run gate`, Block Importrichtungen): eine Regel, ein Ort. */
+import { ALLOWED_TARGETS, importViolations, treeEntries, treeViolations } from '../lib/import-rules.mjs';
 import { check, section } from './expect.mjs';
 
 const FREMDFALL = Object.freeze([
@@ -13,28 +12,18 @@ const FREMDFALL = Object.freeze([
   { path: 'src/state/fremd.js', code: "import { GameHud } from '../ui/GameHud.jsx';", richtung: 'state -> ui' },
   { path: 'src/world/fremd.js', code: "import { GameHud } from '../ui/GameHud.jsx';", richtung: 'world -> ui' },
   { path: 'src/domain/raid/fremd.js', code: "import { deep } from '../../../tools/tief.js';", richtung: 'domain -> ausserhalb src' },
+  { path: 'src/domain/fremd.js', code: "const modul = await import('../world/grid.js');", richtung: 'domain -> world (dynamisch)' },
+  { path: 'src/neue-schicht/fremd.js', code: "import { useState } from 'react';", richtung: 'unbekannte Schicht unter src' },
 ]);
 
 const SAUBERFALL = Object.freeze([
   { path: 'src/domain/raid/eigen.js', code: "import { tileAt } from '../world/grid.js';" },
   { path: 'src/state/eigen.js', code: "import { tileAt } from '../domain/world/grid.js';" },
   { path: 'src/state/eigen.js', code: "import { useEffect } from 'react';" },
+  { path: 'src/state/eigen.js', code: "const modul = await import('../domain/world/grid.js');" },
   { path: 'src/world/eigen.js', code: "import { tileAt } from '../domain/world/grid.js';" },
   { path: 'src/ui/eigen.jsx', code: "import { useWorld } from '../world/use-world.js';" },
 ]);
-
-function collect(dir, found = []) {
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name);
-    if (statSync(path).isDirectory()) collect(path, found);
-    else if (/\.(js|jsx)$/.test(path)) found.push(path);
-  }
-  return found;
-}
-
-function treeEntries() {
-  return collect('src').map((path) => ({ path, code: readFileSync(path, 'utf8') }));
-}
 
 function checkTable() {
   section('Architektur: die Richtungstabelle');
@@ -58,8 +47,9 @@ function checkForbidden() {
 
 function checkTree() {
   section('Architektur: der echte Baum');
-  const treffer = importViolations(treeEntries());
+  const treffer = treeViolations();
   check('Kein Modul unter src/ importiert gegen die Tabelle', treffer.length === 0, treffer.slice(0, 3).join(', '));
+  check('Der Baum der Regel ist der Baum des Gates', treeEntries().length > 100, `${treeEntries().length} Dateien`);
 }
 
 export async function checkImports() {

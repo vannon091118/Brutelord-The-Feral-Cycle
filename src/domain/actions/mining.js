@@ -12,6 +12,7 @@ import {
 import { getTile, neighborIds, replaceTile, tileAt } from '../world/grid.js';
 import { exposeDeposit } from '../deposits/deposit-state.js';
 import { canPayForMining, ESSENCE_ECONOMY } from '../economy/essence-economy.js';
+import { aetherYieldFor, canMutate, depositAether, digAbilityOf, mutate } from '../economy/aether-loop.js';
 
 export const MINING_PHASE = Object.freeze({
   IDLE: 'IDLE',
@@ -92,4 +93,12 @@ function minedFloorTile(tile) {
 
 export function mineTile(world, tile) {
   return exposeDeposit(replaceTile(world, minedFloorTile(tile)), tile);
+}
+
+export function digInto(cycle, depth) {
+  if (!cycle) return cycle;
+  const aether = depositAether(cycle.aether, aetherYieldFor({ depth, ticks: 1 + digAbilityOf(cycle.aether) }));
+  if (aether === cycle.aether) return cycle;
+  const gewachsen = canMutate(aether) ? mutate(aether).ledger : aether;
+  return { ...cycle, aether: gewachsen };
 }

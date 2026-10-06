@@ -14,7 +14,7 @@ export function App() {
 }
 
 function Playing({ session, onSignOut }) {
-  const { state, actions } = useGameEngine(session.playerseed);
+  const { state, actions } = useGameEngine(session);
 
   return (
     <main className="dl-root relative flex h-full w-full flex-col overflow-hidden">

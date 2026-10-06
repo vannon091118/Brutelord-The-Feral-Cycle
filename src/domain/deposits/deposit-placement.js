@@ -1,5 +1,5 @@
 // @doc: docs/daten/deposits/deposit-placement.md#deposit-placement
-import { DEPOSIT_CONFIG, DEPOSIT_PHASE, hiveDistance } from './deposit-config.js';
+import { DEPOSIT_CONFIG, DEPOSIT_PHASE, capacityAtDepth, hiveDistance } from './deposit-config.js';
 import { blockHash, keepBlock, pick } from './deposit-hash.js';
 import { GRID_HEIGHT, GRID_WIDTH, HIVE_ORIGIN, HIVE_SIZE, LADDER_TILE } from '../world/world-config.js';
 import { tileId } from '../world/tile.js';
@@ -10,10 +10,11 @@ export function createDeposits(context = {}) {
   const height = context.height ?? GRID_HEIGHT;
   const hiveOrigin = context.hiveOrigin ?? HIVE_ORIGIN;
   const seed = context.seed ?? 0;
+  const depth = context.depth ?? 0;
   const blocked = blockedCells({ width, height, hiveOrigin, conf, spawnTile: context.spawnTile ?? null });
   const deposits = {};
   blockOrigins({ width, height, conf }).forEach((origin, index) => {
-    const deposit = clusterAt({ ...origin, index, conf, blocked, seed });
+    const deposit = clusterAt({ ...origin, index, conf, blocked, seed, depth });
     if (deposit) deposits[deposit.id] = deposit;
   });
   return deposits;
@@ -27,13 +28,13 @@ function blockOrigins({ width, height, conf }) {
   return origins;
 }
 
-function clusterAt({ x, y, index, conf, blocked, seed }) {
+function clusterAt({ x, y, index, conf, blocked, seed, depth }) {
   const hash = blockHash(x, y, seed);
   if (!keepBlock(hash, conf.skipPerMille)) return null;
   const size = sizeFor(hash, conf);
   const cells = cellsFor({ x, y, hash, size, conf, blocked });
   if (!cells) return null;
-  const capacity = capacityFor(size, conf);
+  const capacity = capacityAtDepth(capacityFor(size, conf), depth);
   return { id: `deposit-${index}`, phase: DEPOSIT_PHASE.BURIED, pool: capacity, capacity, size, cells };
 }
 

@@ -1,0 +1,59 @@
+# mise — die Werkzeugkette von Brutelord: The Feral Cycle
+#
+# Eine Regel pro Ort: Diese Datei ist der einzige Ort, der festlegt, welche
+# Werkzeuge das Projekt benutzt — und sie beschreibt, wie jeder Teil
+# eingerichtet ist. Nachweis der Konfiguration: `mise ls` im Repo-Wurzel-
+# verzeichnis. Funktionsnachweis: `mise run toolchain`.
+#
+# Einrichtung im Überblick:
+#   mise     — Versionmanager; Install: `curl https://mise.run | sh`; Activation
+#              in ~/.bashrc: `eval "$(mise activate bash)"`. Die System-Node-
+#              Installation (~/.local/opt/node, npm-Prefix im Home) bleibt
+#              unangetastet — mise greift nur im Projekt-Verzeichnis.
+#   Node 24  — LTS über mise ([tools] node = "24"). Die CI pinnt weiterhin
+#              Node 22 in .github/workflows/ci.yml; der Golden-Rewrite
+#              (`npm run golden:determinism`) läuft deshalb nur dort (AGENTS.md §1).
+#   pnpm     — via corepack des mise-Node ([settings] node.corepack = true):
+#              mise führt nach der Node-Installation `corepack enable` aus und
+#              erzeugt die Shims pnpm/yarn/pnpx/yarnpkg. bewusst KEIN eigener
+#              pnpm-Eintrag unter [tools] und KEIN `packageManager`-Feld im
+#              package.json — dieses ist ein Spiegel und darf laut AGENTS.md §5
+#              nur über `npm run version:bump` wachsen.
+#   uv       — via mise ([tools] uv = "latest"), als Binär ohne pip-Bootstrap
+#              und ohne apt-Abhängigkeit; Python-Worktools und venv-Erzeugung.
+#   venv     — `python3 -m venv .venv` mit dem mise-python (py-build-standalone
+#              enthält ensurepip, anders als das System-Python auf Debian/Ubuntu).
+#              Projekt-Konvention: ein lokales .venv/ bleibt unversioniert und
+#              taucht in keiner Dateiliste auf (AGENTS.md §9, PITFALLS.md).
+#   bash     — Shell-Extras: mise-Activation in ~/.bashrc, dazu fzf-Keybindings
+#              und -Completion (`/usr/share/doc/fzf/examples/`); [env] _.path
+#              legt node_modules/.bin in den Projekt-Pfad, damit Projekt-CLIs
+#              ohne npx laufen.
+
+[tools]
+node = "24"      # Node 24 LTS
+python = "3.12"  # python3 samt ensurepip -> venv funktionsfähig
+uv = "latest"    # uv, Binär-Backend, keine weiteren Abhängigkeiten
+
+[settings]
+# pnpm via corepack: mise enabled corepack am mise-Node und legt die Shims an.
+node.corepack = true
+
+[env]
+# Erste pnpm-Nutzung lädt die Corepack-Version ohne interaktive Rückfrage.
+COREPACK_ENABLE_DOWNLOAD_PROMPT = "0"
+# Shell-Extras: Projekt-CLIs (vite, playwright, ...) direkt aufrufbar.
+_.path = ["{{config_root}}/node_modules/.bin"]
+
+[tasks.toolchain]
+description = "Prüft die Werkzeugkette: mise, Node 24 LTS, pnpm via corepack, uv, venv, bash-Extras"
+run = '''
+set -e
+mise --version
+node -v | grep -q "^v24\\." && echo "Node $(node -v): 24.x LTS via mise OK"
+corepack pnpm --version
+uv --version
+python3 -m venv --help >/dev/null 2>&1 && echo "venv: OK (python $(python3 -V 2>&1 | cut -d' ' -f2))"
+bash --version | head -1
+grep -q "mise activate bash" "$HOME/.bashrc" && echo "mise-Activation in .bashrc OK"
+'''

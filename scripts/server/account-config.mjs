@@ -6,6 +6,7 @@ export const ACCOUNT_CONFIG = Object.freeze({
   passwordMin: 8,
   passwordMax: 128,
   seedHex: 16,
+  idBytes: 16,
   idPrefix: 'p-',
   saltBytes: 16,
   keyBytes: 32,

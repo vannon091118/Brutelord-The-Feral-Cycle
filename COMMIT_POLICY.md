@@ -23,4 +23,4 @@ Direkte Änderungen an Lock oder Spiegeln scheitern am CI-Gate.
 
 ## Hard Caps und CI
 
-`npm run gate` prüft höchstens 300 LOC pro Modul, 30 LOC pro benannter Funktion, drei Parameter und sieben Imports. `npm run verify` führt den Slice-Akzeptanztest aus; `npm run verify:commits` testet die Commit-Policy. GitHub Actions führt Gate, Slice-Verifikation und Production-Build für Pull Requests aus.
+`npm run gate` prüft höchstens 300 LOC pro Modul, 30 LOC pro benannter Funktion, drei Parameter und sieben Imports sowie die Importrichtungen zwischen den Schichten von `src/`. `npm run verify` führt den Slice-Akzeptanztest aus; `npm run verify:commits` testet die Commit-Policy. GitHub Actions führt Gate, Slice-Verifikation und Production-Build für Pull Requests aus.

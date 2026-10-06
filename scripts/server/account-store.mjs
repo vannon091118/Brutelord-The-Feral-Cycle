@@ -1,11 +1,12 @@
-/** Die Konten liegen in SQLite. Das Schema ist plain SQL, damit derselbe Code
- *  später auch gegen eine Cloudflare-D1-Datenbank läuft. */
+/** Die Konten, die Sitzung und die Bremse liegen in SQLite; derselbe Code
+ *  laeuft auch gegen D1. Der Spielstand wird atomar geschrieben — die Revision
+ *  steht als Spalte da und wird in der Bedingung der Anweisung geprueft. */
 import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { ACCOUNT_CONFIG } from './account-config.mjs';
 import { SNAPSHOT_WRITE } from '../../src/state/snapshot-rule.js';
-import { stateWriteDecision } from './state-write.mjs';
+import { stateWriteArgs, stateWritePlan } from './state-write.mjs';
 
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS accounts (
@@ -17,13 +18,22 @@ const SCHEMA = `
   );
 `;
 
-/** Der Spielstand kam spaeter dazu. `IF NOT EXISTS` auf der Spalte gab es
- *  nicht, also wird sie einmal nachgezogen, wenn sie fehlt — sonst waere ein
- *  Konto, das vor dem Upgrade entstand, unlesbar. */
-function ensureStateColumn(db) {
-  const spalten = db.prepare('PRAGMA table_info(accounts)').all();
-  if (spalten.some((spalte) => spalte.name === 'state')) return;
-  db.exec('ALTER TABLE accounts ADD COLUMN state TEXT');
+const SIDE_SCHEMA = `
+  CREATE TABLE IF NOT EXISTS sessions (
+    token      TEXT PRIMARY KEY,
+    name       TEXT NOT NULL,
+    created_at INTEGER
+  );
+  CREATE TABLE IF NOT EXISTS login_attempts (
+    key   TEXT PRIMARY KEY,
+    count INTEGER NOT NULL,
+    until INTEGER NOT NULL
+  );
+`;
+
+function ensureColumn(db, name, definition) {
+  if (db.prepare('PRAGMA table_info(accounts)').all().some((spalte) => spalte.name === name)) return;
+  db.exec(`ALTER TABLE accounts ADD COLUMN ${name} ${definition}`);
 }
 
 export function dataDir() {
@@ -38,7 +48,9 @@ export function openAccounts(file = databasePath()) {
   mkdirSync(dirname(file), { recursive: true });
   const db = new DatabaseSync(file);
   db.exec(SCHEMA);
-  ensureStateColumn(db);
+  ensureColumn(db, 'state', 'TEXT');
+  ensureColumn(db, 'revision', 'INTEGER');
+  db.exec(SIDE_SCHEMA);
   return db;
 }
 
@@ -72,8 +84,31 @@ export function readState(db, name) {
 }
 
 export function writeState(db, name, packed) {
-  const entscheidung = stateWriteDecision(packed, readState(db, name));
-  if (entscheidung !== SNAPSHOT_WRITE.ok) return entscheidung;
-  const changes = db.prepare('UPDATE accounts SET state = ? WHERE name = ?').run(JSON.stringify(packed), name).changes;
-  return changes > 0 ? SNAPSHOT_WRITE.ok : 'kein konto';
+  const plan = stateWritePlan(packed);
+  if (plan.decision !== SNAPSHOT_WRITE.ok) return plan.decision;
+  const { sql, args } = stateWriteArgs(packed, name, plan.revision);
+  const changes = db.prepare(sql).run(...args).changes;
+  if (changes > 0) return SNAPSHOT_WRITE.ok;
+  return findAccount(db, name) ? SNAPSHOT_WRITE.stale : 'kein konto';
+}
+
+export function readSession(db, token) {
+  const row = db.prepare('SELECT name FROM sessions WHERE token = ?').get(token);
+  return row?.name ? { name: row.name } : null;
+}
+
+export function writeSession(db, token, name) {
+  db.prepare('INSERT INTO sessions (token, name, created_at) VALUES (?, ?, ?) ON CONFLICT(token) DO UPDATE SET name = excluded.name')
+    .run(token, name, Date.now());
+  return { name };
+}
+
+export function readAttempt(db, key) {
+  return db.prepare('SELECT count, until FROM login_attempts WHERE key = ?').get(key) ?? null;
+}
+
+export function writeAttempt(db, key, entry) {
+  db.prepare('INSERT INTO login_attempts (key, count, until) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET count = excluded.count, until = excluded.until')
+    .run(key, entry.count, entry.until);
+  return entry;
 }

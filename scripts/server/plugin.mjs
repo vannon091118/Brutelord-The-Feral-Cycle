@@ -1,12 +1,11 @@
-/** Das Konto-Backend haengt sich in den Vite-Server: ein zweiter Befehl, kein
- *  zweiter Prozess — im Dev-Server und, weil `dist/` sonst am Konto-Tor
- *  scheitert, auch im Vorschau-Server. Begruendung in Docs/ARCHITEKTUR.md. */
-import { ACCOUNT_CONFIG } from './account-config.mjs';
-import { API_ROUTES, POLICY, SECURITY_HEADERS, parseBody, sameOrigin } from './account-http.mjs';
+/** Das Konto-Backend haengt sich in den Vite-Server — im Dev-Server und, weil
+ *  `dist/` sonst am Konto-Tor scheitert, auch im Vorschau-Server. Der Transport
+ *  liest Route, Rumpfschranke und Traeger-Token aus `account-http.mjs`. */
+import { POLICY, SECURITY_HEADERS, parseBody, routeOf, sameOrigin } from './account-http.mjs';
 import { createLocalStore } from './account-store-local.mjs';
+import { sessionName } from './account-session.mjs';
 
-/** `null` heisst: zu gross nach Bytes oder abgebrochen — der Aufrufer antwortet 413. */
-function readBody(request) {
+function readBody(request, limit) {
   return new Promise((resolve) => {
     const chunks = [];
     let size = 0;
@@ -18,7 +17,7 @@ function readBody(request) {
     };
     request.on('data', (chunk) => {
       size += chunk.length;
-      if (size > ACCOUNT_CONFIG.bodyLimitBytes) {
+      if (size > limit) {
         finish(null);
         return;
       }
@@ -42,29 +41,34 @@ function refuse(response, absage) {
 }
 
 async function handle(request, response) {
-  const route = API_ROUTES[new URL(request.url, 'http://127.0.0.1').pathname];
+  const route = routeOf(new URL(request.url, 'http://127.0.0.1').pathname, request.method);
   if (!route) return false;
-  if (request.method !== 'POST') return refuse(response, POLICY.method);
+  if (route.refuse) return refuse(response, route.refuse);
   if (!sameOrigin({ origin: request.headers.origin, host: request.headers.host })) {
     return refuse(response, POLICY.origin);
   }
-  const raw = await readBody(request);
-  if (raw === null) {
-    response.setHeader('Connection', 'close');
-    refuse(response, POLICY.tooLarge);
-    response.on('finish', () => request.destroy());
-    return true;
+  const { entry } = route;
+  const store = createLocalStore();
+  let body;
+  if (entry.limit > 0) {
+    const raw = await readBody(request, entry.limit);
+    if (raw === null) {
+      response.setHeader('Connection', 'close');
+      refuse(response, POLICY.tooLarge);
+      response.on('finish', () => request.destroy());
+      return true;
+    }
+    body = parseBody(raw);
   }
-  const body = parseBody(raw);
-  const remote = request.socket.remoteAddress ?? '';
-  const result = await route(createLocalStore(), { name: body.name, password: body.password, remote });
+  const account = entry.auth ? await sessionName(store, request.headers.authorization) : null;
+  if (entry.auth && !account) return refuse(response, POLICY.session);
+  const result = await entry.run(store, { body, remote: request.socket.remoteAddress ?? '', account });
   const { error, ...rest } = result;
   send(response, result.status, error ? { error } : rest);
   return true;
 }
 
 function install(server) {
-  // Pro Anfrage geoeffnet: sonst haelt der Server eine Datei offen, die npm run purge gerade geloescht hat.
   server.middlewares.use(async (request, response, next) => {
     try {
       if (!(await handle(request, response))) next();

@@ -1,7 +1,7 @@
 import { FloorChip } from './FloorChip.jsx';
 
 // @doc: docs/daten/ui/resourcechips.md#resourcechips
-export function ResourceChips({ essence, count, countLabel, depth, onDescend }) {
+export function ResourceChips({ essence, count, countLabel, depth, cycle, onDescend }) {
   return (
     <div className="flex shrink-0 items-center gap-2">
       <span
@@ -13,7 +13,7 @@ export function ResourceChips({ essence, count, countLabel, depth, onDescend }) 
       <span className="rounded-full border border-bone-400/15 bg-soil-950/60 px-2 py-1 text-[10px] leading-none text-bone-300">
         {countLabel} {count}
       </span>
-      <FloorChip depth={depth} onDescend={onDescend} />
+      <FloorChip depth={depth} cycle={cycle} onDescend={onDescend} />
     </div>
   );
 }

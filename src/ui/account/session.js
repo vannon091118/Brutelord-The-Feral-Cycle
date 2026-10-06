@@ -14,7 +14,7 @@ export function readSession() {
   try {
     const parsed = JSON.parse(window.localStorage.getItem(SESSION_KEY) ?? 'null');
     if (!isSeed(parsed?.playerseed)) return null;
-    return { name: text(parsed.name), playerId: text(parsed.playerId), playerseed: parsed.playerseed };
+    return { name: text(parsed.name), playerId: text(parsed.playerId), playerseed: parsed.playerseed, token: text(parsed.token) };
   } catch {
     return null;
   }
@@ -22,7 +22,7 @@ export function readSession() {
 
 export function writeSession(session) {
   if (!isSeed(session?.playerseed)) return;
-  const clean = { name: text(session.name), playerId: text(session.playerId), playerseed: session.playerseed };
+  const clean = { name: text(session.name), playerId: text(session.playerId), playerseed: session.playerseed, token: text(session.token) };
   window.localStorage.setItem(SESSION_KEY, JSON.stringify(clean));
 }
 

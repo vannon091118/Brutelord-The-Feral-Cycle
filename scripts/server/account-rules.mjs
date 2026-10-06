@@ -39,7 +39,7 @@ export function decoyMatches(password) {
   return passwordMatches({ password, salt: DECOY.salt, verifier: DECOY.verifier });
 }
 
-/** Die PlayerID ist der Seed, verkürzt und markiert — keine zweite Identität. */
-export function playerIdOf(playerseed) {
-  return `${ACCOUNT_CONFIG.idPrefix}${String(playerseed).slice(0, 8)}`;
+/** Die PlayerID ist eine eigene Kennung, nicht der verkuerzte Seed. */
+export function newPlayerId() {
+  return `${ACCOUNT_CONFIG.idPrefix}${randomBytes(ACCOUNT_CONFIG.idBytes).toString('hex')}`;
 }

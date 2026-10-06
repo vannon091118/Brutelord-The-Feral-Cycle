@@ -119,22 +119,27 @@ Zustand). Es gibt keine einzige Kante `world → ui` oder `state → ui`.
 React steht in 20 Dateien: sechs Hooks in `src/state/`, drei in `src/ui/` und
 elf in `src/world/`. `src/domain/` und `src/app/` sind frei.
 
-**Die Kette ist jetzt ein Gate, keine Vereinbarung.** Die Tabelle der erlaubten
-Ziele steht in `scripts/lib/import-rules.mjs` — `domain` nur sich selbst,
-`state` zusätzlich `domain`, `world` zusätzlich `state`, `ui` zusätzlich
-`world`, `app` alles darunter —, und `scripts/verify/check-imports.mjs` prüft
-den ganzen Baum dagegen. Fail-closed: was nicht in der Tabelle steht, ist
-verboten. Ein nicht-relativer Specifier ist in `domain` verboten und sonst auf
-`react`/`react-dom`/`react/jsx-runtime` begrenzt, und ein Ziel außerhalb von
-`src/` ist in jeder Schicht ein Verstoß.
+**Die Kette ist ein Gate, keine Vereinbarung.** Die Tabelle der erlaubten Ziele
+steht in `scripts/lib/import-rules.mjs` — `domain` nur sich selbst, `state`
+zusätzlich `domain`, `world` zusätzlich `state`, `ui` zusätzlich `world`, `app`
+alles darunter —, und **`npm run gate` bricht bei jeder Kante gegen die Tabelle
+ab** (Block *Importrichtungen*, einzeln `npm run gate -- --imports`). Die Gruppe
+`imports` liest dieselbe Funktion im Prüflauf. Fail-closed: was nicht in der
+Tabelle steht, ist verboten. Ein nicht-relativer Specifier ist in `domain`
+verboten und sonst auf `react`/`react-dom`/`react/jsx-runtime` begrenzt, und ein
+Ziel außerhalb von `src/` ist in jeder Schicht ein Verstoß. Ein dynamisches
+`import()` zählt wie ein statischer Import, und ein Verzeichnis unter `src/`, das
+keine Schicht ist, ist selbst ein Verstoß.
 
 Dass die Prüfung rot werden **kann**, ist selbst gemessen: eine erfundene Kante
 `domain → world` fällt mit `domain darf nicht nach world`, und eine echte,
-vorübergehend eingebaute Datei `src/domain/zz-sabotage.js` mit demselben Import
-lässt die Gruppe mit 1 von 13 Prüfungen fallen — nach dem Rückbau wieder 13 von
-13. Alle sechs verbotenen Richtungen (`domain → world`, `domain → ui`,
-`domain → React`, `state → ui`, `world → ui`, `domain → außerhalb src`) stehen
-als Fall im Prüfmodul. `check-architecture.mjs` prüft daneben weiter, was keine
+vorübergehend eingebaute Datei `src/domain/zz-verstoss.js` mit demselben Import
+lässt das Gate mit `FAIL Importrichtung … (domain darf nicht nach world)`
+abbrechen — nach dem Rückbau wieder grün. Alle acht verbotenen Richtungen
+(`domain → world`, `domain → ui`, `domain → React`, `state → ui`, `world → ui`,
+`domain → außerhalb src`, `domain → world` als dynamisches `import()`, ein neues
+Verzeichnis unter `src/`) stehen als Fall im Prüfmodul, das damit 16
+Zusicherungen fährt. `check-architecture.mjs` prüft daneben weiter, was keine
 Richtung ist: kein React/DOM/SVG in der Domäne, kein `Math.random(` und kein
 `Date.now(` in `src/`.
 
@@ -228,6 +233,46 @@ statt gemessener Zeit fallen dort 6 von 20 Prüfungen. In `src/domain/` wird
 weiterhin keine Zeit gelesen: die Sperre gegen `Math.random(` und `Date.now(`
 gilt unverändert, und `src/state/reducers/rooting-reducer.js` nimmt seine
 Taktlänge jetzt aus `action.dtMs` statt sie aus der Config zu wiederholen.
+
+Die Ränder der Uhr stehen als eigene Gruppe daneben: `check-game-clock-edges.mjs`
+fährt in 32 Zusicherungen Hintergrundtab, Tab-Wechsel, schlafenden Rechner, drei
+Stunden Abwesenheit, CPU-Spikes (zwölf Schritte zwischen 1 und 1000 ms), drei
+verpasste Takte, eine schweigende Uhr und einen Rücksprung der Systemzeit ab —
+kein Warten, kein Browser, vorgegebene Zeit. Zwei Gegenproben belegen, dass die
+Gruppe beißt: **ohne den Deckel fallen 5 von 32** (der Schlaf trägt 9000 statt 5
+Takte nach), und **ohne den vorwärts laufenden Zeiger fallen 3 von 32** — der
+Rücksprung zählte sonst 45 statt 30 Takte. Letzteres war ein echter Fund: `run.last
+= at` gegen eine Quelle, die zurückspringt, holt Spielzeit nach, die nie
+vergangen ist; der Zeiger ist jetzt `Math.max(run.last, at)`.
+
+### Der Lauf ist reproduzierbar
+
+Determinismus war eine Prüfung **für den Autor**: der Golden-Wert friert die
+Zustands-Hashes eines Durchlaufs ein, nicht den Weg dorthin. Jetzt gibt es den
+Weg: `src/domain/replay/run-log.js` hält Seed plus Eingaben in einer Zeile
+(`BFC1-<seed>-<count>-<digest>-<inputs>`), jede Nutzlast kanonisch sortiert,
+`shareCode()` daraus ein Code und `parseShareCode()` ein Code nur dann zurück,
+wenn Präfix, Anzahl und Digest rechnen. Drei Zahlen sind **Einstellungen, keine
+Messungen**: `maxInputs` 4096 für die Aufzeichnung, `shareInputs` 512 für den
+Code, `prefix` `BFC1`. `use-game-engine.js` legt eine Klammer um `dispatch`,
+damit auch der Takt der Uhr mit seinem `dtMs` im Protokoll landet — sonst wäre
+der Replay ab dem ersten Takt falsch.
+
+Die Wiedergabe braucht keinen Server: `createInitialGameState(seed)`, je Eingabe
+`gameReducer`, nach jedem Schritt `stateDigest`. Gemessen in
+`check-replay.mjs`: Seed `a1b2c3d4`, **1669 Eingaben**, Digest `970a7b9b`, jeder
+Zug gleich, Endzustand gleich; ein geänderter erster Zug weicht im ersten Zug
+ab, ein gekürzter Lauf an seinem Ende, und `bugReport()` schreibt Seed, Digest,
+Share-Code, abweichende Stelle **mit Aktionsnamen** und beide Hashes in einen
+Text.
+
+Der Raid hat sein deterministisches Gegenstück: `raid-sim.js` erzeugt ein
+Skript aus dem Seed (elf Wörter, Salt je Schritt), `raidSeries()` rechnet es
+Schritt für Schritt und gibt die Digest-Kette aus, und
+`scripts/verify/raid-golden.json` friert drei davon ein (96/96/32 Schritte,
+gemessen 37/39/20 verschiedene Zustände). Geschrieben wird er nur von
+`npm run golden:raid` auf der gepinnten Node-Major — dieselbe Regel wie beim
+Determinismus-Golden. Grenzen und offene Fragen: [`REPLAY-PLAN.md`](REPLAY-PLAN.md).
 
 Der Schwarm ist eine Liste. Der erste Dungling trägt das Onboarding, der Abbau
 bedient den ersten freien Arbeiter.
@@ -617,6 +662,43 @@ Was bleibt, ist ehrlich gesagt Rest: die verbleibenden rund 1 ms pro Render
 sind der Ausschnitt, die Frontier und Reacts eigene Abstimmung. Die Frontier
 noch weiter zu bringen hieße, `canMineTile()` in der Ansicht zu duplizieren —
 das wäre ein Regelbruch für ein halbes Prozent des Taktbudgets.
+
+### Die Leiter ist der Eingang
+
+Die zweite Ebene war erreichbar, aber nicht durch die Welt: nur die Plakette
+neben der Essenz löste den Etagensprung aus, und die Leiter bei 47,47 stand als
+Deko über **unberührtem Gestein** — ihr Feld war Erde, keine Kachel, die jemand
+betreten kann. Der Weg nach unten führte also an der einen Stelle vorbei, an der
+das Spiel ihn zeigt.
+
+Jetzt führt er durch sie hindurch. `LADDER_TILE` steht in jeder Etage an
+denselben Koordinaten als `world.entrance`, jede Etage hat ihr eigenes Gestein
+darüber, und der Eingang ist erst offen, wenn seine Kachel `isUsable()` ist:
+Wer hinunter will, muss den Schacht freigraben. Der Klick auf die Leiter schickt
+denselben `ACTION.FLOOR_DESCEND` wie die Plakette — es gibt genau eine Regel
+über die Tiefe (der Reducer der Etage, samt Blutstein unterhalb der freien
+Leiter), und die Leiter kann keine zweite erfinden. Auf der tiefsten Etage ist
+sie sichtbar und nicht klickbar (`pointerEvents: none`), weil `canDescend()`
+dort falsch ist.
+
+**Der Anreiz, sich dorthin zu graben, ist keine Absicht, sondern eine Zahl:**
+`DEPOSIT_DEPTH.gainPerFloor` hebt jede Vorratskammer je Etage um ein Viertel, und
+weil die Verteilung selbst am Seed hängt, wächst die Essenz der ganzen Etage um
+genau diesen Faktor. Die zweite Etage liegt gemessen bei 12.900 gegen 9.660
+Essenz der ersten — und in **ihrem** Band (`essenceBudget(depth)`), nicht im Band
+der ersten. Auf Etage 0 ist der Zuwachs exakt null: `createFloorWorld(seed, 0)`
+ist Zeichen für Zeichen dieselbe Welt wie `createWorld({ playerseed })`, und eine
+Prüfung vergleicht beide. Der Golden-Wert der Deterministizität bricht deshalb
+auch nicht am Anfang, sondern genau beim `FLOOR_DESCEND` — gemessen am Zug 2184
+von 2189 — und ist mit `npm run golden:determinism` neu geschrieben; das ist die
+Verhaltensänderung dieses Slices.
+
+Belegt von `check-ladder.mjs` (Eingang, gegrabener Boden, reichere zweite Etage,
+unberührte erste) und `check-verticality-wiring.mjs` (die Leiter nimmt dieselbe
+Aktion wie die Plakette und ist nur klickbar, wenn es tiefer geht). **Offen
+bleibt:** betreten wird die Leiter per Klick, nicht von einem laufenden Dungling,
+und einen automatischen Gang zum Eingang gibt es nicht — der Tunnel ist Handarbeit,
+und genau das ist der Anreiz.
 
 ## Konto und Spielerseed
 
@@ -1017,7 +1099,12 @@ kostet `mutationCost`, erhöht `mutations` und damit die Grab- und
 Körperfähigkeit (`digAbilityOf()`), und sie erhöht das Risiko. Am
 `riskCeiling` ist Schluss, dann wird mit `RISIKO_ZU_HOCH` abgewiesen. Quelle,
 Vorrat, Verbraucher und Deckel sind dieselbe Rechnung; `check-aether.mjs` leitet
-die Erwartungen aus der Config ab statt sie abzuschreiben.
+die Erwartungen aus der Config ab statt sie abzuschreiben. Seit dem Kreislauf
+liegt die Ader **unter der freien Leiter**: die Schwelle ist `DEEPEST_FLOOR + 1`
+und nicht mehr die Zahl drei. Das ist die eine Entscheidung, die Aether und
+Blutstein verbindet — solange Aether auf einer Etage entstand, die der Spieler
+ohne Gegenleistung erreicht, war Blutstein eine zweite Währung neben der Essenz
+statt ihre Bedingung.
 
 **Blutstein (Tier 3) kommt nur aus dem Raid.** `baseYieldFor()` liefert nach 0,
 1 und 1000 Takten exakt `baseYield` (0) — die eigene Basis erzeugt es nicht,
@@ -1027,9 +1114,51 @@ nur gegen einen feindlichen Hive und nur bei gefallenem Wächter. Der Abnehmer
 ist die nächste Etage: `unlockDepth()` kostet `depthCostFor(depth)`, hebt die
 Tiefe um eins und endet am `maxDepth`. Der Kreislauf
 `eigene Basis → Raid → Feind-Hive → Risiko → Blutstein → neue Tiefe` steht damit
-in der Domäne. Was ihm noch fehlt, ist die Spielbarkeit: die Phase hinter
-`EXTRACTING` ist im Baum weiterhin nicht erreichbar, und das steht als offener
-Punkt in [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md).
+in der Domäne.
+
+### Der geschlossene Kreislauf
+
+Die beiden Ressourcen hatten je einen Erzeuger und einen Abnehmer **im Modul** —
+und keinen im Spiel. Genau das ist jetzt gebaut, an vier Stellen, und jede liegt
+dort, wo das Ereignis entsteht:
+
+| Schritt | Stelle | Was passiert |
+| --- | --- | --- |
+| Erzeugen | `applyRaidLoot()` in `raid-loot.js` | Die Beute des Raids geht **ganz** in den Kreislauf; bis zuletzt setzte die Auszahlung nur die Essenz und warf den Blutstein weg. |
+| Erzeugen | `digInto()` in `mining.js` | Der Abschluss eines Grabs bucht die Aether-Ausbeute seiner Tiefe. |
+| Investieren | `buyFloor()` in `floor-reducer.js` | Unterhalb der freien Leiter kauft der Etagensprung die nächste Etage; ohne Blutstein gibt er denselben Zustand zurück. |
+| Investieren | dieselbe `digInto()` | Der Hive mutiert, sobald der Vorrat den Preis trägt. |
+
+**Jede Investition schaltet eine Fähigkeit frei und zieht ein Risiko nach sich.**
+Der Kauf hebt `lowestReachable()` um eins und öffnet damit erst die Ader: der
+Aether beginnt genau dort, wo die freie Leiter endet. Die Mutation hebt
+`digAbilityOf()` und damit die Ausbeute des nächsten Grabs. Die Preise sind die
+Risiken: `depthCostFor()` wächst mit jeder Etage (5, 10, 15, 20, 25) und
+`riskPerDepth` steigt bis `maxRisk`; `mutationCost` kostet 12 je Mutation und
+`riskPerMutation` steigt bis `riskCeiling`. Am Deckel wird mit stabilem
+Schlüssel und **demselben** Ledger verweigert — eine Verweigerung hinterlässt
+keine zweite Wahrheit.
+
+**Das alte Verhalten bleibt das Verhalten eines leeren Kreislaufs.** Für einen
+Stand ohne Blutstein und ohne Aether ist der Etagensprung Zeichen für Zeichen
+der alte, gibt ein flacher Grab denselben Kreislauf zurück (Identität, nicht
+Gleichheit), und kein Weg führt unter `DEEPEST_FLOOR`. Die Abnahme der
+Vertikalität läuft deshalb unverändert, und `check-cycle.mjs` führt genau diesen
+Fall als Beweis: die freie Leiter endet bei 8, und der neunte Sprung gibt ohne
+Blutstein denselben Stand zurück.
+
+**Gemessen, nicht behauptet:** `check-cycle.mjs` und `check-cycle-game.mjs`
+fahren den Kreislauf in der Domäne und durch den echten Reducer — mit der
+Gegenprobe, dass ein flacher Grab nichts bucht, dass ein verlorener Raid nichts
+zahlt und dass der Deckel die Fähigkeit stehen lässt. Der Zustand trägt dafür ein
+neues Feld (`economy`), also ist der Golden-Wert der Deterministizität **neu
+geschrieben** (`npm run golden:determinism`) und diese Verhaltensänderung steht
+im Commit-Body.
+
+Offen bleiben zwei Dinge, und sie stehen als solche in
+[`ROADMAP_OPEN.md`](ROADMAP_OPEN.md): keine Oberfläche zeigt die beiden Vorräte,
+und der Verbrauch ist keine Wahl des Spielers — der Kauf geschieht im Sprung, die
+Mutation im Grab.
 
 ## Werkzeuge
 

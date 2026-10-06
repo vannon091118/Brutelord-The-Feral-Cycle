@@ -22,7 +22,9 @@
     "verify:tests:headless": "DL_HEADLESS=1 node tools/tests/run.mjs",
     "verify:commits": "node scripts/verify-commit-gate.mjs",
     "golden:determinism": "node tools/golden-determinism.mjs",
+    "golden:raid": "node tools/golden-raid.mjs",
     "purge": "node scripts/server/purge.mjs",
+    "deploy:guard": "node scripts/server/binding-check.mjs",
     "bench:replay": "node scripts/bench/raid-replay-bench.mjs",
     "bench:organic": "node scripts/bench/organic-bench.mjs"
   },

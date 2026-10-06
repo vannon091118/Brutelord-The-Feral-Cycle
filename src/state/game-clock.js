@@ -65,7 +65,7 @@ function beat(run, state) {
   armPhase(run, state.onboarding.state);
   const at = run.now();
   const dtMs = Math.min(Math.max(0, at - run.last), run.maxStepMs);
-  run.last = at;
+  run.last = Math.max(run.last, at);
   const actions = [];
   stepTimers({ run, actions, dtMs });
   stepTicks({ run, actions, state, dtMs });

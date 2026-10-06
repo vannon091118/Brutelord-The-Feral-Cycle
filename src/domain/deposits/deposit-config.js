@@ -37,10 +37,25 @@ export const CLUSTER_COUNT_MAX = 200;
 const WORLD_ESSENCE_BUDGET = 8860;
 const WORLD_ESSENCE_TOLERANCE = 0.25;
 
-export function essenceBudget() {
+export const DEPOSIT_DEPTH = Object.freeze({ gainPerFloor: 0.25 });
+
+export function depthGain(depth = 0) {
+  return Number.isInteger(depth) && depth > 0 ? depth * DEPOSIT_DEPTH.gainPerFloor : 0;
+}
+
+export function capacityAtDepth(capacity, depth = 0) {
+  return Math.round(capacity * (1 + depthGain(depth)));
+}
+
+export function capacityCeilingFor(depth = 0) {
+  return capacityAtDepth(DEPOSIT_CONFIG.capacityMax, depth);
+}
+
+export function essenceBudget(depth = 0) {
+  const growth = 1 + depthGain(depth);
   return {
-    floor: Math.round(WORLD_ESSENCE_BUDGET * (1 - WORLD_ESSENCE_TOLERANCE)),
-    ceiling: Math.round(WORLD_ESSENCE_BUDGET * (1 + WORLD_ESSENCE_TOLERANCE)),
+    floor: Math.round(WORLD_ESSENCE_BUDGET * (1 - WORLD_ESSENCE_TOLERANCE) * growth),
+    ceiling: Math.round(WORLD_ESSENCE_BUDGET * (1 + WORLD_ESSENCE_TOLERANCE) * growth),
   };
 }
 

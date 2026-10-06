@@ -124,6 +124,36 @@ Jede mit dem Warum.
   falsch zusammenzählen — das ist die Hälfte des Grundes, ihn als Blob zu
   halten.
 
+- **B9 — Die Identität kommt aus einem Traeger-Token, nicht aus dem Rumpf.**
+  `register` und `login` geben zusätzlich zum Seed einen Token aus, die
+  Tabelle `sessions` hält ihn, und `/api/state` wie `/api/raid` lösen ihn
+  serverseitig auf. Vorher entschied ein vom Client gelieferter `playerseed`,
+  wer jemand ist — sobald der Server mehr als Konten hält, ist das keine
+  Authentifizierung, sondern eine Behauptung. Der Seed bleibt die Eingabe der
+  Welt; er ist nur kein Ausweis mehr.
+
+- **B10 — Die Revision wird nicht gelesen, sondern geprüft.** Die Spalte
+  `revision` steht neben `state`, und die Bedingung sitzt in der `UPDATE`
+  selbst. Ein Lesen-dann-Schreiben ist genau die Lücke, durch die zwei Tabs
+  dieselbe nächste Revision buchen. Verliert ein Schreiber, antwortet der
+  Server 409 statt zu überschreiben.
+
+- **B11 — Die Bremse liegt im Speicher des Kontos, nicht im Prozess.** Ein
+  `new Map()` im Worker ist keine globale Bremse, sondern eine je Instanz;
+  verteilte Worker teilen sich keinen Prozessspeicher. Die Tabelle
+  `login_attempts` hält den Zähler, die Regel steht in `account-throttle.mjs`
+  als reine Funktion über einem Eintrag.
+
+- **B12 — Die PlayerID ist eine eigene Kennung, nicht der verkürzte Seed.**
+  `playerseed.slice(0, 8)` sind 32 Bit; bei rund 65.000 Konten kollidiert das
+  zur Hälfte. Der Seed bleibt der deterministische Welt-Seed, die ID wird beim
+  Anlegen gezogen (`idBytes`). Damit sind zwei Rollen zwei Werte.
+
+- **B13 — Fehlende Kennung ist fail closed.** Ohne echte D1-Kennung zeigt die
+  Bindung auf keine Datenbank. Der Wächter (`npm run deploy:guard`) liest
+  `wrangler.jsonc` und bricht vor dem Deploy ab, solange dort der Platzhalter
+  steht; die CI prüft nur die Regel selbst, nicht die Deploy-Umgebung.
+
 ---
 
 ## Die Umsetzung, die daraus steht
@@ -142,8 +172,14 @@ Jede mit dem Warum.
 | `wrangler.jsonc` | Die Bindung: `main`, `dist/` als Assets, D1 als `DB` |
 | `scripts/server/raid-validator.mjs` | Die Einreichung, gerechnet in der Domäne (B3) |
 | `scripts/bench/raid-replay-bench.mjs` | `npm run bench:replay`, die Messung oben |
-| `scripts/verify/check-storage.mjs` | Vertrag, Spielstand, Deckel, Validator |
+| `scripts/verify/check-storage.mjs` | Vertrag, Spielstand, Deckel, Validator, Bindung |
 | `scripts/verify/check-account-worker.mjs` | Der Worker-Transport gegen den echten lokalen Speicher |
+| `scripts/server/account-session.mjs` | Der Traeger-Token: ausgeben und auflösen (B9) |
+| `scripts/server/state-http.mjs` | Spielstand lesen und schreiben über HTTP |
+| `scripts/server/raid-http.mjs` | Die Replay-Einreichung als erreichbarer Weg |
+| `scripts/server/binding-config.mjs` | Die Regel der Auslieferungsbindung (B13) |
+| `scripts/server/binding-check.mjs` | `npm run deploy:guard`, der Fail-closed-Riegel |
+| `workers/d1/0002-state-session-attempt.sql` | `revision`, `sessions`, `login_attempts` |
 
 **Was inzwischen steht:** der Worker-Entrypoint (`workers/index.mjs`), das
 Schema als Migration (`workers/d1/0001-accounts.sql`) und die Bindung in
@@ -182,27 +218,39 @@ Befehle laufen nicht in diesem Baum, weil `wrangler` keine Abhängigkeit des
 Repos ist. Die Begründung der Aufteilung steht als *Derselbe Server an drei
 Orten* in [`ARCHITEKTUR.md`](ARCHITEKTUR.md).
 
-### 2. Wie groß ist der Spielstand, und wann wird er geschrieben?
+### 2. Wie groß ist der Spielstand, und wann wird er geschrieben? — beantwortet
 
-`packState()` schreibt heute in `localStorage`, alle fünf Sekunden. Dieselben
-Snapshots über HTTP sind ein Vielfaches größer, und die Frage ist nicht das
-Speichern, sondern die **Schreiblast**. Ein Klickstoß erzeugt Dutzende
-Snapshots. Es braucht eine Zusammenfassung (letzter Stand gewinnt) und eine
-Obergrenze, sonst zahlt jeder Spieler die volle Länge seines eigenen Fortschritts
-bei jedem Takt.
+`packState()` schreibt nur bei geänderter Nutzlast und höchstens alle 30 s,
+gedeckelt bei 262.144 Bytes, mit monotoner Revision. Der Transport ist gebaut:
+`POST /api/state` nimmt den Envelope, `GET /api/state` gibt ihn zurück, beide
+verlangen einen Traeger-Token und tragen eine eigene Rumpfschranke
+(`SNAPSHOT_MAX_BYTES` statt der 4096 der Kontoanträge). Der Client schickt
+denselben Envelope, den er lokal sichert, über denselben Takt — kein zweiter
+Zeitplan.
 
-### 3. Was passiert bei zwei Tabs?
+### 3. Was passiert bei zwei Tabs? — beantwortet
 
-Ohne Serialisierung schreiben zwei Tabs denselben Spielstand. Last-write-wins
-ist die ehrliche Antwort und sie reicht für einen einzelnen Spieler — aber es
-muss **entschieden** sein, nicht offen bleiben.
+Der Schreibvorgang ist atomar (B10). Zwei Tabs, die dieselbe Revision gelesen
+haben, schreiben nicht beide die nächste: der zweite bekommt 409. Last-write-wins
+ist damit keine stille Überschreibung mehr, sondern eine Absage — und `changes`
+entscheidet, nicht die Reihenfolge zweier Anfragen.
 
-### 4. Wann wird der Replay überhaupt eingereicht?
+### 4. Wann wird der Replay überhaupt eingereicht? — beantwortet
 
-Der Plan setzt die Validierung voraus, aber im Repo gibt es noch keine Route,
-die ein Log entgegennimmt. Bis das gebaut ist, ist `raid-validator.mjs` eine
-geprüfte Funktion ohne Aufrufer — das ist Absicht (sie ist abnahmefähig, bevor
-sie verdrahtet ist), aber es ist auch ein Grund, sie nicht abzuheben.
+`POST /api/raid` nimmt `{ ticket, actions, claimed }`, verlangt einen
+Traeger-Token und ruft `validateRaidReplay()`. Damit hat die geprüfte Funktion
+einen Weg: Spieler → Server → Raid-Prüfer. Offen bleibt, was **danach** kommt:
+das Ticket ausstellen, den Riss schreiben, das Ergebnis ablegen kann nur der
+Server, und diese Zeile fehlt noch.
+
+### 6. Woher kommt die Datenbankkennung, und was, wenn sie fehlt? — beantwortet
+
+Die Kennung kennt nur die Deploy-Umgebung; sie lässt sich hier nicht erfinden,
+ohne auf eine Datenbank zu zeigen, die es nicht gibt. Deshalb bleibt der
+Null-Platzhalter im `wrangler.jsonc` sichtbar **als** Platzhalter, und
+`npm run deploy:guard` weist ihn vor dem Ausliefern ab — fail closed (B13). Eine
+erfundene Zahl wäre schlimmer als keine, weil der Fehler erst beim ersten
+Schreiben auffiele.
 
 ### 5. Wie groß ist ein Ticket-Log in Wirklichkeit?
 

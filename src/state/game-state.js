@@ -4,6 +4,7 @@ import { createHive } from '../domain/entities/hive.js';
 import { createOnboarding } from '../domain/onboarding/onboarding-state.js';
 import { createLab } from '../domain/brutelord/lab-state.js';
 import { START_ESSENCE } from '../domain/buildings/building-config.js';
+import { createCycle, cycleOf } from '../domain/economy/resource-cycle.js';
 import { readSavedState } from './snapshot.js';
 
 export function createInitialGameState(playerseed) {
@@ -14,6 +15,7 @@ export function createInitialGameState(playerseed) {
     hive: createHive(),
     dunglings: [],
     essence: START_ESSENCE,
+    economy: createCycle(),
     buildings: [],
     buildChoice: null,
     selectedBuildingId: null,
@@ -33,5 +35,6 @@ export function createInitialGameState(playerseed) {
 }
 
 export function initialGameState(playerseed) {
-  return readSavedState(playerseed) ?? createInitialGameState(playerseed);
+  const gespeichert = readSavedState(playerseed);
+  return gespeichert ? { ...gespeichert, economy: cycleOf(gespeichert) } : createInitialGameState(playerseed);
 }

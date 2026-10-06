@@ -35,7 +35,8 @@ die Kopie verfällt zu Folklore, die irgendwann jemand für bare Münze nimmt.
 ```sh
 npm ci                                     # CI pinnt Node 22, lokal läuft Node 26
 npm run dev                                # Vite, bindet auf 127.0.0.1
-npm run gate                               # alle drei Wächter
+npm run gate                               # alle Wächter
+npm run gate -- --imports                  # nur die Schichtung von src/
 npm run gate -- --tree                     # nur Hard Caps
 npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
@@ -46,6 +47,7 @@ npm run check:browser                       # die Browser-Stufe allein (sonst nu
 npm run verify                             # VOLLLAUF inkl. Browser — dieselbe Zeile, gehört in die CI
 npm run verify:commits                     # Regressionstests des Commit-Gates
 npm run golden:determinism                 # Golden-Wert der Deterministizität neu schreiben
+npm run golden:raid                        # Golden-Wert der Raid-Simulation neu schreiben
 npm run build                              # Production-Build
 npm run version:bump -- patch              # auch minor | major
 npm run version:check                      # Lock vs. Spiegel
@@ -210,10 +212,18 @@ ist das Gerüst, `scripts/verify/groups.mjs` die Reihenfolge.
   die Timer aus `onboarding-schedule.js` verfallen bei jedem Phasenwechsel.
 
 Die reale Importmatrix, die Schichtkette und die vollständigen Konfigurationswerte
-stehen in `Docs/ARCHITEKTUR.md`. Die Kette ist **Konvention, nicht Gate**:
-`check-architecture.mjs` prüft genau drei Dinge — kein React und kein DOM in
-`src/domain/`, kein `Math.random(` und kein `Date.now(` in `src/`, kein
-SVG-Markup in `src/domain/`. Die Importrichtung prüft er nicht.
+stehen in `Docs/ARCHITEKTUR.md`. Die Schichtung ist **erzwungen, nicht
+vereinbart**: die Tabelle der erlaubten Ziele liegt in
+`scripts/lib/import-rules.mjs`, und **`npm run gate` bricht bei jeder Kante
+gegen die Tabelle ab** (Block *Importrichtungen*, einzeln
+`npm run gate -- --imports`). Die Gruppe `imports` liest dieselbe Funktion in
+`npm run check` und `npm run verify`. Fail-closed, inklusive der zwei Türen, die
+eine Musterprüfung übersieht: ein dynamisches `import()` zählt wie ein
+statischer Import, und ein Verzeichnis unter `src/`, das keine Schicht ist, ist
+selbst ein Verstoß. `check-architecture.mjs` prüft daneben genau drei Dinge, die
+keine Richtung sind — kein React und kein DOM in `src/domain/`, kein
+`Math.random(` und kein `Date.now(` in `src/`, kein SVG-Markup in
+`src/domain/`.
 
 ## 8. Gestalterische Vorgaben
 

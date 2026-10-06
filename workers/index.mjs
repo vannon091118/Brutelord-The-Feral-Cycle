@@ -4,8 +4,8 @@
  *  zwei Wortlaute fuer dieselbe Absage fuehren. Was keine Konto-Route ist,
  *  geht an die Assets aus `dist/`. Der Entwurf: Docs/BACKEND-PLAN.md. */
 import { createD1Store } from './account-store-d1.mjs';
-import { ACCOUNT_CONFIG } from '../scripts/server/account-config.mjs';
-import { API_ROUTES, POLICY, SECURITY_HEADERS, parseBody, sameOrigin } from '../scripts/server/account-http.mjs';
+import { POLICY, SECURITY_HEADERS, parseBody, routeOf, sameOrigin } from '../scripts/server/account-http.mjs';
+import { sessionName } from '../scripts/server/account-session.mjs';
 
 function json(payload, status = 200) {
   return new Response(JSON.stringify(payload), {
@@ -19,9 +19,9 @@ function refuse(absage) {
 }
 
 /** `null` heisst: zu gross nach Bytes — dieselbe Schranke wie im Dev-Server. */
-async function readBody(request) {
+async function readBody(request, limit) {
   const bytes = await request.arrayBuffer();
-  if (bytes.byteLength > ACCOUNT_CONFIG.bodyLimitBytes) return null;
+  if (bytes.byteLength > limit) return null;
   return new TextDecoder().decode(bytes);
 }
 
@@ -29,17 +29,23 @@ async function readBody(request) {
  *  gibt der Aufrufer sie an die Assets weiter. Der Speicher wird erst geoeffnet,
  *  wenn Weg, Methode und Herkunft stimmen. */
 export async function answerAccountRequest(request, openStore) {
-  const route = API_ROUTES[new URL(request.url).pathname];
+  const route = routeOf(new URL(request.url).pathname, request.method);
   if (!route) return null;
-  if (request.method !== 'POST') return refuse(POLICY.method);
+  if (route.refuse) return refuse(route.refuse);
   const origin = request.headers.get('origin');
   if (!sameOrigin({ origin, host: request.headers.get('host') })) return refuse(POLICY.origin);
-  const raw = await readBody(request);
-  if (raw === null) return refuse(POLICY.tooLarge);
-  const body = parseBody(raw);
-  const remote = request.headers.get('cf-connecting-ip') ?? '';
+  const { entry } = route;
+  const store = openStore();
+  let body;
+  if (entry.limit > 0) {
+    const raw = await readBody(request, entry.limit);
+    if (raw === null) return refuse(POLICY.tooLarge);
+    body = parseBody(raw);
+  }
+  const account = entry.auth ? await sessionName(store, request.headers.get('authorization')) : null;
+  if (entry.auth && !account) return refuse(POLICY.session);
   try {
-    const result = await route(openStore(), { name: body.name, password: body.password, remote });
+    const result = await entry.run(store, { body, remote: request.headers.get('cf-connecting-ip') ?? '', account });
     const { error, ...rest } = result;
     return json(error ? { error } : rest, result.status);
   } catch (error) {

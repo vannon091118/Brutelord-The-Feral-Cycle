@@ -15,7 +15,13 @@ export const DungeonWorld = memo(function DungeonWorld({ game, actions, tileSize
       <svg {...worldSvgProps(view.camera, scale)}>
         <WorldContext view={view} onBackgroundClick={actions.clearSelection} />
         <TileLayer {...tileLayerProps({ game, view, tileSize, actions })} />
-        <EntranceLadder entrance={game.world.entrance} camera={view.camera} tileSize={tileSize} />
+        <EntranceLadder
+          world={game.world}
+          camera={view.camera}
+          tileSize={tileSize}
+          cycle={game.economy}
+          onClimb={actions.climbLadder}
+        />
         <HiveNode {...hiveProps(game, tileSize, actions)} />
         <WorkerLayer workers={view.workers} popups={view.popups} tileSize={tileSize} />
         <WorldVignette camera={view.camera} />

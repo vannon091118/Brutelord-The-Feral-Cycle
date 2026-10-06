@@ -1,7 +1,7 @@
 /** Der lokale Speicher: `node:sqlite` in Promises gekleidet. Dieselbe Datei laeuft
  *  in Entwicklung, Dev-Server und Abnahme. Das async macht die Signatur
  *  vergleichbar, nicht die Arbeit nebenlaeufig — B6 in Docs/BACKEND-PLAN.md. */
-import { findAccount, insertAccount, openAccounts, readState, writeState } from './account-store.mjs';
+import { findAccount, insertAccount, openAccounts, readAttempt, readSession, readState, writeAttempt, writeSession, writeState } from './account-store.mjs';
 import { ACCOUNT_COLUMNS } from './storage-contract.mjs';
 
 /** Nur Spalten der Tabelle sind erlaubt: ein Schluessel wandert sonst in den
@@ -37,7 +37,7 @@ function applyPatch(db, accountId, patch) {
     .run(...aenderbar.map((feld) => patch[feld]), accountId);
 }
 
-export function createLocalStore({ file } = {}) {
+function accountMethods(file) {
   return {
     async getAccount(accountId) {
       return withDb(file, (db) => findAccount(db, accountId));
@@ -56,4 +56,25 @@ export function createLocalStore({ file } = {}) {
       return withDb(file, (db) => writeState(db, accountId, packed));
     },
   };
+}
+
+function sessionMethods(file) {
+  return {
+    async getSession(token) {
+      return withDb(file, (db) => readSession(db, token));
+    },
+    async putSession(token, name) {
+      return withDb(file, (db) => writeSession(db, token, name));
+    },
+    async getAttempt(key) {
+      return withDb(file, (db) => readAttempt(db, key));
+    },
+    async putAttempt(key, entry) {
+      return withDb(file, (db) => writeAttempt(db, key, entry));
+    },
+  };
+}
+
+export function createLocalStore({ file } = {}) {
+  return { ...accountMethods(file), ...sessionMethods(file) };
 }

@@ -32,9 +32,9 @@ Du bist kein Herrscher. Du bist kein König. Du bist ein Tier, das sich durchfri
 
 Der Hive presst passiv eine Essenz alle zehn Sekunden, gedeckelt auf fünfundzwanzig für das ganze Spiel. Die Obergrenze ist der Grund, warum es ein Puffer ist und kein Endgame.
 
-Dein Konto ist ein Name und ein Passwort, und daraus entsteht deine Welt. Es gibt keine Datei, in der sie liegt — gleiche Zugangsdaten ergeben gleiche Welt, auch nach dem Neuladen, weil gar nichts gespeichert werden *muss*.
+Dein Konto ist ein Name und ein Passwort, und daraus entsteht deine Welt — gleiche Zugangsdaten ergeben gleiche Welt, auch nach dem Neuladen.
 
-**Und deshalb gibt es noch keinen Spielstand.** Meldest du dich ab, sind Hive, Vorräte und Bauten weg. Das ist der ehrliche Zustand eines Slices, der noch gebaut wird.
+**Den Spielstand gibt es jetzt.** Hive, Vorräte, Bauten und beide Ressourcenkreisläufe werden gespeichert, aber nur, wenn sich wirklich etwas geändert hat — und nicht öfter als nötig. Er überlebt das Neuladen und das Abmelden. Er liegt noch im Browser; auf einen anderen Rechner folgt er dir noch nicht. Das ist die nächste Naht, und sie ist benannt.
 
 ---
 
@@ -62,7 +62,7 @@ Weil die Arbeit in den Systemen liegt, nicht in der Menge. Ein Spiel, das nur In
 
 ## Die Welt unter dem Boden
 
-Weit draußen, bei 47,47, steht eine Leiter. Sie zeigt sich erst, wenn die Wurzeln sie erreichen. Sie ist Deko mit Tiefe. Irgendwann wird sie der Eingang.
+Weit draußen, bei 47,47, steht eine Leiter. Sie zeigt sich erst, wenn die Wurzeln sie erreichen — und sie ist kein Dekor mehr. Sie steht in jeder Etage an derselben Stelle, liegt unter Gestein, und wer sie freigräbt, steigt hinunter. Oben trägt sie dich frei bis zur tiefsten Etage der Leiter; jede Etage darunter kostet Blutstein, und Blutstein kommt nur aus einem Raid gegen einen fremden Hive. Genau dort beginnt die Ader des Aethers, der die Körperform des Hive weitertreibt.
 
 Der Bildschirm zeigt 13 × 13 Felder um den gebauten Raum. Wie tief der Dungeon reicht, entscheidet nicht das Sichtfeld, sondern die Welt selbst. 4.096 Felder. Du siehst dreizehn mal dreizehn davon, ein Fenster, das dem gebauten Raum folgt und mitwandert. Der Rest bleibt Dunkelheit. Bis die Wurzeln kommen.
 

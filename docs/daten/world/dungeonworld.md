@@ -21,4 +21,9 @@ dem Renaming; die Browser-Abnahme zahlt auf genau diesen Namen ab.
 - `tileLayerProps()`
 - `hiveProps()`
 
+Die Leiter bekommt ihre Welt, ihren Kreislauf und ihren Befehl von hier:
+`world={game.world}`, `cycle={game.economy}` und `onClimb={actions.climbLadder}`. Die
+Komponente entscheidet nichts — sie reicht durch, ob der Schacht gerade ein Ziel hat, und
+`EntranceLadder` liest den offenen Abstieg aus `descendOpen()`.
+
 Aus der Migration vom 2026-10-05 hervorgegangen.

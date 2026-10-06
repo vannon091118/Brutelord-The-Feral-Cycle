@@ -71,9 +71,16 @@ zusätzlich `domain`, `world` zusätzlich `state`, `ui` zusätzlich `world`, `ap
 alles darunter. Fail-closed — was nicht in der Tabelle steht, ist verboten.
 Jeder nicht-relative Specifier ist in `domain` verboten und sonst auf `react`,
 `react-dom` und `react/jsx-runtime` begrenzt; ein Ziel außerhalb von `src/` ist
-in jeder Schicht ein Verstoß. `scripts/verify/check-imports.mjs` prüft den
-ganzen Baum gegen die Tabelle und lässt jede der verbotenen Richtungen an einer
-erfundenen Kante fallen: eine Importregel ohne einen Fall, der sie bricht, ist
+in jeder Schicht ein Verstoß. Zwei Türen sind mitgeprüft, weil sie sonst offen
+blieben: ein dynamisches `import()` zählt wie ein statischer Import, und ein
+Verzeichnis unter `src/`, das keine Schicht ist, ist selbst ein Verstoß — eine
+neue Schicht braucht eine Zeile in der Tabelle, nicht nur einen Ordner.
+
+Die Tabelle ist ein **Abbruchgrund im Gate**, kein Prüfbericht: `npm run gate`
+liest dieselbe Funktion wie die Gruppe `imports` (Block *Importrichtungen*,
+einzeln `npm run gate -- --imports`). `scripts/verify/check-imports.mjs` lässt
+jede der acht verbotenen Kanten an einer erfundenen Kante fallen und prüft
+danach den echten Baum: eine Importregel ohne einen Fall, der sie bricht, ist
 eine Behauptung.
 
 ### Hard Caps
@@ -389,12 +396,12 @@ aus, also fällt ihr Verstoß erst auf, wenn jemand die Range über sie zieht.
 | Wer | entscheidet |
 | --- | --- |
 | Der Auftraggeber | die gestalterischen Vorgaben, die nicht verhandelbar sind |
-| Das Gate | Form, nicht Inhalt: Cap-Verletzungen, Versionsspringen, Commit-Verstöße |
+| Das Gate | Form, nicht Inhalt: Importrichtungen, Cap-Verletzungen, Versionsspringen, Commit-Verstöße |
 | `npm run verify` | Verhalten der Domäne, deterministisch und ohne Browser |
 | Der Autor eines Tasks | ob er fertig ist — und ob er es **belegen** kann |
 
 Die **Importrichtung zwischen den Ebenen** ist seit dem 2026-10-06 keine
-Konvention mehr, sondern eine Prüfung (siehe *Importrichtungen*). Was weiterhin
+Konvention mehr, sondern ein Abbruchgrund im Gate (siehe *Importrichtungen*). Was weiterhin
 Konvention ist: die Sorgfalt in einer Config-Änderung und die Frage, ob ein
 Häkchen in der Roadmap zu Recht steht. Diese Lücke ist gewollt und heißt nicht,
 dass sie irgendwo hingehört — sie heißt Sorgfalt.

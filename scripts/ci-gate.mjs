@@ -17,6 +17,7 @@ import {
 import { HARD_CAPS, analyzeData, analyzeTree } from './lib/source-metrics.mjs';
 import { preFlightProblems } from './docs-sync.mjs';
 import { analyzeSpiegel, driftEntries } from './lib/spiegel-rules.mjs';
+import { treeViolations } from './lib/import-rules.mjs';
 
 const TREE_ROOTS = ['scripts', 'tools'];
 const DATA_ROOTS = ['tools/tests/state'];
@@ -50,6 +51,10 @@ export function detectRange() {
 const SRC_ROOTS = ['src'];
 // src traegt nur den @doc-Pointer; scripts und tools bleiben auf 5.
 const SRC_CAPS = { ...HARD_CAPS, commentLines: 1 };
+
+function runImportCheck() {
+  return treeViolations().map((detail) => ({ rule: 'Importrichtung domain -> state -> world -> ui/app', detail }));
+}
 
 function runTreeCheck() {
   const violations = [
@@ -134,6 +139,9 @@ function report(title, problems) {
 
 function collectFailures({ args, wantsAll, commitArg, baseRef, explicitRange }) {
   let failures = 0;
+  if (wantsAll || args.includes('--imports')) {
+    failures += report('Importrichtungen (domain -> state -> world -> ui/app)', runImportCheck());
+  }
   if (wantsAll || args.includes('--tree')) {
     failures += report('Hard Caps (LOC, Parameter, Imports)', runTreeCheck());
   }

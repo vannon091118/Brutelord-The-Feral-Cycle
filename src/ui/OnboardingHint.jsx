@@ -3,7 +3,7 @@ import { PhaseTrail } from './PhaseTrail.jsx';
 import { ResourceChips } from './ResourceChips.jsx';
 
 // @doc: docs/daten/ui/onboardinghint.md#onboardinghint
-export function OnboardingHint({ onboarding, usableTileCount, essence, depth, onDescend }) {
+export function OnboardingHint({ onboarding, usableTileCount, essence, depth, cycle, onDescend }) {
   const hint = HINTS[onboarding.state];
 
   return (
@@ -21,7 +21,7 @@ export function OnboardingHint({ onboarding, usableTileCount, essence, depth, on
       <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <PhaseTrail onboarding={onboarding} />
 
-        <ResourceChips essence={essence} count={usableTileCount} countLabel="Raum" depth={depth} onDescend={onDescend} />
+        <ResourceChips essence={essence} count={usableTileCount} countLabel="Raum" depth={depth} cycle={cycle} onDescend={onDescend} />
       </div>
     </div>
   );

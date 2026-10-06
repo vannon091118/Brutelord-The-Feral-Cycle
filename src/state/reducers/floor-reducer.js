@@ -1,7 +1,8 @@
 // @doc: docs/daten/reducers/floor-reducer.md#floor-reducer
 import { ACTION } from '../../domain/actions/action-types.js';
-import { createFloorWorld, isFloorTarget } from '../../domain/world/floor.js';
+import { canDescend, createFloorWorld } from '../../domain/world/floor.js';
 import { countFloorTiles } from '../../domain/world/grid.js';
+import { buyFloor, cycleOf } from '../../domain/economy/resource-cycle.js';
 
 export function reduceFloor(state, action) {
   if (action.type !== ACTION.FLOOR_DESCEND) return state;
@@ -9,11 +10,19 @@ export function reduceFloor(state, action) {
 }
 
 function descended(state, target) {
-  if (!isFloorTarget(state.world.depth, target)) return state;
+  if (target !== state.world.depth + 1) return state;
+  const cycle = cycleOf(state);
+  if (canDescend(state.world.depth)) return moved(state, target, cycle);
+  const kauf = buyFloor(cycle);
+  return kauf.ok ? moved(state, target, kauf.cycle) : state;
+}
+
+function moved(state, target, economy) {
   const world = createFloorWorld(state.playerseed, target);
   return {
     ...state,
     world,
+    economy,
     usableTileCount: countFloorTiles(world),
     mining: null,
     expansion: null,

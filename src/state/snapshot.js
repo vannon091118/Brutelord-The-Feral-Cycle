@@ -3,8 +3,10 @@ import { createWorld } from '../domain/world/grid.js';
 import { parseTileId } from '../domain/world/tile.js';
 import { SNAPSHOT_KEY, SNAPSHOT_MAX_BYTES, SNAPSHOT_REVISION_FIELD, SNAPSHOT_REVISION_KEY, SNAPSHOT_VERSION } from './snapshot-config.js';
 import { SNAPSHOT_WRITE, envelopeBytes, writeDecision } from './snapshot-rule.js';
+import { shareCode } from '../domain/replay/run-log.js';
 
 let lastPayload = null;
+let lastEnvelope = null;
 
 function seedWorld(world) {
   const spawnTile = world.spawnTileId ? parseTileId(world.spawnTileId) : null;
@@ -127,6 +129,7 @@ function store(envelope) {
   window.localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(envelope));
   window.localStorage.setItem(SNAPSHOT_REVISION_KEY, String(envelope.revision));
   lastPayload = payloadOf(envelope);
+  lastEnvelope = envelope;
   return true;
 }
 
@@ -168,7 +171,21 @@ export function clearSnapshot() {
   window.localStorage.removeItem(SNAPSHOT_KEY);
 }
 
-export function openTestDoor({ latest, playerseed }) {
+export function latestEnvelope() {
+  return lastEnvelope;
+}
+
+export function pushEnvelope(envelope, token) {
+  if (!envelope || !token || typeof fetch !== 'function') return false;
+  fetch('/api/state', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(envelope),
+  }).catch(() => {});
+  return true;
+}
+
+export function openTestDoor({ latest, playerseed, log = null }) {
   if (!import.meta.env?.DEV) return;
   window.__dl = {
     get state() {
@@ -176,5 +193,7 @@ export function openTestDoor({ latest, playerseed }) {
     },
     save: () => saveSnapshot(latest.current, playerseed),
     clear: clearSnapshot,
+    share: () => (log ? shareCode(log.current) : null),
+    run: () => (log ? log.current : null),
   };
 }

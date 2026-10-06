@@ -22,6 +22,7 @@ export function useGameActions(dispatch) {
       createMutant: () => dispatch({ type: ACTION.MUTANT_CREATED }),
       revertMutant: (workerId) => dispatch({ type: ACTION.MUTANT_REVERTED, workerId }),
       descend: () => dispatch({ type: ACTION.FLOOR_DESCEND }),
+      climbLadder: () => dispatch({ type: ACTION.FLOOR_DESCEND }),
     }),
     [dispatch],
   );

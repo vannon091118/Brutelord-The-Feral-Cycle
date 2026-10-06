@@ -4,6 +4,9 @@
   // `wrangler d1 create brutalord-accounts` — die Kennung, die der Befehl
   // ausgibt, gehoert unten in `database_id`. Das Schema liegt in `d1/` und
   // wird mit `wrangler d1 migrations apply brutalord-accounts --remote` gesetzt.
+  // Die Kennung ist der Null-Platzhalter, bis die Deploy-Umgebung sie setzt:
+  // `npm run deploy:guard` weist diesen Zustand vor dem Ausliefern ab, damit
+  // keine Bindung auf eine Datenbank zeigt, die es nicht gibt.
   "name": "brutalord-the-feral-cycle",
   "main": "workers/index.mjs",
   "compatibility_date": "2025-09-23",

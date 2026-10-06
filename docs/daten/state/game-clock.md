@@ -21,6 +21,25 @@ Plan wechselt dort, wo der Zustand wechselt, und übernimmt dabei den Rest des g
 Timers in die neue Phase. Ohne diesen Übertrag startet jede Phase bei null und die Kette
 sammelt pro Wechsel einen Takt Drift an.
 
+## Was sie aushält
+
+Drei Zusicherungen tragen den Betrieb, und `check-game-clock-edges.mjs` fährt sie
+als eigene Gruppe ab:
+
+- **Gedrosselt ist nicht langsam.** Ein Hintergrundtab dehnt `setInterval`; die Uhr
+  misst stattdessen die Schritte und arbeitet sie nach. 100 Schritte à 100 ms und
+  10 Schritte à 1000 ms ergeben denselben Taktstrom.
+- **Abwesenheit ist ein Sprung.** Ein Schritt trägt höchstens `GAME_TIME.maxStepMs`
+  nach; ein schlafender Rechner oder ein drei Stunden verborgener Tab holt nicht
+  drei Stunden nach, sondern springt. Jeder Takt trägt seinen Rest über den Takt
+  hinaus mit, deshalb fällt keiner aus und keiner doppelt.
+- **Ein Rücksprung der Systemzeit zählt nicht doppelt.** `monotonicNow()` liest
+  `performance.now()`, und der Zeiger auf „jetzt“ läuft nur vorwärts: geht die
+  Quelle zurück, steht die Uhr still, bis sie ihn eingeholt hat.
+
+Schweigende Uhren stauen nichts an: ein pausierter Takt setzt seinen Rest auf
+null, damit nach einer Pause kein Schwall fälliger Runden entsteht.
+
 ## Schnittstellen
 
 - `monotonicNow()`
