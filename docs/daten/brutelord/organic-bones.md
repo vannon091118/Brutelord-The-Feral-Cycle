@@ -33,6 +33,15 @@ das Glied je Sprosse um `bend`, der Arm nach unten, das Bein nach aussen, und je
 Gliedgelenk traegt `limbJoint` — das ist der Ellbogen beziehungsweise das Knie, sichtbar
 als Knubbel in der Kontur und als Ring im Anker.
 
+Welche der vier Grammatiken laeuft, entscheidet `phenotype.species` ueber
+`SPECIES_GRAMMAR`: Humanoid zwei Rumpfknoten mit Armen ab dem zweiten, Daemon drei mit
+Armen ganz oben, Insekt drei ohne Arme, Spinne zwei Knoten mit je zwei Sprossen
+(`S -> F[L][L]`) und damit acht Beinen. `nodes` und `armFrom` stehen in der Tabelle, nicht
+im Walker; der Walker zaehlt nur die Knoten und die bereits getriebenen Sprossen mit
+(`pose.spur`), damit die zweite Sprosse eines Knotens nicht auf der ersten liegt, und
+`wordOf()` setzt das Wort aus `nodes` und `rules` zusammen. Ein neuer Art-Bauplan braucht
+damit keine Zeile im Walker, sondern nur einen Eintrag in der Tabelle.
+
 `phase` ist kein Zufall, sondern der Atemtakt: `phaseOf` rechnet auf die vier
 Phasen der `ORGANIC_CONFIG.breathe`-Kurve herunter. Lenden- und Gelenkmasse
 skalieren mit dem Atemwert, die Phase verschiebt damit die Form und nicht die

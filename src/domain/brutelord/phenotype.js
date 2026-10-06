@@ -29,6 +29,7 @@ export function phenotypeOf(genome) {
   return {
     hash: genomeHash(genome),
     traits: traitsOf(genome),
+    species: locusValue(genome, 'SPECIES'),
     skin: locusValue(genome, 'SKIN'),
     eyes: Math.round(locusValue(genome, 'EYE_COUNT')),
     horns: Math.round(locusValue(genome, 'HORN')),

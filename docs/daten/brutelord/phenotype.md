@@ -12,7 +12,11 @@ ein additiver den Mittelwert beider — dadurch wird aus dem diskreten Genom ein
 stetige Flaeche, und zwei Geschwister mit denselben Allelen stehen trotzdem verschieden
 da. `vitals.hp` ist der einzige passive Koerper-Stat: die Vitalitaet aus `VITALITY`,
 `SPINE` und `LIMB_THICK`, multipliziert mit `hpPerPoint`. Die Steine beruehrt diese
-Datei nicht — Faehigkeiten bleiben Werkzeuge, der Phaenotyp traegt sie nur.
+Datei nicht — Faehigkeiten bleiben Werkzeuge, der Phaenotyp traegt sie nur. Neben `skin`,
+`eyes` und `horns` traegt er `species`: die ausgedrueckte Art aus dem Spezies-Locus, die
+`skeletonOf()` auf eine der vier Skelett-Grammatiken abbildet. Sie ist das einzige Feld,
+das nicht aus `PHENOTRAIT_MAP` faellt, sondern direkt aus einem Locus — eine Art ist keine
+Summe von Merkmalen, sondern ein Bauplan.
 
 ## Schnittstellen
 

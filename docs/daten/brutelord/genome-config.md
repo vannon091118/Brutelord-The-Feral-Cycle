@@ -6,7 +6,7 @@ Spiegel-Datei für `src/domain/brutelord/genome-config.js`.
 
 ## Verantwortung
 
-Das Genom als Bauplan: neun Loci mit je vier Allelen. Ein Locus ist dominant oder additiv.
+Das Genom als Bauplan: zehn Loci mit je vier Allelen. Ein Locus ist dominant oder additiv.
 Ein dominanter Locus zeigt sein hoechstes Allel, ein additiver mittelt beide Allele und
 traegt damit zur Polygenie bei. `PHENOTRAIT_MAP` bindet mehrere Loci an ein Merkmal, und
 `VITALITY`, `SPINE` und `LIMB_THICK` speisen zusammen die passenden Koerper-HP.
@@ -23,9 +23,21 @@ Einschnuerung der Trennstelle und `limbJoint` fuer den Bulge am Ellbogen und Kni
 Zahlen sind geeicht, nicht geraten: erst mit ihnen formt das Metaballfeld aus den Sprossen
 wiedererkennbare Gliedmassen.
 
+Der zehnte Locus ist die Art, und er traegt eine ganze Skelett-Grammatik statt eines
+Farbwerts. Als dominanter Locus zeigt er das hoechste der vier Allele; welche Art wie oft
+faellt, haengt damit an der Allel-Reihenfolge, und gemessen ueber vierzig Genome ergibt
+das Spinne 23, Insekt 11, Humanoid 4, Daemon 2 — der Mensch ist die reinerbige Ausnahme,
+das Monstroese dominiert. `SPECIES_GRAMMAR` haengt an jede Art ihren Bauplan: `nodes`
+(Rumpfknoten), `armFrom` (ab welchem Knoten eine Sprosse Arm statt Bein wird, `null`
+heisst keine Arme), `rules` (die L-System-Regeln) und die Multiplikatoren `limb`, `girth`,
+`splay`, `spine`, `head`, `body`, `tail` und `horns`. Die Reihenfolge der Loci ist bindend:
+der neue Locus steht zuletzt, weil `LOCUS_ORDER` der Index in die Allel-Mischung ist und
+ein Locus vor den alten jedem bestehenden Genom das Allel getauscht haette.
+
 ## Schnittstellen
 
 - `LOCUS_MODE`
+- `SPECIES`
 - `SKIN_TEXTURE`
 - `FEATURE_ANCHOR`
 - `GENE_LOCI`
@@ -33,6 +45,7 @@ wiedererkennbare Gliedmassen.
 - `PHENOTRAIT_MAP`
 - `GENOME_SALT`
 - `GENOME_CONFIG`
+- `SPECIES_GRAMMAR`
 - `ORGANIC_SALT`
 - `ORGANIC_CONFIG`
 

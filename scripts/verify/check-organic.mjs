@@ -1,14 +1,15 @@
 /** Die Organik: Metaball-Konturen des Brutlords, deterministisch, geschlossen und symmetrisch. */
-import { FEATURE_ANCHOR, ORGANIC_CONFIG } from '../../src/domain/brutelord/genome-config.js';
-import { createGenome } from '../../src/domain/brutelord/genome-roll.js';
+import { FEATURE_ANCHOR, GENE_LOCI, ORGANIC_CONFIG, SPECIES, SPECIES_GRAMMAR } from '../../src/domain/brutelord/genome-config.js';
+import { createGenome, expressed } from '../../src/domain/brutelord/genome-roll.js';
 import { phenotypeOf } from '../../src/domain/brutelord/phenotype.js';
-import { phaseOf } from '../../src/domain/brutelord/organic-bones.js';
+import { phaseOf, skeletonOf } from '../../src/domain/brutelord/organic-bones.js';
 import { fieldOf, sampleField } from '../../src/domain/brutelord/organic-field.js';
 import { anchorsOf } from '../../src/domain/brutelord/organic-anchors.js';
 import { check, section } from './expect.mjs';
 
 const ORG = ORGANIC_CONFIG;
-const SAMPLE = Array.from({ length: 40 }, (unused, index) => phenotypeOf(createGenome(index * 7919 + 3)));
+const GENOMES = Array.from({ length: 40 }, (unused, index) => createGenome(index * 7919 + 3));
+const SAMPLE = GENOMES.map((genome) => phenotypeOf(genome));
 const PHASES = Array.from({ length: ORG.phaseCount }, (unused, index) => index);
 let pool = null;
 
@@ -153,7 +154,7 @@ function anchorProblems(field) {
   for (const anchor of anchors) {
     const point = field.rings[anchor.ring]?.[anchor.index];
     if (!point || point.x !== anchor.point.x || point.y !== anchor.point.y) problems.push(`ort ${anchor.role}`);
-    if (Math.abs(sampleField(field.skeleton, anchor.point) - ORG.iso) > 0.05) problems.push(`niveau ${anchor.role}`);
+    if (Math.abs(sampleField(field.skeleton, anchor.point) - ORG.iso) > ORG.cell) problems.push(`niveau ${anchor.role}`);
     if (Math.abs(anchor.gap - nearestGap(field, anchor.joint)) > 1e-9) problems.push(`ferne ${anchor.role}`);
   }
   return { anchors, problems };
@@ -175,8 +176,47 @@ function checkAnchors() {
   check('Der Ankerpunkt ist ein Punkt seines Rings', !problems.some((entry) => entry.startsWith('ort')), problems.slice(0, 3).join(', '));
   check('Der Anker ist der naechste Ringpunkt', !problems.some((entry) => entry.startsWith('ferne')), problems.slice(0, 3).join(', '));
   check('Der Ankerpunkt liegt auf der Iso-Linie', !problems.some((entry) => entry.startsWith('niveau')), problems.slice(0, 3).join(', '));
+  const probe = anchorsOf(all[0])[0];
+  const shifted = Math.abs(sampleField(all[0].skeleton, { x: probe.point.x + ORG.cell * 2, y: probe.point.y }) - ORG.iso);
+  check('Ein verschobener Ankerpunkt faellt aus dem Iso-Band', shifted > ORG.cell, `${shifted.toFixed(3)} gegen ${ORG.cell}`);
   check('Augen, Kiefer und Ruecken sind verankert', ['EYE_SOCKET', 'JAW', 'BACK'].every((role) => roles.has(role)) && count >= all.length, `${count} Anker`);
   check('Gliedmassen tragen Spitzenanker', roles.has(FEATURE_ANCHOR.LIMB_TIP));
+}
+
+function speciesGroups() {
+  return SAMPLE.reduce((map, phenotype) => {
+    (map[phenotype.species] ??= []).push(phenotype);
+    return map;
+  }, {});
+}
+
+function spurCount(species) {
+  return (SPECIES_GRAMMAR[species].rules.S.match(/\[/g) ?? []).length;
+}
+
+function rootsPerSide(skeleton) {
+  return skeleton.bones.filter((bone) => bone.limb && bone.r1 < bone.r2 * 0.7).length / 2;
+}
+
+function axisNodes(skeleton) {
+  return skeleton.bones.filter((bone) => !bone.limb).length - 1;
+}
+
+function checkSpecies() {
+  section('Art: der Spezies-Locus schaltet die Grammatik');
+  const order = Object.values(SPECIES);
+  check('Der Locus kennt genau die vier Arten', order.every((species) => GENE_LOCI.SPECIES.values.includes(species)), GENE_LOCI.SPECIES.values.join(', '));
+  check('Das Genom nennt dieselbe Art wie der Phaenotyp', GENOMES.every((genome, index) => SAMPLE[index].species === GENE_LOCI.SPECIES.values[expressed(genome, 'SPECIES')]));
+  const groups = speciesGroups();
+  check('Alle vier Arten kommen in den Generationen vor', order.every((species) => groups[species]?.length > 0), order.map((species) => `${species} ${groups[species]?.length ?? 0}`).join(', '));
+  const signatures = order.map((species) => JSON.stringify(fieldOf(groups[species][0], 0).rings));
+  check('Vier Arten ergeben vier verschiedene Konturen', new Set(signatures).size === order.length, `${new Set(signatures).size} von ${order.length}`);
+  for (const species of order) {
+    const spec = SPECIES_GRAMMAR[species];
+    const skeleton = skeletonOf(groups[species][0], 0);
+    check(`${species} baut ${spec.nodes} Rumpfknoten`, axisNodes(skeleton) === spec.nodes, `${axisNodes(skeleton)}`);
+    check(`${species} treibt ${spec.nodes * spurCount(species)} Sprossen je Seite`, rootsPerSide(skeleton) === spec.nodes * spurCount(species), `${rootsPerSide(skeleton)}`);
+  }
 }
 
 export function checkOrganic() {
@@ -185,4 +225,5 @@ export function checkOrganic() {
   checkRings();
   checkSymmetry();
   checkAnchors();
+  checkSpecies();
 }

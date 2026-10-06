@@ -11,6 +11,13 @@ export const SKIN_TEXTURE = Object.freeze({
   BONE: 'BONE',
 });
 
+export const SPECIES = Object.freeze({
+  HUMAN: 'HUMAN',
+  DEMON: 'DEMON',
+  INSECT: 'INSECT',
+  SPIDER: 'SPIDER',
+});
+
 export const FEATURE_ANCHOR = Object.freeze({
   HEAD_TIP: 'HEAD_TIP',
   EYE_SOCKET: 'EYE_SOCKET',
@@ -32,9 +39,68 @@ export const GENE_LOCI = Object.freeze({
     mode: LOCUS_MODE.DOMINANT,
     values: Object.freeze([SKIN_TEXTURE.FLESH, SKIN_TEXTURE.CHITIN, SKIN_TEXTURE.SLIME, SKIN_TEXTURE.BONE]),
   }),
+  SPECIES: Object.freeze({
+    mode: LOCUS_MODE.DOMINANT,
+    values: Object.freeze([SPECIES.HUMAN, SPECIES.DEMON, SPECIES.INSECT, SPECIES.SPIDER]),
+  }),
 });
 
 export const LOCUS_ORDER = Object.freeze(Object.keys(GENE_LOCI));
+
+export const SPECIES_GRAMMAR = Object.freeze({
+  [SPECIES.HUMAN]: Object.freeze({
+    nodes: 2,
+    armFrom: 1,
+    rules: Object.freeze({ S: 'F[L]', L: 'FL' }),
+    limb: 1,
+    girth: 1,
+    splay: 1,
+    spine: 1,
+    head: 1,
+    body: 1,
+    tail: 1,
+    horns: 0,
+  }),
+  [SPECIES.DEMON]: Object.freeze({
+    nodes: 3,
+    armFrom: 2,
+    rules: Object.freeze({ S: 'F[L]', L: 'FL' }),
+    limb: 1.15,
+    girth: 1.3,
+    splay: 1.1,
+    spine: 1.05,
+    head: 1.3,
+    body: 1.1,
+    tail: 1.6,
+    horns: 2,
+  }),
+  [SPECIES.INSECT]: Object.freeze({
+    nodes: 3,
+    armFrom: null,
+    rules: Object.freeze({ S: 'F[L]', L: 'FL' }),
+    limb: 1.35,
+    girth: 0.78,
+    splay: 1.3,
+    spine: 1.2,
+    head: 0.8,
+    body: 0.85,
+    tail: 0.7,
+    horns: 1,
+  }),
+  [SPECIES.SPIDER]: Object.freeze({
+    nodes: 2,
+    armFrom: null,
+    rules: Object.freeze({ S: 'F[L][L]', L: 'FL' }),
+    limb: 1.45,
+    girth: 0.85,
+    splay: 1.5,
+    spine: 0.85,
+    head: 0.9,
+    body: 1.15,
+    tail: 0.35,
+    horns: 0,
+  }),
+});
 
 export const PHENOTRAIT_MAP = Object.freeze({
   limbLength: Object.freeze({ LIMB_LEN: 1, SPINE: 0.3 }),
@@ -68,7 +134,6 @@ export const ORGANIC_CONFIG = Object.freeze({
   phaseCount: 4,
   phaseMs: 420,
   breathe: Object.freeze([1, 1.06, 1.1, 1.04]),
-  spineNodes: 3,
   spineLength: 0.42,
   tailLength: 0.46,
   bodyGirth: 0.15,

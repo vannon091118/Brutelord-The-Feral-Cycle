@@ -2,6 +2,7 @@ import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { createGenome } from '../../src/domain/brutelord/genome-roll.js';
 import { organicFrame } from '../../src/domain/brutelord/organic-cache.js';
+import { phenotypeOf } from '../../src/domain/brutelord/phenotype.js';
 import { MutantSvg } from '../../src/world/dungling/MutantSvg.jsx';
 
 // Dieselbe Komponente, die WorkerLayer im Weltbild montiert: der Messaufbau
@@ -149,11 +150,21 @@ async function identity({ span = 3600, step = 30 } = {}) {
   return summarize(samples);
 }
 
-function show({ count = 4, size = 260 } = {}) {
+function onePerSpecies() {
+  const seen = new Map();
+  for (let index = 0; index < 120; index += 1) {
+    const genome = createGenome(index * 7919 + 3);
+    const species = phenotypeOf(genome).species;
+    if (!seen.has(species)) seen.set(species, genome);
+  }
+  return [...seen.values()];
+}
+
+function show({ size = 280 } = {}) {
   const box = document.getElementById('bench');
   createRoot(box).render(
     <div style={{ display: 'flex', gap: 6, background: '#2a2118', padding: 6 }}>
-      {genomes.slice(0, count).map((genome, index) => <MutantSvg key={index} genome={genome} size={size} id={`show-${index}`} />)}
+      {onePerSpecies().map((genome, index) => <MutantSvg key={index} genome={genome} size={size} id={`show-${index}`} />)}
     </div>,
   );
 }

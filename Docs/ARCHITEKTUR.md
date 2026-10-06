@@ -399,6 +399,23 @@ Hüftansatz und den Knubbel an Ellbogen und Knie; vorher schluckte der Rumpf die
 Gliedmaßen ganz. `bodyGirth` und `spineLength` mussten dafür fallen,
 `limbLength` und `limbGirth` steigen.
 
+### Eine Art ist ein Bauplan, kein Aufkleber
+
+Der Mutant war eine Art: ein L-System für alle Genome, Unterschiede nur in den
+Proportionen. Jetzt sitzt die Art im Genom — ein zehnter, dominanter Locus mit vier
+Allelen —, und `SPECIES_GRAMMAR` hängt an jede Art eine eigene Grammatik: Zahl der
+Rumpfknoten, ab welchem Knoten eine Sprosse Arm statt Bein wird, die Regeln selbst und acht
+Multiplikatoren für Gliedmaßen, Gelenk, Rumpf, Kopf, Schwanz und Hörner. Der Walker kennt
+keine der vier Arten: er liest `nodes`, `armFrom` und `rules` aus dem Plan und zählt nur
+die Knoten und die bereits getriebenen Sprossen mit, damit die zweite Sprosse eines Knotens
+(Spinne: `S -> F[L][L]`) neben der ersten landet statt auf ihr. Eine fünfte Art wäre damit
+ein Eintrag in der Tabelle und keine Zeile im Walker.
+
+Weil ein dominanter Locus das höchste der beiden Allele zeigt, ist die Verteilung schief,
+und das ist Absicht: der Mensch ist die reinerbige Ausnahme, das Monströse dominiert. Eine
+Auszählung über vierzig Genome ergibt Spinne 23, Insekt 11, Humanoid 4, Daemon 2 — die Art
+wechselt also je Generation sichtbar, ohne dass das Spiel dafür würfeln müsste.
+
 ### Der Zeichenaufwand ist gemessen, nicht geschätzt
 
 `npm run bench:organic` montiert zwanzig Mutanten im 928px breiten 13×13-Fenster

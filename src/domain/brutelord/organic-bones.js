@@ -1,5 +1,5 @@
 // @doc: docs/daten/brutelord/organic-bones.md#organic-bones
-import { FEATURE_ANCHOR, ORGANIC_CONFIG, ORGANIC_SALT } from './genome-config.js';
+import { FEATURE_ANCHOR, ORGANIC_CONFIG, ORGANIC_SALT, SPECIES_GRAMMAR } from './genome-config.js';
 import { mixSeed, unitOf } from './stone-seed.js';
 
 const ORG = ORGANIC_CONFIG;
@@ -31,35 +31,35 @@ export function phaseOf(tick) {
 
 function planOf(phenotype) {
   const { traits } = phenotype;
+  const spec = SPECIES_GRAMMAR[phenotype.species];
   const seed = mixSeed(phenotype.hash, ORGANIC_SALT.plan);
   return {
     seed,
-    spine: ORG.spineLength * traits.bodyScale,
-    tail: ORG.tailLength * traits.bodyScale * spread(seed, ORGANIC_SALT.spine, 0.6),
-    girth: ORG.bodyGirth * traits.bodyScale,
-    limbStep: ORG.limbLength * traits.limbLength * spread(seed, ORGANIC_SALT.limb, 0.3),
-    limbGirth: ORG.limbGirth * traits.limbThickness * spread(seed, ORGANIC_SALT.limb + 7, 0.25),
+    spec,
+    spine: ORG.spineLength * spec.spine * traits.bodyScale,
+    tail: ORG.tailLength * spec.tail * traits.bodyScale * spread(seed, ORGANIC_SALT.spine, 0.6),
+    girth: ORG.bodyGirth * spec.body * traits.bodyScale,
+    limbStep: ORG.limbLength * spec.limb * traits.limbLength * spread(seed, ORGANIC_SALT.limb, 0.3),
+    limbGirth: ORG.limbGirth * spec.girth * traits.limbThickness * spread(seed, ORGANIC_SALT.limb + 7, 0.25),
     limbRounds: clamp(Math.round(traits.limbLength * 1.7), 2, 4),
-    splay: ORG.limbSplay * spread(seed, ORGANIC_SALT.limb + 13, 0.45),
+    splay: ORG.limbSplay * spec.splay * spread(seed, ORGANIC_SALT.limb + 13, 0.45),
     curl: clamp(traits.limbCurl, -0.4, 0.4),
-    head: ORG.headRadius * traits.headScale * spread(seed, ORGANIC_SALT.head, 0.2),
+    head: ORG.headRadius * spec.head * traits.headScale * spread(seed, ORGANIC_SALT.head, 0.2),
     eyes: phenotype.eyes,
-    horns: phenotype.horns,
+    horns: phenotype.horns + spec.horns,
   };
 }
 
-const RULES = Object.freeze({ S: 'F[L]', L: 'FL' });
-
-function rewrite(word, rounds) {
+function rewrite(word, rounds, rules) {
   let grown = word;
   for (let round = 0; round < rounds; round += 1) {
-    grown = grown.split('').map((symbol) => RULES[symbol] ?? symbol).join('');
+    grown = grown.split('').map((symbol) => rules[symbol] ?? symbol).join('');
   }
   return grown;
 }
 
 function wordOf(plan) {
-  return rewrite(`T${'S'.repeat(ORG.spineNodes)}H`, plan.limbRounds);
+  return rewrite(`T${'S'.repeat(plan.spec.nodes)}H`, plan.limbRounds, plan.spec.rules);
 }
 
 function bone({ x1, y1, x2, y2, r1, r2, limb }) {
@@ -86,14 +86,18 @@ function bothSides(items, mirror) {
   return items.flatMap((item) => [item, mirror(item)]);
 }
 
-function limbOf(node, splay) {
-  const arm = node >= ORG.spineNodes - 1;
-  return { angle: arm ? Math.PI : -RIGHT - splay * 0.5, bend: arm ? splay * 0.5 : -splay * 0.95 };
+function limbOf(node, plan, spur) {
+  const arm = plan.spec.armFrom !== null && node >= plan.spec.armFrom;
+  const base = arm ? Math.PI : -RIGHT - plan.splay * 0.5;
+  return { angle: base + spur * plan.splay * 0.7, bend: arm ? plan.splay * 0.5 : -plan.splay * 0.95 };
 }
 
 function advance(symbol, pose, env) {
   const limb = symbol === 'L' || pose.inside;
-  if (!limb) pose.node += 1;
+  if (!limb) {
+    pose.node += 1;
+    pose.spur = 0;
+  }
   const length = limb ? env.plan.limbStep * limbBreath(env.breath) : env.plan.spine * env.breath;
   const girth = limb ? env.plan.limbGirth * limbBreath(env.breath) : env.plan.girth * env.breath;
   const r1 = limb && pose.fresh ? girth * ORG.limbPinch : girth;
@@ -116,10 +120,11 @@ function enter(pose, env) {
   if (pose.inside) {
     pose.angle += pose.bend;
   } else {
-    const limb = limbOf(pose.node, env.plan.splay);
+    const limb = limbOf(pose.node, env.plan, pose.spur);
     pose.angle = limb.angle;
     pose.bend = limb.bend;
     pose.fresh = true;
+    pose.spur += 1;
     pose.x += Math.cos(limb.angle) * env.plan.girth * ORG.limbRoot;
     pose.y += Math.sin(limb.angle) * env.plan.girth * ORG.limbRoot;
   }
@@ -176,7 +181,7 @@ function step(symbol, pose, env) {
 }
 
 function walkWord(plan, breath) {
-  const pose = { x: 0, y: 0, angle: RIGHT, stack: [], axis: bag(), sided: bag(), tip: null, inside: false, node: -1, bend: 0, fresh: false };
+  const pose = { x: 0, y: 0, angle: RIGHT, stack: [], axis: bag(), sided: bag(), tip: null, inside: false, node: -1, spur: 0, bend: 0, fresh: false };
   for (const symbol of wordOf(plan)) step(symbol, pose, { plan, breath });
   return pose;
 }
