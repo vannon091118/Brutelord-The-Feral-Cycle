@@ -3,7 +3,7 @@
  * presst gedeckelt. Beides über die Aktionen, die auch im Browser laufen.
  */
 import { ACTION } from '../../src/domain/actions/action-types.js';
-import { ESSENCE_ECONOMY } from '../../src/domain/economy/essence-economy.js';
+import { ESSENCE_ECONOMY, canPayForMining } from '../../src/domain/economy/essence-economy.js';
 import { miningCost } from '../../src/domain/actions/mining.js';
 import { gameReducer } from '../../src/state/game-reducer.js';
 import { check, section } from './expect.mjs';
@@ -29,6 +29,9 @@ export function checkEconomy() {
   check('Der Abbau kostet, bevor er beginnt', ordered.mining !== null && spent > 0);
   check('Ohne Essenz wird der Abbau verweigert', gameReducer(miningReadyState({ essence: 0 }), { type: ACTION.MINING_ORDERED }).mining === null);
   check('Wird nichts abgebaut, wird auch nichts berechnet', gameReducer(before, { type: ACTION.TILE_SELECTION_CLEARED }).essence === before.essence);
+  check('canPayForMining verweigert leere Werte (null)', canPayForMining(null) === false);
+  check('canPayForMining verweigert leere Werte (undefined)', canPayForMining(undefined) === false);
+  check('canPayForMining verweigert leere Werte (NaN)', canPayForMining(NaN) === false);
 
   const short = press(before, 30);
   check('Der Hive presst noch nicht vor Ablauf seines Taktes', short.hive.pressed === 0 && short.essence === before.essence);
