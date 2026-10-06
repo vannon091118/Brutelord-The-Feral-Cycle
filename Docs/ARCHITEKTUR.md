@@ -606,6 +606,40 @@ Die Leiter bei 47/47 wird erst gezeichnet, wenn die Kamera sie erreicht.
 Die Darstellung liest den Auftrag, nicht die Uhr: `jobTrip()` liefert die
 Zwischenposition zwischen zwei Feldern, damit ein Träger läuft statt zu springen.
 
+### Die Resource Rail
+
+**Die Rail ist ein Trog, keine Reihe.** Vorher standen die Werte als gleich
+gewichtige Pillen nebeneinander, und wer wissen wollte, was zählt, musste lesen.
+Jetzt trägt **ein** Trog fünf Plätze in der Reihenfolge der Ressourcenmatrix aus
+[`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md): Essenz und Biomasse aus der Basis,
+Aether aus der Tiefe, Blutstein aus dem Raid — und als letzter Platz der
+Abstieg. Der Rang ist die Hierarchie und nicht ihre Behauptung: Essenz ist der
+einzige Platz, der wächst (`dl-rail-slot--lead`) und die Schriftgröße trägt, die
+Tiefenwährungen bleiben kleiner und sinken auf halbe Deckkraft, solange nichts in
+ihnen liegt (`--empty`), und Biomasse steht gestrichelt als Platz, den die Domäne
+nicht füllt (`--locked`).
+
+**Die Leiste erfindet nichts.** Sie liest `cycle.aether.stored` und
+`cycle.bloodstone.stored` und fragt `descendOpen()`; fehlt ein Ledger im
+geladenen Spielstand — `isSavedShape()` prüft `economy` nicht —, steht dort ein
+Gedankenstrich statt einer erfundenen Null. Zahlen, Seeds und Spielstände bleiben
+davon unberührt: Die Rail ist Darstellung, und der Golden-Wert der
+Deterministizität ist derselbe.
+
+**Rückmeldung ohne Zustand.** Der Wert trägt seinen eigenen Schlüssel
+(`key={value}`): Ändert er sich, hängt React genau diesen Knoten neu ein, und
+`dl-rail-tick` läuft einmal — dieselbe Technik wie die Feder am arbeitenden
+Erdblock, ohne Effekt, ohne Uhr und ohne zweiten Zustand. Der Abstiegsknopf
+pulsiert nur, solange der Abstieg offen ist, und steht sonst gesperrt mit seinem
+Grund im Titel.
+
+**Zwei Farben sind neu, keine Regel.** `--color-aether-400` (kaltes Blau) und
+`--color-blood-400` (tiefes Rot) stehen in der Palette, weil jede Ressource ihren
+eigenen Ton tragen soll; Biomasse nimmt das vorhandene Moosgrün. `globals.css`
+steht damit bei 299 von 300 Codezeilen — die Rail-Klassen wohnen in
+`src/styles/rail.css`, das die Datei importiert, und der nächste Paletteneintrag
+erzwingt die nächste Teilung.
+
 ### Was ein Render kostet
 
 Der Herzschlag tickt zehnmal pro Sekunde, und jeder Takt ist ein vollständiger
@@ -1386,10 +1420,12 @@ neues Feld (`economy`), also ist der Golden-Wert der Deterministizität **neu
 geschrieben** (`npm run golden:determinism`) und diese Verhaltensänderung steht
 im Commit-Body.
 
-Offen bleiben zwei Dinge, und sie stehen als solche in
-[`ROADMAP_OPEN.md`](ROADMAP_OPEN.md): keine Oberfläche zeigt die beiden Vorräte,
-und der Verbrauch ist keine Wahl des Spielers — der Kauf geschieht im Sprung, die
-Mutation im Grab.
+Eines der beiden offenen Dinge ist erledigt: Die Resource Rail zeigt beide
+Vorräte — samt der Etage, dem Abstiegsknopf und dem Takt, in dem sich ein Wert
+ändert (siehe *Welt und Darstellung*). Offen bleibt der Verbrauch: Er ist keine
+Wahl des Spielers — der Kauf geschieht im Sprung, die Mutation im Grab —, und
+Biomasse, der dritte Vorrat derselben Matrix, hat in `src/` bis heute keine
+Quelle. Beides steht in [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md).
 
 ## Werkzeuge
 

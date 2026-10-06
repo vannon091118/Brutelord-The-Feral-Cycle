@@ -1,5 +1,6 @@
 /* Palette, Grundlagen, Animationen und Panels. */
 @import "tailwindcss";
+@import "./rail.css";
 
 @theme {
   --color-soil-950: #120d08;
@@ -45,6 +46,9 @@
   --color-bone-200: #ded0b4;
   --color-bone-300: #c3b294;
   --color-bone-400: #9c8a6e;
+
+  --color-aether-400: #8fb8ff;
+  --color-blood-400: #cf5f57;
 }
 
 @layer base {

@@ -1,22 +1,34 @@
-import { descendOpen } from '../domain/economy/resource-cycle.js';
-
 // @doc: docs/daten/ui/floorchip.md#floorchip
+import { descendOpen } from '../domain/economy/resource-cycle.js';
+import { ResourceSlot } from './ResourceSlot.jsx';
+
+function descendTitle(open, depth) {
+  if (!open) return 'Der Schacht endet hier — keine tiefere Etage';
+  return `In die Etage ${depth + 1} graben`;
+}
+
 export function FloorChip({ depth, cycle, onDescend }) {
   if (!Number.isInteger(depth)) return null;
   const open = descendOpen({ depth, cycle });
+  const title = descendTitle(open, depth);
 
   return (
-    <span className="flex shrink-0 items-center gap-1 rounded-full border border-bone-400/15 bg-soil-950/60 py-1 pl-2.5 pr-1 text-[10px] leading-none text-bone-300">
-      Etage {depth}
-      <button
-        type="button"
-        disabled={!open}
-        onClick={onDescend}
-        title={open ? 'In die naechste Etage graben' : 'Keine tiefere Etage'}
-        className="rounded-full border border-core-500/25 bg-core-500/10 px-2 py-1 text-core-300 transition-colors enabled:hover:bg-core-500/25 disabled:border-bone-400/10 disabled:bg-transparent disabled:text-bone-400/50"
-      >
-        ↓
-      </button>
-    </span>
+    <ResourceSlot rank="floor" tone={open ? 'core' : 'bone'} label="Abstieg" hint={title}>
+      <span className="flex items-center gap-1.5">
+        <span key={depth} className="dl-rail-value dl-rail-tick">
+          Etage {depth}
+        </span>
+        <button
+          type="button"
+          disabled={!open}
+          onClick={onDescend}
+          title={title}
+          aria-label={title}
+          className={open ? 'dl-rail-action dl-rail-action--open' : 'dl-rail-action'}
+        >
+          ↓
+        </button>
+      </span>
+    </ResourceSlot>
   );
 }
