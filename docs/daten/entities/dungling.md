@@ -6,7 +6,10 @@ Spiegel-Datei für `src/domain/entities/dungling.js`.
 
 ## Verantwortung
 
-Der Dungling: Zustand, Auftrag, Tile, Position und seine Fusionssteine.
+Der Dungling: Zustand, Auftrag, Tile, Position, seine Fusionssteine und sein Genom.
+In der Geburt ist das Genom leer; es entsteht erst mit der Fusion oder der Zucht und wird
+bei der Rueckentwicklung wieder geloescht. Die Position, die er traegt, ist die Position,
+die die Darstellung liest — die Arbeit selbst rechnet mit dem Auftrag.
 
 ## Schnittstellen
 

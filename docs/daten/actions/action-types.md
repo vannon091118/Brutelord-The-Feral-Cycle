@@ -17,6 +17,8 @@ umbenennt, benennt deshalb hier um und laesst beide Seiten gleichzeitig
 definiert; keine Seite darf auf `undefined` stehenbleiben.
 `npm run verify` prueft das mit `check-action-types.mjs`: benutzte gegen
 definierte Konstanten und jeden Zeitplan-Eintrag gegen das Register.
+`MUTANT_BRED` traegt die beiden Eltern-IDs der Zucht; der Reducer sucht sie,
+verbraucht beide Elternteile und setzt das Kind an ihre Stelle.
 
 ## Schnittstellen
 

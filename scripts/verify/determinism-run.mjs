@@ -30,6 +30,10 @@ function mutantId(state) {
   return state.dunglings.find((worker) => (worker.stones ?? []).length > 0)?.id ?? 'unbekannt';
 }
 
+function genomTraeger(state) {
+  return state.dunglings.filter((worker) => Boolean(worker.genome)).map((worker) => worker.id);
+}
+
 function derRest(clock) {
   warte({ clock, limit: ROOTING_TICKS, erreicht: ohneWurzeln, type: ACTION.ROOTING_TICK });
   clock.dispatch(ACTION.BUILDING_SELECTED, { buildingId: clock.state.buildings.at(-1).id });
@@ -40,6 +44,14 @@ function derRest(clock) {
   clock.dispatch(ACTION.STONE_PLACED, { seed: clock.state.lab.stones.at(-1).seed, slot: SLOT_ORDER[0] });
   clock.dispatch(ACTION.MUTANT_CREATED);
   clock.dispatch(ACTION.MUTANT_REVERTED, { workerId: mutantId(clock.state) });
+  // Kreuzen braucht zwei Genome — der erste Mutant wurde zurueckentwickelt.
+  for (const slot of [SLOT_ORDER[1], SLOT_ORDER[2]]) {
+    warte({ clock, limit: ESSENZ_LIMIT, erreicht: teuer, type: ACTION.WORK_TICK, payload: { dtMs: JOB_CONFIG.tickMs } });
+    clock.dispatch(ACTION.STONE_BOUGHT);
+    clock.dispatch(ACTION.STONE_PLACED, { seed: clock.state.lab.stones.at(-1).seed, slot });
+    clock.dispatch(ACTION.MUTANT_CREATED);
+  }
+  clock.dispatch(ACTION.MUTANT_BRED, { parentIds: genomTraeger(clock.state).slice(0, 2) });
   clock.dispatch(ACTION.LAB_CLOSED);
   clock.dispatch(ACTION.FLOOR_DESCEND);
   warte({ clock, limit: ROOTING_TICKS, erreicht: ohneWurzeln, type: ACTION.ROOTING_TICK });

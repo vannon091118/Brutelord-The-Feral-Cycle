@@ -1,10 +1,11 @@
 // @doc: docs/daten/reducers/mutant-reducer.md#mutant-reducer
 import { ACTION } from '../../domain/actions/action-types.js';
-import { fusionStones, fuse, isMutant, nextCandidate, refundFor, asBase } from '../../domain/brutelord/mutant.js';
+import { asBase, breed, breedSeed, fuse, fusionStones, isMutant, nextCandidate, refundFor } from '../../domain/brutelord/mutant.js';
 
 export function reduceMutant(state, action) {
   if (action.type === ACTION.MUTANT_CREATED) return created(state);
   if (action.type === ACTION.MUTANT_REVERTED) return reverted(state, action.workerId);
+  if (action.type === ACTION.MUTANT_BRED) return bred(state, action.parentIds);
   return state;
 }
 
@@ -30,4 +31,15 @@ function reverted(state, workerId) {
     essence: state.essence + refundFor(worker),
     dunglings: state.dunglings.map((entry) => (entry.id === workerId ? asBase(entry) : entry)),
   };
+}
+
+function bred(state, parentIds) {
+  const [motherId, fatherId] = parentIds ?? [];
+  const mother = state.dunglings.find((entry) => entry.id === motherId);
+  const father = state.dunglings.find((entry) => entry.id === fatherId);
+  if (!mother?.genome || !father?.genome || mother.id === father.id) return state;
+  const child = breed(mother, father, breedSeed(mother, father));
+  if (!child) return state;
+  const kept = state.dunglings.filter((entry) => entry.id !== motherId && entry.id !== fatherId);
+  return { ...state, dunglings: [...kept, child] };
 }

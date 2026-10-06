@@ -64,10 +64,30 @@ function checkTwoStones() {
   check('Beide Wirkungen sind an der Einheit', made.dunglings[0].invested === 2 * STONE_CONFIG.cost, `${made.dunglings[0].invested}`);
 }
 
+function checkBred() {
+  section('Kreuzen');
+  const one = create(withStones([STONE_TRAIT.GREEDY]));
+  const mother = one.dunglings[0];
+  const father = { ...mother, id: 'dungling-2', tile: { x: 6, y: 6 }, stones: [] };
+  const state = { ...one, dunglings: [mother, father] };
+  check('Ein Genom ohne Steine gilt schon als Mutant', isMutant(father) && father.stones.length === 0);
+
+  const bred = gameReducer(state, { type: ACTION.MUTANT_BRED, parentIds: [mother.id, father.id] });
+  check('Die Eltern sind beide verbraucht', bred.dunglings.length === 1);
+  check('Das Kind ist kein Elternteil', bred.dunglings[0].id !== mother.id && bred.dunglings[0].id !== father.id);
+  check('Das Kind traegt ein Genom', Boolean(bred.dunglings[0].genome));
+  check('Das Kind kommt ohne Steine', bred.dunglings[0].stones.length === 0);
+  check('Das Kind ist arbeitsbereit', bred.dunglings[0].job === null);
+  check('Die Essenz bleibt unberuehrt', bred.essence === one.essence);
+  check('Unbekannte Eltern aendern nichts', gameReducer(state, { type: ACTION.MUTANT_BRED, parentIds: ['x', 'y'] }) === state);
+  check('Zweimal dasselbe Elternteil kreuzt nicht', gameReducer(state, { type: ACTION.MUTANT_BRED, parentIds: [mother.id, mother.id] }) === state);
+}
+
 export function checkMutant() {
   checkCreate();
   checkEligibility();
   checkRevert();
   checkVeteran();
   checkTwoStones();
+  checkBred();
 }
