@@ -81,6 +81,23 @@ function checkMasking() {
   check('Ein unbekannter Seed ändert nichts', placeStone(lab, 999999, STONE_SLOT.HEAD) === lab);
 }
 
+function checkSlots() {
+  section('Brutlord: ein Platz traegt genau einen Stein');
+  const lab = buyMany(3);
+  const first = placeStone(lab, lab.stones[0].seed, STONE_SLOT.HEAD);
+  const second = placeStone(first, lab.stones[1].seed, STONE_SLOT.HEAD);
+  check('Der zweite Stein bekommt den Platz', second.stones[1].slot === STONE_SLOT.HEAD);
+  check('Der Vorgaenger geht zurueck in den Pool', second.stones[0].slot === null);
+  check('Genau ein Stein traegt den Platz', second.stones.filter((stone) => stone.slot === STONE_SLOT.HEAD).length === 1);
+  check('Derselbe Platz ein zweites Mal aendert nichts', placeStone(first, first.stones[0].seed, STONE_SLOT.HEAD) === first);
+  check('Ein fremder Slot aendert nichts', placeStone(first, first.stones[0].seed, 'FUSS') === first);
+
+  const geraumt = placeStone(second, second.stones[1].seed, null);
+  check('Ein belegter Platz gibt den Stein in den Pool zurueck', geraumt.stones[1].slot === null);
+  check('Nach dem Raeumen traegt kein Platz mehr einen Stein', geraumt.stones.every((stone) => stone.slot === null));
+  check('Ein Pool-Stein bleibt, wo er ist', placeStone(geraumt, geraumt.stones[0].seed, null) === geraumt);
+}
+
 export function checkBruteLord() {
   const base = buyMany(1);
   const arm = placeStone(base, base.stones[0].seed, STONE_SLOT.ARMS).stones[0];
@@ -89,6 +106,7 @@ export function checkBruteLord() {
   checkDeterminism();
   checkPity();
   checkMasking();
+  checkSlots();
   checkTraits();
 
   section('Brutlord: Optik folgt dem Slot');

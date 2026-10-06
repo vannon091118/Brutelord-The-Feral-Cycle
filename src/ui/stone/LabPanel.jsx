@@ -27,14 +27,24 @@ function LabHeader({ onClose }) {
   );
 }
 
-function LabInventory({ lab, onDragStart }) {
-  if (lab.stones.length === 0) {
-    return <p className="px-1 text-[11px] leading-snug text-[#9c8a6e] italic">Der Stein-Pool ist leer. Erwerbe Essenz-Steine...</p>;
+function LabInventory({ lab, selected, onSelect }) {
+  const free = lab.stones.filter((stone) => stone.slot === null);
+  if (free.length === 0) {
+    const text = lab.stones.length === 0
+      ? 'Der Stein-Pool ist leer. Erwerbe Essenz-Steine...'
+      : 'Alle Steine stecken im Gerüst — ein belegter Platz hebt ihn wieder heraus.';
+    return <p className="px-1 text-[11px] leading-snug text-[#9c8a6e] italic">{text}</p>;
   }
   return (
     <div className="grid grid-cols-2 gap-1.5">
-      {lab.stones.map((stone) => (
-        <StoneChip key={stone.seed} stone={stone} label={stoneLabel(lab, stone)} onDragStart={onDragStart} />
+      {free.map((stone) => (
+        <StoneChip
+          key={stone.seed}
+          stone={stone}
+          label={stoneLabel(lab, stone)}
+          selected={selected === stone.seed}
+          onSelect={onSelect}
+        />
       ))}
     </div>
   );
@@ -85,28 +95,30 @@ function MutantList({ mutants, onRevert }) {
 function LabFooter() {
   return (
     <p className="px-0.5 pt-2 text-[10px] leading-snug text-bone-400">
-      Die Farbe verrät die Seltenheit. Der Inhalt bleibt ???, bis der Stein einmal verbaut wurde.
+      Tippe einen Stein, dann einen Platz. Ein belegter Platz gibt den Stein zurück in den Pool. Die
+      Farbe verrät die Seltenheit, der Inhalt bleibt ???, bis der Stein einmal verbaut wurde.
     </p>
   );
 }
 
 function LabWorkspace({ lab, placed, onPlace }) {
-  const [dragged, setDragged] = useState(null);
-  const onDragStart = (event, seed) => {
-    setDragged(seed);
-    event.dataTransfer.setData('text/plain', String(seed));
-  };
-  const onDrop = (slot) => {
-    if (dragged !== null) onPlace(dragged, slot);
-    setDragged(null);
+  const [selected, setSelected] = useState(null);
+  const pickSlot = (slot) => {
+    if (selected !== null) {
+      onPlace(selected, slot);
+      setSelected(null);
+      return;
+    }
+    const occupant = placed.find((entry) => entry.slot === slot) ?? null;
+    if (occupant) onPlace(occupant.seed, null);
   };
   return (
     <div className="flex gap-3 pt-3">
       <div className="min-w-0 flex-1">
-        <LabInventory lab={lab} onDragStart={onDragStart} />
+        <LabInventory lab={lab} selected={selected} onSelect={setSelected} />
       </div>
       <div className="shrink-0">
-        <LabBench placed={placed} onDrop={onDrop} />
+        <LabBench placed={placed} selected={selected} onPlace={pickSlot} />
       </div>
     </div>
   );

@@ -37,31 +37,31 @@
    "phase": "SETTLED",
    "spawned": 1,
    "pressed": 15,
-   "progressMs": 7800
+   "progressMs": 9800
   },
   "dunglings": [
    {
     "id": "dungling-1",
     "tile": {
-     "x": 31,
-     "y": 33
+     "x": 30,
+     "y": 29
     },
     "facing": 1,
-    "state": "MOVING",
+    "state": "WORKING",
     "targetTileId": null,
     "job": {
-     "kind": "DELIVER",
-     "buildingId": "building-3",
-     "phase": "RETURN",
-     "progressMs": 400,
-     "durationMs": 1680,
+     "kind": "EXTRACT",
+     "buildingId": "building-1",
+     "phase": "ATTEND",
+     "progressMs": 600,
+     "durationMs": 15000,
      "origin": {
-      "x": 31,
-      "y": 33
+      "x": 30,
+      "y": 29
      },
      "target": {
       "x": 31,
-      "y": 29
+      "y": 33
      },
      "carrying": 0
     },
@@ -76,26 +76,32 @@
      "y": 33
     },
     "facing": 1,
-    "state": "MOVING",
+    "state": "IDLE",
     "targetTileId": null,
-    "job": {
-     "kind": "DELIVER",
-     "buildingId": "building-3",
-     "phase": "RETURN",
-     "progressMs": 400,
-     "durationMs": 1680,
-     "origin": {
-      "x": 31,
-      "y": 33
-     },
-     "target": {
-      "x": 31,
-      "y": 29
-     },
-     "carrying": 0
-    },
-    "stones": [],
-    "invested": 0,
+    "job": null,
+    "stones": [
+     {
+      "seed": 2654435761,
+      "rarity": "NORMAL",
+      "trait": null,
+      "capability": null,
+      "stats": [
+       {
+        "key": "atk",
+        "value": 4
+       }
+      ],
+      "visual": {
+       "slot": "HEAD",
+       "variant": 4,
+       "wobble": 0.8141520714852959
+      },
+      "slot": "HEAD",
+      "discovered": true,
+      "pityMisses": 1
+     }
+    ],
+    "invested": 4,
     "battleEp": 0
    },
    {
@@ -105,24 +111,9 @@
      "y": 33
     },
     "facing": 1,
-    "state": "MOVING",
+    "state": "IDLE",
     "targetTileId": null,
-    "job": {
-     "kind": "DELIVER",
-     "buildingId": "building-3",
-     "phase": "RETURN",
-     "progressMs": 600,
-     "durationMs": 1680,
-     "origin": {
-      "x": 31,
-      "y": 33
-     },
-     "target": {
-      "x": 31,
-      "y": 29
-     },
-     "carrying": 0
-    },
+    "job": null,
     "stones": [],
     "invested": 0,
     "battleEp": 0
@@ -162,7 +153,7 @@
     "delivered": 6,
     "required": 6,
     "workers": [],
-    "progressMs": 12000
+    "progressMs": 14000
    },
    {
     "id": "building-3",
@@ -187,52 +178,12 @@
   "buildChoice": null,
   "selectedBuildingId": "building-3",
   "lab": {
-   "stones": [
-    {
-     "seed": 2654435761,
-     "rarity": "NORMAL",
-     "trait": null,
-     "capability": null,
-     "stats": [
-      {
-       "key": "atk",
-       "value": 4
-      }
-     ],
-     "visual": {
-      "slot": null,
-      "variant": 4,
-      "wobble": 0.9600501111708581
-     },
-     "slot": null,
-     "discovered": false,
-     "pityMisses": 1
-    }
-   ],
+   "stones": [],
    "pityMisses": 1,
    "purchased": 1,
    "open": true
   },
-  "popups": [
-   {
-    "id": "essence-22",
-    "x": 31,
-    "y": 29,
-    "ageMs": 800
-   },
-   {
-    "id": "essence-23",
-    "x": 31,
-    "y": 29,
-    "ageMs": 600
-   },
-   {
-    "id": "essence-24",
-    "x": 31,
-    "y": 29,
-    "ageMs": 600
-   }
-  ],
+  "popups": [],
   "popupSeq": 25,
   "mining": {
    "tileId": "32,29",
