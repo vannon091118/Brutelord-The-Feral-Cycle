@@ -1,4 +1,4 @@
-# Dungeon Lord
+# Brutelord: The Feral Cycle
 
 [![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fvannon091118%2FDungeon-Breaker-Lord-of-the-Evil%2Fmain%2Fversion.lock.json&query=%24.version&label=Version&cacheSeconds=300)](version.lock.json)
 [![Lizenz](https://img.shields.io/badge/Lizenz-MIT-c8a45b5)](LICENSE)
