@@ -1,7 +1,7 @@
 /** Prüft den Startzustand: Anfang, Maße, Sichtbarkeit, erster Schritt. */
 import { HIVE_PHASE } from '../../src/domain/entities/hive.js';
 import { ONBOARDING_CONFIG } from '../../src/domain/onboarding/onboarding-config.js';
-import { TILE_KIND, TILE_USABILITY, parseTileId, tileId } from '../../src/domain/world/tile.js';
+import { TILE_KIND, TILE_USABILITY, isVisible, parseTileId, tileId } from '../../src/domain/world/tile.js';
 import { allTiles, countFloorTiles, createWorld, getTile } from '../../src/domain/world/grid.js';
 import { createInitialGameState } from '../../src/state/game-state.js';
 import { checkGuard } from './check-guard.mjs';
@@ -30,7 +30,7 @@ export function checkStart() {
   const hiveSize = initial.world.hiveSize;
   check('Hive belegt exakt seine konfigurierte Flaeche', allTiles(initial.world).filter((tile) => tile.kind === TILE_KIND.HIVE).length === hiveSize.width * hiveSize.height);
   check('Dungling-Start ist freier Hive-Eingang', getTile(initial.world, SPAWN_ID).kind === TILE_KIND.DUNGEON_FLOOR);
-  check('Erde sichtbar, aber nicht nutzbar', firstEarth.visibility === 'VISIBLE' && firstEarth.usability === TILE_USABILITY.UNUSABLE);
+  check('Erde sichtbar, aber nicht nutzbar', isVisible(firstEarth) && firstEarth.usability === TILE_USABILITY.UNUSABLE);
   check('Der Ring liegt frei, noch kein Baumenue', initial.usableTileCount === countFloorTiles(createWorld()) && !initial.buildMenuVisible);
   check('Der Schwarm ist vor dem Spawn leer', initial.dunglings.length === 0);
   checkTileIds(initial.world);
