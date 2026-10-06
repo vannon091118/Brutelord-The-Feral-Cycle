@@ -1,9 +1,9 @@
 // @doc: docs/daten/app/app.md#app
 import { useState } from 'react';
 import { useGameEngine } from '../state/use-game-engine.js';
-import { logoutAccount } from '../ui/account/account-api.js';
+import { AccountCorner } from '../ui/AccountCorner.jsx';
 import { AccountGate } from '../ui/account/AccountGate.jsx';
-import { clearSession, readSession, writeSession } from '../ui/account/session.js';
+import { readSession, writeSession } from '../ui/account/session.js';
 import { GameStage } from '../ui/GameStage.jsx';
 import { GameHud } from '../ui/GameHud.jsx';
 export function App() {
@@ -11,10 +11,10 @@ export function App() {
   if (!session) {
     return <AccountGate onSignedIn={(next) => { writeSession(next); setSession(next); }} />;
   }
-  return <Playing key={session.playerseed} session={session} onSignOut={() => { logoutAccount(session.token); clearSession(); setSession(null); }} />;
+  return <Playing key={session.playerseed} session={session} onSignedOut={() => setSession(null)} />;
 }
 
-function Playing({ session, onSignOut }) {
+function Playing({ session, onSignedOut }) {
   const { state, actions } = useGameEngine(session);
 
   return (
@@ -28,13 +28,7 @@ function Playing({ session, onSignOut }) {
       />
       <GameStage game={state} actions={actions} />
       <GameHud game={state} actions={actions} />
-      <button
-        type="button"
-        className="absolute right-2 top-2 z-20 rounded border border-bone-700/40 bg-soil-900/70 px-2 py-1 text-[10px] text-bone-400 hover:text-bone-100"
-        onClick={onSignOut}
-      >
-        {session.name} · abmelden
-      </button>
+      <AccountCorner session={session} swarm={state.dunglings} onSignedOut={onSignedOut} />
     </main>
   );
 }

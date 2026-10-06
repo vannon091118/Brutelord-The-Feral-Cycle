@@ -1221,6 +1221,24 @@ die Ausdauerrechnung an erster Stelle der Bauordnung.
 `spend()` lässt den Zustand unverändert, wenn die Ausdauer nicht reicht. Das ist
 das Fail closed aus dem Plan: kein Phasenwechsel, keine Rettung.
 
+### Der Raid hat keinen Platz im Spielstand
+
+Aus der zweiten Instanz folgt ein sichtbarer Mangel, und er ist die Ursache und nicht
+die Folge: Ein Raid lässt sich im laufenden Slice nicht zeigen, weil es ihn darin nicht
+gibt. Es fehlt das Feld im Spielstand, es fehlen die sechs Aktionen samt Modus-Zweig,
+und es fehlt der Aufrufer, der einen Raid überhaupt einreicht. Wächter-Koma und Beute
+unterwegs sind damit **kein Anzeigeproblem, sondern ein Zustandsproblem**: Wer ein Koma
+rendern will, braucht zuerst eine Instanz, die ein Koma haben kann — und die Instanz
+gehört ins Speicherformat, also dorthin, wo eine Migration sie trägt.
+
+Was der Slice deshalb stattdessen zeigt, steht in `src/ui/RaidLedger.jsx`: den Kader
+über `cadreRule()` — Grit und die Ausdauer, die er trägt, über `teamStamina()`, also
+aus dem echten Schwarm und nicht aus einer behaupteten Bereitschaft — und darunter die
+Quittungen, die `GET /api/raid/bookings` für die Sitzung führt. Die Quittung ist die
+einzige Raid-Wahrheit, die der Baum heute besitzt, seit `raid-http.mjs` sie beim
+Einreichen eines Replays bucht. Alles Weitere wäre erfunden, und der Hinweis im Panel
+sagt das im Klartext.
+
 ### Die Gruppe hat einen Cursor
 
 `state.at` gehört der **Gruppe**, und `state.heroes` trägt **keine** Position.

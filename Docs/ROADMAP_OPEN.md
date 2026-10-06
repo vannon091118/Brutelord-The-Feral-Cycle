@@ -266,6 +266,36 @@ und mit einem Lauf, den ein zweiter nachspielen kann.
       normalen Spiel noch nicht zu sehen. Dazu ein Randfund: `src/styles/globals.css`
       steht bei 299 von 300 Codezeilen; die Rail wohnt deshalb in `src/styles/rail.css`,
       und der nächste Paletteneintrag erzwingt die nächste Teilung.
+      **Das Raid-Buch steht seit dem 2026-10-06.** `src/ui/RaidLedger.jsx` nennt im
+      Steckbrief Kader, Grit, Ausdauer und die Zahl der Gegner — die ersten drei kommen
+      aus `cadreRule()` und `teamStamina()` und damit aus dem echten Schwarm —, darunter
+      stehen die Quittungen, die `GET /api/raid/bookings` für diese Sitzung führt
+      (`src/ui/raid-bookings.js`). Es wohnt in `src/ui/AccountCorner.jsx`, weil `App.jsx`
+      mit dem achten Import am Deckel stand. **Offen bleiben der laufende Kampf und die
+      Wertigkeit der Wesen** (Hover, Aktiv, Gesperrt) — den Grund für den ersten nennt der
+      Fund darunter.
+  Status: geplant
+  Scope: Client
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+- [ ] **Der Raid hat keinen Platz im Spielstand — der Fund hinter dem Raid-Buch.**
+      Ein Durchsuchen von `src/state`, `src/ui` und `src/app` findet vor dem Raid-Buch
+      keinen einzigen Treffer auf Raid, Koma oder Beute: kein Feld für einen laufenden
+      Raid, keine Zeile in `action-types.js`, kein Aufrufer für `POST /api/raid` oder
+      `POST /api/raid/ticket`. Das ist kein Versehen, sondern die Architektur:
+      `raid-state.js` ist eine **zweite** Zustandsinstanz und kein Reducer-Zweig, weil
+      `game-reducer.js` eine Kette iteriert und ein Reducer kein Verb abfängt, das an
+      einen anderen Zustand ging; der Modus-Zweig läge an der Aufrufstelle, und
+      `use-game-actions.js` steht bei 23 von 30 LOC. Wer Raid, Wächter-Koma und die Beute
+      unterwegs sichtbar machen will, baut deshalb **zuerst Zustand**: ein Feld im
+      Spielstand samt Migration, die sechs Raid-Aktionen in einem eigenen Modul und den
+      Modus-Zweig — und danach die Anzeige. Die Integration der Sichtbarkeit selbst steht
+      in [`RAID-PLAN.md`](RAID-PLAN.md), *Die Integration der Raid-Sichtbarkeit* (5),
+      weiterhin offen. Bis dahin zeigt die Oberfläche nur, was es wirklich gibt: den Kader
+      über `cadreRule()` und die Quittungen des Servers. Der leere Rail-Platz für Biomasse
+      ist derselbe Fall und steht schon oben.
   Status: geplant
   Scope: Client
   Kategorie: Feature

@@ -527,6 +527,13 @@ Die Sichtbarkeit selbst ist entschieden (nur direkte Nachbarfelder zu Beginn).
 Offen bleibt, wie sie in `reveal.js` und `REVEAL_RADIUS 2` aufgeht, ohne das
 Basisspiel zu verändern.
 
+Vor jeder Sichtbarkeitsfrage steht eine zweite, härtere: Der Raid hat im
+Spielstand **keinen Platz**. Kein Feld, keine Aktion, kein Aufrufer — die
+Oberfläche kann deshalb bis heute keinen Kampf, kein Wächter-Koma und keine
+Beute unterwegs zeigen, und was sie nicht zeigen kann, soll sie nicht
+erfinden. Das Raid-Buch in `src/ui/RaidLedger.jsx` nennt darum nur, was es
+gibt: den Kader aus `cadreRule()` und die gebuchten Quittungen des Servers.
+
 ### 6. Die Rückholchance beim Opfer
 
 Der Entwurf sagt „eine Rückholchance", ohne eine Zahl.

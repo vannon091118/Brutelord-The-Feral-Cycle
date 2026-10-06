@@ -9,8 +9,13 @@ Spiegel-Datei für `src/app/App.jsx`.
 App ist Komposition und jetzt auch das Konto-Tor: ohne Sitzung gibt es kein Spiel, mit
 Sitzung startet der Seed die Welt. Sie reicht die ganze Sitzung an den Motor weiter, damit
 der Traeger-Token bis zum Speicher-Takt kommt und der Stand auch zum Server geht.
-Lichtstimmung der Kammer hinter der Welt. Das Abmelden entwertet den Träger-Token auf dem
-Server und räumt erst danach die lokale Sitzung — so liegt der Token beim Aufruf noch vor.
+Lichtstimmung der Kammer hinter der Welt.
+
+Die Kontoecke wohnt seit dem 2026-10-06 in `src/ui/AccountCorner.jsx` und nicht mehr hier:
+App stand mit dem Raid-Buch am Import-Deckel von sieben Zeilen, und der Ort, an dem
+Abmelden und Buch untereinander stehen, ist ohnehin eine eigene Verantwortung. App reicht
+der Ecke nur Sitzung und Schwarm (`game.dunglings`) durch und nimmt den Rückruf entgegen,
+der die Sitzung aus dem Baum nimmt; die Reihenfolge des Abmeldens führt die Ecke selbst aus.
 
 ## Schnittstellen
 
