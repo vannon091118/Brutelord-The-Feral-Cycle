@@ -3,9 +3,6 @@ import { BUILDING_STATE, buildingDef } from './building-config.js';
 import { getTile, isInsideGrid } from '../world/grid.js';
 import { isBuildable, tileId } from '../world/tile.js';
 
-function occupiedTileIds(buildings) {
-  return new Set(buildings.flatMap((building) => building.tileIds));
-}
 
 function footprintIds(type, anchor) {
   const def = buildingDef(type);
@@ -21,7 +18,7 @@ function footprintIds(type, anchor) {
 
 export function canPlaceBuilding({ world, buildings, type, anchor }) {
   if (!buildingDef(type) || !isInsideGrid(world, anchor.x, anchor.y)) return false;
-  const occupied = occupiedTileIds(buildings);
+  const occupied = new Set(buildings.flatMap((building) => building.tileIds));
   return footprintIds(type, anchor).every((id) => {
     const tile = getTile(world, id);
     return Boolean(tile) && isBuildable(tile) && !occupied.has(id);
