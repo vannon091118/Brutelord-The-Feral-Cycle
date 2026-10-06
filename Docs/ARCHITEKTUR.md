@@ -939,22 +939,24 @@ Onboarding leben im Browser, nicht in `verify-slice.mjs`. Deshalb steht in
 deshalb ist `verify:browser` keine Abkürzung für den Lauf, sondern sein
 eigenständiger Zugang zu derselben Stufe.
 
-`scripts/verify/index.mjs` listet die Gruppen an **einer** Kante: der Runner
-stünde sonst mit acht Importen am Cap, und eine neue Gruppe müsste in ein Modul
-einhängen, das inhaltlich nichts mit ihr zu tun hat. Ein Feature-Check wie
-`check-raid-group.mjs` bleibt trotzdem bei seinem Feature.
+`scripts/verify/groups.mjs` listet die Gruppen an **einer** Kante und in ihrer
+Reihenfolge: `verify-slice.mjs` (Volllauf, CI) und `check.mjs` (lokal, gecacht)
+lesen dieselbe Liste. Jede `check-*.mjs` hat dort ihre **eigene Zeile** — das
+Bündeln ist weg. Es war eine Folge der Importgrenze: acht Importe waren das Cap,
+also hingen `check-deposits.mjs` an `checkRooting()`, `check-traits.mjs` an
+`checkMutant()`, `check-seed.mjs` und `check-account.mjs` an `checkWorldViews()`.
+`index.mjs` reiht `export … from`-Zeilen, und die zählen nicht als Import; der
+Grund für das Bündel ist damit entfallen. Der Gewinn ist nicht Ordnung, sondern
+Zeit: eine Änderung an der Ökonomie fährt die Ökonomie, nicht sieben fremde
+Gruppen mit.
 
-- `check-colony.mjs` bündelt Bauen und Beanspruchung, weil `verify-slice.mjs` an
-  der Importgrenze steht. Dort hängen auch `check-traits.mjs` und sein Aufbau
-  `lab-run.mjs`, das eine Kolonie mit verbautem Stein und offenem Bauplatz stellt.
-- `check-deposits.mjs` hängt an `checkRooting()`, weil der Einstiegspunkt mit
-  sieben Importzeilen am Cap steht und der Hinweis ohnehin Verwurzelung ist.
-  Beim Nachtreiben von Hand: `startRooting(world, tile)` nimmt die Welt **und**
-  die Kachel, nicht nur die Kachel.
-- `scripts/verify/index.mjs` listet die Gruppen an **einer** Kante, weil
-  `verify-slice.mjs` mit dem Raid an der Importgrenze stand. Der Runner kennt
-  seitdem eine Datei statt acht, und eine neue Gruppe kommt in genau einer Zeile
-  dort hin — statt in einem Modul, das inhaltlich nichts mit ihr zu tun hat.
+- `check-raid-group.mjs` bleibt ein Bündel: Bewegung, Raid-Traits und Format
+  hängen an demselben eingefrorenen Ticket.
+- `check-deposits.mjs` hat seinen eigenen Einstieg. Beim Nachtreiben von Hand:
+  `startRooting(world, tile)` nimmt die Welt **und** die Kachel, nicht nur die
+  Kachel.
+- `lab-run.mjs` stellt die Kolonie mit verbautem Stein und offenem Bauplatz;
+  `check-traits.mjs` und `check-mutant.mjs` teilen sich den Aufbau.
 - `check-raid.mjs` bündelt Bewegung, Traits und Format. `raid-fixture.mjs`
   stellt das eingefrorene Ticket gegen einen festen Snapshot und die zwei
   Bewegungshelfer (`runTicks`, `digTo`), weil drei Prüfgruppen denselben Aufbau

@@ -2,7 +2,7 @@
 import { HINTS } from '../../src/ui/hint-texts.js';
 import { check } from '../verify/expect.mjs';
 import { advanceUntil } from './advance.mjs';
-import { readHud, readPanel } from './read.mjs';
+import { readHint, readHud, readPanel } from './read.mjs';
 import { SEL } from './config.mjs';
 import { shoot } from './shots.mjs';
 
@@ -11,8 +11,8 @@ const HUD_KEYS = ['essence', 'raum', 'buildMenu'];
 const hintWalk = (page, wanted, within) => ({
   page,
   within,
-  matches: (hud) => hud.hint === wanted,
-  read: () => readHud(page),
+  matches: (hint) => hint === wanted,
+  read: () => readHint(page),
 });
 
 const panelWalk = (page, wanted, within) => ({

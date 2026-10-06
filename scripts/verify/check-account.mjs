@@ -5,7 +5,7 @@
 import { login, register } from '../server/account-api.mjs';
 import { countAccounts, openAccounts } from '../server/account-store.mjs';
 import { ACCOUNT_CONFIG } from '../server/account-config.mjs';
-import { checkAccountBrake, withTempDb } from './check-account-brake.mjs';
+import { withTempDb } from './check-account-brake.mjs';
 import { check, section } from './expect.mjs';
 
 const PASSWORD = 'knochenmehl42';
@@ -64,5 +64,4 @@ export async function checkAccount() {
   await checkRegister();
   await checkLogin();
   await checkSameLoginSameSeed();
-  await checkAccountBrake();
 }

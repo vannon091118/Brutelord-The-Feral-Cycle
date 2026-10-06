@@ -14,6 +14,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Zwei Jobs, nicht einer: die Waechter lesen Text und brauchen keinen Browser,
+  # der Slice faehrt das Spiel. Ein gebrochener Commit-Body faellt deshalb nach
+  # Sekunden auf und nicht erst hinter einem Chromium-Download. Beide Jobs
+  # laufen gleichzeitig; die Wanduhr bleibt die des Slice.
   gate:
     runs-on: ubuntu-latest
     steps:
@@ -69,6 +73,31 @@ jobs:
 
       - name: Commit-Gate-Regeln selbst prüfen
         run: npm run verify:commits
+
+  # Der Volllauf: dieselbe Zeile wie `npm run verify` lokal, ungekuerzt und mit
+  # Browser. Er ist absichtlich nicht nach Gruppen teilbar — eine Abnahme, die
+  # man unterlaufen kann, ist keine.
+  slice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten
+        run: npm ci
+
+      # Der Browser ist rund 120 MB und aendert sich nur mit der Playwright-
+      # Fassung: einmal geholt, danach aus dem Cache. Die Systempakete holt
+      # --with-deps trotzdem, sie liegen nicht im Cache.
+      - name: Browser-Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Browser für die Startprüfung
         run: npx playwright install --with-deps chromium

@@ -108,8 +108,8 @@ Jede mit dem Warum.
   `insertAccount()` zu — der Adapter wäre dann eine Attrappe gewesen, die nur
   die Abnahme benutzt. **Der Vertrag ist damit auf dem Laufweg, nicht neben
   ihm.** Die Aufrufer wurden mitgezogen: `check-account.mjs` und
-  `check-account-brake.mjs` reihen ihre Prüfungen deshalb als `await`, und
-  darüber `checkWorldViews` → `checkColony` → `verify-slice.mjs`.
+  `check-account-brake.mjs` reihen ihre Prüfungen deshalb als `await`; jeder
+  der beiden hat seine eigene Zeile in `scripts/verify/groups.mjs`.
 
 - **B7 — Die async-Huelle löst keine Nebenläufigkeit.** `node:sqlite`
   rechnet synchron; ein `async` davor macht die **Signatur** vergleichbar,

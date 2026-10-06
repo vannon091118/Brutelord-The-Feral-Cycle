@@ -141,7 +141,7 @@ export function buildBumpMessage({ version, docs, code }) {
     'Vor dem Bump hat der Pre-Flight die Doku-Eintraege geprueft, danach hat der Doku-Sync die erledigten in die Checkpoints bewegt und dort gestempelt.',
   ].join(' ');
   return stripForeignFooters([
-    'chore: auto version bump for code changes',
+    `chore: Version ${version} — automatischer Bump`,
     '',
     intro,
     '',

@@ -35,3 +35,6 @@ tools/tests/.browser-host.json
 
 # Messprofile des Firefox-Profilers sind Gerätewerte, keine Doku
 Docs/Performance messungen*/
+
+# Lokaler Pruef-Speicher: Fingerabdruecke der Gruppen, kein Spielinhalt
+.cache/

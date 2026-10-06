@@ -24,7 +24,6 @@ export const SEL = Object.freeze({
   spot: '[role="button"][aria-label^="Bauplatz für"]',
   buildingPanel: '[aria-label^="Bauwerk:"]',
   assign: '+ Dungling',
-  hintPanel: '.dl-panel:has-text("Raum")',
   hint: 'p',
   submit: 'button[type="submit"]',
   nameField: 'input[autocomplete="username"]',

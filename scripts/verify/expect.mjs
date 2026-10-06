@@ -16,6 +16,11 @@ export function check(label, condition, detail = '') {
   return ok;
 }
 
+/** Fuer den lokalen Lauf: eine Gruppe liest ihren eigenen Zaehlerstand. */
+export function failureCount() {
+  return failures;
+}
+
 export function summary() {
   console.log(lines.join('\n'));
   const passed = lines.filter((line) => line.startsWith('  ok')).length;

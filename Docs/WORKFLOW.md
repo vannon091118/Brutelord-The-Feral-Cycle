@@ -21,6 +21,7 @@ Es gibt **kein `npm test` und keinen Linter.** `gate` hat drei Modi, dazu kommen
 | `npm run gate -- --version --base=<sha>` | Monotonie der `revision`, Übereinstimmung von Lock und Spiegeln | CI |
 | `npm run gate -- --docs` | Metadaten-Pflicht der Einträge in `ROADMAP_OPEN.md` und `CHECKPOINTS.md` | CI |
 | `npm run gate -- --spiegel` | Kommentar-Cap (1 Zeile = `@doc`-Pointer), Spiegel-Doku unter `docs/daten/`, Caps, Orphans, Drift | CI |
+| `npm run check` | Die **betroffenen** Wächter und die Gruppen, deren Eingaben sich geändert haben — gecacht, ohne Browser | Hand |
 | `npm run verify` | Verhalten der Domäne: Onboarding, Abbau, Verwurzelung, Bau, Brutlord, Ökonomie, Konto | CI |
 | `npm run verify:commits` | Das Commit-Gate gegen sich selbst — Regressionstests der Regelprüfung | CI |
 | `npm run verify:browser` | Dieselbe Onboarding-Kette im echten Chromium, mit angehaltener Uhr — braucht einen Browser und den Port 5199 | Hand |
@@ -31,6 +32,10 @@ Es gibt **kein `npm test` und keinen Linter.** `gate` hat drei Modi, dazu kommen
 npm ci                                     # CI pinnt Node 22, lokal läuft Node 26
 npm run dev                                # Vite, bindet auf 127.0.0.1
 npm run gate                               # alle Wächter
+npm run check                              # lokal: betroffene Wächter + geänderte Gruppen, gecacht
+npm run check -- --list                    # welche Gruppe ist unverändert
+npm run check -- <gruppe>                  # genau diese Prüfgruppe
+npm run check:browser                      # die Browser-Stufe allein
 npm run gate -- --tree                     # nur Hard Caps
 npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
@@ -54,30 +59,77 @@ Repo-Wurzelverzeichnis starten.
 
 ## Die Testlaufzeit
 
-Gemessen am 2026-10-06. Die Einteilung ist keine Bequemlichkeit, sondern eine
-Grenze: lokal bleibt jeder Aufruf **unter zehn Sekunden**.
+Gemessen am 2026-10-06 auf dem Entwicklungsrechner, nach dem Umbau der
+Browser-Stufe. Die Zeile ist geteilt: **lokal läuft, was sich geändert hat**
+und gedeckelt bleibt; **der Volllauf gehört der CI**.
 
-| Lauf | Gemessen | Wo er läuft |
-| --- | --- | --- |
-| `node scripts/verify/check-action-types.mjs` | 1,3 s | lokal |
-| `npm run gate` mit allen Wächtern | 5,4 s | lokal |
-| `node scripts/verify/check-determinism.mjs` | 6,4 s | lokal |
-| `npm run build` | 10,2 s | lokal, einmal je Task |
-| `npm run verify` — Server, Chromium, Onboarding in Echtzeit | 2 m 13 s | **CI auf Push** |
+| Lauf | Vorher | Nachher | Wo er läuft |
+| --- | --- | --- | --- |
+| `npm run check` — betroffene Gruppen, gecacht | — | **2–12 s**, je Last | lokal |
+| `npm run check -- --all` — alle Gruppen im Node-Prozess | 56,9 s | **43,7 s** | lokal, auf Abruf |
+| `npm run check:browser` — Konto-Tor und Onboarding in Chromium | 194,8 s | **82,9 / 95,9 / 125,5 s** | lokal auf Abruf, sonst CI |
+| davon `site-ready` (20 s Spielzeit) | 91,9 s | 33,7 s | — |
+| davon `floor-grows` (4,6 s Spielzeit) | 42,4 s | 11,8 s | — |
+| `npm run gate` mit allen Wächtern | 5,4 s | 5,4 s | lokal |
+| `npm run build` | 3,1 s | 3,1 s | lokal, einmal je Task |
+| `npm run verify` — Volllauf | ~4 m 15 s | ~2 m 25 s | **CI auf Push** |
 
-**Prüfgruppen sind einzeln aufrufbar.** Jede Gruppe ist eine Funktion in
-`scripts/verify/check-*.mjs`; so läuft sie lokal, und so läuft auch die
-**Gegenprobe**, die [`GOVERNANCE.md`](GOVERNANCE.md) verlangt — gesehen, dass
-eine Prüfung rot wird, nicht nur dass sie grün ist:
+**Die alte Zahl war abgeschrieben.** `npm run verify` stand hier mit 2 m 13 s
+und war gemessen rund **vier Minuten** lang: die Browser-Stufe allein kostete
+194,8 s, weil ihre Schritte alle 50 ms nachsahen. Gemessen wird jetzt vor und
+nach jedem Umbau an dieser Zeile, siehe *Messe, bevor du behauptest*.
+
+**Die Zeile ist auch deswegen kürzer, weil die Gruppen kleiner sind.** Jedes
+`check-*.mjs` hat seine eigene Zeile in `scripts/verify/groups.mjs` und seinen
+eigenen Fingerabdruck: eine Änderung an der Ökonomie fährt die Ökonomie, nicht
+das ganze Bündel. Vorher hing der Zuschnitt an der Importgrenze von
+`verify-slice.mjs` — acht Importe waren das Cap, also wurden `check-deposits`
+an `checkRooting()`, `check-traits` an `checkMutant()`, `check-seed` und
+`check-account` an `checkWorldViews()` gebündelt. **Dieser Grund ist weg:**
+`index.mjs` reiht `export … from`-Zeilen, und die zählen nicht als Import.
+
+**Und eine quadratische Prüfung ist eine langsame Prüfung.** Der
+Spiegel-Vergleich der Brutlord-Konturen suchte zu jedem der 71 682 Punkte den
+nächsten gespiegelten — gemessen 10,8 s von 15,6 s der Gruppe. Er sucht jetzt
+im Fenster der gespiegelten x-Achse auf einer sortierten Liste; geprüft wird
+dieselbe Aussage (`< 1e-6`), nur ohne jedes Paar.
+
+**`npm run check` ist die lokale Zeile.** Er fährt die betroffenen Wächter und
+danach nur die Prüfgruppen, deren **Eingaben** sich geändert haben — der
+Fingerabdruck einer Gruppe ist ihre ganze Import-Hülle plus jede Datei, die
+ihre Module namentlich nennen (goldene Werte, Workflows, gestartete Skripte).
+Nichts geändert heißt: nichts läuft. Die **Browser-Stufe läuft dort nicht** —
+sie ist der teuerste Teil und hängt an einem Server; die CI fährt sie bei
+jedem Push. Wer sie einzeln will, nimmt `npm run check:browser`; auch sie
+schweigt, wenn nichts angefasst wurde und `src/` unverändert ist.
 
 ```sh
-node --input-type=module -e "
-const m = await import('./scripts/verify/check-determinism.mjs')
-const e = await import('./scripts/verify/expect.mjs')
-m.checkDeterminism()
-process.exitCode = e.summary()
-"
+npm run check                          # betroffen, gecacht, ohne Browser
+npm run check -- --list                # was ist unverändert, was läuft
+npm run check -- determinism storage   # genau diese Gruppen
+npm run check -- --all                 # alle Gruppen, ohne Speicher
+npm run check -- --no-cache            # alles, Speicher weder lesen noch schreiben
+npm run check:browser                  # die Browser-Stufe (braucht einen Server)
 ```
+
+**Die Browser-Stufe hängt an ganz `src/`.** Ihre Import-Hülle kennt die
+zeichnenden Module nicht — `check-startup.mjs` importiert `stage.mjs`, und
+`src/world/` sieht der Browser, nicht der Import. Ein Fingerabdruck, der das
+Sichtbare nicht enthält, wird still alt, also ist dort `src` ein Eingang: eine
+Änderung am Spiel fährt die Abnahme, eine an der Doku nicht.
+
+**Der Speicher ist fail-open, deshalb darf er schweigen.** Eine Gruppe ohne
+Eintrag läuft immer, ein roter Lauf wird nie gespeichert, und verglichen
+werden Bytes — geänderter Inhalt ist ein anderer Fingerabdruck. Die CI liest
+und schreibt ihn nie: `npm run verify` fährt jede Gruppe, jedes Mal.
+
+**Warum der Browser so lange braucht, und was daran gemacht wurde.** Gemessen:
+ein Uhrsprung von 500 ms kostet weniger als zehn von 50 ms (1971 ms gegen
+5016 ms im selben Fenster), und eine Auskunft über fünf Locator-Runden kostet
+131 ms gegen 17 ms im Seitenkontext. `scripts/browser/advance.mjs` springt
+deshalb grob und zieht nur im letzten Fenster fein nach, `read.mjs` liest in
+einer Auswertung; die Beats fielen von 176 s auf 63 s. Was bleibt, ist echte
+Spielzeit: 20 Sekunden Bauzeit sind 20 Sekunden.
 
 **Kein Hintergrundprozess lokal.** Ein `fire-and-forget`-Lauf auf derselben
 Maschine verbraucht dieselbe CPU und denselben Chromium; gespart wird die
@@ -118,9 +170,14 @@ diesem Branch, `<head>` der letzte eigene Commit.
 ### 3. Schnelle Spur lokal, Volllauf in der CI
 
 ```sh
-node --input-type=module -e "const m = await import('./scripts/verify/<check>.mjs'); const e = await import('./scripts/verify/expect.mjs'); Object.values(m).forEach((f) => f()); process.exitCode = e.summary()"
+npm run check
 npm run build
 ```
+
+`npm run check` fährt die betroffenen Wächter und danach nur die Gruppen,
+deren Eingaben sich geändert haben; `-- --list` sagt vorher, welche das sind,
+und `-- <gruppe>` fährt genau eine. Die Browser-Stufe ruft man einzeln
+(`npm run check:browser`) oder gar nicht — sie gehört der CI.
 
 Ein Fehlpfad fällt nur hier auf, nicht im Gate. Die betroffene Prüfgruppe prüft
 Verhalten im Node-Prozess, `build` prüft Importauflösung im echten Bundler — es
@@ -206,9 +263,21 @@ Ausgang. Eine unbemerkte Divergenz wäre schlechter.
 
 Zwei Workflows in `.github/workflows/`:
 
-- **`ci.yml`** — läuft auf Push und PR. Ermittelt eine Basisrevision (PR-Base,
-  sonst `before`, sonst `HEAD^`) und fährt danach `gate --version`,
-  `gate --tree`, `gate --commits`, `verify:commits`, `verify` und `build`.
+- **`ci.yml`** — läuft auf Push und PR, in **zwei Jobs**. `gate` ermittelt eine
+  Basisrevision (PR-Base, sonst `before`, sonst `HEAD^`) und fährt `gate
+  --version`, `--tree`, `--docs`, `--spiegel`, `--commits` und
+  `verify:commits`: reine Textarbeit, kein Browser, kein Build. `slice` holt
+  Chromium und fährt `npm run verify` und `npm run build`. Beide Jobs laufen
+  gleichzeitig; die Wanduhr bleibt die des Slice. Gemessen vor der Teilung, auf
+  einem Durchgang: 73 s Job — 6 s Checkout, 7 s Node, 3 s `npm ci`, 29 s
+  Browser-Download, 22 s Slice, 1 s Build. Der Browser-Download liegt seit
+  diesem Umbau im Cache, und ein gebrochener Commit-Body ist nach rund 20 s
+  rot, nicht erst hinter den 120 MB.
+
+  **Der Volllauf bleibt ungeteilt.** `slice` fährt `npm run verify` und nicht
+  eine Gruppenauswahl: eine Abnahme, die man unterlaufen kann, ist keine. Die
+  Teilung granular zu machen ist Sache von `npm run check` — lokal, wo sie Zeit
+  spart, statt online, wo sie eine Lücke öffnen würde.
 - **`auto-bump.yml`** — committet als `github-actions[bot]`, also **unsigned**
   (`git log --show-signature -1` zeigt `N`). Er bumpt nur bei Änderungen unter
   `src/`, `scripts/` oder `tools/`; Doku- und Hygiene-Änderungen allein lösen
@@ -244,10 +313,11 @@ Der Gerüstbau ist `scripts/verify/expect.mjs`. Daraus folgen zwei feste Regeln:
   auf Modulebene, alles zählt über den ganzen Lauf, und `summary()` ist nur
   einmal aufrufbar. Deshalb liegt die Reihenfolge fest: `checkStart()` läuft vor
   `makeOnboardingRun()`, weil der Start-Zustand der Run-Erzeugung zugrunde liegt.
-- **Wer eine Prüfung hinzufügt, hängt sie an einen vorhandenen Einstiegspunkt.**
-  `verify-slice.mjs` steht an der Importgrenze. `check-deposits.mjs` hängt
-  deshalb an `checkRooting()`, `check-colony.mjs` bündelt Bauen und Beanspruchung
-  samt `check-traits.mjs`.
+- **Wer eine Prüfung hinzufügt, gibt ihr eine eigene Zeile in
+  `scripts/verify/groups.mjs`.** Dort steht die Reihenfolge einmal, gelesen vom
+  Volllauf (`verify-slice.mjs`) und vom lokalen Lauf (`check.mjs`). Gebündelt
+  wird nichts mehr: jede `check-*.mjs` hat ihren eigenen Einstieg, sonst
+  bezahlt eine Änderung an einer Sache die Prüfungen von sieben anderen.
 
 Wie viele Prüfungen das sind, steht nicht in diesem Dokument, sondern in der
 letzten Zeile des Laufs. Diese Zahl zu zitieren wäre eine abgeschriebene Zahl —

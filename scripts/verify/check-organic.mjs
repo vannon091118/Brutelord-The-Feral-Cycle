@@ -8,6 +8,7 @@ import { anchorsOf } from '../../src/domain/brutelord/organic-anchors.js';
 import { check, section } from './expect.mjs';
 
 const ORG = ORGANIC_CONFIG;
+const MIRROR_TOLERANCE = 1e-6;
 const GENOMES = Array.from({ length: 40 }, (unused, index) => createGenome(index * 7919 + 3));
 const SAMPLE = GENOMES.map((genome) => phenotypeOf(genome));
 const PHASES = Array.from({ length: ORG.phaseCount }, (unused, index) => index);
@@ -121,21 +122,44 @@ function checkRings() {
   check('Die Ringe tragen keine Nullkanten', smallest > 0, smallest.toExponential(2));
 }
 
-function mirrorGap(points, point) {
-  return points.reduce((best, other) => Math.min(best, Math.hypot(other.x + point.x, other.y - point.y)), Infinity);
+/** Die untere Grenze in der sortierten x-Achse — der Anfang des Suchfensters. */
+function lowerBound(values, value) {
+  let low = 0;
+  let high = values.length;
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    if (values[mid] < value) low = mid + 1;
+    else high = mid;
+  }
+  return low;
+}
+
+/** Gesucht wird nur im Fenster der gespiegelten x-Achse statt gegen alle
+ *  Punkte: das echte Paar liegt bei 1e-16, also weit innerhalb von 1e-6. */
+function unmirrored(points) {
+  const byX = [...points].sort((left, right) => left.x - right.x);
+  const xs = byX.map((point) => point.x);
+  return points.filter((point) => {
+    let best = Infinity;
+    for (let index = lowerBound(xs, -point.x - MIRROR_TOLERANCE); index < xs.length; index += 1) {
+      if (xs[index] > -point.x + MIRROR_TOLERANCE) break;
+      best = Math.min(best, Math.hypot(byX[index].x + point.x, byX[index].y - point.y));
+    }
+    return best >= MIRROR_TOLERANCE;
+  });
 }
 
 function checkSymmetry() {
   section('Organik: Spiegel-Symmetrie');
   const all = fields();
-  let worst = 0;
+  const ohne = [];
   let total = 0;
   for (const field of all) {
     const points = field.rings.flat();
     total += points.length;
-    for (const point of points) worst = Math.max(worst, mirrorGap(points, point));
+    ohne.push(...unmirrored(points));
   }
-  check('Jeder Konturpunkt hat sein Spiegelbild', worst < 1e-6, `groesster Abstand ${worst.toExponential(2)}`);
+  check('Jeder Konturpunkt hat sein Spiegelbild', ohne.length === 0, `${ohne.length} von ${total} Punkten ohne Paar`);
   check('Die Konturen tragen genug Punkte fuer den Vergleich', total > all.length * 20, `${total} Punkte`);
 }
 

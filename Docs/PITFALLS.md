@@ -189,6 +189,71 @@ den zweiten Wert gebaut.
 
 ## Die Abnahme
 
+### Ein Prüfschritt, der alle 50 ms nachsieht, misst die Uhr statt das Spiel
+
+Gemessen an der Browser-Stufe: sie kostete **194,8 s**, davon `site-ready`
+allein 91,9 s und `floor-grows` 42,4 s. Nicht das Spiel war langsam, sondern der
+Beobachter. `advanceUntil()` sprang in 50-ms-Schritten und las vor jedem Schritt
+den ganzen HUD über fünf Locator-Runden. Im Fünf-Sekunden-Fenster gemessen:
+hundert Sprünge zu 50 ms kosten 5016 ms, zehn zu 500 ms kosten 1971 ms;
+`readHud` über Locator kostet 131 ms, dieselbe Auskunft in einem
+`page.evaluate` 17 ms.
+
+> **Symptom:** Der Lauf ist um ein Vielfaches langsamer als die Spielzeit, die
+> er abwartet, und die Beats mit dem längsten `within` fressen die Zeit.
+
+> **Gegenprobe:** Nach dem Umbau — grobe Sprünge, feines Fenster am Ziel, eine
+> Auswertung je Messung — kostet dieselbe Stufe 82,9 s und die Beats 63 s statt
+> 176 s, bei **denselben** 21 Prüfungen und denselben Meldungen.
+
+**Regel:** Wer eine angehaltene Uhr abwartet, springt grob und zieht nur dort
+fein nach, wo eine Zahl auf die Prüfung wirkt. Eine Messung ist **eine**
+Auswertung, nicht fünf Runden.
+
+### Eine Pruefung ueber alle Paare misst die CPU, nicht die Symmetrie
+
+Gemessen im Konturen-Vergleich der Brutlord-Organik: `checkOrganic()` kostete
+**15,6 s**, davon **10,8 s** in einem einzigen Vergleich. Er suchte zu jedem der
+**71 682** Punkte den naechsten gespiegelten — 160 Konturen zu je rund 450
+Punkten, also ueber 30 Millionen Abstaende fuer eine Aussage, die „naechster
+gespiegelter Punkt" heisst.
+
+> **Symptom:** Eine Gruppe mit wenigen Pruefungen und viel Rechnung dominiert
+> den Lauf, und die Zeit waechst mit der Zahl der Punkte, nicht mit der Zahl der
+> Regeln.
+
+> **Gegenprobe:** Dieselbe Aussage (Abstand `< 1e-6`) auf einer nach x
+> sortierten Liste, gesucht nur im Fenster der gespiegelten Achse: `brutelord`
+> faellt von 16,6 s auf 4,6 s, der ganze Knoten-Lauf von 56,9 s auf 43,7 s —
+> bei **denselben** 703 Pruefungen.
+
+**Regel:** Wer eine Pruefung ueber eine Punktmenge schreibt, sucht mit einem
+Index oder in einem Fenster, nie gegen alle. Ein quadratischer Vergleich ist
+eine Pruefung, die niemand nach jedem Tastendruck fahren will.
+
+### Ein Prüf-Speicher, der nur die Gruppe selbst hasht, wird still alt
+
+`scripts/lib/check-cache.mjs` verwirft einen grünen Lauf nur, wenn sich sein
+Fingerabdruck ändert. Die Gruppe allein reicht dafür nicht: sie liest Dateien,
+die sie nicht importiert — den goldenen Wert, den Workflow, das gestartete
+`purge.mjs`. Ohne die wäre nach einer Änderung an
+`scripts/verify/determinism-golden.json` die Determinismus-Gruppe still
+„unverändert" und der Lauf grün, ohne je gelaufen zu sein.
+
+> **Gegenprobe:** `npm run check -- --list` muss nach einer Änderung an einer
+dieser Dateien `laeuft` melden. Gemessen: tut es, weil der Fingerabdruck die
+> Import-Hülle **und** jeden im Modultext genannten Dateipfad umfasst.
+
+**Und die Import-Hülle allein reicht nicht immer.** Die Browser-Stufe
+importiert `stage.mjs`, nicht `src/world/`: ihre Hülle kennt die zeichnenden
+Module nicht, und ihr Fingerabdruck hätte eine Änderung an der Darstellung
+nicht bemerkt. Deshalb steht dort `inputs: ['src']` — ein Eintrag, der ein
+Ordner ist, zählt mit allem darin. Die teuerste Gruppe darf nicht die sein, die
+am leisesten alt wird.
+
+**Und der Speicher gehört der lokalen Zeile.** `npm run verify` liest und
+schreibt ihn nie — die CI fährt jede Gruppe, jedes Mal.
+
 ### `expect.mjs` ist global zustandsbehaftet
 
 `lines` und `failures` stehen auf Modulebene, alles zählt über den ganzen Lauf,
@@ -197,11 +262,11 @@ und `summary()` ist nur **einmal** aufrufbar.
 > **Symptom:** eine neue Prüfgruppe erscheint nicht in der Ausgabe, oder der
 > Lauf endet nach der halben Liste.
 
-**Was zu tun ist:** die Reihenfolge in `verify-slice.mjs` ist fest. `checkStart()`
-muss vor `makeOnboardingRun()` laufen, weil der Start-Zustand der
+**Was zu tun ist:** die Reihenfolge in `scripts/verify/groups.mjs` ist fest.
+`checkStart()` muss vor `makeOnboardingRun()` laufen, weil der Start-Zustand der
 Run-Erzeugung zugrunde liegt. Eine Prüfung, die irgendwo dazwischen ihre
-Position braucht, hängt an einen vorhandenen Einstiegspunkt — der Einstiegspunkt
-selbst steht an der Importgrenze.
+Position braucht, bekommt ihre Zeile an der richtigen Stelle in dieser Liste —
+seit sie ein Datenblatt ist, kostet eine eigene Gruppe keine Importzeile mehr.
 
 ### `startRooting(world, tile)` nimmt die Welt **und** die Kachel
 

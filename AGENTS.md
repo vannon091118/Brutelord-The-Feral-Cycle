@@ -39,6 +39,9 @@ npm run gate                               # alle drei Wächter
 npm run gate -- --tree                     # nur Hard Caps
 npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
+npm run check                              # LOKAL: betroffene Wächter + geänderte Gruppen, gecacht
+npm run check -- --list                    # sagt, welche Gruppe unverändert ist
+npm run check:browser                       # die Browser-Stufe allein (sonst nur in der CI)
 npm run verify                             # VOLLLAUF inkl. Browser — gehört in die CI, nicht lokal
 npm run verify:commits                     # Regressionstests des Commit-Gates
 npm run golden:determinism                 # Golden-Wert der Deterministizität neu schreiben
@@ -83,12 +86,11 @@ Nach **jedem** abgeschlossenen Task, in dieser Reihenfolge:
    in die Historie (`Docs/CHECKPOINTS.md`) und der Version-Stempel sind Sache
    des Doku-Syncs, nicht der Hand. Vor dem Commit `npm run docs:sync --check`
    — er lässt einen invaliden Metadaten-Block nicht durch.
-2. **`npm run gate -- --commits=<base>..<head>`** — explizit, mit echter Range.
-3. **Schnelle Spur lokal, Volllauf in der CI.** Lokal die betroffene
-   Prüfgruppe als Einzelaufruf und **`npm run build`** — `build` ist die einzige
-   Instanz, die einen toten Import bemerkt. `npm run verify` läuft **nicht**
-   mehr lokal, sondern in der CI auf Push: 2 m 13 s gegen zehn Sekunden. Die
-   Einteilung mit den gemessenen Zeiten steht in
+2. **`npm run gate -- --commits=<base>..<head>`** — explizit, mit echter Range.3. **Schnelle Spur lokal, Volllauf in der CI.** Lokal **`npm run check`**
+   (nur die Gruppen, deren Eingaben sich geändert haben, gecacht) und
+   **`npm run build`** — `build` ist die einzige Instanz, die einen toten
+   Import bemerkt. `npm run verify` läuft **nicht** lokal, sondern in der CI
+   auf Push. Die Einteilung mit den gemessenen Zeiten steht in
    [`Docs/WORKFLOW.md`](Docs/WORKFLOW.md), *Die Testlaufzeit*.
 4. **Commit**, dann **Push auf `main`**. Kein PR, kein Branch-Zirkus. Zwischen
    Push und CI-Bericht kann `main` rot sein — der Volllauf ist die Gegenprobe

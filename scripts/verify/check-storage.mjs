@@ -1,23 +1,8 @@
 /** Der Speicher-Vertrag und der Spielstand neben dem Konto. Die Rechnung des
  *  Raids steht in check-raid-cap.mjs. */
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { storageProbe, storageViolations } from '../server/storage-interface.mjs';
-import { createLocalStore } from '../server/account-store-local.mjs';
 import { check, section } from './expect.mjs';
-
-/** Eine eigene Datei je Lauf; `:memory:` waere nutzlos, weil jede Anfrage neu
- *  oeffnet. Das `await` ist Pflicht: ohne es raeumt der `finally` zu frueh auf. */
-async function withTempStore(run) {
-  const dir = mkdtempSync(tmpdir() + '/dl-speicher-');
-  process.env.DL_DATA_DIR = dir;
-  try {
-    return await run(createLocalStore());
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-    delete process.env.DL_DATA_DIR;
-  }
-}
+import { withTempStore } from './temp-store.mjs';
 
 async function checkContract() {
   section('Speicher: der Vertrag, nicht die Datenbank');

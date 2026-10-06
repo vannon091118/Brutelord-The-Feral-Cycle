@@ -6,8 +6,6 @@ import { DUNGLING_STATE } from '../../src/domain/entities/dungling.js';
 import { ONBOARDING_ORDER, ONBOARDING_STATE } from '../../src/domain/onboarding/onboarding-state.js';
 import { dunglingAnimation } from '../../src/world/dungling/dungling-anim.js';
 import { hiveVisualState } from '../../src/world/hive/hive-state.js';
-import { checkAccount } from './check-account.mjs';
-import { checkSeed } from './check-seed.mjs';
 import { check, section } from './expect.mjs';
 
 const DUNGLING_STATES = Object.values(DUNGLING_STATE).filter((state) => state !== DUNGLING_STATE.NONE);
@@ -28,9 +26,7 @@ function checkHiveWaiting() {
   check('Der Klick blitzt nur in HIVE_CLICKED', ONBOARDING_ORDER.filter((phase) => hiveVisualState({ hive: HIVE, onboardingState: phase }).hit).join('|') === ONBOARDING_STATE.HIVE_CLICKED);
 }
 
-export async function checkWorldViews() {
+export function checkWorldViews() {
   checkDunglingAnimations();
   checkHiveWaiting();
-  checkSeed();
-  await checkAccount();
 }
