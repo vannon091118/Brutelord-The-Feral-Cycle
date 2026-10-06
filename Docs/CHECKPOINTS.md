@@ -43,6 +43,27 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.46
+
+- [x] **Die Server-Türen fangen kaputte Rümpfe.** Ein Raid-Rumpf ohne Aktionen,
+      mit `null`, einer Zahl, einem Text oder einem unbekannten Schritt brachte
+      `validateRaidReplay` zum Werfen; daraus wurde im Worker wie im Dev-Server
+      ein Serverfehler mit Stapelspur statt einer Ablehnung. Ein Rumpf, der nur
+      die Fassung nannte, brach `isSavedShape` und damit `POST /api/state` ab,
+      und ein gespeicherter Stand ohne Zustand ließ `readSavedState` auf dem
+      Client werfen. Die Einreichungsprüfung kapselt die Rechnung jetzt, die
+      Formprüfung weist alles ab, was kein Objekt ist, und die Schreibregel des
+      Spielstands liegt in einer Funktion. Gemessen wird daraus 422 für den Raid
+      und 400 für den Stand. Belegt von `check-raid-cap`, `check-snapshot` und
+      `check-account-worker`, deren fünf neue Zusicherungen eine Gegenprobe mit
+      entfernten Wachen rot färbt.
+  Status: fix
+  Scope: Server
+  Kategorie: Bugfix
+  Version: 0.0.46
+  Datum: 2026-10-06
+
+
 ## 0.0.45
 
 - [x] **Die Leiter bei 47,47 ist der Eingang.** Sie stand als `LADDER_TILE`
