@@ -10,8 +10,7 @@ Furthermore, since the `depthOf` function was originally exported, it was docume
 
 These changes were verified by running the full test suite (`pnpm run verify`) and the CI gate checks (`pnpm run gate`), which confirmed that the modifications did not introduce any regressions and successfully passed all project policies, including code limits and import rules.
 
-Geänderte Dateien:
-- docs/daten/earth/earthdepth.md
-- src/world/earth/EarthDepth.jsx
+src/world/earth/EarthDepth.jsx
+docs/daten/earth/earthdepth.md
 
 created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.
