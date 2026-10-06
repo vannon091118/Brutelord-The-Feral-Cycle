@@ -63,6 +63,19 @@ nie als Magic Strings im Komponenten- oder Reducer-Code. Jede Zeit und jedes
 Tuning steht an genau einer Stelle, damit die Abnahme gegen die Config prüfen
 kann statt gegen gerundete Zahlen.
 
+### Importrichtungen
+
+Die Schichten von `src/` haben eine Richtung, und sie steht als Tabelle in
+`scripts/lib/import-rules.mjs`: `domain` importiert nur `domain`, `state`
+zusätzlich `domain`, `world` zusätzlich `state`, `ui` zusätzlich `world`, `app`
+alles darunter. Fail-closed — was nicht in der Tabelle steht, ist verboten.
+Jeder nicht-relative Specifier ist in `domain` verboten und sonst auf `react`,
+`react-dom` und `react/jsx-runtime` begrenzt; ein Ziel außerhalb von `src/` ist
+in jeder Schicht ein Verstoß. `scripts/verify/check-imports.mjs` prüft den
+ganzen Baum gegen die Tabelle und lässt jede der verbotenen Richtungen an einer
+erfundenen Kante fallen: eine Importregel ohne einen Fall, der sie bricht, ist
+eine Behauptung.
+
 ### Hard Caps
 
 Jede Datei unter `src/` und `scripts/` — `.js`, `.jsx`, `.mjs` **und** `.css`:
@@ -380,7 +393,8 @@ aus, also fällt ihr Verstoß erst auf, wenn jemand die Range über sie zieht.
 | `npm run verify` | Verhalten der Domäne, deterministisch und ohne Browser |
 | Der Autor eines Tasks | ob er fertig ist — und ob er es **belegen** kann |
 
-Was das Gate nicht prüft, ist Konvention: die Importrichtung zwischen den
-Ebenen, die Sorgfalt in einer Config-Änderung, die Frage, ob ein Häkchen in der
-Roadmap zu Recht steht. Diese Lücke ist gewollt und heißt nicht, dass sie
-irgendwo hingehört — sie heißt Sorgfalt.
+Die **Importrichtung zwischen den Ebenen** ist seit dem 2026-10-06 keine
+Konvention mehr, sondern eine Prüfung (siehe *Importrichtungen*). Was weiterhin
+Konvention ist: die Sorgfalt in einer Config-Änderung und die Frage, ob ein
+Häkchen in der Roadmap zu Recht steht. Diese Lücke ist gewollt und heißt nicht,
+dass sie irgendwo hingehört — sie heißt Sorgfalt.

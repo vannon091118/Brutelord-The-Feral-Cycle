@@ -1,5 +1,7 @@
-/** Der Speicher-Vertrag und der Spielstand neben dem Konto. Die Rechnung des
- *  Raids steht in check-raid-cap.mjs. */
+/** Der Speicher-Vertrag, der Spielstand neben dem Konto und die Schreibregel.
+ *  Die Rechnung des Raids steht in check-raid-cap.mjs. */
+import { SNAPSHOT_MAX_BYTES } from '../../src/state/snapshot-config.js';
+import { SNAPSHOT_WRITE } from '../../src/state/snapshot-rule.js';
 import { storageProbe, storageViolations } from '../server/storage-interface.mjs';
 import { check, section } from './expect.mjs';
 import { withTempStore } from './temp-store.mjs';
@@ -42,7 +44,44 @@ async function checkState() {
   });
 }
 
+async function checkWriteRule() {
+  section('Speicher: die Schreibregel des Spielstands');
+  await withTempStore(async (store) => {
+    await store.updateAccount('still', {
+      name: 'still',
+      player_id: 'p-2',
+      playerseed: 'b'.repeat(16),
+      verifier: 'v',
+      salt: 's',
+    });
+    check('Ein Stand ohne Revision wird angenommen',
+      (await store.putState('still', { version: 3, world: { depth: 1 } })) === SNAPSHOT_WRITE.ok);
+    check('Ein revisionierter Stand kommt durch',
+      (await store.putState('still', { version: 3, revision: 4, world: { depth: 2 } })) === SNAPSHOT_WRITE.ok);
+    check('Danach ueberschreibt keine Schreibung ohne Revision mehr',
+      (await store.putState('still', { version: 3, world: { depth: 9 } })) === SNAPSHOT_WRITE.stale);
+    check('Die abgewiesene Schreibung liess den Stand stehen',
+      (await store.getState('still'))?.world?.depth === 2);
+    check('Die gleiche Revision ist veraltet',
+      (await store.putState('still', { version: 3, revision: 4, world: { depth: 3 } })) === SNAPSHOT_WRITE.stale);
+    check('Eine hoehere Revision kommt durch',
+      (await store.putState('still', { version: 3, revision: 5, world: { depth: 3 } })) === SNAPSHOT_WRITE.ok);
+    await checkWriteLimit(store);
+  });
+}
+
+async function checkWriteLimit(store) {
+  const zuGross = { version: 3, revision: 6, blob: 'a'.repeat(SNAPSHOT_MAX_BYTES) };
+  check('Eine Nutzlast ueber der Obergrenze wird abgewiesen',
+    (await store.putState('still', zuGross)) === SNAPSHOT_WRITE.tooLarge);
+  check('auch sie liess den letzten Stand stehen',
+    (await store.getState('still'))?.world?.depth === 3);
+  check('Ein unbekanntes Konto meldet sich als solches',
+    (await store.putState('niemand', { version: 3, revision: 1 })) === 'kein konto');
+}
+
 export async function checkStorage() {
   await checkContract();
   await checkState();
+  await checkWriteRule();
 }

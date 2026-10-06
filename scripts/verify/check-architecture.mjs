@@ -1,5 +1,8 @@
+/** Die Architekturgrenzen: Domäne ohne React/DOM/SVG, keine Zufalls- oder
+ *  Systemzeit-Spielwahrheit, kein verwaistes Prüfmodul. Die Importrichtungen
+ *  stehen in check-imports.mjs — eine Regel, ein Ort. */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { check, section } from './expect.mjs';
 
 function collect(dir, extensions, found = []) {
@@ -28,33 +31,13 @@ function orphanChecks() {
   return modules.filter((name) => !referenced.includes(`/${name}'`));
 }
 
-function importSpecifiers(code) {
-  return [...code.matchAll(/\bfrom\s+['\"]([^'\"]+)['\"]/g)].map((match) => match[1]);
-}
-
-function escapesDomain(file, spec) {
-  if (!spec.startsWith('.')) return true;
-  const root = resolve('src/domain');
-  const target = resolve(dirname(file), spec);
-  return target !== root && !target.startsWith(`${root}/`);
-}
-
-function domainEscapes() {
-  return collect('src/domain', ['.js']).flatMap((file) => {
-    const specs = importSpecifiers(stripComments(readFileSync(file, 'utf8')));
-    return specs.filter((spec) => escapesDomain(file, spec)).map((spec) => `${file} -> ${spec}`);
-  });
-}
-
 export function checkArchitecture() {
   const domain = sourceText(collect('src/domain', ['.js']));
   const code = stripComments(sourceText(collect('src', ['.js', '.jsx'])));
   const waisen = orphanChecks();
-  const escapes = domainEscapes();
   section('Architekturgrenzen');
-  check('Domäne importiert weder React noch DOM', !/from ['\"]react|document\.|window\./.test(domain));
+  check('Domäne importiert weder React noch DOM', !/from ['"]react|document\.|window\./.test(domain));
   check('Keine Zufalls- oder Systemzeit-Spielwahrheit', !/Math\.random\s*\(|Date\.now\s*\(/.test(code));
   check('Domäne rendert kein SVG-Markup', !/<(svg|path|circle|g[ >])/.test(domain));
-  check('Domäne importiert nur aus src/domain', escapes.length === 0, escapes.slice(0, 3).join(', '));
   check('Jedes Prüfmodul ist verdrahtet', waisen.length === 0, waisen.join(', '));
 }

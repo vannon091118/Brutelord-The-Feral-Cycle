@@ -53,7 +53,7 @@ export function createLocalStore({ file } = {}) {
       return withDb(file, (db) => readState(db, accountId));
     },
     async putState(accountId, packed) {
-      return withDb(file, (db) => writeState(db, accountId, packed) > 0);
+      return withDb(file, (db) => writeState(db, accountId, packed));
     },
   };
 }

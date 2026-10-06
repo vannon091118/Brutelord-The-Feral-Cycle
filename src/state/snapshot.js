@@ -1,7 +1,10 @@
 // @doc: docs/daten/state/snapshot.md#snapshot
 import { createWorld } from '../domain/world/grid.js';
 import { parseTileId } from '../domain/world/tile.js';
-import { SNAPSHOT_KEY, SNAPSHOT_VERSION } from './snapshot-config.js';
+import { SNAPSHOT_KEY, SNAPSHOT_MAX_BYTES, SNAPSHOT_REVISION_FIELD, SNAPSHOT_REVISION_KEY, SNAPSHOT_VERSION } from './snapshot-config.js';
+import { SNAPSHOT_WRITE, envelopeBytes, writeDecision } from './snapshot-rule.js';
+
+let lastPayload = null;
 
 function seedWorld(world) {
   const spawnTile = world.spawnTileId ? parseTileId(world.spawnTileId) : null;
@@ -97,6 +100,46 @@ export function unpackState(state) {
   };
 }
 
+export function buildEnvelope({ state, playerseed, revision = 1 }) {
+  return { version: SNAPSHOT_VERSION, seed: playerseed, [SNAPSHOT_REVISION_FIELD]: revision, state: packState(state) };
+}
+
+export function unpackEnvelope(envelope, playerseed) {
+  if (envelope?.version !== SNAPSHOT_VERSION || envelope.seed !== playerseed) return null;
+  return isSavedShape(envelope.state) ? unpackState(envelope.state) : null;
+}
+
+function storedRevision() {
+  const stored = Number(window.localStorage.getItem(SNAPSHOT_REVISION_KEY) ?? '0');
+  return Number.isInteger(stored) && stored > 0 ? stored : null;
+}
+
+function nextRevision() {
+  const stored = storedRevision();
+  return stored === null ? 1 : stored + 1;
+}
+
+function payloadOf(envelope) {
+  return JSON.stringify(envelope.state);
+}
+
+function store(envelope) {
+  window.localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(envelope));
+  window.localStorage.setItem(SNAPSHOT_REVISION_KEY, String(envelope.revision));
+  lastPayload = payloadOf(envelope);
+  return true;
+}
+
+function saveEnvelope(envelope) {
+  const decision = writeDecision({
+    bytes: envelopeBytes(envelope),
+    storedRevision: storedRevision(),
+    incomingRevision: envelope.revision,
+    maxBytes: SNAPSHOT_MAX_BYTES,
+  });
+  return decision === SNAPSHOT_WRITE.ok ? store(envelope) : false;
+}
+
 export function readSavedState(playerseed) {
   if (typeof window === 'undefined') return null;
   let parsed;
@@ -105,13 +148,20 @@ export function readSavedState(playerseed) {
   } catch {
     return null;
   }
-  if (parsed?.version !== SNAPSHOT_VERSION || parsed.seed !== playerseed) return null;
-  return isSavedShape(parsed.state) ? unpackState(parsed.state) : null;
+  lastPayload = parsed?.state ? JSON.stringify(parsed.state) : null;
+  return unpackEnvelope(parsed, playerseed);
 }
 
 export function saveSnapshot(state, playerseed) {
-  window.localStorage.setItem(SNAPSHOT_KEY, JSON.stringify({ version: SNAPSHOT_VERSION, seed: playerseed, state: packState(state) }));
+  if (typeof window === 'undefined') return state;
+  saveEnvelope(buildEnvelope({ state, playerseed, revision: nextRevision() }));
   return state;
+}
+
+export function writeIfChanged(state, playerseed) {
+  const envelope = buildEnvelope({ state, playerseed, revision: nextRevision() });
+  if (payloadOf(envelope) === lastPayload) return false;
+  return saveEnvelope(envelope);
 }
 
 export function clearSnapshot() {

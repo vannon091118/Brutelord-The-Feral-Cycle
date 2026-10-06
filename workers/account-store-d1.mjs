@@ -8,6 +8,8 @@
  *  deshalb als Migration in `d1/0001-accounts.sql` — ein Schema, das bei jedem
  *  Kaltstart mitlaeuft, ist ein Schema, das im Streitfall genau einmal laeuft. */
 import { ACCOUNT_COLUMNS } from '../scripts/server/storage-contract.mjs';
+import { SNAPSHOT_WRITE } from '../src/state/snapshot-rule.js';
+import { stateWriteDecision } from '../scripts/server/state-write.mjs';
 
 const SELECT = `SELECT ${ACCOUNT_COLUMNS.join(', ')} FROM accounts WHERE name = ?`;
 const INSERT = `INSERT INTO accounts (name, player_id, playerseed, verifier, salt) VALUES (?, ?, ?, ?, ?)`;
@@ -59,10 +61,12 @@ export function createD1Store(env) {
     },
 
     async putState(accountId, packed) {
+      const entscheidung = stateWriteDecision(packed, await this.getState(accountId));
+      if (entscheidung !== SNAPSHOT_WRITE.ok) return entscheidung;
       const res = await db.prepare('UPDATE accounts SET state = ? WHERE name = ?')
         .bind(JSON.stringify(packed), accountId)
         .run();
-      return (res?.meta?.changes ?? 0) > 0;
+      return (res?.meta?.changes ?? 0) > 0 ? SNAPSHOT_WRITE.ok : 'kein konto';
     },
   };
 }

@@ -4,6 +4,8 @@ import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { ACCOUNT_CONFIG } from './account-config.mjs';
+import { SNAPSHOT_WRITE } from '../../src/state/snapshot-rule.js';
+import { stateWriteDecision } from './state-write.mjs';
 
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS accounts (
@@ -70,5 +72,8 @@ export function readState(db, name) {
 }
 
 export function writeState(db, name, packed) {
-  return db.prepare('UPDATE accounts SET state = ? WHERE name = ?').run(JSON.stringify(packed), name).changes;
+  const entscheidung = stateWriteDecision(packed, readState(db, name));
+  if (entscheidung !== SNAPSHOT_WRITE.ok) return entscheidung;
+  const changes = db.prepare('UPDATE accounts SET state = ? WHERE name = ?').run(JSON.stringify(packed), name).changes;
+  return changes > 0 ? SNAPSHOT_WRITE.ok : 'kein konto';
 }
