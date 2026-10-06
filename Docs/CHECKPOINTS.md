@@ -43,6 +43,25 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.42
+
+- [x] **Die Testzeile: granular, gecacht, ohne Browser lokal.** Der Volllauf war
+      gemessen **4 m 15 s** statt der angeschriebenen 2 m 13 s, die Browser-Stufe
+      allein 194,8 s, weil jeder Schritt alle 50 ms nachsah; der Knoten-Teil lief
+      als ein Block, und ein einziger Konturen-Vergleich prüfte jeden Punkt
+      gegen jeden (71 682 Punkte, 10,8 s). Jetzt springt die Uhr grob und zieht
+      nur im Zielfenster fein nach, jedes `check-*.mjs` hat seine eigene Zeile in
+      `scripts/verify/groups.mjs` samt eigenem Fingerabdruck, und `npm run check`
+      fährt lokal nur, was sich geändert hat — der Volllauf bleibt der CI. Die CI
+      ist in zwei Jobs geteilt (`gate` ohne Browser, `slice` mit), und der
+      Browser-Download liegt im Cache.
+  Status: fix
+  Scope: Tests
+  Kategorie: Refactor
+  Version: 0.0.42
+  Datum: 2026-10-06
+
+
 ## 0.0.41
 
 - [x] **Der Konto-Server fehlt im Production-Build.** Das Backend hing als
