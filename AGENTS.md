@@ -1,4 +1,4 @@
-# AGENTS.md — Dungeon Lord
+# AGENTS.md — Brutelord: The Feral Cycle
 
 
 Du bist mein Lead Systems Architect und Senior Game Designer. Ich bin der Game Director.

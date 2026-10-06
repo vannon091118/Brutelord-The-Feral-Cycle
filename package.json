@@ -1,9 +1,9 @@
 {
-  "name": "dungeon-lord",
+  "name": "brutalord-the-feral-cycle",
   "private": true,
   "version": "0.0.39",
   "type": "module",
-  "description": "Dungeon Lord — erster spielbarer Slice: Hive, Dungling, Erde abbauen, Boden gewinnen.",
+  "description": "Brutelord: The Feral Cycle — erster produktionsreifer Slice: Hive, Dungling, Erde abbauen, Boden gewinnen.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

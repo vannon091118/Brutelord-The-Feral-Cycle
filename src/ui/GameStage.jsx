@@ -4,7 +4,7 @@ import { DungeonWorld } from '../world/DungeonWorld.jsx';
 import { cameraBox } from '../world/world-view.js';
 import { useStageScale } from './use-stage-scale.js';
 import { TileActionMenu } from './TileActionMenu.jsx';
-import { menuPositionFor } from './menu-position.js';
+import { menuAnchorFor } from './menu-position.js';
 
 // @doc: docs/daten/ui/gamestage.md#gamestage
 export function GameStage({ game, actions }) {
@@ -22,7 +22,7 @@ export function GameStage({ game, actions }) {
 
         {menuOpen ? (
           <TileActionMenu
-            {...menuPositionFor({ tileId: game.selectedTileId, camera, scale, tileSize: TILE_SIZE })}
+            {...menuAnchorFor({ tileId: game.selectedTileId, camera, scale, tileSize: TILE_SIZE })}
             onMine={actions.orderMining}
             onClose={actions.clearSelection}
           />

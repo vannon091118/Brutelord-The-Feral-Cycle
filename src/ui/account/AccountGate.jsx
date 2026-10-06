@@ -6,14 +6,14 @@ import { ACCOUNT_UI } from './account-ui.js';
 const EMPTY = { name: '', password: '' };
 const switched = (mode) => (mode === ACCOUNT_UI.register ? ACCOUNT_UI.login : ACCOUNT_UI.register);
 
-async function send({ mode, credentials, onSignedIn, setError, setBusy }) {
+async function send({ mode, credentials, onSignedIn, setFailure, setBusy }) {
   setBusy(true);
-  setError(null);
+  setFailure(null);
   try {
     const call = mode === ACCOUNT_UI.register ? registerAccount : loginAccount;
     onSignedIn(await call(credentials));
   } catch (reason) {
-    setError(reason.message);
+    setFailure({ mode, message: reason.message });
   } finally {
     setBusy(false);
   }
@@ -23,7 +23,7 @@ async function send({ mode, credentials, onSignedIn, setError, setBusy }) {
 export function AccountGate({ onSignedIn }) {
   const [mode, setMode] = useState(ACCOUNT_UI.register);
   const [credentials, setCredentials] = useState(EMPTY);
-  const [error, setError] = useState(null);
+  const [failure, setFailure] = useState(null);
   const [busy, setBusy] = useState(false);
 
   function change(field, value) {
@@ -32,7 +32,7 @@ export function AccountGate({ onSignedIn }) {
 
   function submit(event) {
     event.preventDefault();
-    send({ mode, credentials, onSignedIn, setError, setBusy });
+    send({ mode, credentials, onSignedIn, setFailure, setBusy });
   }
 
   return (
@@ -40,7 +40,7 @@ export function AccountGate({ onSignedIn }) {
       <AccountForm
         mode={mode}
         credentials={credentials}
-        error={error}
+        error={failure?.mode === mode ? failure.message : null}
         busy={busy}
         onChange={change}
         onSubmit={submit}

@@ -194,8 +194,8 @@
 }
 
 @keyframes dl-menu-in {
-  0% { opacity: 0; transform: translate(-50%, -6px) scale(0.95); }
-  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  0% { opacity: 0; transform: translate(-50%, calc(-100% + var(--dl-menu-shift, 10px))) scale(0.95); }
+  100% { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 }
 
 @keyframes dl-panel-in {

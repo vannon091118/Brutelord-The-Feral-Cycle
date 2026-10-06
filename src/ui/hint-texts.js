@@ -51,8 +51,8 @@ export const HINTS = {
     sub: 'Genau dieses eine Tile ist jetzt nutzbarer Raum.',
   },
   [ONBOARDING_STATE.BUILD_MENU_VISIBLE]: {
-    text: 'Freier Boden.',
-    sub: 'Klicke einen weiteren Erdblock, um Raum zu gewinnen.',
+    text: 'Bauen ist freigeschaltet.',
+    sub: 'Wähle ein Bauwerk — oder klicke einen weiteren Erdblock für mehr Raum.',
   },
 };
 

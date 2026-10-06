@@ -19,7 +19,7 @@ export async function checkGate() {
   await page.goto(baseUrl(), { waitUntil: 'load' });
   // Der Produktname steht im Seitentitel; eine Umbenennung soll hier auffallen, nicht im Browser-Tab.
   const title = await page.title();
-  check('Der Seitentitel nennt den Produktnamen', title.includes('Dungeon Lord'), title);
+  check('Der Seitentitel nennt den Produktnamen', title.includes('Brutelord'), title);
   const submit = page.locator(SEL.submit).first();
   const offer = (await submit.count()) ? await submit.innerText() : '';
   check('Ohne Sitzung steht das Konto-Tor', (await submit.count()) === 1, `Titel: ${title}`);

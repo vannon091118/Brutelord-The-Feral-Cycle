@@ -2,7 +2,7 @@
 import { readState, waitState } from './probe.mjs';
 
 export const SEL = Object.freeze({
-  field: 'svg[aria-label="Dungeon Lord — Spielfeld"]',
+  field: 'svg[aria-label="Brutelord: The Feral Cycle — Spielfeld"]',
   hive: '[aria-label="Hive anklicken"]',
   earth: (x, y) => `[aria-label="Erdblock bei ${x}, ${y} abbauen"]`,
   mineItem: '[role="menu"][aria-label="Erdblock"] [role="menuitem"]',

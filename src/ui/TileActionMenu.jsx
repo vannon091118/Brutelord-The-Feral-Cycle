@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { MiningMenuItem } from './MiningMenuItem.jsx';
+import { MENU_BOX, menuPositionFor } from './menu-position.js';
 
 // @doc: docs/daten/ui/tileactionmenu.md#tileactionmenu
 function TileMenuTitle() {
@@ -22,19 +23,35 @@ function TileMenuHint() {
   );
 }
 
-export function TileActionMenu({ left, top, onMine, onClose }) {
-  useEffect(() => {
+function useEscapeKey(onClose) {
+  useLayoutEffect(() => {
     const onKeyDown = (event) => {
       if (event.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
+}
+
+export function TileActionMenu({ left, top, onMine, onClose }) {
+  const [place, setPlace] = useState(null);
+  const node = useRef(null);
+  useLayoutEffect(() => {
+    setPlace(menuPositionFor({ anchor: { left, top }, bounds: node.current.parentElement.getBoundingClientRect() }));
+  }, [left, top]);
+  useEscapeKey(onClose);
+  const spot = place ?? { left, top, flipped: false };
 
   return (
     <div
-      className="dl-panel dl-menu-in absolute z-20 w-[158px] rounded-2xl px-3 pb-3 pt-2.5"
-      style={{ left, top, transform: 'translate(-50%, -100%)' }}
+      ref={node}
+      className="dl-panel dl-menu-in absolute z-20 rounded-2xl px-3 pb-3 pt-2.5"
+      style={{
+        left: spot.left, top: spot.top, width: MENU_BOX.width,
+        visibility: place ? 'visible' : 'hidden',
+        transform: 'translate(-50%, -100%)',
+        '--dl-menu-shift': spot.flipped ? '-10px' : '10px',
+      }}
       role="menu"
       aria-label="Erdblock"
     >

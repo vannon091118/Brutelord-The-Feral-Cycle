@@ -93,7 +93,7 @@ async function handle(request, response) {
 
 export function accountApi() {
   return {
-    name: 'dungeon-lord-accounts',
+    name: 'brutalord-the-feral-cycle-accounts',
     configureServer(server) {
       // Pro Anfrage geoeffnet, nicht einmal beim Start: sonst haelt ein laufender
       // Server eine Datei offen, die npm run purge gerade geloescht hat.

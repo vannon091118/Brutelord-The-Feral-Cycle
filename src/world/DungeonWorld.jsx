@@ -42,7 +42,7 @@ function worldSvgProps(camera, scale) {
     height: camera.height,
     style: { position: 'absolute', top: 0, left: 0, transform: `scale(${scale})`, transformOrigin: 'top left' },
     role: 'img',
-    'aria-label': 'Dungeon Lord — Spielfeld',
+    'aria-label': 'Brutelord: The Feral Cycle — Spielfeld',
   };
 }
 

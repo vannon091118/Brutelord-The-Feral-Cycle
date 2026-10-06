@@ -5,7 +5,7 @@ import { ACCOUNT_UI } from './account-ui.js';
 export function AccountForm({ mode, credentials, error, busy, onChange, onSubmit, onSwitch }) {
   return (
     <form onSubmit={onSubmit} className="relative flex w-80 flex-col gap-3 rounded-lg border border-bone-700/40 bg-soil-900/80 p-6">
-      <h1 className="text-lg tracking-wide text-bone-100">Dungeon Lord</h1>
+      <h1 className="text-lg tracking-wide text-bone-100">Brutelord: The Feral Cycle</h1>
       <p className="text-xs text-bone-400">
         {mode === ACCOUNT_UI.register
           ? 'Ein Name und ein Passwort. Daraus entsteht deine eigene Welt.'

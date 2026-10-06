@@ -6,12 +6,15 @@ Spiegel-Datei für `src/ui/OnboardingHint.jsx`.
 
 ## Verantwortung
 
-Die schmale Hinweiszeile unten. Sie erklärt den ersten Moment ohne Handbuch und zeigt
-daneben, wie viel Essenz im Hive liegt, wie groß der Raum ist und auf welcher Etage der Hive
-steht.
+Die Hinweis-Karte unten. Der Satz des aktuellen Onboarding-Zustands steht in der ersten
+Zeile und ist nie abgeschnitten; darunter stehen die vier Phasen des Slice und die Chips
+für Essenz, Raum und Etage. Zwei Zeilen sind Absicht: in der alten 520-Pixel-Pille auf
+einer Zeile hatten Trail (gemessen 218 Pixel) und Chips (gemessen 190 Pixel) nur 68 Pixel
+für die Anleitung übrig gelassen — weniger, als der kürzeste Titel braucht. Die Karte ist
+deshalb keine Pille mehr, sondern rundet wie das Bau-Menü.
 
 ## Schnittstellen
 
 - `OnboardingHint()`
 
-Aus der Migration vom 2026-10-05 hervorgegangen.
+Aus der Migration vom 2026-10-05 hervorgegangen; Layout-Umbau am 2026-10-06.

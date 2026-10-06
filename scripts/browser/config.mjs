@@ -15,7 +15,7 @@ export const BROWSER_CONFIG = Object.freeze({
 });
 
 export const SEL = Object.freeze({
-  field: 'svg[aria-label="Dungeon Lord — Spielfeld"]',
+  field: 'svg[aria-label="Brutelord: The Feral Cycle — Spielfeld"]',
   hive: '[aria-label="Hive anklicken"]',
   earth: '[role="button"][aria-label*="Erdblock bei"]',
   menu: '[role="menu"][aria-label="Erdblock"]',
