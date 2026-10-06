@@ -1,11 +1,12 @@
 /** Die Regeln der Konto-API an genau einer Stelle: Routen, Koepfe, Absagen und
- *  das Lesen des Rumpfs. Jede Route nennt ihre Methode, ihre Rumpfschranke und
- *  ob sie eine Sitzung braucht — `/api/state` und `/api/raid` entscheiden ueber
- *  den Traeger-Token, nicht ueber einen Wert aus dem Rumpf. */
+ *  das Lesen des Rumpfs. Jede Route nennt Methode, Rumpfschranke und ob sie eine
+ *  Sitzung braucht — alle vier Spiel- und Kontowege entscheiden ueber den
+ *  Traeger-Token und nicht ueber einen Wert aus dem Rumpf. */
 import { ACCOUNT_CONFIG } from './account-config.mjs';
-import { login, register } from './account-api.mjs';
+import { login, logout, register } from './account-api.mjs';
 import { putState, readState } from './state-http.mjs';
-import { validateSubmission } from './raid-http.mjs';
+import { readBookings, validateSubmission } from './raid-http.mjs';
+import { issueTicket } from './raid-ticket-http.mjs';
 import { SNAPSHOT_MAX_BYTES } from '../../src/state/snapshot-config.js';
 
 const SMALL = ACCOUNT_CONFIG.bodyLimitBytes;
@@ -20,6 +21,9 @@ export const API_ROUTES = Object.freeze({
     POST: Object.freeze({ run: putState, limit: STATE, auth: true }),
   }),
   '/api/raid': Object.freeze({ POST: Object.freeze({ run: validateSubmission, limit: RAID, auth: true }) }),
+  '/api/raid/ticket': Object.freeze({ POST: Object.freeze({ run: issueTicket, limit: SMALL, auth: true }) }),
+  '/api/raid/bookings': Object.freeze({ GET: Object.freeze({ run: readBookings, limit: 0, auth: true }) }),
+  '/api/logout': Object.freeze({ POST: Object.freeze({ run: logout, limit: 0, auth: true }) }),
 });
 
 export const SECURITY_HEADERS = Object.freeze({

@@ -535,6 +535,31 @@ Elternordners entfernt, bevor `rmSync` an einem belegten Verzeichnis scheiterte.
 Pfad?", sondern „was liegt **in** diesem Pfad, das ich nicht löschen will?".
 Alles, was den Arbeitsordner enthält, ist tabu.
 
+### Zwei Speicher, ein Vertrag — und nur einer wird gefahren
+
+Gemessen, nicht vermutet: die Buchung des Raids wurde lange nur als SQL-Text
+gegen einen regulären Ausdruck geprüft. Der Speicher, der ausgeliefert wird
+(`workers/account-store-d1.mjs`), lief in keiner Prüfung — und die beiden waren
+sich in einem Fall uneinig: auf das Ticket eines **fremden Kontos** antwortete
+der lokale Speicher `kein ticket`, D1 aber `veraltet`, weil er nur prüfte, ob
+die Zeile überhaupt existiert.
+
+Der erste Lauf derselben Suite gegen beide Speicher fand das sofort. Eine
+Attrappe über `node:sqlite`, die die **echten** Migrationen als Schema nimmt,
+findet solche Abweichungen und falsche Anweisungen, ohne dass eine Bindung
+nötig ist.
+
+> **Symptom:** die Abnahme ist grün, die Auslieferung antwortet anders. Der
+> Fehler sieht wie ein Datenbankfehler aus und ist ein Codefehler im zweiten
+> Speicher.
+
+> **Gegenprobe:** dieselbe Suite gegen beide Speicher fahren. Was die Attrappe
+> **nicht** beweist: Isolation und Nebenläufigkeitsverhalten der echten D1 —
+> das bleibt offen, bis ein Lauf gegen die tatsächliche Bindung existiert.
+
+**Regel:** eine Regel, die als Anweisungstext geprüft wird, ist ungeprüft.
+Läuft sie in zwei Implementierungen, fährt die Prüfung beide.
+
 ### Eine asynchrone Prüfgruppe, die nicht abgewartet wird, meldet sich nie
 
 `checkAccount()` gab ein Promise zurück, `checkWorldViews()` rief es ohne `await`

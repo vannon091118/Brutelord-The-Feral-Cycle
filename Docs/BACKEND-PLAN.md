@@ -154,6 +154,87 @@ Jede mit dem Warum.
   `wrangler.jsonc` und bricht vor dem Deploy ab, solange dort der Platzhalter
   steht; die CI prüft nur die Regel selbst, nicht die Deploy-Umgebung.
 
+- **B14 — Der Träger-Token wandert in ein `HttpOnly`-Cookie, und CSRF wird an
+  drei Stellen gebunden.** (entschieden, noch nicht gebaut — der Umbau steht
+  unten) `localStorage` ist für **jedes** Skript lesbar, das auf der Seite läuft:
+  eine eingeschleuste Zeile Fremdcode liest den Ausweis und schickt ihn
+  irgendwohin. Ein `HttpOnly`-Cookie sieht kein Skript. Der Preis ist echtes
+  CSRF, denn der Browser hängt ein Cookie **automatisch** an — auch von einer
+  fremden Seite aus. Deshalb gehört die Abwehr in denselben Umbau: `SameSite=Lax`
+  als Browser-Schranke, der bestehende `sameOrigin()`-Vergleich als zweite
+  Schicht, und ein **sitzungsgebundenes** CSRF-Geheimnis als Autorität. Ein
+  reines Double-Submit ohne Zeile wäre schwächer: eine XSS auf einer Subdomain
+  darf Cookies setzen, aber keine Datenbankzeile schreiben. Der Token darf
+  deshalb auch **nicht mehr im JSON-Rumpf** stehen — sonst läse ihn das Skript
+  aus der Anmeldeantwort.
+
+- **B15 — Die Sitzung altert, und sie lässt sich widerrufen.** (gebaut) Die
+  Spalte `expires_at` gibt jeder Sitzung eine Frist, `readSession()` prüft sie
+  in der Bedingung der Abfrage, ein Schreibvorgang räumt die abgelaufenen weg,
+  und `POST /api/logout` löscht die Zeile. Ein Token ohne Ende ist ein
+  dauerhafter Schlüssel; ein „Abmelden“, das nur den Browser leert, ist keins —
+  der Token bliebe gültig, bis ihn jemand findet.
+
+- **B16 — Das Ticket ist eine Zeile, nicht eine Signatur (D25, gebaut).** Der
+  Server stellt das Raid-Ticket aus (`POST /api/raid/ticket`), legt es mit Frist
+  in `raid_tickets` ab und liest bei der Einreichung **seine** Zeile:
+  `body.ticket.id` ist die einzige Angabe, die aus dem eingereichten Ticket
+  genommen wird. Eine Signatur wäre der falsche Mechanismus — ein manipulierter
+  Client prüft nichts, was er selbst mitschickt. Der Angreifer nennt nur die Ids
+  seiner Dunglinge; Kader, Eintrittspunkt und Verteidiger-Snapshot kommen aus
+  Zahlen, die der Server hält (`cadreRule()`, `entrySeed()`, der gespeicherte
+  Stand des Verteidigers). **Ein Paar hat genau ein lebendes Ticket:**
+  `raid_tickets` trägt den Verteidiger als eigene Spalte, und eine neue
+  Ausstellung löscht die alte Zeile desselben Paares. Der Eintrittspunkt hängt
+  am Paar und nicht an der Ticket-Id — sonst kaufte wiederholtes Fragen einen
+  kürzeren Anmarsch (gemessen: acht Ausstellungen, acht Eintritte zwischen
+  (11,18) und (61,44)). Die Id bleibt je Ausstellung eindeutig, weil sie der
+  Schlüssel der Quittung ist.
+
+- **B17 — Die Beute wird gebucht, nicht vereinbart (gebaut).** Die geprüfte
+  Beute geht über `applyRaidLoot()` in `envelope.state`, die Revision steigt um
+  genau eins, und **eine** Transaktion schreibt den Stand und verbraucht die
+  Ticketzeile. Die Löschung hängt an der Revision, die die Schreibanweisung
+  gerade gesetzt hat: verliert der Schreibvorgang, bleibt die Zeile stehen und
+  derselbe Antrag geht noch einmal. Ohne diese Kopplung wäre die zweite
+  Einreichung desselben Logs doppelte Beute — der Revisionsvergleich allein
+  fängt sie nicht, weil ein zweiter Tab die neue Revision lesen kann.
+
+- **B18 — Den Kader hält der Stand, nicht der Rumpf (D31, gebaut).** `atk`,
+  `speed`, `grit`, `dig` und die Traits des Kaders kommen aus den **Steinen** der
+  gespeicherten Dunglinge (`statsOf()`, Summe der Stat-Beiträge, `dig` aus der
+  Grabfähigkeit), nicht aus dem Antrag. Nennt der Antrag einen dieser vier Werte
+  und weicht er von der Faltung ab, antwortet `POST /api/raid/ticket` mit 422
+  `GEFALSCHT`; wer nur Ids schickt, bekommt den Kader des Standes. Anlass ist
+  eine Messung: derselbe Antrag mit `atk: 999999, speed: 500, grit: 1` bekam
+  vorher 201, und `createRaidState()` rechnete daraus `apMax: 500` statt der
+  rund 40 eines echten Dunglings — der Client stellte sich seine Helden selbst
+  aus. Still zu korrigieren wäre der schlechtere Weg: der Client erführe nicht,
+  dass seine Zahlen nicht mehr zählen, und ein hinterherhängender Spielstand
+  raidiert unbemerkt mit dem falschen Kader.
+
+- **B19 — Jede Buchung hinterlässt eine Quittung (gebaut).** Eine Buchung war
+  spurlos: die Ticketzeile wurde verbraucht, und danach wusste niemand mehr, ob
+  der Raid gebucht wurde. `raid_bookings` hält Id, Angreifer, Verteidiger,
+  Beute, Revision und Zeitpunkt — geschrieben in **derselben** Transaktion wie
+  der Spielstand und die Löschung, bedingt durch dieselbe Revision. Drei Dinge
+  hängen daran: ein **verloren gegangener Antwortweg** ist wiederholbar (ein
+  zweiter Antrag mit demselben Ticket antwortet 200 mit der gebuchten Beute
+  statt 404), die Grenze je Paar lässt sich zählen (noch nicht eingebaut), und
+  eine Liste der letzten Überfälle ist lesbar (`GET /api/raid/bookings`). Kein
+  Raid ohne Beute, keine Quittung.
+
+- **B20 — Die Buchungsregel läuft gegen beide Speicher (gebaut).** `check-booking`
+  fährt **dieselbe** Suite gegen den lokalen Speicher und gegen eine
+  D1-Attrappe über `node:sqlite`, die die echten Migrationen aus `workers/d1/`
+  als Schema nimmt. Vorher war die Regel nur als SQL-Text geprüft, und der
+  Speicher, der ausgeliefert wird, lief in keiner Prüfung. Der erste Lauf fand
+  sofort einen Unterschied: der D1-Speicher antwortete auf ein Ticket eines
+  fremden Kontos mit `veraltet` statt `kein ticket`, weil er die Zeile mit dem
+  Konto verglich, statt nur ihre Existenz zu prüfen. Grenze der Attrappe: sie
+  beweist Entscheidungslogik und Verträglichkeit der Anweisungen, nicht die
+  Isolation und das Nebenläufigkeitsverhalten der echten D1.
+
 ---
 
 ## Die Umsetzung, die daraus steht
@@ -176,10 +257,18 @@ Jede mit dem Warum.
 | `scripts/verify/check-account-worker.mjs` | Der Worker-Transport gegen den echten lokalen Speicher |
 | `scripts/server/account-session.mjs` | Der Traeger-Token: ausgeben und auflösen (B9) |
 | `scripts/server/state-http.mjs` | Spielstand lesen und schreiben über HTTP |
-| `scripts/server/raid-http.mjs` | Die Replay-Einreichung als erreichbarer Weg |
+| `scripts/server/raid-http.mjs` | Die Replay-Einreichung als erreichbarer Weg; Lookup und Buchung |
+| `scripts/server/raid-ticket-http.mjs` | Das Ticket ausstellen — Kader aus dem eigenen Stand, Eintritt aus dem Seed |
+| `scripts/server/state-write.mjs` | Zusaetzlich zu `stateWriteStatement()` die drei Anweisungen der Buchung (`ticketSteps()`) |
+| `workers/d1/0004-raid-ticket.sql` | Die Ticketzeile mit Frist und Verteidiger fuer D1 |
+| `workers/d1/0005-raid-bookings.sql` | Die Quittung eines gebuchten Raids |
+| `scripts/verify/booking-suite.mjs` | Die Buchung einmal beschrieben, gegen jeden Speicher gefahren (B20) |
+| `scripts/verify/fake-d1.mjs` | Die D1-Attrappe mit den echten Migrationen |
+| `scripts/verify/check-booking.mjs` | Dieselbe Suite gegen den lokalen und den D1-Speicher |
 | `scripts/server/binding-config.mjs` | Die Regel der Auslieferungsbindung (B13) |
 | `scripts/server/binding-check.mjs` | `npm run deploy:guard`, der Fail-closed-Riegel |
 | `workers/d1/0002-state-session-attempt.sql` | `revision`, `sessions`, `login_attempts` |
+| `workers/d1/0003-session-ttl.sql` | `expires_at` an der Sitzung — die Frist (B15) |
 
 **Was inzwischen steht:** der Worker-Entrypoint (`workers/index.mjs`), das
 Schema als Migration (`workers/d1/0001-accounts.sql`) und die Bindung in
@@ -193,6 +282,60 @@ kannte nur `UPDATE`, während `register()` ein neues Konto über
 500 gelaufen. Beide Speicher ziehen die fehlende Zeile jetzt mit denselben
 Helfern nach. Die Einzelheiten stehen in
 [`ARCHITEKTUR.md`](ARCHITEKTUR.md), *Derselbe Server an drei Orten*.
+
+---
+
+## Der beschlossene Umbau: der Träger-Token ins Cookie (B14)
+
+Entschieden, **bevor** Code dazu entsteht. Die Begründung steht als B14; hier
+steht die Form, in der gebaut wird, samt Reihenfolge und dem, was offen bleibt.
+
+**Was sich ändert.** Der Token verlässt den Rumpf und den `localStorage`. Er
+steht nur noch in einem `Set-Cookie` des Servers:
+`HttpOnly; SameSite=Lax; Path=/api` und `Secure` nach der Bindung. Der Client
+liest ihn nie — er muss es auch nicht, der Browser hängt ihn an.
+
+**Die Schranken gegen CSRF, in dieser Reihenfolge:**
+
+1. `SameSite=Lax` — die einzigen schreibenden Routen sind `POST`; ein
+   fremdseitiges `POST` bekommt das Cookie damit gar nicht erst.
+2. `sameOrigin()` bleibt, wie es ist. Es fängt den Fall, in dem ein Browser
+   `SameSite` ignoriert oder die Regel zu weit greift — eine Schranke zu viel
+   kostet hier nichts.
+3. Das **sitzungsgebundene Geheimnis**: die Zeile in `sessions` trägt den Wert,
+   die Anmeldeantwort setzt ihn als **lesbares** Cookie, der Client schickt ihn
+   als `X-CSRF-Token` mit, und der Server vergleicht ihn gegen die Zeile. Ein
+   Angreifer müsste also die Zeile kennen — und die liest kein Cookie.
+
+**Die Schritte, in dieser Reihenfolge:**
+
+1. `sessions` bekommt `csrf` (Migration `0004`); `expires_at` steht seit `0003`.
+2. Ein kleines `cookie-http.mjs` baut den `Set-Cookie`-Kopf. `Secure` kommt aus
+   der Bindung und steht per Vorgabe auf **an** — fail closed; nur der lokale
+   `127.0.0.1`-Lauf darf ihn ausdrücklich abwählen.
+3. `startSession()` gibt `{ token, csrf }` zurück, die Antwort setzt beide
+   Cookies und lässt `token` **aus dem Rumpf** heraus.
+4. Beide Transporte lesen den Token aus dem `Cookie`-Kopf statt aus
+   `Authorization` und vergleichen bei jeder schreibenden Methode das
+   `X-CSRF-Token` gegen die Zeile.
+5. `logout` löscht die Zeile **und** beide Cookies.
+6. Der Client: `session.js` verliert das Feld `token`, `pushEnvelope()` und die
+   Konto-Aufrufe schicken `credentials: 'same-origin'` plus den CSRF-Kopf.
+7. Die Abnahme: die Cookie-Zusicherungen gehören in `check-account-http.mjs`,
+   weil dort ein echter Node-Server mit echten Köpfen läuft; der Worker-Ast
+   prüft dieselbe Absage über `Request`/`Response`.
+
+**Was der Umbau kostet.** Die bestehenden Sitzungen sind einmal ungültig: eine
+Zeile ohne `csrf` wird abgewiesen, und wer angemeldet war, meldet sich neu an.
+Das ist dieselbe Wahl wie bei `expires_at` — fail closed statt Alt-Zustand
+weiterzutragen. Wer den Umbau halb macht (Cookie ohne CSRF-Bindung), hat die
+XSS-Lücke gegen eine CSRF-Lücke getauscht und nichts gewonnen.
+
+**Was offen bleibt.** `Secure` verlangt `https`; der Dev-Server läuft auf
+`http://127.0.0.1`. Die Entscheidung steht (Vorgabe an, lokal abwählbar), die
+Umsetzung muss sie als Wache prüfen und nicht als Kommentar behaupten. Und
+`GET /api/state` bleibt ohne CSRF-Prüfung: ein Lesevorgang ändert nichts, und
+`SameSite=Lax` deckt ihn ab — ein Token darauf wäre Aufwand ohne Deckung.
 
 ---
 
@@ -238,10 +381,13 @@ entscheidet, nicht die Reihenfolge zweier Anfragen.
 ### 4. Wann wird der Replay überhaupt eingereicht? — beantwortet
 
 `POST /api/raid` nimmt `{ ticket, actions, claimed }`, verlangt einen
-Traeger-Token und ruft `validateRaidReplay()`. Damit hat die geprüfte Funktion
-einen Weg: Spieler → Server → Raid-Prüfer. Offen bleibt, was **danach** kommt:
-das Ticket ausstellen, den Riss schreiben, das Ergebnis ablegen kann nur der
-Server, und diese Zeile fehlt noch.
+Traeger-Token, schlägt das Ticket in seiner eigenen Zeile nach und ruft
+`validateRaidReplay()`; die geprüfte Beute wird in derselben Transaktion in den
+gespeicherten Heimatstand gebucht (B16, B17). Damit haben Ausstellung, Prüfung
+und Auszahlung einen Weg: Spieler → Server → Raid-Prüfer → Heimatstand. Offen
+bleibt der Rest des Matchmakings: den **Riss** schreiben, den Snapshot des
+Verteidigers einfrieren (heute ist es sein Welt-Seed) und das Ergebnis fürs MMR
+ablegen kann nur der Server, und diese Zeilen fehlen noch.
 
 ### 6. Woher kommt die Datenbankkennung, und was, wenn sie fehlt? — beantwortet
 

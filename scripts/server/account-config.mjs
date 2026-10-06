@@ -12,6 +12,8 @@ export const ACCOUNT_CONFIG = Object.freeze({
   keyBytes: 32,
   scrypt: Object.freeze({ N: 16384, r: 8, p: 1 }),
   throttle: Object.freeze({ attempts: 5, windowMs: 60_000 }),
+  sessionTtlMs: 30 * 24 * 60 * 60 * 1000,
+  ticketTtlMs: 2 * 60 * 60 * 1000,
   bodyLimitBytes: 4096,
 });
 

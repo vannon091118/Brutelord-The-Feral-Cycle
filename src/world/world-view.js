@@ -12,8 +12,11 @@ import {
 import { ONBOARDING_STATE } from '../domain/onboarding/onboarding-state.js';
 import {
   selectMaySelectTiles,
+  selectPlacement,
   selectSoftHintVisible,
   selectWorkingTileId,
+  selectSelectedDepositInfo,
+  selectSelectedDepositRiskClass,
 } from '../state/selectors.js';
 
 const ARRIVAL_STATES = [ONBOARDING_STATE.GRID_EXPANDED, ONBOARDING_STATE.TILE_DESTROYED];
@@ -105,6 +108,22 @@ function frontierOf(world, tiles) {
   return frontier;
 }
 
+function buildSpotViews(game, camera, tileSize) {
+  const report = selectPlacement(game);
+  if (!report || !report.def) return [];
+  const { def } = report;
+  return report.spots
+    .filter((spot) => insideCamera(spot, camera, tileSize))
+    .map((spot) => ({
+      id: spot.id,
+      label: def.label,
+      x: spot.x * tileSize,
+      y: spot.y * tileSize,
+      width: def.width * tileSize,
+      height: def.height * tileSize,
+    }));
+}
+
 export function worldView({ game, tileSize = TILE_SIZE }) {
   const viewport = viewportPixelSize(tileSize);
   const camera = cameraBox({ world: game.world, tileSize, viewport });
@@ -124,7 +143,10 @@ export function worldView({ game, tileSize = TILE_SIZE }) {
     world: game.world,
     buildings: game.buildings,
     buildChoice: game.buildChoice,
+    buildSpots: buildSpotViews(game, camera, tileSize),
     selectedBuildingId: game.selectedBuildingId,
+    selectedDepositInfo: selectSelectedDepositInfo(game),
+    selectedDepositRiskClass: selectSelectedDepositRiskClass(game),
     newFloorTileId: game.expansion?.tileId ?? null,
     lastHarvest: game.lastHarvest ?? null,
     showArrival: game.expansion !== null && ARRIVAL_STATES.includes(game.onboarding.state),

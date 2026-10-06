@@ -10,7 +10,11 @@ import {
   parseTileId,
 } from '../world/tile.js';
 import { getTile, neighborIds, replaceTile, tileAt } from '../world/grid.js';
-import { exposeDeposit } from '../deposits/deposit-state.js';
+import {
+  depositInfoFor,
+  depositRiskClassFor,
+  exposeDeposit,
+} from '../deposits/deposit-state.js';
 import { canPayForMining, ESSENCE_ECONOMY } from '../economy/essence-economy.js';
 import { aetherYieldFor, canMutate, depositAether, digAbilityOf, mutate } from '../economy/aether-loop.js';
 
@@ -35,6 +39,14 @@ export function earthHealthForProgress(progress, config = ONBOARDING_CONFIG) {
   if (progress >= critical) return EARTH_HEALTH.CRITICAL;
   if (progress >= touched) return EARTH_HEALTH.TOUCHED;
   return EARTH_HEALTH.HEALTHY;
+}
+
+export function depositInfoAt(world, tile) {
+  return depositInfoFor(world, tile);
+}
+
+export function depositRiskClassAt(world, tile) {
+  return depositRiskClassFor(world, tile);
 }
 
 export function createMiningJob(tileId, config = ONBOARDING_CONFIG) {

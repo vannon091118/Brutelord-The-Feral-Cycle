@@ -8,8 +8,9 @@ Spiegel-Datei für `src/ui/GameHud.jsx`.
 
 Das HUD unten: das ausgewählte Bauwerk, das Baumenü (erst nach dem ersten freien Boden) und
 die Hinweiszeile. Alle drei lesen nur, was im Reducer passiert ist — keiner von ihnen
-entscheidet etwas. Den Kreislauf reicht das HUD an die Hinweiszeile durch, damit die
-Etagenplakette den offenen Abstieg kennt.
+entscheidet etwas. Das Baumenü bekommt die Bauplatz-Frage über `selectPlacement()`
+gereicht, damit es denselben Grund nennen kann, den die Ansicht malt. Den Kreislauf reicht
+das HUD an die Hinweiszeile durch, damit die Etagenplakette den offenen Abstieg kennt.
 
 ## Schnittstellen
 

@@ -3,7 +3,7 @@
  *  liest Route, Rumpfschranke und Traeger-Token aus `account-http.mjs`. */
 import { POLICY, SECURITY_HEADERS, parseBody, routeOf, sameOrigin } from './account-http.mjs';
 import { createLocalStore } from './account-store-local.mjs';
-import { sessionName } from './account-session.mjs';
+import { bearerOf, sessionName } from './account-session.mjs';
 
 function readBody(request, limit) {
   return new Promise((resolve) => {
@@ -62,9 +62,9 @@ async function handle(request, response) {
   }
   const account = entry.auth ? await sessionName(store, request.headers.authorization) : null;
   if (entry.auth && !account) return refuse(response, POLICY.session);
-  const result = await entry.run(store, { body, remote: request.socket.remoteAddress ?? '', account });
+  const result = await entry.run(store, { body, remote: request.socket.remoteAddress ?? '', account, token: bearerOf(request.headers.authorization) });
   const { error, ...rest } = result;
-  send(response, result.status, error ? { error } : rest);
+  send(response, result.status, error ? { error, ...rest } : rest);
   return true;
 }
 

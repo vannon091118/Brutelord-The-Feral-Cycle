@@ -27,7 +27,7 @@ function keyOf(point) {
 }
 
 function seedOf(index, defenderSeed) {
-  return entrySeed({ ticketId: index, attackerId: `a${index}`, defenderSeed });
+  return entrySeed({ attackerId: `a${index}`, defenderId: 'burg', defenderSeed });
 }
 
 function sample(world, defenderSeed) {

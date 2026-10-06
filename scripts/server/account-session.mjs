@@ -24,3 +24,8 @@ export async function sessionName(store, header) {
   const row = await store.getSession(token);
   return row?.name ?? null;
 }
+
+export async function endSession(store, token) {
+  if (!token) return false;
+  return store.deleteSession(token);
+}

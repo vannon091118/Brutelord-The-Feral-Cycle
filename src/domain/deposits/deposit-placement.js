@@ -1,6 +1,13 @@
 // @doc: docs/daten/deposits/deposit-placement.md#deposit-placement
-import { DEPOSIT_CONFIG, DEPOSIT_PHASE, capacityAtDepth, hiveDistance } from './deposit-config.js';
-import { blockHash, keepBlock, pick } from './deposit-hash.js';
+import {
+  DEPOSIT_CONFIG,
+  DEPOSIT_KIND_ORDER,
+  DEPOSIT_PHASE,
+  capacityAtDepth,
+  hiveDistance,
+} from './deposit-config.js';
+import { blockHash, depositSalt, keepBlock, pick, pickForSalt } from './deposit-hash.js';
+
 import { GRID_HEIGHT, GRID_WIDTH, HIVE_ORIGIN, HIVE_SIZE, LADDER_TILE } from '../world/world-config.js';
 import { tileId } from '../world/tile.js';
 
@@ -35,7 +42,14 @@ function clusterAt({ x, y, index, conf, blocked, seed, depth }) {
   const cells = cellsFor({ x, y, hash, size, conf, blocked });
   if (!cells) return null;
   const capacity = capacityAtDepth(capacityFor(size, conf), depth);
-  return { id: `deposit-${index}`, phase: DEPOSIT_PHASE.BURIED, pool: capacity, capacity, size, cells };
+  const kind = depositKindFor(index, seed);
+  return { id: `deposit-${index}`, phase: DEPOSIT_PHASE.BURIED, pool: capacity, capacity, size, cells, kind };
+}
+
+function depositKindFor(index, seed) {
+  const salt = depositSalt(index, seed);
+  const slot = pickForSalt(salt, 97, DEPOSIT_KIND_ORDER.length);
+  return DEPOSIT_KIND_ORDER[slot];
 }
 
 function sizeFor(hash, conf) {

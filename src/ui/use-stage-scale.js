@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { TILE_SIZE, computeWorldScale, viewportPixelSize } from '../domain/world/world-config.js';
 
 // @doc: docs/daten/ui/use-stage-scale.md#use-stage-scale
@@ -29,5 +29,5 @@ export function useStageScale(tileSize = TILE_SIZE) {
     tileSize,
   });
 
-  return { attach, scale, tileSize, stage: viewportPixelSize(tileSize) };
+  return { attach, scale, tileSize, stage: useMemo(() => viewportPixelSize(tileSize), [tileSize]) };
 }

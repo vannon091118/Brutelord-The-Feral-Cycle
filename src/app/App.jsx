@@ -1,6 +1,7 @@
 // @doc: docs/daten/app/app.md#app
 import { useState } from 'react';
 import { useGameEngine } from '../state/use-game-engine.js';
+import { logoutAccount } from '../ui/account/account-api.js';
 import { AccountGate } from '../ui/account/AccountGate.jsx';
 import { clearSession, readSession, writeSession } from '../ui/account/session.js';
 import { GameStage } from '../ui/GameStage.jsx';
@@ -10,7 +11,7 @@ export function App() {
   if (!session) {
     return <AccountGate onSignedIn={(next) => { writeSession(next); setSession(next); }} />;
   }
-  return <Playing key={session.playerseed} session={session} onSignOut={() => { clearSession(); setSession(null); }} />;
+  return <Playing key={session.playerseed} session={session} onSignOut={() => { logoutAccount(session.token); clearSession(); setSession(null); }} />;
 }
 
 function Playing({ session, onSignOut }) {

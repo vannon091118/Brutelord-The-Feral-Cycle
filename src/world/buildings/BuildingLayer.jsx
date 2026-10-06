@@ -1,23 +1,5 @@
-import { buildingDef } from '../../domain/buildings/building-config.js';
-import { canPlaceBuilding } from '../../domain/buildings/building.js';
-import { BuildingNode } from './BuildingNode.jsx';
-
 // @doc: docs/daten/buildings/buildinglayer.md#buildinglayer
-function placementSpots(view, tileSize) {
-  if (!view.buildChoice) return [];
-  const def = buildingDef(view.buildChoice);
-  const context = { world: view.world, buildings: view.buildings, type: view.buildChoice };
-  return view.tiles
-    .filter((tile) => canPlaceBuilding({ ...context, anchor: tile }))
-    .map((tile) => ({
-      id: tile.id,
-      label: def.label,
-      x: tile.x * tileSize,
-      y: tile.y * tileSize,
-      width: def.width * tileSize,
-      height: def.height * tileSize,
-    }));
-}
+import { BuildingNode } from './BuildingNode.jsx';
 
 function onSpotKeyDown(event, onPlace, id) {
   if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -52,7 +34,7 @@ function PlacementSpot({ spot, tileSize, onPlace }) {
 export function BuildingLayer({ view, tileSize, onPlace, onSelect }) {
   return (
     <>
-      {placementSpots(view, tileSize).map((spot) => (
+      {view.buildSpots.map((spot) => (
         <PlacementSpot key={`spot-${spot.id}`} spot={spot} tileSize={tileSize} onPlace={onPlace} />
       ))}
       {view.buildings.map((building) => (

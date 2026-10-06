@@ -12,9 +12,14 @@ export const BUILDING_STATE = Object.freeze({
   READY: 'READY',
 });
 
+export const PLACEMENT_REASON = Object.freeze({
+  NO_FLOOR: 'NO_FLOOR',
+  NO_SPACE: 'NO_SPACE',
+});
+
 const COST = Object.freeze({ extractor: 5, swarmHost: 6, bruteLord: 10 });
 
-const FIRST_ROOM_TILES = 6;
+const OPENING_DIGS = 3;
 
 export const BUILDING_DEFS = Object.freeze({
   [BUILDING_TYPE.SWARM_HOST]: Object.freeze({
@@ -42,7 +47,7 @@ export const BUILDING_DEFS = Object.freeze({
   }),
 });
 
-export const START_ESSENCE = COST.extractor + FIRST_ROOM_TILES * ESSENCE_ECONOMY.miningCost;
+export const START_ESSENCE = COST.extractor + OPENING_DIGS * ESSENCE_ECONOMY.miningCost;
 
 export const MAX_DUNGLINGS = 6;
 

@@ -2,9 +2,10 @@
  *  Wiederherstellung. Ohne diese Gruppe blieben Obergrenze und Revisionsregel
  *  Behauptungen im Modul. Der Speicher wird nachgestellt, nicht benutzt. */
 import { createInitialGameState } from '../../src/state/game-state.js';
+import { FLOOR } from '../../src/domain/world/floor-config.js';
 import { SNAPSHOT_KEY, SNAPSHOT_MAX_BYTES, SNAPSHOT_REVISION_KEY, SNAPSHOT_VERSION } from '../../src/state/snapshot-config.js';
 import { SNAPSHOT_WRITE, envelopeBytes, writeDecision } from '../../src/state/snapshot-rule.js';
-import { isSavedShape, readSavedState, saveSnapshot, writeIfChanged } from '../../src/state/snapshot.js';
+import { isSavedShape, packState, pushEnvelope, readSavedState, saveSnapshot, writeIfChanged } from '../../src/state/snapshot.js';
 import { check, section } from './expect.mjs';
 
 const SEED = 'a'.repeat(16);
@@ -98,6 +99,32 @@ function checkShape() {
   check('Was kein Objekt ist, ist kein gespeicherter Stand',
     [undefined, null, 42, 'x', true, []].every(keinStand));
   check('Ein Objekt ohne die Pflichtfelder ist keiner', keinStand({ version: SNAPSHOT_VERSION }));
+  const gut = packState(createInitialGameState(SEED));
+  check('Der echte gepackte Stand ist einer', isSavedShape(gut));
+  check('Negative Essenz ist kein Stand', keinStand({ ...gut, essence: -1 }));
+  check('Eine Tiefe unter dem Start ist keiner', keinStand({ ...gut, world: { ...gut.world, depth: FLOOR.start - 1 } }));
+  check('Ein halber Hive-Anker ist keiner', keinStand({ ...gut, world: { ...gut.world, hiveOrigin: { x: 31 } } }));
+  check('Eine Welt ohne Mass ist keine', keinStand({ ...gut, world: { ...gut.world, width: 0 } }));
+}
+
+async function checkConflict() {
+  section('Spielstand: der Streit um die Revision');
+  const store = fakeWindow();
+  store.set(SNAPSHOT_REVISION_KEY, '3');
+  const rufe = [];
+  const vorher = globalThis.fetch;
+  globalThis.fetch = (url, options) => {
+    rufe.push(options);
+    return Promise.resolve({ status: 409, json: () => Promise.resolve({ error: 'Veralteter Spielstand.', revision: 9 }) });
+  };
+  try {
+    const geschickt = pushEnvelope({ version: SNAPSHOT_VERSION, revision: 4 }, 'tok') === true;
+    check('Der Streit schickt den Stand mit Traeger-Token', geschickt && rufe.length === 1);
+    await new Promise((fertig) => setTimeout(fertig, 0));
+    check('Der Client hebt seine Zaehlung auf den Serverstand', store.get(SNAPSHOT_REVISION_KEY) === '9');
+  } finally {
+    globalThis.fetch = vorher;
+  }
 }
 
 export async function checkSnapshot() {
@@ -107,6 +134,7 @@ export async function checkSnapshot() {
     checkRoundtrip();
     checkVersionGate();
     checkShape();
+    await checkConflict();
   } finally {
     if (vorher === undefined) delete globalThis.window;
     else globalThis.window = vorher;

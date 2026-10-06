@@ -16,7 +16,8 @@ Stelle nur Steine — `genomeOf()` rechnet daraus dasselbe Genom, das die Fusion
 hätte, deshalb braucht der Bestand keine Wanderung. Das Genom hängt per `useMemo` an der
 Dungling-Identität, damit dem Renderer nicht bei jedem Arbeitstakt ein neues Erbgut
 gereicht wird. Den Atemtakt holt sich der Mutant selbst aus dem organischen Phasentakt —
-deshalb bekommt `WorkerBody` nur noch Position, Größe und Genom, keinen `step` mehr.
+deshalb bekommt `WorkerBody` nur noch Position, Größe und Genom, keinen `step` mehr. Ob ein
+Dungling mutiert ist, wird je Durchlauf einmal gefragt, nicht zweimal.
 
 ## Schnittstellen
 

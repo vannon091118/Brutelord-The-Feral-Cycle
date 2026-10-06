@@ -43,7 +43,7 @@ function spielstand(revision = 1) {
       buildings: [],
       popups: [],
       onboarding: { state: 'ERDE', trail: [] },
-      world: { tiles: {}, deposits: {}, seed: 1, depth: 0, hiveOrigin: { x: 0 } },
+      world: { width: 64, height: 64, tiles: {}, deposits: {}, seed: 1, depth: 0, hiveOrigin: { x: 0, y: 0 } },
     },
   };
 }
@@ -85,9 +85,18 @@ async function checkSitzungUndSpielstand() {
   check('Ein Rumpf ohne Fassung wird abgewiesen', (await ask({ path: '/api/state', body: { hallo: true }, token })).status === 400);
   check('Ein Rumpf mit Fassung, aber ohne Stand wird abgewiesen',
     (await ask({ path: '/api/state', body: { version: SNAPSHOT_VERSION }, token })).status === 400);
-  check('Ein veralteter Stand wird abgewiesen', (await ask({ path: '/api/state', body: envelope, token })).status === 409);
+  const streit = await payloadOf(await ask({ path: '/api/state', body: envelope, token }));
+  check('Ein veralteter Stand wird abgewiesen', streit.status === 409);
+  check('Die Absage nennt die Revision des Servers', streit.json.revision === 1);
   check('Ein fremdes Token traegt keinen Namen',
     (await ask({ path: '/api/state', method: 'GET', token: 'gibtsnicht' })).status === 401);
+  await checkRaidTuer(token);
+  check('Abmelden entwertet den Traeger-Token', (await ask({ path: '/api/logout', token })).status === 200);
+  check('Nach dem Abmelden gibt es den Spielstand nicht mehr',
+    (await ask({ path: '/api/state', method: 'GET', token })).status === 401);
+}
+
+async function checkRaidTuer(token) {
   check('Der Raid ohne Token bleibt zu', (await ask({ path: '/api/raid', body: {} })).status === 401);
   check('Der Raid mit Token und kaputtem Log faellt in der Domaene durch',
     (await ask({ path: '/api/raid', body: {}, token })).status === 422);
@@ -95,6 +104,23 @@ async function checkSitzungUndSpielstand() {
     (await ask({ path: '/api/raid', body: { ticket: {}, claimed: {}, actions: null }, token })).status === 422);
   check('Ein unbekannter Schritt wird ebenso abgewiesen',
     (await ask({ path: '/api/raid', body: { ticket: { snapshotSeed: 1, entry: { x: 8, y: 8 }, heroes: [] }, claimed: {}, actions: [{ type: 'NOPE' }] }, token })).status === 422);
+}
+
+function fakeBindung() {
+  const statement = { bind: () => statement, run: async () => ({ meta: { changes: 0 } }), first: async () => null };
+  return { DB: { prepare: () => statement, batch: async () => [] } };
+}
+
+/** Der D1-Speicher laeuft in diesem Baum nicht; sein Vertrag ist trotzdem
+ *  pruefbar. Ohne diese Zeile faellt ein vergessener Name erst ausgeliefert auf. */
+function checkVertrag() {
+  section('D1: derselbe Vertrag wie der lokale Speicher');
+  const d1 = createD1Store(fakeBindung());
+  const lokal = createLocalStore();
+  check('Beide Speicher tragen dieselben Methoden',
+    Object.keys(d1).sort().join(' ') === Object.keys(lokal).sort().join(' '), Object.keys(d1).sort().join(' '));
+  check('Jede Methode des D1-Speichers ist async',
+    Object.values(d1).every((methode) => methode.constructor.name === 'AsyncFunction'));
 }
 
 async function checkAbweisungen() {
@@ -107,6 +133,14 @@ async function checkAbweisungen() {
   check('Eine unbekannte Route gehoert nicht dem Worker', (await ask({ path: '/nichtda' })) === null);
   check('Ohne D1-Bindung faellt der Produktions-Speicher laut auf',
     (() => { try { createD1Store({}); return false; } catch (error) { return error.message.includes('DB fehlt'); } })());
+  const angekuendigt = {
+    url: `${BASE}/api/register`,
+    method: 'POST',
+    headers: new Headers({ 'content-length': String(ACCOUNT_CONFIG.bodyLimitBytes * 4) }),
+    arrayBuffer: () => { throw new Error('Rumpf wurde gelesen'); },
+  };
+  check('Ein angekuendigt zu grosser Rumpf wird abgewiesen, ohne ihn zu lesen',
+    (await answerAccountRequest(angekuendigt, () => createLocalStore())).status === 413);
 }
 
 export async function checkAccountWorker() {
@@ -114,5 +148,6 @@ export async function checkAccountWorker() {
     await checkRegistrierung();
     await checkSitzungUndSpielstand();
     await checkAbweisungen();
+    checkVertrag();
   });
 }

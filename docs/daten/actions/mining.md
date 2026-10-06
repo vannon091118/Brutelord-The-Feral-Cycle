@@ -36,5 +36,7 @@ Abbaus bleiben davon unberührt und kommen weiter aus `essence-economy.js`.
 - `minedFloorTile()`
 - `mineTile()`
 - `digInto()` — die Ausbeute der Tiefe und die Mutation, die sie bezahlt
+- `depositInfoAt()` — welche Ader an der Kachel liegt und wie riskant sie ist
+- `depositRiskClassAt()` — die Risikoklasse der Ader an der Kachel
 
 Aus der Migration vom 2026-10-05 hervorgegangen.

@@ -1,4 +1,5 @@
 // @doc: docs/daten/state/snapshot.md#snapshot
+import { FLOOR } from '../domain/world/floor-config.js';
 import { createWorld } from '../domain/world/grid.js';
 import { parseTileId } from '../domain/world/tile.js';
 import { SNAPSHOT_KEY, SNAPSHOT_MAX_BYTES, SNAPSHOT_REVISION_FIELD, SNAPSHOT_REVISION_KEY, SNAPSHOT_VERSION } from './snapshot-config.js';
@@ -71,18 +72,22 @@ function isMap(value) {
 
 export function isSavedShape(state) {
   if (typeof state !== 'object' || state === null) return false;
+  const world = state.world;
   return (
-    Number.isInteger(state.essence) &&
+    Number.isInteger(state.essence) && state.essence >= 0 &&
     Array.isArray(state.dunglings) &&
     Array.isArray(state.buildings) &&
     Array.isArray(state.popups) &&
     Boolean(state.onboarding?.state) &&
     Array.isArray(state.onboarding?.trail) &&
-    isMap(state.world?.tiles) &&
-    isMap(state.world?.deposits) &&
-    Number.isInteger(state.world?.seed) &&
-    Number.isInteger(state.world?.depth) &&
-    Number.isInteger(state.world?.hiveOrigin?.x)
+    isMap(world?.tiles) &&
+    isMap(world?.deposits) &&
+    Number.isInteger(world?.seed) && world.seed >= 0 &&
+    Number.isInteger(world?.depth) && world.depth >= FLOOR.start &&
+    Number.isInteger(world?.width) && world.width > 0 &&
+    Number.isInteger(world?.height) && world.height > 0 &&
+    Number.isInteger(world?.hiveOrigin?.x) &&
+    Number.isInteger(world?.hiveOrigin?.y)
   );
 }
 
@@ -176,13 +181,26 @@ export function latestEnvelope() {
   return lastEnvelope;
 }
 
+function adoptRevision(revision) {
+  if (!Number.isInteger(revision)) return false;
+  window.localStorage.setItem(SNAPSHOT_REVISION_KEY, String(revision));
+  return true;
+}
+
+function adoptConflict(response) {
+  if (response.status !== 409) return Promise.resolve(false);
+  return response.json().then((streit) => adoptRevision(streit?.revision));
+}
+
 export function pushEnvelope(envelope, token) {
   if (!envelope || !token || typeof fetch !== 'function') return false;
   fetch('/api/state', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(envelope),
-  }).catch(() => {});
+  })
+    .then((response) => adoptConflict(response))
+    .catch(() => {});
   return true;
 }
 

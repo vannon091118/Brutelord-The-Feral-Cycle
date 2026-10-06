@@ -5,7 +5,7 @@
  *  geht an die Assets aus `dist/`. Der Entwurf: Docs/BACKEND-PLAN.md. */
 import { createD1Store } from './account-store-d1.mjs';
 import { POLICY, SECURITY_HEADERS, parseBody, routeOf, sameOrigin } from '../scripts/server/account-http.mjs';
-import { sessionName } from '../scripts/server/account-session.mjs';
+import { bearerOf, sessionName } from '../scripts/server/account-session.mjs';
 
 function json(payload, status = 200) {
   return new Response(JSON.stringify(payload), {
@@ -16,6 +16,14 @@ function json(payload, status = 200) {
 
 function refuse(absage) {
   return json({ error: absage.error }, absage.status);
+}
+
+/** `content-length` steht vor dem Rumpf: ein angekuendigt zu grosser Antrag wird
+ *  an der Kante abgewiesen, ohne den Rumpf ueberhaupt zu lesen. Fehlt oder luegt
+ *  der Kopf, greift dieselbe Schranke nach dem Lesen weiter. */
+function announcedTooLarge(request, limit) {
+  const announced = Number(request.headers.get('content-length'));
+  return Number.isFinite(announced) && announced > limit;
 }
 
 /** `null` heisst: zu gross nach Bytes — dieselbe Schranke wie im Dev-Server. */
@@ -38,6 +46,7 @@ export async function answerAccountRequest(request, openStore) {
   const store = openStore();
   let body;
   if (entry.limit > 0) {
+    if (announcedTooLarge(request, entry.limit)) return refuse(POLICY.tooLarge);
     const raw = await readBody(request, entry.limit);
     if (raw === null) return refuse(POLICY.tooLarge);
     body = parseBody(raw);
@@ -45,9 +54,9 @@ export async function answerAccountRequest(request, openStore) {
   const account = entry.auth ? await sessionName(store, request.headers.get('authorization')) : null;
   if (entry.auth && !account) return refuse(POLICY.session);
   try {
-    const result = await entry.run(store, { body, remote: request.headers.get('cf-connecting-ip') ?? '', account });
+    const result = await entry.run(store, { body, remote: request.headers.get('cf-connecting-ip') ?? '', account, token: bearerOf(request.headers.get('authorization')) });
     const { error, ...rest } = result;
-    return json(error ? { error } : rest, result.status);
+    return json(error ? { error, ...rest } : rest, result.status);
   } catch (error) {
     console.error('[konto-worker]', error);
     return refuse(POLICY.server);

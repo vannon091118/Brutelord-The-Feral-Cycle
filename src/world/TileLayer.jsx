@@ -26,10 +26,8 @@ function EarthCell({ tile, view, tileSize, world, selectedTileId, highlightedTil
   );
 }
 
-function earthTiles(view, props) {
-  return view.tiles
-    .filter((tile) => tile.kind === TILE_KIND.EARTH)
-    .map((tile) => <EarthCell key={tile.id} tile={tile} view={view} {...props} />);
+function earthTiles(earth, view, props) {
+  return earth.map((tile) => <EarthCell key={tile.id} tile={tile} view={view} {...props} />);
 }
 
 function floorTiles(view, tileSize) {
@@ -47,10 +45,11 @@ function floorTiles(view, tileSize) {
 
 export function TileLayer({ view, tileSize, selectedTileId, highlightedTileId, onSelect, onPlace, onSelectBuilding }) {
   const shared = { tileSize, selectedTileId, highlightedTileId, onSelect, world: view.world };
+  const earth = view.tiles.filter((tile) => tile.kind === TILE_KIND.EARTH);
   return (
     <>
-      {earthTiles(view, shared)}
-      <EarthDepth tiles={view.tiles} size={tileSize} world={view.world} />
+      {earthTiles(earth, view, shared)}
+      <EarthDepth earth={earth} size={tileSize} world={view.world} />
       {floorTiles(view, tileSize)}
       <RootingLayer tiles={view.tiles} size={tileSize} world={view.world} />
       <DepositLayer view={view} tileSize={tileSize} />

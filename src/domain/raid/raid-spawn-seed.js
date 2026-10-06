@@ -8,7 +8,7 @@ const MIX = 2246822519;
 const RANGE = 4294967296;
 const SALT_X = 73856093;
 const SALT_Y = 19349663;
-const SALT_TICKET = 2654435761;
+const SALT_GEGNER = 2654435761;
 const SALT_STEP = 3266489917;
 
 export function mixRaid(hash, salt) {
@@ -19,10 +19,21 @@ export function unitOf(hash) {
   return (hash >>> 0) / RANGE;
 }
 
-export function entrySeed({ ticketId = 0, attackerId = '', defenderSeed = 0 } = {}) {
-  const ticket = mixRaid(String(ticketId), SALT_TICKET);
-  const team = mixRaid(String(attackerId), SALT_STEP);
-  return mixRaid(ticket ^ team, SALT_X) ^ mixRaid(defenderSeed, SALT_Y);
+export function textSeed(text) {
+  let hash = 2166136261;
+  const wort = String(text);
+  for (let index = 0; index < wort.length; index += 1) hash = Math.imul(hash ^ wort.charCodeAt(index), 16777619);
+  return hash >>> 0;
+}
+
+function seedOf(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : textSeed(value);
+}
+
+export function entrySeed({ attackerId = '', defenderId = '', defenderSeed = 0 } = {}) {
+  const team = mixRaid(seedOf(attackerId), SALT_STEP);
+  const gegner = mixRaid(seedOf(defenderId), SALT_GEGNER);
+  return mixRaid(team ^ gegner, SALT_X) ^ mixRaid(defenderSeed, SALT_Y);
 }
 
 function isFree(world, x, y) {

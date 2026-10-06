@@ -80,6 +80,17 @@ async function checkRouten() {
   });
 }
 
+async function checkAbmelden() {
+  await withServer(async (base) => {
+    const angelegt = await post({ base, path: '/api/register', body: { name: 'abmelden-1', password: PASSWORD } });
+    const kopf = { 'Content-Type': 'application/json', Authorization: `Bearer ${angelegt.json.token}` };
+    section('Konto: das Abmelden');
+    check('Der Spielstand ist vor dem Abmelden da', (await fetch(`${base}/api/state`, { headers: kopf })).status === 200);
+    check('Abmelden liefert 200', (await fetch(`${base}/api/logout`, { method: 'POST', headers: kopf })).status === 200);
+    check('Danach gibt es den Spielstand nicht mehr', (await fetch(`${base}/api/state`, { headers: kopf })).status === 401);
+  });
+}
+
 async function checkBodyLimit() {
   await withServer(async (base) => {
     const gross = 'a'.repeat(ACCOUNT_CONFIG.bodyLimitBytes * 2);
@@ -151,6 +162,7 @@ function checkPurgeSchranke() {
 
 export function checkAccountHttp() {
   return checkRouten()
+    .then(checkAbmelden)
     .then(checkBodyLimit)
     .then(checkFehlerleck)
     .then(checkVorschau)

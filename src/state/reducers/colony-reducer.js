@@ -6,6 +6,7 @@ import {
   canPlaceBuilding,
   createBuildingSite,
   releaseWorker,
+  spendableEssence,
 } from '../../domain/buildings/building.js';
 import { parseTileId } from '../../domain/world/tile.js';
 import { withJob } from '../../domain/entities/dungling.js';
@@ -34,7 +35,8 @@ export function reduceColony(state, action) {
 }
 
 function choose(state, type) {
-  if (!Object.values(BUILDING_TYPE).includes(type) || !canAfford(state.essence, type)) return state;
+  if (!Object.values(BUILDING_TYPE).includes(type)) return state;
+  if (!canAfford(spendableEssence(state.essence, state.buildings), type)) return state;
   return {
     ...state,
     buildChoice: state.buildChoice === type ? null : type,

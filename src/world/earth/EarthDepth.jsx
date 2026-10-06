@@ -1,5 +1,4 @@
 // @doc: docs/daten/earth/earthdepth.md#earthdepth
-import { TILE_KIND } from '../../domain/world/tile.js';
 import { tileSeed } from '../tile-shapes.js';
 import { earthGeometry } from './earth-geometry.js';
 
@@ -10,8 +9,7 @@ export function depthOf(tile) {
   return DEPTH_MIN + ((tileSeed(tile.x, tile.y) % 1024) / 1024) * DEPTH_SPAN;
 }
 
-export function EarthDepth({ tiles, size, world = null }) {
-  const earth = tiles.filter((tile) => tile.kind === TILE_KIND.EARTH);
+export function EarthDepth({ earth, size, world = null }) {
   return (
     <g className="dl-anim dl-earth-depth" style={{ pointerEvents: 'none' }}>
       {earth.map((tile) => (

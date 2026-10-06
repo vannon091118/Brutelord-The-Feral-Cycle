@@ -1,14 +1,33 @@
-/** Der Speicher-Vertrag, der Spielstand neben dem Konto, die atomare Schreibregel
- *  und der Waechter der Auslieferungsbindung. Die Rechnung des Raids steht in
- *  check-raid-cap.mjs. */
+/** Der Speicher-Vertrag, der Spielstand neben dem Konto, die atomare
+ *  Schreibregel und der Waechter der Auslieferungsbindung. Die Buchung des
+ *  Raids steht in check-booking.mjs und laeuft dort gegen beide Speicher. */
 import { SNAPSHOT_MAX_BYTES } from '../../src/state/snapshot-config.js';
 import { SNAPSHOT_WRITE } from '../../src/state/snapshot-rule.js';
 import { STORAGE_METHODS, storageProbe, storageViolations } from '../server/storage-interface.mjs';
+import { databasePath, openAccounts } from '../server/account-store.mjs';
 import { PLACEHOLDER_D1_ID, databaseIdProblems } from '../server/binding-config.mjs';
 import { check, section } from './expect.mjs';
 import { withTempStore } from './temp-store.mjs';
 
-const NAMES = ['getAccount', 'updateAccount', 'getState', 'putState', 'getSession', 'putSession', 'getAttempt', 'putAttempt'];
+const NAMES = ['getAccount', 'updateAccount', 'getState', 'putState', 'getSession', 'putSession', 'deleteSession', 'getAttempt', 'putAttempt', 'putTicket', 'getTicket', 'takeTicket', 'getBooking', 'listBookings'];
+
+function rowsFor(token) {
+  const db = openAccounts(databasePath());
+  try {
+    return db.prepare('SELECT COUNT(*) AS n FROM sessions WHERE token = ?').get(token).n;
+  } finally {
+    db.close();
+  }
+}
+
+function expireSession(token) {
+  const db = openAccounts(databasePath());
+  try {
+    db.prepare('UPDATE sessions SET expires_at = 1 WHERE token = ?').run(token);
+  } finally {
+    db.close();
+  }
+}
 
 function syncStore() {
   const store = { getAccount: () => null };
@@ -23,7 +42,7 @@ async function checkContract() {
     check('Der lokale Speicher erfuellt den Vertrag', (await storageProbe(store)).join(' ') === '');
     check('Ein unvollstaendiger Speicher wird gemeldet, nicht benutzt',
       storageViolations({ getAccount: async () => null }).length === STORAGE_METHODS.length - 1);
-    check('Alle acht Namen stehen im Vertrag', STORAGE_METHODS.join(' ') === NAMES.join(' '));
+    check('Alle vierzehn Namen stehen im Vertrag', STORAGE_METHODS.join(' ') === NAMES.join(' '));
     check('Ein synchroner Speicher faellt durch — der Vertrag sagt asynchron',
       storageViolations(syncStore()).some((mangel) => mangel.includes('nicht als async')));
   });
@@ -59,12 +78,29 @@ async function checkSession() {
     check('Eine Sitzung kommt mit ihrem Namen zurueck', (await store.getSession('tok-1'))?.name === 'hal');
     await store.putSession('tok-2', 'hal');
     check('Zwei Sitzungen desselben Kontos stehen nebeneinander', (await store.getSession('tok-2'))?.name === 'hal');
+    check('Ein Widerruf entwertet den Token sofort', (await store.deleteSession('tok-2')) === true);
+    check('Danach traegt er keinen Namen mehr', (await store.getSession('tok-2')) === null);
+    check('Ein zweiter Widerruf findet nichts mehr', (await store.deleteSession('tok-2')) === false);
+    await checkSessionLifetime(store);
     check('Die Bremse startet leer', (await store.getAttempt('k')) === null);
     await store.putAttempt('k', { count: 3, until: 42 });
     check('Ein Bremsstand ueberlebt den Zugriff', (await store.getAttempt('k'))?.count === 3);
     await store.putAttempt('k', { count: 0, until: 0 });
     check('Ein erfolgreicher Aufruf setzt die Bremse zurueck', (await store.getAttempt('k'))?.count === 0);
+    await store.putAttempt('abgelaufen', { count: 9, until: 1 });
+    await store.putAttempt('frisch', { count: 1, until: Date.now() + 60000 });
+    check('Ein Schreibvorgang raeumt abgelaufene Bremsstaende weg', (await store.getAttempt('abgelaufen')) === null);
+    check('und laesst den frischen stehen', (await store.getAttempt('frisch'))?.count === 1);
   });
+}
+
+async function checkSessionLifetime(store) {
+  await store.putSession('tok-alt', 'hal');
+  expireSession('tok-alt');
+  check('Eine abgelaufene Sitzung traegt keinen Namen mehr', (await store.getSession('tok-alt')) === null);
+  await store.putSession('tok-frisch', 'hal');
+  check('Ein Schreibvorgang raeumt die abgelaufene Zeile weg', rowsFor('tok-alt') === 0);
+  check('und laesst die frische Sitzung stehen', (await store.getSession('tok-frisch'))?.name === 'hal');
 }
 
 async function checkWriteRule() {

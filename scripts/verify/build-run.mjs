@@ -2,6 +2,7 @@
 import { ACTION } from '../../src/domain/actions/action-types.js';
 import { BUILDING_TYPE, canAfford } from '../../src/domain/buildings/building-config.js';
 import { JOB_CONFIG } from '../../src/domain/labour/job-config.js';
+import { miningCost } from '../../src/domain/actions/mining.js';
 import { ONBOARDING_CONFIG } from '../../src/domain/onboarding/onboarding-config.js';
 import { tileId } from '../../src/domain/world/tile.js';
 import { VirtualClock } from './virtual-clock.mjs';
@@ -140,20 +141,49 @@ function buildBruteLord(clock) {
   };
 }
 
-function prepare(clock) {
+function pressHiveUntil(clock, wanted) {
+  let waitedMs = 0;
+  while (!canAfford(clock.state.essence, wanted) && waitedMs < 240000) {
+    clock.dispatch(ACTION.HIVE_TICK, { dtMs: JOB_CONFIG.tickMs });
+    waitedMs += JOB_CONFIG.tickMs;
+  }
+  return waitedMs;
+}
+
+function mineRoom(clock) {
+  for (const id of ROOM_IDS) mine(clock, id);
+}
+
+function mineOpening(clock) {
+  mine(clock, tileId(ONBOARDING_CONFIG.firstEarthBlock.x, ONBOARDING_CONFIG.firstEarthBlock.y));
+  clock.dispatch(ACTION.GRID_EXPANDED);
+  clock.dispatch(ACTION.BUILD_MENU_SHOWN);
+}
+
+function prepare(clock, room) {
   clock.dispatch(ACTION.HIVE_CLICKED);
   clock.run();
-  for (const id of ROOM_IDS) mine(clock, id);
+  if (room) mineRoom(clock);
+  else mineOpening(clock);
+  const mined = { usableTileCount: clock.state.usableTileCount, essence: clock.state.essence };
+  const waitedMs = room ? pressHiveUntil(clock, BUILDING_TYPE.ESSENCE_EXTRACTOR) : 0;
   return {
-    mined: { usableTileCount: clock.state.usableTileCount, essence: clock.state.essence },
+    mined,
+    waitedMs,
+    tickMs: JOB_CONFIG.tickMs,
+    digCost: miningCost(),
     bruteLordRefused: !choose(clock, BUILDING_TYPE.BRUTE_LORD),
     essenceStart: clock.state.essence,
   };
 }
 
-export function buildRun({ seed, onDispatch } = {}) {
+export function openingRun({ seed, onDispatch, room = false } = {}) {
   const clock = new VirtualClock({ seed, onDispatch });
-  const start = prepare(clock);
+  return { clock, ...prepare(clock, room) };
+}
+
+export function buildRun({ seed, onDispatch } = {}) {
+  const { clock, ...start } = openingRun({ seed, onDispatch, room: true });
   const extractor = { ...buildExtractor(clock), essenceStart: start.essenceStart };
   const cycle = runExtractorCycle(clock);
   extractor.workers = cycle.workers;

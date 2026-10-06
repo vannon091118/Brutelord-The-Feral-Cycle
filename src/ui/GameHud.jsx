@@ -1,3 +1,4 @@
+import { selectPlacement } from '../state/selectors.js';
 import { BuildMenu } from './BuildMenu.jsx';
 import { BuildingPanel } from './BuildingPanel.jsx';
 import { OnboardingHint } from './OnboardingHint.jsx';
@@ -33,6 +34,7 @@ function BuildMenuSlot({ game, actions }) {
         usableTileCount={game.usableTileCount}
         buildings={game.buildings}
         buildChoice={game.buildChoice}
+        placement={selectPlacement(game)}
         onChoose={actions.chooseBuild}
       />
     </div>

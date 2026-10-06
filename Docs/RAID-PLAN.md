@@ -255,7 +255,10 @@ Bilanzierung.
   Aktion, und die Währung wird nach Zustand gewählt. Der Heimatpreis von einer
   Essenz je Block bleibt unangetastet.
 - **D46** **Anti-Aufkundschaffen durch Ticketbindung.** Die Vergabe des
-  Tickets sperrt das Team serverseitig. *(Stand als `D28`, das schon an den
+  Tickets sperrt das Team serverseitig. Gebaut ist die Bindung an das **Paar**:
+  der Eintrittspunkt hängt an Angreifer und Verteidiger und nicht an der
+  Ticket-Id, und je Paar lebt genau eine Zeile — wiederholtes Ausstellen kauft
+  keinen kürzeren Anmarsch mehr. *(Stand als `D28`, das schon an den
   Wänden vergeben war — siehe die Nummernhinweise in „Kosten und Fähigkeiten"
   und „Die Gruppe, die Traits und das Graben-Tor".)* Schließt der Angreifer den Tab nach
   dem blinden Aufdecken der ersten Felder, bleibt das Team in der Raid-Instanz
@@ -347,6 +350,72 @@ musste sich dafür ändern.
   `RAID_FORMAT_VERSION` den Zustand mit in `stateHashInput()`, und die Abnahme
   friert Länge, ersten und letzten Punkt ein.
 
+---
+
+## Der beschlossene Umbau: der Rundenwechsel kommt aus dem Log
+
+Entschieden, **bevor** Code dazu entsteht. Die offene Roadmap führt den Punkt
+als „der Rundenwechsel wird bis heute vom Aufrufer ausgelöst, weil der Raid
+keine Uhr hat"; dies ist die Form, in der er gebaut wird.
+
+**Das Problem, und was bisher nicht auffiel.** `nextRound()` zählt die Runde
+hoch und füllt die AP auf — gerufen wird sie vom **Aufrufer**, heute nur von
+`scripts/verify/raid-siege-fixture.mjs`. Ein Replay aus dem Log kann eine Runde
+damit nicht reproduzieren, denn „wann eine Runde endet" steht in keiner Zeile
+des Logs. Zwei Instanzen, die dieselben Schritte abarbeiten, landen auf
+verschiedenen Runden — und **niemand merkt es**, weil `stateHashInput()` das
+Feld `round` gar nicht trägt. Der Vergleich in `replayMatches()` ist an genau
+der Stelle blind, an der er prüfen soll.
+
+- **D47 — Der Rundenwechsel ist eine Folge, kein Befehl.** `applyAction()` ruft
+  ihn am Ende selbst: sind die AP **aller** Helden unter
+  `RAID_CONFIG.attackApCost`, füllt `raid-state.js` sie auf und zählt die Runde
+  hoch. Damit ist die Runde aus der Aktionsfolge ableitbar, und Replay,
+  Erkundung (`tickMove`) und Live-Spiel lesen dieselbe Regel an derselben
+  Stelle statt an dreien. Ein eigener Log-Schritt (`NEXT_ROUND`) fällt damit
+  aus: ein Befehl, den der Client **weglassen** darf, ist eine zweite Wahrheit,
+  und genau die soll der Replay-Check ausschließen.
+- **D48 — `round` gehört in den Zustands-Hash.** Ohne das Feld ist der
+  Unterschied unsichtbar; mit ihm deckt `replayMatches()` auch den Rundenwechsel
+  ab. Der Preis steht unten und ist bezahlt, nicht verschwiegen.
+- **D49 — `nextRound()` bleibt exportiert, aber ohne Aufrufer außerhalb der
+  Domäne.** Die Funktion ist die Regel („AP auffüllen, Runde hoch"); wer sie
+  von außen ruft, umgeht die Bedingung aus D47. Die Fixture verliert deshalb
+  ihre `ohneAp()`-Hilfe und den ausdrücklichen Ruf — sie bekäme die Runde sonst
+  zweimal.
+
+**Was der Umbau kostet.** `stateHashInput()` speist `raidDigest()`, und damit
+wandern die eingefrorenen Werte in `scripts/verify/raid-golden.json`. Der Umbau
+**macht die Abnahme rot, und das ist der Beweis, dass er etwas ändert**: der
+Golden-Wert wird mit `npm run golden:raid` neu geschrieben, **nur** auf der
+Node-Major, die die CI pinnt, und mit einer Erklärung im Commit-Body. Von Hand
+fasst ihn niemand an. Wer den Hash ändert, ohne den Golden-Wert zu erneuern,
+lässt die Prüfung stehen und die Aussage verfallen.
+
+**Die Schritte, in dieser Reihenfolge:**
+
+1. `raid-state.js` bekommt `roundOver(state)` (die Bedingung) und ruft
+   `nextRound()`; exportiert bleibt nur, was schon exportiert war.
+2. `raid-steps.js` ruft `roundOver()` als letzte Zeile von `applyAction()`, nach
+   `resolveLoss()`. Die Reihenfolge ist keine Kleinigkeit: erst prüfen, ob die
+   Ausdauer den Raid beendet, dann die Runde weiterdrehen — sonst füllt ein
+   verlorener Raid noch AP nach.
+3. `stateHashInput()` nimmt `round` auf.
+4. `raid-siege-fixture.mjs` verliert `ohneAp()` und den ausdrücklichen
+   `nextRound`-Ruf; `fight()` wird eine schlichte Schleife.
+5. `npm run golden:raid` neu schreiben, `check-raid-golden` liest den neuen Wert.
+6. Die Abnahme: `check-raid-siege` fährt den ganzen Weg weiter **und** belegt,
+   dass zwei Instanzen mit demselben Log dieselbe Runde erreichen — die
+   Gegenprobe ist der alte Zustand aus Schritt 2, in dem die Runde stehen
+   bleibt.
+
+**Was offen bleibt.** Ein Angriff kostet AP, Bewegung nicht — wer sich nur
+bewegt, wechselt die Runde also nie. Das ist mit D3 verträglich (Bewegung ist
+gratis), aber es heißt: die Runde ist **keine** Uhr, sondern ein Zähler für
+verbrauchte Angriffe. Solange der Raid keine Zeit kennt, ist das die ehrlichere
+Lesart, und `round` heißt dann genau das. Eine Wächter-Regeneration „je Runde"
+(D14) darf sich jedenfalls nicht auf Wanduhr-Zeit berufen.
+
 ## Die Konflikte mit den Regeln dieses Repos
 
 Kein Punkt hier ist Kosmetik. Jeder bricht entweder ein Gate oder eine
@@ -402,19 +471,21 @@ Nach Wichtigkeit geordnet. Die erste ist ein Bauauftrag, keine Balance.
 
 Zwei Lücken, beide klein und beide findbar:
 
-- **Die Stats brauchen eine Faltungsregel über mehrere Steine.** Traits haben
-  eine — `stone-effects.js` faltet mit `peak()`. Für `atk`, `speed` und `grit`
-  ist keine belegt; `mutation-formula.js` rechnet Form und Bild. D31 entscheidet
-  die **Summe**, aber es fehlt die Funktion, die daraus *einen* Angriffspreis je
-  Monster macht.
+- ~~**Die Stats brauchen eine Faltungsregel über mehrere Steine.**~~ **Erledigt.**
+  Traits faltet `stone-effects.js` mit `peak()`, die Stats faltet `statsOf()` in
+  `stone-roll.js` als Summe der Stein-Beiträge (D31) und liefert dazu `dig` aus
+  der Grabfähigkeit und die Traits des Trägers. Der Kader des Raid-Tickets kommt
+  seit dem Server-Ausstellen genau aus dieser Funktion und nicht mehr aus dem
+  Rumpf (D25, B18 in [`BACKEND-PLAN.md`](BACKEND-PLAN.md)); gemessen trug ein
+  Antrag mit behauptetem `atk: 999999` vorher 201 auf die eigene Zeile.
 - **Der feste AP-Preis eines Angriffs ist keine Zahl.** Ebenso der
   Verteidigungswert einer Obsidianwand.
 
-Der feste Angriffspreis ist inzwischen eine Zahl (`RAID_CONFIG.attackApCost`),
-und die Faltung ist entschieden: der Schaden eines Schlags ist die Summe des
-`atk` der Teilnehmer (D28/D31), nicht ein abgeschriebener Wert je Monster. Was
-fehlt, ist der Verteidigungswert einer Obsidianwand — die Kantenwände sind der
-letzte offene Bauteil dieses Entwurfs. Die Wächter- und Hive-Zahlen sind mit
+Der feste Angriffspreis ist eine Zahl (`RAID_CONFIG.attackApCost`), und die
+Faltung ist entschieden: der Schaden eines Schlags ist die Summe des `atk` der
+Teilnehmer (D28/D31), nicht ein abgeschriebener Wert je Monster. Was fehlt, ist
+der Verteidigungswert einer Obsidianwand — die Kantenwände sind der letzte offene
+Bauteil dieses Entwurfs. Die Wächter- und Hive-Zahlen sind mit
 der Mechanik gesetzt und stehen als Setzung in `raid-config.js` markiert; sie
 gehören gemessen, sobald es einen Balance-Lauf gibt.
 
@@ -466,9 +537,16 @@ Der Entwurf sagt „eine Rückholchance", ohne eine Zahl.
 
 Nicht die Mechanik. Diese Reihenfolge:
 
-1. **Speichern.** Snapshot, Ticket, `raid_id`, MMR-Aufzeichnung, Riss und
-   Pending brauchen eine Tabelle, die es nicht gibt. Aus einem unabhängigen
-   Roadmap-Punkt wird damit zur Voraussetzung.
+1. **Speichern.** Der Spielstand liegt als Envelope in `accounts`, die
+   **Ticketzeile** in `raid_tickets` (Frist und Verteidiger inklusive,
+   Migration `0004`), die **Quittung** eines gebuchten Raids in `raid_bookings`
+   (Migration `0005`), und die Beute wird in einer Transaktion in den
+   Heimatstand gebucht. Die Quittung ist der Grund, warum ein verlorener
+   Antwortweg kein verlorener Raid ist; sie ist auch die Zahl, an der eine
+   Grenze je Paar später hängt. Was weiterhin keine Tabelle hat: der
+   eingefrorene **Snapshot** des Verteidigers (heute dient sein Welt-Seed als
+   Ersatz), `raid_id`, die **MMR-Aufzeichnung**, der **Riss** und die
+   `Pending`-Beute.
 2. ~~**Die Ausdauer-Rechnung**, ausgehend vom Weg.~~ **Erledigt.** Sie steht im
    Regelwerk und in `raid-config.js`; die Zahlen sind gemessen, nicht gesetzt.
 3. ~~**Das Terrain-Feld neben `TILE_KIND`**.~~ **Erledigt.** `TILE_TERRAIN`
@@ -476,13 +554,17 @@ Nicht die Mechanik. Diese Reihenfolge:
    lässt `isEarth()` unberührt, und die Heimat führt weiterhin kein
    Hartgestein (§8). Das Vorkommen erzeugt `raid-terrain.js` mit eigener
    Hash-Instanz; die Abbauregel `canDig()` und `pathCost()` stehen in
-   `raid-config.js`.
-4. ~~**Ticket und Replay-Check.**~~ **Der Replay-Check ist gebaut, die Ausstellung nicht.**
+   `raid-config.js`.4. ~~**Ticket und Replay-Check.**~~ **Beides steht.**
    `replayRaid()` rechnet ein eingereichtes Log gegen das Ticket nach und
    `replayMatches()` vergleicht den eigenen Endzustand mit dem behaupteten —
-   beides reine Domänenfunktion ohne Server, beides in der Abnahme. Ticket
-   **ausstellen** kann nur der Server; dieser Repo-Baum führt die Instanz
-   aus, er vergibt sie nicht.
+   beides reine Domänenfunktion ohne Server, beides in der Abnahme. Und seit
+   `POST /api/raid/ticket` stellt der **Server** das Ticket auch aus: Kader und
+   Eintrittspunkt kommen aus seinem eigenen Stand, die Zeile liegt mit Frist in
+   `raid_tickets`, und die Einreichung liest sie nach (D25) statt dem Rumpf zu
+   glauben; die Zahlen des Kaders faltet der Server aus den Steinen des
+   gespeicherten Dunglings (D31), ein abweichend behaupteter Wert ist eine
+   Absage. Was fehlt, ist der Weg **vor** der Ausstellung — die Gegnerwahl
+   (MMR) und der eingefrorene Snapshot des Verteidigers.
 5. **Der Feral-Hive-Seed**, damit testbar ist, ohne echte Gegner zu brauchen.
 6. ~~**`RaidCapability` am Stein, mit eigenem Kanal.**~~ **Erledigt.**
    `capability` ist das vierte Feld an `createStone()`, gewürfelt über den

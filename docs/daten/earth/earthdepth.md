@@ -14,7 +14,8 @@ Bewegung fällt die Animation weg und das Dunkel bleibt stehen.
 
 Sie liegt zwischen Erde und Boden, weil die Erdmasse über ihre Kachel hinausragt: der Boden
 zeichnet danach und deckt den Überstand ab. Verwendet dieselbe Geometrie wie die Erdkachel,
-also auch denselben Cache.
+also auch denselben Cache. Die Erdflächen bekommt sie bereits gefiltert von `TileLayer` — das Feld
+filtert die sichtbaren Kacheln einmal und reicht dieselbe Liste an beide Durchgänge weiter.
 
 ## Schnittstellen
 

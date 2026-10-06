@@ -6,13 +6,14 @@ Spiegel-Datei für `src/world/buildings/BuildingLayer.jsx`.
 
 ## Verantwortung
 
-Wo der gewählte Bau stehen dürfte: ein Umriss je freiem Platz. Die Fläche zeigt gleich die
-ganze Grundfläche — beim Brutlord also 2 × 2 Felder. Ein Bauplatz darf auch mit der Tastatur
-gewählt werden.
+Die Bauplätze als Umriss und die stehenden Bauten. Die Fläche des Umrisses zeigt
+gleich die ganze Grundfläche — beim Brutlord also 2 × 2 Felder. Welche Plätze es
+gibt, entscheidet die Domäne, und `world-view.js` rechnet sie in Pixel um; diese
+Ebene zählt nichts nach und kennt die Regel nicht. Ein Bauplatz lässt sich auch
+mit der Tastatur wählen.
 
 ## Schnittstellen
 
-- `placementSpots()`
 - `onSpotKeyDown()`
 - `PlacementSpot()`
 - `BuildingLayer()`

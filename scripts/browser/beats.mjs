@@ -2,7 +2,7 @@
 import { ONBOARDING_CONFIG } from '../../src/domain/onboarding/onboarding-config.js';
 import { ONBOARDING_ORDER, ONBOARDING_STATE } from '../../src/domain/onboarding/onboarding-state.js';
 import { JOB_CONFIG } from '../../src/domain/labour/job-config.js';
-import { BUILDING_TYPE, BUILDING_DEFS } from '../../src/domain/buildings/building-config.js';
+import { BUILDING_TYPE, BUILDING_DEFS, START_ESSENCE } from '../../src/domain/buildings/building-config.js';
 import {
   assignWorker,
   clickEarth,
@@ -29,7 +29,7 @@ const miningBudget = C.miningDurationMs + C.tileDestructionMs + 4 * C.miningTick
 export const CHAIN_TEXTS = ONBOARDING_ORDER.map((state) => HINTS[state].text);
 
 export const BEATS = [
-  { id: 'start', state: S.INITIAL, within: 0, shot: '01-warten', expect: { essence: 11, raum: START_RAUM, buildMenu: 0 } },
+  { id: 'start', state: S.INITIAL, within: 0, shot: '01-warten', expect: { essence: START_ESSENCE, raum: START_RAUM, buildMenu: 0 } },
   { id: 'hive-click', drive: clickHive },
   { id: 'spawn-done', state: S.DUNGLING_IDLE, within: C.dunglingSpawnDelayMs + 2000, shot: '02-dungling-kommt' },
   { id: 'tile-picked', state: S.ACTION_MENU, within: 1500, drive: clickEarth, shot: '03-abbau-menue' },

@@ -7,8 +7,9 @@ import { genomeOf, isMutant } from '../domain/brutelord/mutant.js';
 
 function WorkerBody({ worker, tileSize }) {
   const { dungling, position, step } = worker;
-  const genome = useMemo(() => (isMutant(dungling) ? genomeOf(dungling) : null), [dungling]);
-  if (!isMutant(dungling)) {
+  const mutant = isMutant(dungling);
+  const genome = useMemo(() => (mutant ? genomeOf(dungling) : null), [mutant, dungling]);
+  if (!mutant) {
     return <DunglingSvg dungling={dungling} tileSize={tileSize} x={position.x} y={position.y} step={step} />;
   }
   const facing = dungling.facing >= 0 ? 1 : -1;

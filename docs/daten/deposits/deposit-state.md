@@ -16,6 +16,10 @@ dem letzten Takt.
 - `depositOf()`
 - `withDepositPhase()`
 - `exposeDeposit()`
+- `depositKind()` — welche Ader liegt
+- `depositDef()` — die Definition der Ader
+- `depositRiskClass()` / `depositRiskClassFor()` — die Risikoklasse
+- `depositInfoFor()` — Ader, Risiko, Text und Gefahr in einem Zug
 - `depositFill()`
 - `depositStage()`
 - `harvestTick()`

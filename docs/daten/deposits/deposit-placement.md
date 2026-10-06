@@ -14,6 +14,10 @@ einer Etage mit der Tiefe nicht umzieht. Was die Tiefe ändert, ist der Inhalt �
 `capacityAtDepth()` fasst jede Kammer je Etage ein Viertel mehr, und `pool` startet voll mit
 diesem Wert. Auf Etage 0 ist der Zuwachs null; die Startwelt bleibt deshalb unberührt.
 
+**Jede Ader trägt eine Art.** `clusterAt()` zieht über `depositSalt()` und
+`pickForSalt()` eine `kind` aus `DEPOSIT_KIND_ORDER`; die Art wandert im Vorrat mit und
+bestimmt später den Ertrag und das Risiko — die Platzierung bleibt dabei dieselbe.
+
 ## Schnittstellen
 
 - `createDeposits()`

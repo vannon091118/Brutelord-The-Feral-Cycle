@@ -13,7 +13,8 @@ etwa 48–56px). Keine Scrollbar.
 Die erste Messung läuft synchron beim Einhängen, der `ResizeObserver` meldet danach nur noch
 Änderungen. Ein Beobachter allein reicht nicht: seine Rückmeldung kommt mit dem nächsten
 Bildaufbau, und ohne Bildaufbau — angehaltene Uhr, verborgener Tab — wäre die Fläche null und
-es gäbe kein sichtbares Feld.
+es gäbe kein sichtbares Feld. Das Sichtfeld (`stage`) ist eine reine Funktion der Kachelgröße
+und wird per `useMemo` gehalten, damit nicht jeder Render ein neues Objekt an die Bühne reicht.
 
 ## Schnittstellen
 

@@ -20,6 +20,12 @@ const def = (type) => BUILDING_DEFS[type];
 function checkSites(run) {
   section('Bauen: Bauplatz, Essenz und Fertigstellung');
   check('Sechs Felder abgebaut, dazu der Ring', run.mined.usableTileCount === countFloorTiles(createWorld()) + ROOM_IDS.length);
+  check(
+    'Der Startraum allein kauft noch keine Tür',
+    run.mined.essence < def(BUILDING_TYPE.ESSENCE_EXTRACTOR).cost,
+    `${run.mined.essence} Essenz nach dem Raum`,
+  );
+  check('Die erste Tür muss der Hive nachpressen', run.waitedMs > 0, `${run.waitedMs} ms`);
   check('Der Startvorrat reicht nicht für den teuersten Bau', run.bruteLordRefused);
   check('Der Bauplatz verlangt den Preis des Baus', run.extractor.required === def(BUILDING_TYPE.ESSENCE_EXTRACTOR).cost);
   check('Vor der Lieferung steht nur der Bauplatz', run.extractor.stateBefore === BUILDING_STATE.SITE);

@@ -1,6 +1,6 @@
 // @doc: docs/daten/buildings/building.md#building
-import { BUILDING_STATE, buildingDef } from './building-config.js';
-import { getTile, isInsideGrid } from '../world/grid.js';
+import { BUILDING_STATE, PLACEMENT_REASON, buildingDef } from './building-config.js';
+import { allTiles, getTile, isInsideGrid } from '../world/grid.js';
 import { isBuildable, tileId } from '../world/tile.js';
 
 function occupiedTileIds(buildings) {
@@ -19,13 +19,33 @@ function footprintIds(type, anchor) {
   return ids;
 }
 
-export function canPlaceBuilding({ world, buildings, type, anchor }) {
+function footprintFits({ world, occupied, type, anchor }) {
   if (!buildingDef(type) || !isInsideGrid(world, anchor.x, anchor.y)) return false;
-  const occupied = occupiedTileIds(buildings);
   return footprintIds(type, anchor).every((id) => {
     const tile = getTile(world, id);
     return Boolean(tile) && isBuildable(tile) && !occupied.has(id);
   });
+}
+
+export function canPlaceBuilding({ world, buildings, type, anchor }) {
+  return footprintFits({ world, occupied: occupiedTileIds(buildings), type, anchor });
+}
+
+function reasonFor(spots, free) {
+  if (spots.length > 0) return null;
+  return free > 0 ? PLACEMENT_REASON.NO_SPACE : PLACEMENT_REASON.NO_FLOOR;
+}
+
+export function placementReport({ world, buildings, type }) {
+  const occupied = occupiedTileIds(buildings);
+  const spots = [];
+  let free = 0;
+  for (const tile of allTiles(world)) {
+    if (!isBuildable(tile) || occupied.has(tile.id)) continue;
+    free += 1;
+    if (footprintFits({ world, occupied, type, anchor: tile })) spots.push(tile);
+  }
+  return { type, def: buildingDef(type), spots, free, reason: reasonFor(spots, free) };
 }
 
 export function createBuildingSite({ id, type, anchor }) {
@@ -59,6 +79,18 @@ export function settleSite(building) {
 
 export function openSites(buildings) {
   return buildings.filter((building) => building.state === BUILDING_STATE.SITE);
+}
+
+function openDebt(building) {
+  return Math.max(0, building.required - building.delivered);
+}
+
+export function committedEssence(buildings) {
+  return openSites(buildings).reduce((sum, building) => sum + openDebt(building), 0);
+}
+
+export function spendableEssence(essence, buildings) {
+  return Math.max(0, essence - committedEssence(buildings));
 }
 
 export function assignWorker(building, workerId) {

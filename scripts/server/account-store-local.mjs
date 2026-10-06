@@ -1,7 +1,7 @@
 /** Der lokale Speicher: `node:sqlite` in Promises gekleidet. Dieselbe Datei laeuft
  *  in Entwicklung, Dev-Server und Abnahme. Das async macht die Signatur
  *  vergleichbar, nicht die Arbeit nebenlaeufig — B6 in Docs/BACKEND-PLAN.md. */
-import { findAccount, insertAccount, openAccounts, readAttempt, readSession, readState, writeAttempt, writeSession, writeState } from './account-store.mjs';
+import { deleteSession, findAccount, insertAccount, openAccounts, readAttempt, readBooking, readBookings, readSession, readState, readTicket, takeTicket, writeAttempt, writeSession, writeState, writeTicket } from './account-store.mjs';
 import { ACCOUNT_COLUMNS } from './storage-contract.mjs';
 
 /** Nur Spalten der Tabelle sind erlaubt: ein Schluessel wandert sonst in den
@@ -58,6 +58,26 @@ function accountMethods(file) {
   };
 }
 
+function ticketMethods(file) {
+  return {
+    async putTicket(id, row) {
+      return withDb(file, (db) => writeTicket(db, id, row));
+    },
+    async getTicket(id) {
+      return withDb(file, (db) => readTicket(db, id));
+    },
+    async takeTicket({ accountId, id, packed = null, booking = null }) {
+      return withDb(file, (db) => takeTicket(db, { account: accountId, id, packed, booking }));
+    },
+    async getBooking(id) {
+      return withDb(file, (db) => readBooking(db, id));
+    },
+    async listBookings(accountId) {
+      return withDb(file, (db) => readBookings(db, accountId));
+    },
+  };
+}
+
 function sessionMethods(file) {
   return {
     async getSession(token) {
@@ -65,6 +85,9 @@ function sessionMethods(file) {
     },
     async putSession(token, name) {
       return withDb(file, (db) => writeSession(db, token, name));
+    },
+    async deleteSession(token) {
+      return withDb(file, (db) => deleteSession(db, token));
     },
     async getAttempt(key) {
       return withDb(file, (db) => readAttempt(db, key));
@@ -76,5 +99,5 @@ function sessionMethods(file) {
 }
 
 export function createLocalStore({ file } = {}) {
-  return { ...accountMethods(file), ...sessionMethods(file) };
+  return { ...accountMethods(file), ...ticketMethods(file), ...sessionMethods(file) };
 }

@@ -204,7 +204,186 @@ und mit einem Lauf, den ein zweiter nachspielen kann.
   Version: ausstehend
   Datum: ausstehend
 
-      ---
+
+## 0.0.46 — Konto, Sitzung und Rundenwechsel
+
+- [x] **Eine Absage 409 nennt jetzt die Revision des Servers.** Der Schreibvorgang
+      des Spielstands lehnt einen zu späten Stand mit 409 ab, sagte aber nicht,
+      wie weit der Server ist — der Client zählte lokal weiter und schrieb gegen
+      einen Stand, den der Server längst überholt hatte. Der Verteiler reichte
+      außerdem nur `{ error }` durch und warf die Revision dabei weg; er trägt die
+      mitgeschickten Felder jetzt mit. `pushEnvelope()` liest die Revision aus der
+      Absage und hebt die eigene Zählung darauf. Belegt von `check-account-worker`
+      (die Absage nennt die Revision) und `check-snapshot` (der Client übernimmt
+      sie); die Gegenprobe mit stillgelegter Absage und stillgelegtem Verteiler
+      färbt beide rot.
+  Status: geplant
+  Scope: Server
+  Kategorie: Bugfix
+  Version: ausstehend
+  Datum: ausstehend
+
+- [x] **Die Sitzung altert und lässt sich widerrufen.** Der Träger-Token lebte so
+      lange wie seine Zeile. `sessions` trägt jetzt `expires_at` (Migration
+      `0003`, lokal als Nachzieher), `readSession()` prüft die Frist in der
+      Bedingung der Abfrage, ein Schreibvorgang räumt die abgelaufenen weg —
+      dieselbe Form wie bei `login_attempts` —, und `POST /api/logout` löscht die
+      Zeile über den neuen Vertragsnamen `deleteSession`. Der Client ruft den
+      Endpunkt beim Abmelden. Eine Zeile von vor der Migration trägt NULL und gilt
+      als abgelaufen: fail closed, angemeldet bleibt niemand. Belegt von
+      `check-storage` (Widerruf, Frist, Aufräumen) und `check-account-worker`
+      (Abmelden entwertet den Token).
+  Status: geplant
+  Scope: Konto
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+- [ ] **Der Träger-Token wandert ins HttpOnly-Cookie.** Er liegt heute in
+      `localStorage` und ist damit für jedes Skript lesbar, das auf der Seite
+      läuft. Der beschlossene Umbau samt CSRF-Bindung, Reihenfolge und Kosten
+      steht in [`BACKEND-PLAN.md`](BACKEND-PLAN.md), *Der beschlossene Umbau: der
+      Träger-Token ins Cookie* (B14). Offen sind die Migration `0004` mit
+      `sessions.csrf`, ein `cookie-http.mjs`, der Token raus aus dem Rumpf und
+      `credentials: 'same-origin'` im Client.
+  Status: geplant
+  Scope: Server
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+- [ ] **Der Rundenwechsel kommt aus dem Log.** `nextRound()` ruft bis heute der
+      Aufrufer — heute nur die Belagerungs-Fixture —, und `stateHashInput()` trägt
+      `round` nicht, sodass zwei Instanzen auf verschiedenen Runden landen können,
+      ohne dass `replayMatches()` es merkt. Der beschlossene Umbau steht in
+      [`RAID-PLAN.md`](RAID-PLAN.md), *Der beschlossene Umbau: der Rundenwechsel
+      kommt aus dem Log* (D47): die Runde wird zur Folge der verbrauchten AP im
+      `applyAction`, und `round` kommt in den Hash. Der Preis ist der Golden-Wert
+      — `npm run golden:raid` wird einmal neu geschrieben.
+  Status: geplant
+  Scope: Domäne
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+- [x] **Der Bauplatz ist eine Frage der Domäne, und eine Absage nennt den Grund.**
+      Mit gewähltem Brutlord bot das Spiel keinen einzigen Bauplatz an, während
+      der Essenz Extractor dreizehn zeigte, und der Hinweis sagte trotzdem
+      weiter „Klicke freien Boden als Bauplatz an." — eine stille Sackgasse ohne
+      Fehlermeldung. Die Platzregel lag in der Ansicht und filterte dort das
+      Sichtfenster, also konnte keine Stelle sagen, woran es lag. Jetzt liefert
+      `placementReport()` die Anker über das ganze Raster und bei leerer Liste
+      den Grund: kein freier Boden (`NO_FLOOR`) oder freier Boden ohne Fläche
+      der Größe (`NO_SPACE`); `selectPlacement()` ist der einzige Weg dorthin,
+      `world-view` rechnet die Anker um und behält, was der Ausschnitt zeigen
+      kann, und das Baumenü nennt den Grund samt der Zahl freier Felder. Die
+      neue Gruppe `placement` belegt alle drei Aussagen samt Gegenprobe: ein
+      Rasterschnitt, eine stumme Absage, ein stummer Hinweis und ein gemalter
+      Umriss außerhalb des Fensters färben sie rot. Das Raster selbst bleibt
+      unverändert — der Startraum trägt weiterhin keinen 2 × 2, was jetzt
+      jemandem gesagt wird statt verschwiegen.
+  Status: geplant
+  Scope: Domäne
+  Kategorie: Bugfix
+  Version: ausstehend
+  Datum: ausstehend
+
+- [x] **Das Opening erzwingt eine Wahl: eine Zusage bindet Essenz.** Der erste
+      Bau kostete den zweiten gemessen 200 ms — die Bau-Wahl prüfte den nackten
+      Vorrat, während der offene Bauplatz daneben nichts kostete, also durfte
+      sich dieselbe Essenz zweimal versprechen: Extraktor und Schwarmhort liefen
+      beide los, und die Reihenfolge war die einzige Entscheidung. Jetzt bindet
+      ein offener Bauplatz seinen ganzen Preis (`committedEssence()`),
+      `spendableEssence()` ist die einzige Kasse, aus der gewählt wird, und
+      `START_ESSENCE` steht bei `COST.extractor + 3 * miningCost` statt plus
+      sechs — der Vorrat liegt damit unter Extraktor plus Schwarmhort und kauft
+      genau eine Tür. Die Türen stehen sichtbar im Baumenü: jede nennt, was sie
+      freilässt (`bleibt N`), was fehlt (`fehlt N`) oder ob danach kein Abbau
+      mehr bezahlbar ist — die Reserve ist die vierte Tür, denn ein Abbau kostet
+      Essenz. Die neue Gruppe `opening` geht den ganzen Weg über die Aktionen
+      des Browsers: die zweite Tür ist zu, obwohl die Essenz reicht, sie geht
+      nach dem Bezahlen wieder auf (eine Verzögerung, kein Schloss), und wer
+      die zweite nimmt, hat nichts mehr zum Graben. Der Determinismus-Golden-Wert
+      trägt den neuen Startvorrat und wurde bewusst neu geschrieben.
+  Status: geplant
+  Scope: Domäne
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+- [ ] **Die vierte Tür hat noch nichts zu kaufen.** Ausbau, Aufwertung und
+      Mutation haben je einen Preis im Opening; die Sicherheit hat keinen. Die
+      Raid-Domäne kennt Wächter, Ausdauer und Grabkosten, aber kein Gebäude und
+      keinen Reducer dafür, und Biomasse ist in
+      [`WARDEN-PLAN.md`](WARDEN-PLAN.md) weiterhin ein Entwurf. Bis dahin trägt
+      allein die Reserve die vierte Tür: was liegen bleibt, kann graben. Ein
+      kaufbares Verteidigungsstück — Kantenwand oder Wächter nach
+      [`RAID-PLAN.md`](RAID-PLAN.md), *Bauen und Verteidigen* — hätte hier
+      seinen Platz, braucht aber zuerst die Entscheidung aus dem Wächter-Plan.
+  Status: geplant
+  Scope: Domäne
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+- [x] **Der Server stellt das Raid-Ticket aus, prüft es und bucht die Beute atomar.**
+      Das Ticket war bis hierher eine Behauptung des Clients: `POST /api/raid` nahm
+      `{ ticket, actions, claimed }` und prüfte nur, ob das Log irgendetwas
+      nachspielt — Beute buchte niemand, und ausgestellt hat das Ticket auch
+      niemand. Jetzt gibt es die Zeile: `raid_tickets` hält Id, Konto, Rumpf und
+      Frist (Migration `0004`, lokal als Schema), `POST /api/raid/ticket` stellt
+      aus, und die Einreichung liest **ihre** Zeile — `body.ticket.id` ist die
+      einzige Angabe aus dem eingereichten Ticket (D25, B16). Den Kader nennt der
+      Angreifer nur mit Ids; `cadreRule()` prüft Zugehörigkeit, Doppelung, Größe
+      und Grit-Deckel und gibt ihn normalisiert zurück, den Eintrittspunkt rechnet
+      `entrySeed()` aus Ticket-Id, Angreifer und dem gespeicherten Welt-Seed des
+      Verteidigers. Die geprüfte Beute geht über `applyRaidLoot()` in den
+      Heimatstand des Envelopes, die Revision steigt um eins, und **eine**
+      Transaktion schreibt den Stand und verbraucht die Zeile (B17): die Löschung
+      hängt an der gerade geschriebenen Revision, damit eine abgewiesene Buchung
+      das Ticket stehen lässt und doppelte Beute ausgeschlossen ist. Der Fund auf
+      diesem Weg: `entrySeed()` hat zwei seiner drei Eingaben ignoriert
+      (`NaN ^ salt` für jede Zeichenkette) — acht verschiedene Angreifer landeten
+      auf demselben Eintrittspunkt; `textSeed()` hasht sie jetzt wirklich. Belegt
+      von der neuen Gruppe `raid-ticket` (40 Prüfungen über echte Requests gegen
+      den echten lokalen Speicher: Ausstellung, manipuliertes Ticket, gebuchte
+      Essenz und Blutstein, 404 auf den zweiten Anlauf) und von `check-storage`
+      (Vertrag mit vierzehn Namen, Frist, veraltete Buchung lässt die Zeile stehen).
+      Nachgezogen: die **Zahlen** des Kaders kommen aus dem gespeicherten
+      Heimatstand und nicht mehr aus dem Rumpf. `statsOf()` faltet sie aus den
+      Steinen des Dunglings (Summe der Stat-Beiträge, `dig` aus der
+      Grabfähigkeit), `cadreRule()` nimmt vom Antrag nur noch die Ids und weist
+      einen abweichend behaupteten Wert mit `GEFALSCHT` ab (D31, B18). Der
+      Anlass war gemessen: derselbe Antrag mit `atk: 999999, speed: 500, grit: 1`
+      bekam vorher 201, und `createRaidState()` rechnete daraus `apMax: 500`
+      statt der rund 40 eines echten Dunglings — der Client stellte sich seine
+      Helden selbst aus und entschied den Ausgang. Die Gruppe `raid-ticket`
+      fährt den Vorher/Nachher-Fall jetzt mit (64 Prüfungen), und der Log-Client
+      der Abnahme sucht seinen Weg nach Kosten statt nach Feldern: der kürzeste
+      Weg durch den Stein ist der teuerste, und wer nach Feldern marschiert,
+      verliert den Raid an der Ausdauer statt an den Wächtern.
+      Nachgezogen: der **Eintrittspunkt hängt am Paar** und nicht an der
+      Ticket-Id, und je Paar lebt genau eine Zeile (`raid_tickets` trägt den
+      Verteidiger als Spalte) — vorher kostete wiederholtes Ausstellen nichts
+      und kaufte den kürzesten Anmarsch (gemessen: acht Ausstellungen, acht
+      Eintritte zwischen (11,18) und (61,44) bei 64 bis 180 Ausdauer). Jede
+      Buchung schreibt außerdem eine **Quittung** (`raid_bookings`, Migration
+      `0005`) in derselben Transaktion wie den Spielstand: ein zweiter Antrag
+      mit demselben Ticket antwortet 200 mit der gebuchten Beute statt 404,
+      und `GET /api/raid/bookings` nennt die letzten Überfälle. Und die
+      Buchungsregel läuft nicht mehr nur als SQL-Text: die neue Gruppe
+      `booking` fährt dieselbe Suite gegen den lokalen Speicher und gegen eine
+      D1-Attrappe über `node:sqlite`, die die echten Migrationen als Schema
+      nimmt. Ihr erster Lauf fand einen Unterschied (D1 meldete für ein fremdes
+      Ticket `veraltet` statt `kein ticket`); was die Attrappe nicht beweist,
+      ist die Isolation der echten D1 — das steht im Dokument.
+  Status: geplant
+  Scope: Server
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+---
 
 ## Was hier NICHT steht
 

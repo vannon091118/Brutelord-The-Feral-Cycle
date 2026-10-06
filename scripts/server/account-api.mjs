@@ -1,11 +1,12 @@
-/** Die zwei Befehle der Konto-API, async gegen den Speicher und nicht gegen die
- *  Datenbank. Beide geben einen Traeger-Token aus: die Antwort nennt weiter
- *  Name, PlayerID und Seed, aber wer jemand ist, entscheidet der Token. Die
- *  Bremse zaehlt im Speicher des Kontos, nicht im Prozess. */
+/** Die drei Befehle der Konto-API, async gegen den Speicher und nicht gegen die
+ *  Datenbank. Anmelden und Registrieren geben einen Traeger-Token aus: die
+ *  Antwort nennt weiter Name, PlayerID und Seed, aber wer jemand ist, entscheidet
+ *  der Token. Das Abmelden entwertet ihn, und danach traegt er keinen Namen
+ *  mehr. Die Bremse zaehlt im Speicher des Kontos, nicht im Prozess. */
 import { accountProblem, normalizeName } from './account-config.mjs';
 import { decoyMatches, makeAccount, newPlayerId, passwordMatches } from './account-rules.mjs';
 import { lockedUntil, nextEntry, throttleKey } from './account-throttle.mjs';
-import { startSession } from './account-session.mjs';
+import { endSession, startSession } from './account-session.mjs';
 
 const LOCKED = 'Zu viele Versuche. Warte einen Moment.';
 const WRONG = 'Name oder Passwort stimmt nicht.';
@@ -51,4 +52,9 @@ export async function login(store, { body = {}, remote = '' } = {}) {
   if (!account || !whole || !matches) return zaehleFehlversuch(store, key, now);
   await store.putAttempt(key, { count: 0, until: 0 });
   return { status: 200, ...publicOf(account, await startSession(store, clean)) };
+}
+
+export async function logout(store, { token = '' } = {}) {
+  await endSession(store, token);
+  return { status: 200, ok: true };
 }

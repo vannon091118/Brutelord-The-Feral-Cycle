@@ -75,6 +75,25 @@ export function carriesCapability(stones, capability = RAID_CAPABILITY.DIG) {
   return stones.some((stone) => stone?.capability === capability);
 }
 
+function zahl(wert) {
+  return Number.isFinite(wert) ? Math.max(0, Math.trunc(wert)) : 0;
+}
+
+function steinTraits(stones) {
+  return [...new Set(stones.map((stone) => stone?.trait).filter((trait) => typeof trait === 'string' && trait !== ''))];
+}
+
+export function statsOf(worker) {
+  const stones = Array.isArray(worker?.stones) ? worker.stones : [];
+  const sum = { atk: 0, speed: 0, grit: 0, haul: 0 };
+  for (const stone of stones) {
+    for (const entry of Array.isArray(stone?.stats) ? stone.stats : []) {
+      if (Object.hasOwn(sum, entry?.key)) sum[entry.key] += zahl(entry.value);
+    }
+  }
+  return { ...sum, dig: carriesCapability(stones), traits: steinTraits(stones) };
+}
+
 export function createStone({ seed, pityMisses: misses = 0, slot = null }) {
   const rarity = hasPity(seed, misses) ? RARITY_ORDER[LEGENDARY_INDEX] : rarityFor(seed, misses);
   return {

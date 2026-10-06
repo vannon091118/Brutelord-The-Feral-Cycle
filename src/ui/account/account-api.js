@@ -25,3 +25,11 @@ export function registerAccount(credentials) {
 export function loginAccount(credentials) {
   return post('/api/login', credentials);
 }
+
+export function logoutAccount(token) {
+  if (!token || typeof fetch !== 'function') return null;
+  return fetch('/api/logout', {
+    method: 'POST',
+    headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+  }).catch(() => null);
+}

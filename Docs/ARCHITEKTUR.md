@@ -56,7 +56,7 @@ damit ist jede Prüfung wiederholbar.
 | `JOB_CONFIG` | `tickMs 200`, `travelMsPerTile 420`, `workMs 300`, `cycleMs 15000`, `popupLifetimeMs 1600` | Ein Träger läuft 420 ms pro Feld; ein Extraktor presst für jeden zugewiesenen Dungling eine Essenz pro 15 s. Die Prüfungen rechnen gegen diese Werte, nicht gegen 15.000. |
 | `ROOTING_CONFIG` | `claimDurationMs 10000`, `cooldownMs 5000`, `tickMs 100` | Ein Feld fadet 10 s lang ins Hive-Farbige, ruht 5 s, erst dann stoßen die Tentakel weiter. |
 | `ONBOARDING_CONFIG` | `hiveHitDurationMs 320`, `hiveMutationDurationMs 900`, `dunglingSpawnDelayMs 5000`, `dunglingEmergeMs 600`, `dunglingSettleMs 500`, `workerMoveDurationMs 500`, `miningDurationMs 3500`, `miningTickMs 100`, `tileDestructionMs 700`, `gridExpansionMs 600` | Der Dungling erscheint exakt 5 s nach dem Hive-Klick; der Abbau ist in 35 Ticks à 100 ms zerlegt, damit die Erde sichtbar verwittert statt zu springen. |
-| `BUILDING_DEFS` | Schwarmhort 6 Essenz (brütet alle 20 s), Extraktor 5 Essenz (max. drei Dunglinge), Brutlord 10 Essenz auf 2 × 2 | Jeder Bau ist erst ein Bauplatz und wird dann Stück für Stück bezahlt. Der Startvorrat `START_ESSENCE` ist `COST.extractor + 6 * miningCost` — er deckt den Startraum und danach genau einen Extraktor. |
+| `BUILDING_DEFS` | Schwarmhort 6 Essenz (brütet alle 20 s), Extraktor 5 Essenz (max. drei Dunglinge), Brutlord 10 Essenz auf 2 × 2 | Jeder Bau ist erst ein Bauplatz und wird dann Stück für Stück bezahlt — aber versprochen wird dieselbe Essenz nur einmal: ein offener Bauplatz bindet seinen ganzen Preis (`committedEssence()`), `spendableEssence()` ist die einzige Kasse, aus der gewählt wird. Der Startvorrat `START_ESSENCE` ist `COST.extractor + 3 * miningCost` — der billigste Bau und drei Abbaue, also weniger als Extraktor plus Schwarmhort. |
 | `MAX_DUNGLINGS 6` | Obergrenze des Schwarms | Der Schwarmhort brütet bis dahin, danach wartet er. |
 | `world-config.js` | Raster 64 × 64, Hive 2 × 2 bei 31/31, Sichtfeld 13 Tiles, `REVEAL_RADIUS 2`, Leiter bei 47/47 | Sichtbar bleibt ein Fenster; der Rest ist Dunkelheit, bis die Wurzeln hinkommen. |
 
@@ -372,9 +372,19 @@ er schon gedrückt hat) und `progressMs` (wie weit seine Uhr steht). Beide sind
 notwendig, weil der Fortschritt auch dann wachsen muss, wenn noch kein Druck
 fällig ist — sonst käme die Uhr nie an ihre Schwelle und der Hive presste nie.
 
-Der Startvorrat ist kein Literal, sondern `COST.extractor + 6 * miningCost`:
-die sechs Abbaue des Startraums plus ein Extraktor. Wer die Raumgröße im
-Onboarding ändert, muss diese Zahl mitziehen.
+Der Startvorrat ist kein Literal, sondern `COST.extractor + 3 * miningCost`:
+der billigste Bau und drei Abbaue. Die Zahl liegt **bewusst** unter
+`COST.extractor + COST.swarmHost` — der erste Vorrat kauft genau eine Tür, und
+wer sie hebt, hebt die erste Entscheidung des Spiels auf. `check-opening.mjs`
+hält genau das fest. Die zwei Obergrenzen sind keine Sparsamkeit, sondern die
+Antwort auf einen gemessenen Fehler: Die Bau-Wahl prüfte den nackten Vorrat,
+während der offene Bauplatz daneben nichts kostete — dieselbe Essenz durfte sich
+zweimal versprechen, und der zweite Bau stand gemessen **200 ms** nach dem
+ersten bereit. Danach war das Opening keine Wahl, sondern eine Reihenfolge. Mit
+der Bindung kostet der zweite Bau die Essenz, die noch nicht da ist: gemessen
+rund 39 Sekunden, und wer sie nimmt, hat seine Reserve verbraucht — jeden Abbau
+zahlt man einzeln. Wer die Raumgröße im Onboarding ändert, muss diese Zahl
+mitziehen.
 
 Die Simulation brauchte dafür eine Ergänzung: `virtual-clock.mjs` presst den
 Hive nur, solange der Zeitplan die Uhr am Laufen hält. Ohne diese Bedingung
@@ -831,6 +841,113 @@ Was das **nicht** ist: es gibt weiterhin kein Token. Die Sitzung im Browser ist
 Wissen um den Seed. Das ist für den Slice richtig (es gibt nichts zu stehlen außer
 einer Welt) und wird mit dem Spielstand zu einer echten Baustelle; der Weg dorthin
 steht bei *Noch nicht Teil dieser Fassung* unten.
+
+### Der Schiedsrichter hält die Ticketzeile
+
+Der Server hat den Spielstand bisher nur gespeichert (B8) und den Raid nur
+gerechnet (`validateRaidReplay`). Was fehlte, war die Zeile dazwischen: Das
+Ticket war eine Behauptung des Clients, und geprüft war nur, ob das Log
+*irgendetwas* nachspielt. `raid_tickets` hält jetzt `id`, `account`, `ticket`
+und `expires_at`; `POST /api/raid/ticket` stellt aus, `POST /api/raid` schlägt
+nach.
+
+**Der Lookup zählt, nicht die Signatur (D25).** `validateSubmission()` liest
+`body.ticket.id` und sonst **nichts** aus dem eingereichten Ticket — Kader,
+Eintritt und Snapshot-Seed kommen aus der eigenen Zeile. Gemessen: eine
+Einreichung mit einem manipulierten Ticket (`entry: {x:0,y:0}`,
+`snapshotSeed: 1`, leerer Kader), deren Log zu der *gespeicherten* Zeile gehört,
+wird angenommen und bucht genau die Beute, die der Replay hergibt
+(`check-raid-ticket`). Eine Signatur hätte hier nichts geholfen: Ein
+manipulierter Client prüft nichts, was er selbst mitschickt.
+
+**Der Eintrittspunkt kommt aus Zahlen, die der Server hält (D18, D24).** Der
+Angreifer nennt nur noch die Ids seiner Dunglinge; `cadreRule()` holt jeden
+Genannten aus `heim.state.dunglings`, weist eine unbekannte Id ab (`FREMD`),
+eine doppelte (`DOPPELT`) und einen Kader über `MAX_DUNGLINGS` (`ZU_VIELE`),
+und rechnet `atk`, `speed`, `grit`, `dig` und die Traits aus den **Steinen**
+dieses Dunglings: `statsOf()` faltet die Stat-Beiträge als Summe (D31), die
+Traits als `peak()`, und `dig` kommt aus der Grabfähigkeit eines getragenen
+Steins. Den Verteidiger-Seed liefert dessen eigener gespeicherter Stand, den
+Eintrittspunkt rechnet `entrySeed(ticketId, attackerId, defenderSeed)`.
+
+**Was das geändert hat, ist gemessen.** Vorher bekam ein Antrag mit
+`atk: 999999, speed: 500, grit: 1` eine 201, das Ticket trug genau diese Zahlen,
+und `createRaidState()` daraus ergab `apMax: 500` statt der rund 40, die ein
+Dungling mit vier Steinen wirklich trägt — der Server bestätigte die Erfindung
+des Clients, und der Client entschied damit den Ausgang des Raids. Behauptet der
+Rumpf jetzt einen dieser vier Werte und weicht er von der Faltung ab, antwortet
+die Route 422 `GEFALSCHT`; wer nur Ids nennt, bekommt den Kader des Standes.
+Still zu korrigieren wäre der schlechtere Weg: der Client erführe nie, dass
+seine Zahlen nicht mehr zählen, und ein Spielstand, der dem Server
+hinterherhängt, raidiert unbemerkt mit dem falschen Kader — eine Absage ist
+ein Ergebnis, ein stiller Rückfall nicht.
+
+**Ein Fund, den erst diese Route sichtbar gemacht hat:** `entrySeed()` ignoriert
+zwei seiner drei Eingaben. `mixRaid(String(x), salt)` rechnet `NaN ^ salt` — für
+**jede** Zeichenkette denselben Wert. Gemessen mit acht verschiedenen Angreifern
+auf denselben Verteidiger: achtmal derselbe Eintrittspunkt, die Salze
+`SALT_TICKET` und `SALT_STEP` waren toter Code. Ein Eintritt, der nicht am
+Ticket hängt, ist der Punkt, den ein Angreifer vorher kennt — genau wogegen D18
+(„kein clientseitiger Wurf") und D46 („Anti-Aufkundschaften durch
+Ticketbindung") gedacht sind. `textSeed()` hasht Zeichenketten jetzt wirklich;
+Zahlen bleiben Zahlen, damit die gemessenen Einmärsche aus Zahlenreihen
+(`check-raid`) unverändert bleiben.
+
+**Gebucht wird in einem Schritt.** `ticketSteps()` liefert zwei Anweisungen, die
+beide Speicher als **eine** Transaktion fahren: erst den Spielstand mit der
+monotonen Revision (`stateWriteStatement`, B10) — zusätzlich an die Existenz der
+Ticketzeile gebunden —, dann das Löschen der Zeile, und zwar **nur wenn genau
+die Revision dasteht, die die erste Anweisung geschrieben hat**. Die Reihenfolge
+ist der ganze Trick: Verliert der Schreibvorgang, findet die Löschung ihre
+Bedingung nicht und die Buchung wird zurückgerollt — das Ticket bleibt stehen
+und derselbe Antrag geht noch einmal. Gemessen (`check-storage`): eine Buchung
+mit zu kleiner Revision antwortet `veraltet`, die Ticketzeile steht danach noch
+da und der Spielstand ist unberührt; mit der richtigen Revision kommt sie durch
+und verbraucht die Zeile. Ein zweiter Anlauf mit demselben Ticket antwortet 404
+— doppelte Beute gibt es nicht.
+
+**Die Frist steht in der Zeile, nicht im Prozess.** `expires_at` gehört an die
+Ticketzeile (D46), sonst nimmt ein Serverneustart dem Spieler kein Team, sondern
+gibt ihm keins zurück. `readTicket()` liest nur lebende Zeilen, die
+Löschbedingung prüft dieselbe Frist, und ein Schreibvorgang räumt die
+abgelaufenen weg — dieselbe Form wie bei Sitzung und Bremse. Die Frist ist
+`ACCOUNT_CONFIG.ticketTtlMs` (zwei Stunden).
+
+**Die Zeile hängt am Paar, die Quittung an der Ausstellung.** `raid_tickets`
+trägt den Verteidiger als eigene Spalte, und eine neue Ausstellung löscht die
+alte Zeile desselben Paares. Der Eintrittspunkt kommt aus `entrySeed(attacker,
+defender, seed)` und nicht mehr aus der Ticket-Id: wer einen zweiten Anmarsch
+wollte, musste vorher einen zweiten Angreifer sein. Gemessen kostete das
+vorher nichts — acht Ausstellungen an denselben Verteidiger ergaben acht
+Eintritte zwischen (11,18) und (61,44), und bei 64 bis 180 Ausdauer ist das der
+Unterschied zwischen gewonnen und verloren. Die Id bleibt trotzdem je
+Ausstellung eindeutig, und genau daran hängt die Quittung: `raid_bookings`
+schreibt Id, Angreifer, Verteidiger, Beute, Revision und Zeitpunkt in
+derselben Transaktion wie der Spielstand und die Löschung, bedingt durch
+dieselbe Revision. Ein zweiter Antrag mit einem schon gebuchten Ticket
+antwortet danach 200 mit der gebuchten Beute statt 404 — ein verlorener
+Antwortweg ist kein verlorener Raid, und eine Grenze je Paar lässt sich jetzt
+zählen (gebaut ist sie noch nicht).
+
+**Beide Speicher fahren dieselbe Buchung.** Die Regel steht einmal
+(`ticketSteps()`), und `check-booking` fährt dieselbe Suite gegen den lokalen
+Speicher und gegen eine D1-Attrappe über `node:sqlite`, die die **echten**
+Migrationen aus `workers/d1/` als Schema nimmt. Der erste Lauf fand sofort
+einen Unterschied: der D1-Speicher antwortete auf das Ticket eines fremden
+Kontos mit `veraltet` statt `kein ticket`. Vorher war die Buchung nur als
+SQL-Text geprüft, und der Speicher, der ausgeliefert wird, lief in keiner
+Prüfung. Die Attrappe beweist Entscheidungslogik und Verträglichkeit der
+Anweisungen — **nicht** die Isolation und das Nebenläufigkeitsverhalten der
+echten D1; das bleibt eine offene Flanke, die nur ein Lauf gegen die
+tatsächliche Bindung schließt.
+
+**Was hier noch offen ist, ehrlich benannt.** Die Buchung ist **einseitig**: der
+Angreifer bekommt seine Beute gutgeschrieben, dem Verteidiger wird nichts
+abgezogen — sein Dungeon entsteht aus einem Seed, nicht aus einem eingefrorenen
+Abbild. Ein Snapshotspeicher und der Riss (D5, D22) gehören dazu, bevor ein Raid
+zwei Spielerstände berührt. Was ein Client **schickt**, ist ab jetzt eine
+Behauptung, die gegen den Stand geprüft wird — der Stand selbst ist die Quelle,
+und die Rechnung steht in der Domäne (`statsOf()`), nicht im Server.
 
 ### Der Purge schützt nicht Pfade, sondern seinen Inhalt
 
