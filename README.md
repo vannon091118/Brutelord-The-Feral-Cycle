@@ -1,10 +1,15 @@
-# Brutelord: The Feral Cycle
-
-> Ein Handbuch für die Welt, die du nicht sehen solltest.
+<div align="center">
+  <img src="Docs/shots/09-gespielt.jpg" width="100%" alt="Brutelord Title Banner" />
+  <h1>Brutelord: The Feral Cycle</h1>
+  <p><em>Ein Handbuch für die Welt, die du nicht sehen solltest.</em></p>
+</div>
 
 ---
 
-## Die Senke
+<div align="center">
+  <img src="Docs/shots/04-abbau.jpg" width="100%" alt="Die Senke Banner" />
+  <h2>Die Senke</h2>
+</div>
 
 In der Mitte der Karte sitzt der Hive. Vier Felder. Ein Puls, der von innen nach außen drückt.
 
@@ -16,7 +21,10 @@ Er frisst den Boden, den du gegraben hast, und schickt Wurzeln in die Nachbarfel
 
 ---
 
-## Ein Fleck im Nichts
+<div align="center">
+  <img src="Docs/shots/08-bauplatz.jpg" width="100%" alt="Ein Fleck im Nichts Banner" />
+  <h2>Ein Fleck im Nichts</h2>
+</div>
 
 Mehr sehen kostet. Du musst jedes Feld graben, bevor du es siehst. Graben bindet Zeit, Essenz, Arbeitskräfte — und während du das tust, kriechen die Wurzeln schon weiter. Es gibt keine andere Fortschrittsquelle. Keine Abkürzung.
 
@@ -26,7 +34,10 @@ Unter dem Boden liegen Vorräte: Cluster aus ein bis drei Feldern, jeder mit bis
 
 ---
 
-## Das Tier, das gräbt
+<div align="center">
+  <img src="Docs/shots/00-konto-tor.jpg" width="100%" alt="Das Tier, das gräbt Banner" />
+  <h2>Das Tier, das gräbt</h2>
+</div>
 
 Du bist kein Herrscher. Du bist kein König. Du bist ein Tier, das sich durchfrisst.
 
@@ -38,7 +49,10 @@ Dein Konto ist ein Name und ein Passwort, und daraus entsteht deine Welt — gle
 
 ---
 
-## Das Labor am Ende der Senke
+<div align="center">
+  <img src="Docs/shots/11-dungling-am-werk.jpg" width="100%" alt="Das Labor am Ende der Senke Banner" />
+  <h2>Das Labor am Ende der Senke</h2>
+</div>
 
 Der Brutlord ist die Senke des ganzen Spiels: vier Essenz gegen einen Stein, dessen Inhalt du erst einmal nicht kennst.
 
@@ -48,7 +62,10 @@ Und hier ist der eigentliche Reiz: **die Optik folgt der Formel Stein-Seed plus 
 
 ---
 
-## Warum das kein Spieleaffe-Spiel ist
+<div align="center">
+  <img src="Docs/shots/05-abgebaut.jpg" width="100%" alt="Warum das kein Spieleaffe-Spiel ist Banner" />
+  <h2>Warum das kein Spieleaffe-Spiel ist</h2>
+</div>
 
 Weil die Arbeit in den Systemen liegt, nicht in der Menge. Ein Spiel, das nur Inhalt nachfüllt, hat irgendwann eine Zahl — und dann ist es vorbei. Dieses hat Begründungen. Keine Nachfüllung.
 
@@ -60,7 +77,10 @@ Weil die Arbeit in den Systemen liegt, nicht in der Menge. Ein Spiel, das nur In
 
 ---
 
-## Die Welt unter dem Boden
+<div align="center">
+  <img src="Docs/shots/03-abbau-menue.jpg" width="100%" alt="Die Welt unter dem Boden Banner" />
+  <h2>Die Welt unter dem Boden</h2>
+</div>
 
 Weit draußen, bei 47,47, steht eine Leiter. Sie zeigt sich erst, wenn die Wurzeln sie erreichen — und sie ist kein Dekor mehr. Sie steht in jeder Etage an derselben Stelle, liegt unter Gestein, und wer sie freigräbt, steigt hinunter. Oben trägt sie dich frei bis zur tiefsten Etage der Leiter; jede Etage darunter kostet Blutstein, und Blutstein kommt nur aus einem Raid gegen einen fremden Hive. Genau dort beginnt die Ader des Aethers, der die Körperform des Hive weitertreibt.
 
@@ -68,7 +88,9 @@ Der Bildschirm zeigt 13 × 13 Felder um den gebauten Raum. Wie tief der Dungeon 
 
 ---
 
-## Ehrliche Einschätzung
+<div align="center">
+  <h2>Ehrliche Einschätzung</h2>
+</div>
 
 Mehr Spiel gibt es nicht. Nicht jetzt. Vielleicht nie.
 
@@ -78,7 +100,9 @@ Dafür gibt es 4.096 Felder, von denen du am Ende vielleicht zwanzig siehst. Wer
 
 ---
 
-## Portal zurück
+<div align="center">
+  <h2>Portal zurück</h2>
+</div>
 
 Wenn du wissen willst, wie das hier zusammenhält: [`Docs/ARCHITEKTUR.md`](Docs/ARCHITEKTUR.md) erklärt das Warum. Keine Abkürzung. [`Docs/WORKFLOW.md`](Docs/WORKFLOW.md) erklärt die Wächter, [`Docs/GOVERNANCE.md`](Docs/GOVERNANCE.md) die Regeln, [`Docs/PITFALLS.md`](Docs/PITFALLS.md) die Fehler, die schon einmal zugeschlagen haben, und [`Docs/ROADMAP_OPEN.md`](Docs/ROADMAP_OPEN.md) was als Nächstes gebaut wird — [`Docs/CHECKPOINTS.md`](Docs/CHECKPOINTS.md) was wann geliefert wurde.
 
