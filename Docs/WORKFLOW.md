@@ -72,7 +72,8 @@ und gedeckelt bleibt; **der Volllauf gehört der CI**.
 | davon `floor-grows` (4,6 s Spielzeit) | 42,4 s | 11,8 s | — |
 | `npm run gate` mit allen Wächtern | 5,4 s | 5,4 s | lokal |
 | `npm run build` | 3,1 s | 3,1 s | lokal, einmal je Task |
-| `npm run verify` — Volllauf | ~4 m 15 s | ~2 m 25 s | **CI auf Push** |
+| `npm run verify` — Volllauf, lokal | ~4 m 15 s | ~2 m 25 s | nur wenn es sein muss |
+| `npm run verify` — Volllauf, auf der CI | 22 s | **11 s** | **CI auf Push** |
 
 **Die alte Zahl war abgeschrieben.** `npm run verify` stand hier mit 2 m 13 s
 und war gemessen rund **vier Minuten** lang: die Browser-Stufe allein kostete
@@ -268,11 +269,18 @@ Zwei Workflows in `.github/workflows/`:
   --version`, `--tree`, `--docs`, `--spiegel`, `--commits` und
   `verify:commits`: reine Textarbeit, kein Browser, kein Build. `slice` holt
   Chromium und fährt `npm run verify` und `npm run build`. Beide Jobs laufen
-  gleichzeitig; die Wanduhr bleibt die des Slice. Gemessen vor der Teilung, auf
-  einem Durchgang: 73 s Job — 6 s Checkout, 7 s Node, 3 s `npm ci`, 29 s
-  Browser-Download, 22 s Slice, 1 s Build. Der Browser-Download liegt seit
-  diesem Umbau im Cache, und ein gebrochener Commit-Body ist nach rund 20 s
-  rot, nicht erst hinter den 120 MB.
+  gleichzeitig; die Wanduhr ist die des Slice. Gemessen: vor der Teilung 73 s
+  für **einen** Job — 6 s Checkout, 7 s Node, 3 s `npm ci`, 29 s
+  Browser-Download, 22 s Slice, 1 s Build. Nach der Teilung, im ersten Lauf mit
+  dem neuen Browser-Cache-Schlüssel: `gate` **9 s**, `slice` **42 s** (21 s
+  Download, 11 s Slice, 1 s Build) — beide zusammen 42 s Wanduhr, und ein
+  gebrochener Commit-Body steht nach neun Sekunden fest, nicht nach einer
+  Minute. Der Browser-Download liegt im Cache; sein Schlüssel trägt die
+  Playwright-Fassung aus `package-lock.json`, ein Treffer spart ihn ganz.
+
+  **Die CI ist die schnelle Maschine, nicht das Gedächtnis.** `npm run verify`
+  braucht dort gemessen 11 s gegen 43,7 s auf dem Entwicklungsrechner: die
+  schwere Arbeit gehört hierher, und genau deshalb fährt sie nur hier.
 
   **Der Volllauf bleibt ungeteilt.** `slice` fährt `npm run verify` und nicht
   eine Gruppenauswahl: eine Abnahme, die man unterlaufen kann, ist keine. Die
