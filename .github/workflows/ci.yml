@@ -90,14 +90,17 @@ jobs:
       - name: Abhängigkeiten
         run: npm ci
 
-      # Der Browser ist rund 120 MB und aendert sich nur mit der Playwright-
-      # Fassung: einmal geholt, danach aus dem Cache. Die Systempakete holt
-      # --with-deps trotzdem, sie liegen nicht im Cache.
+      # Der Browser ist rund 114 MB und aendert sich nur mit der Playwright-
+      # Fassung. Der Schluessel nennt deshalb playwright-core und NICHT den
+      # Lock: der Versions-Bot schreibt package-lock.json bei jedem Push neu
+      # (die Version steht darin), ein Schluessel darauf traefe nie. Die
+      # Systempakete holt --with-deps weiter in jedem Lauf.
       - name: Browser-Cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('node_modules/playwright-core/package.json') }}
+          restore-keys: playwright-${{ runner.os }}-
 
       - name: Browser für die Startprüfung
         run: npx playwright install --with-deps chromium

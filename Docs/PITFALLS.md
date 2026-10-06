@@ -210,6 +210,23 @@ hundert Sprünge zu 50 ms kosten 5016 ms, zehn zu 500 ms kosten 1971 ms;
 fein nach, wo eine Zahl auf die Prüfung wirkt. Eine Messung ist **eine**
 Auswertung, nicht fünf Runden.
 
+### Ein Cache-Schluessel auf `package-lock.json` trifft nie
+
+**Symptom:** Der Browser-Cache meldet „Cache not found for input keys", obwohl
+er im Lauf davor gespeichert wurde — und in der Cache-Liste liegen zwei
+Schluessel, die gleich aussehen.
+
+**Ursache:** `hashFiles('package-lock.json')` hasht den Lock. Der Versions-Bot
+schreibt bei **jedem** Push `package.json` und `package-lock.json` neu, weil die
+Version darin steht. Damit hat jeder Push einen neuen Schluessel, der Cache
+trifft nie, und jeder Lauf zahlt den Download plus einen Upload von 284 MB.
+
+**Gegenprobe:** Der Schluessel nennt jetzt die Playwright-Fassung
+(`node_modules/playwright-core/package.json`, nach `npm ci` vorhanden): ein
+Versions-Bump aendert ihn nicht, ein Playwright-Sprung schon.
+`restore-keys` auf das Praefix faengt den Rest ab. Was bleibt, ist `--with-deps`
+— die Systempakete holt apt gemessen in 19 s, der Download selbst kostet 2 s.
+
 ### Eine Pruefung ueber alle Paare misst die CPU, nicht die Symmetrie
 
 Gemessen im Konturen-Vergleich der Brutlord-Organik: `checkOrganic()` kostete

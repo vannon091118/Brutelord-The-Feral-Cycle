@@ -73,7 +73,7 @@ und gedeckelt bleibt; **der Volllauf gehört der CI**.
 | `npm run gate` mit allen Wächtern | 5,4 s | 5,4 s | lokal |
 | `npm run build` | 3,1 s | 3,1 s | lokal, einmal je Task |
 | `npm run verify` — Volllauf, lokal | ~4 m 15 s | ~2 m 25 s | nur wenn es sein muss |
-| `npm run verify` — Volllauf, auf der CI | 22 s | **11 s** | **CI auf Push** |
+| `npm run verify` — Volllauf, auf der CI | 22 s | **11–14 s** | **CI auf Push** |
 
 **Die alte Zahl war abgeschrieben.** `npm run verify` stand hier mit 2 m 13 s
 und war gemessen rund **vier Minuten** lang: die Browser-Stufe allein kostete
@@ -275,8 +275,12 @@ Zwei Workflows in `.github/workflows/`:
   dem neuen Browser-Cache-Schlüssel: `gate` **9 s**, `slice` **42 s** (21 s
   Download, 11 s Slice, 1 s Build) — beide zusammen 42 s Wanduhr, und ein
   gebrochener Commit-Body steht nach neun Sekunden fest, nicht nach einer
-  Minute. Der Browser-Download liegt im Cache; sein Schlüssel trägt die
-  Playwright-Fassung aus `package-lock.json`, ein Treffer spart ihn ganz.
+  Minute. Der Browser-Download liegt im Cache, und sein Schlüssel nennt die
+  Playwright-Fassung statt des Locks: ein Schlüssel auf `package-lock.json`
+  träfe nie, weil der Versions-Bot den Lock bei jedem Push neu schreibt (die
+  Version steht darin) — siehe `PITFALLS.md`. Ein Treffer spart den Download;
+  die Systempakete holt `--with-deps` in jedem Lauf, gemessen 19 s apt gegen
+  2 s Download.
 
   **Die CI ist die schnelle Maschine, nicht das Gedächtnis.** `npm run verify`
   braucht dort gemessen 11 s gegen 43,7 s auf dem Entwicklungsrechner: die
