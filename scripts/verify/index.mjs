@@ -20,6 +20,8 @@ export { checkTraits } from './check-traits.mjs';
 export { checkRaidGroup } from './check-raid-group.mjs';
 export { checkStorage } from './check-storage.mjs';
 export { checkSnapshot } from './check-snapshot.mjs';
+export { checkAether } from './check-aether.mjs';
+export { checkBloodstone } from './check-bloodstone.mjs';
 export { checkAccountWorker } from './check-account-worker.mjs';
 export { checkAccountHttp } from './check-account-http.mjs';
 export { checkRaidCap } from './check-raid-cap.mjs';
