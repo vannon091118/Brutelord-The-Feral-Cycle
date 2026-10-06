@@ -1,8 +1,8 @@
 // @doc: docs/daten/dungling/dunglingface.md#dunglingface
-function Seam({ working }) {
+function Seam({ d }) {
   return (
     <path
-      d={working ? 'M-3.4,-3.4 C-1.2,-1.6 1.2,-1.6 3.4,-3.4' : 'M-3.6,-4.2 C-1.2,-1.4 1.2,-1.4 3.6,-4.2'}
+      d={d}
       fill="none"
       stroke="var(--color-hive-800)"
       strokeWidth="1.8"
@@ -12,32 +12,28 @@ function Seam({ working }) {
   );
 }
 
-function Pores() {
+function Pores({ pores }) {
   return (
     <g fill="var(--color-hive-800)" opacity="0.5">
-      <circle cx="-6.6" cy="-7.4" r="0.9" />
-      <circle cx="7.2" cy="-8.6" r="0.8" />
-      <circle cx="-8.4" cy="-3.4" r="0.7" />
-      <circle cx="9" cy="-2.6" r="0.9" />
+      {pores.map((pore) => <circle key={`pore-${pore.cx}-${pore.cy}`} cx={pore.cx} cy={pore.cy} r={pore.r} />)}
     </g>
   );
 }
 
-function BudCrown({ working }) {
+function BudCrown({ crown, working }) {
   return (
     <g stroke="var(--color-hive-400)" strokeWidth="1.4" fill="none" strokeLinecap="round" opacity={working ? 0.85 : 0.5}>
-      <path d="M-5.6,-17.2 C-6.6,-21 -5.4,-23.4 -3.4,-25" />
-      <path d="M5.6,-17.2 C6.6,-21 5.4,-23.4 3.4,-25" />
+      {crown.map((tendril) => <path key={`crown-${tendril.at}`} d={tendril.d} />)}
     </g>
   );
 }
 
-export function DunglingFace({ working }) {
+export function DunglingFace({ working, look }) {
   return (
     <>
-      <BudCrown working={working} />
-      <Pores />
-      <Seam working={working} />
+      <BudCrown crown={look.crown} working={working} />
+      <Pores pores={look.pores} />
+      <Seam d={working ? look.seam.work : look.seam.rest} />
     </>
   );
 }

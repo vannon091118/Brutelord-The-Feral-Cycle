@@ -163,6 +163,26 @@ Bot-Commit zieht. Der Check existiert, damit das nicht nötig ist.
 > **Gegenprobe:** den Check gegen die alte Workflow-Datei laufen lassen. Alle drei
 > Prüfungen fallen rot.
 
+### Ein verwaister Abnahme-Server auf Port 5199 richtet sich als „bereit" aus
+
+`startServer()` wartet nur darauf, dass **irgendwer** auf 5199 antwortet. Ein
+Vite-Prozess, den ein abgebrochener Lauf übrig gelassen hat, antwortet auch —
+und dann prüft `npm run verify` den alten Stand. Gemessen am 2026-10-06: ein
+Waisen, das seit 2 h 38 min lief, lieferte die alte `DunglingBody.jsx` aus,
+während die neue `Dungling.svg.jsx` schon lief. Das Ergebnis war kein
+Kompilierfehler, sondern ein Seitenfehler im ersten Dungling
+(`Cannot read properties of undefined (reading 'map')`), danach abgeräumter
+React-Baum und fünf Beats mit exakt 30 001 ms — die Aktionsgrenze von
+Playwright, nicht ein Spiel, das hängt.
+
+> **Symptom:** Beats mit `drive` kosten exakt 30 001 ms, `pageerror` steht im
+> Log, und im DOM fehlen plötzlich alle Knöpfe, obwohl `checkStart()` grün war.
+
+**Was zu tun ist:** vor einem Lauf, dem man misstraut, `ss -ltnp | grep 5199`
+und fragen, wie alt der Prozess ist. Der Waisen ist ein Kind von
+`scripts/browser/server.mjs` und gehört einem — nur den killen, nie den
+Vorschau-Server, der auf 5173 ohne `--port` läuft.
+
 ---
 
 ## Zwei Dateien, eine Wahrheit

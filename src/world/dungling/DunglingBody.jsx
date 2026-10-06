@@ -1,11 +1,6 @@
 // @doc: docs/daten/dungling/dunglingbody.md#dunglingbody
-function BudShell() {
-  return (
-    <path
-      d="M0,-19 C-9.4,-18.4 -14.2,-10.6 -13.4,-2.2 C-12.8,5.6 -7,11 0,11 C7,11 12.8,5.6 13.4,-2.2 C14.2,-10.6 9.4,-18.4 0,-19 Z"
-      fill="url(#dl-bud)"
-    />
-  );
+function BudShell({ shell }) {
+  return <path d={shell} fill="url(#dl-bud)" />;
 }
 
 function BudLobes({ lobes }) {
@@ -16,48 +11,46 @@ function BudLobes({ lobes }) {
       cy={lobe.cy}
       rx={lobe.r}
       ry={lobe.r * 0.78}
-      fill="var(--color-hive-500)"
+      fill={lobe.tone}
       opacity={lobe.opacity}
     />
   ));
 }
 
-function BudVeins() {
+function BudVeins({ veins }) {
   return (
     <g stroke="var(--color-hive-400)" strokeWidth="1.1" fill="none" opacity="0.55" strokeLinecap="round">
-      <path d="M-1.4,-15.4 C-3.6,-11 -2.6,-7.4 -4.4,-3.4" />
-      <path d="M3.2,-14.2 C5.6,-10.4 4.2,-6.6 6.6,-2.8" />
-      <path d="M-7.6,-9.4 C-4.6,-8.2 -2.2,-7.4 0.6,-6.2" />
+      {veins.map((vein) => <path key={vein} d={vein} />)}
     </g>
   );
 }
 
-function BudCore() {
+function BudCore({ scale }) {
   return (
     <>
-      <ellipse cx="0.4" cy="-1.6" rx="4.6" ry="5.2" fill="url(#dl-coreHalo)" opacity="0.9" />
-      <ellipse cx="0.4" cy="-1.6" rx="2" ry="2.4" fill="var(--color-core-400)" opacity="0.85" />
+      <ellipse cx="0.4" cy="-1.6" rx={4.6 * scale} ry={5.2 * scale} fill="url(#dl-coreHalo)" opacity="0.9" />
+      <ellipse cx="0.4" cy="-1.6" rx={2 * scale} ry={2.4 * scale} fill="var(--color-core-400)" opacity="0.85" />
     </>
   );
 }
 
-function BudSkin() {
+function BudSkin({ shine, scale }) {
   return (
     <>
-      <ellipse cx="-5.4" cy="-11" rx="4.2" ry="2.6" fill="var(--color-hive-300)" opacity="0.22" transform="rotate(-26 -5.4 -11)" />
-      <path d="M-11.4,-1.4 C-6.4,3.4 6.4,3.4 11.4,-1.4" fill="none" stroke="var(--color-hive-800)" strokeWidth="2" opacity="0.4" />
+      <ellipse cx={shine.cx} cy={shine.cy} rx={shine.rx} ry={shine.ry} fill="var(--color-hive-300)" opacity="0.22" transform={`rotate(${shine.rot} ${shine.cx} ${shine.cy})`} />
+      <path d={`M${-11.4 * scale},-1.4 C${-6.4 * scale},${3.4 * scale} ${6.4 * scale},${3.4 * scale} ${11.4 * scale},-1.4`} fill="none" stroke="var(--color-hive-800)" strokeWidth="2" opacity="0.4" />
     </>
   );
 }
 
-export function DunglingBody({ lobes }) {
+export function DunglingBody({ look }) {
   return (
     <>
-      <BudShell />
-      <BudLobes lobes={lobes} />
-      <BudSkin />
-      <BudVeins />
-      <BudCore />
+      <BudShell shell={look.shell} />
+      <BudLobes lobes={look.lobes} />
+      <BudSkin shine={look.shine} scale={look.scale} />
+      <BudVeins veins={look.veins} />
+      <BudCore scale={look.scale} />
     </>
   );
 }

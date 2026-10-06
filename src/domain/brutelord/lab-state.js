@@ -48,12 +48,17 @@ function stoneName(stone) {
 }
 
 export function placeStone(lab, seed, slot) {
-  if (!SLOT_ORDER.includes(slot)) return lab;
+  if (slot !== null && !SLOT_ORDER.includes(slot)) return lab;
   const stone = stoneOf(lab, seed);
-  if (!stone) return lab;
+  if (!stone || stone.slot === slot) return lab;
+  const busy = slot === null ? null : lab.stones.find((entry) => entry.slot === slot) ?? null;
   return {
     ...lab,
-    stones: lab.stones.map((entry) => (entry.seed === seed ? withSlot(entry, slot) : entry)),
+    stones: lab.stones.map((entry) => {
+      if (entry.seed === seed) return withSlot(entry, slot);
+      if (busy && entry.seed === busy.seed) return withSlot(entry, null);
+      return entry;
+    }),
   };
 }
 

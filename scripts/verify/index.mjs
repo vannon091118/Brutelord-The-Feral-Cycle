@@ -12,6 +12,8 @@ export { checkRaidCap } from './check-raid-cap.mjs';
 export { checkSoilMass } from './check-soil-mass.mjs';
 export { checkBurrowRing } from './check-burrow-ring.mjs';
 export { checkReveal } from './check-reveal.mjs';
+export { checkDunglingLook } from './check-dungling-look.mjs';
+export { checkFixtures } from './check-fixtures.mjs';
 export { checkVerticality } from './check-verticality.mjs';
 export { checkVerticalityWiring } from './check-verticality-wiring.mjs';
 export { checkStartup } from './check-startup.mjs';

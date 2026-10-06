@@ -1,11 +1,12 @@
 {
- "version": 1,
+ "version": 2,
  "seed": "a1b2c3d4e5f60718",
  "state": {
   "world": {
    "width": 64,
    "height": 64,
    "seed": 2712847316,
+   "depth": 0,
    "hiveOrigin": {
     "x": 31,
     "y": 31
@@ -21,10 +22,55 @@
    },
    "rootingWorkIds": [],
    "tiles": {
-    "32,33": {
-     "id": "32,33",
+    "29,26": {
+     "id": "29,26",
+     "x": 29,
+     "y": 26,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "32,26": {
+     "id": "32,26",
      "x": 32,
-     "y": 33,
+     "y": 26,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "33,26": {
+     "id": "33,26",
+     "x": 33,
+     "y": 26,
+     "kind": "EARTH",
+     "terrain": "EARTH",
+     "visibility": "VISIBLE",
+     "usability": "UNUSABLE",
+     "earthHealth": "HEALTHY",
+     "floorOrigin": null,
+     "rooting": {
+      "phase": "DARK",
+      "progress": 0
+     }
+    },
+    "30,29": {
+     "id": "30,29",
+     "x": 30,
+     "y": 29,
      "kind": "DUNGEON_FLOOR",
      "visibility": "VISIBLE",
      "usability": "USABLE",
@@ -38,6 +84,7 @@
    },
    "deposits": {}
   },
+  "playerseed": 2712847316,
   "hive": {
    "id": "hive-1",
    "origin": {
@@ -51,27 +98,27 @@
    "phase": "SETTLED",
    "spawned": 1,
    "pressed": 8,
-   "progressMs": 7200
+   "progressMs": 200
   },
   "dunglings": [
    {
     "id": "dungling-1",
     "tile": {
-     "x": 31,
-     "y": 33
+     "x": 30,
+     "y": 29
     },
-    "facing": 1,
+    "facing": -1,
     "state": "MOVING",
     "targetTileId": null,
     "job": {
      "kind": "EXTRACT",
      "buildingId": "building-1",
      "phase": "RETURN",
-     "progressMs": 400,
-     "durationMs": 420,
+     "progressMs": 1800,
+     "durationMs": 2100,
      "origin": {
-      "x": 31,
-      "y": 33
+      "x": 30,
+      "y": 29
      },
      "target": {
       "x": 31,
@@ -84,17 +131,17 @@
     "battleEp": 0
    }
   ],
-  "essence": 16,
+  "essence": 15,
   "buildings": [
    {
     "id": "building-1",
     "type": "ESSENCE_EXTRACTOR",
     "anchor": {
-     "x": 31,
-     "y": 33
+     "x": 30,
+     "y": 29
     },
     "tileIds": [
-     "31,33"
+     "30,29"
     ],
     "state": "READY",
     "delivered": 5,
@@ -113,17 +160,10 @@
    "purchased": 0,
    "open": false
   },
-  "popups": [
-   {
-    "id": "essence-7",
-    "x": 31,
-    "y": 33,
-    "ageMs": 600
-   }
-  ],
-  "popupSeq": 8,
+  "popups": [],
+  "popupSeq": 7,
   "mining": {
-   "tileId": "32,33",
+   "tileId": "30,29",
    "phase": "COMPLETE",
    "progress": 1,
    "tick": 34,
@@ -152,14 +192,14 @@
   "selectedTileId": null,
   "highlightedTileId": null,
   "expansion": {
-   "tileId": "32,33",
+   "tileId": "30,29",
    "addedTileIds": [
-    "32,33"
+    "30,29"
    ]
   },
-  "lastDestroyedTileId": "32,33",
+  "lastDestroyedTileId": "30,29",
   "lastHarvest": null,
-  "usableTileCount": 2,
+  "usableTileCount": 13,
   "buildMenuVisible": true
  }
 }

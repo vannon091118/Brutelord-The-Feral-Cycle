@@ -1,7 +1,11 @@
 /** Die Testfälle: realer Klick, echte Uhr, echte Konten-API. Jeder Fall fährt
  *  die Seite und prüft mit dem echten Zustand. Die Wege stehen in ROADMAP_OPEN.md. */
-import { BUILDING_LABEL, SEL, dropOn, mineOne, mineableEarth, panelText } from './lib/dl.mjs';
+import { BUILDING_LABEL, SEL, mineOne, mineableEarth, panelText } from './lib/dl.mjs';
 import { readState, readTilePhases, waitState } from './lib/probe.mjs';
+import { countFloorTiles, createWorld } from '../../src/domain/world/grid.js';
+
+const START_RAUM = countFloorTiles(createWorld());
+const RAUM_NACH_ABBAU = START_RAUM + 1;
 
 async function driveOnboarding(stage) {
   const { page, log, writeState } = stage;
@@ -95,7 +99,8 @@ async function driveMutant(stage) {
     log('Kein Stein zu bekommen — Mutant-Szenario bleibt bei leerem Inventar');
     return;
   }
-  await dropOn(page, SEL.stoneChip, SEL.slot('Kopf'));
+  await page.locator(SEL.stoneChip).first().click();
+  await page.locator(SEL.slot('Kopf')).click();
   await page.locator(SEL.lab).getByRole('button', { name: /Erschaffen/ }).click();
   await waitState(page, { label: 'Mutant', until: (x) => x.dunglings.some((d) => (d.stones ?? []).length > 0), timeoutMs: 15000, log });
   await stage.writeState('mutant');
@@ -142,11 +147,11 @@ async function driveAccount(stage) {
 }
 
 export const SCENARIOS = [
-  { id: 'onboarding-complete', title: 'Onboarding: Hive → Dungling → Raum 2, Baumenü offen', drive: driveOnboarding,
+  { id: 'onboarding-complete', title: 'Onboarding: Hive → Dungling → ein Feld abgebaut, Baumenü offen', drive: driveOnboarding,
     check: async (stage) => {
       const s = await readState(stage.page);
       stage.check('Dungling lebt', s.dunglings.length === 1 && s.dunglings[0].state === 'IDLE');
-      stage.check('Raum ist 2', s.usableTileCount === 2, `${s.usableTileCount}`);
+      stage.check(`Raum ist ${RAUM_NACH_ABBAU}`, s.usableTileCount === RAUM_NACH_ABBAU, `${s.usableTileCount}`);
       stage.check('Baumenü steht', s.buildMenuVisible && s.onboarding.state === 'BUILD_MENU_VISIBLE');
     } },
   { id: 'extractor-loop', title: 'Bau: Extractor steht und presst Essenz', fixture: 'baumenue', drive: driveExtractor,
