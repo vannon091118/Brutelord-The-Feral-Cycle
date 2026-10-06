@@ -25,6 +25,19 @@ Jede Instanz trägt ihr Genom als `data-genome`, ihre Phase als `data-phase` und
 als `data-unit` im SVG: daran liest die Abnahme ab, welcher Körper wirklich zu welchem Erbgut
 gehört.
 
+Seit dem 2026-10-06 bekommt der Mutant **Stand und Sperre** wie jeder andere Dungling. Zwei
+neue Angaben, beide optional: `state` nimmt den Domänenzustand des Wesens und wird von
+`creatureClasses()` in Ruhe, Schritt oder Arbeit übersetzt — ohne Angabe ruht die Figur, denn
+der Labortisch zeigt einen Vorschlag und keinen Arbeiter —, und `muted` malt den gesperrten
+Platz. Gesperrt heißt hier genau eins: der Tisch hat noch **kein Genom**, also steckt kein
+Stein, also gibt es nichts zu erschaffen. Die Figur dämmert dann auf vierzig Prozent Deckkraft
+und ohne Sättigung, und die Aetherluft verstummt. Vorher war der leere Tisch nur ein leerer
+Körper in voller Farbe — dieselbe Unschärfe wie ein gesperrter Knopf, der aussieht wie ein
+offener.
+
+Das Etikett folgt demselben Unterschied: ohne Genom nennt das SVG sein Wesen „Dungling im
+Gerüst" und nicht „Mutierter Dungling", denn gemeldet wird, was zu sehen ist.
+
 ## Schnittstellen
 
 - `MutantSvg()`

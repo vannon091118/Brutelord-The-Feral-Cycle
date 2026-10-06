@@ -1,0 +1,156 @@
+/* Der Stand der Wesen: Ruhe, Schritt, Arbeit, gesperrt. */
+
+@keyframes dl-dungle-emerge {
+  0% { opacity: 0; transform: translateY(9px) scale(0.35); }
+  55% { opacity: 1; }
+  78% { transform: translateY(-1.5px) scale(1.06); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes dl-dungle-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.7px); }
+}
+
+@keyframes dl-dungle-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  45% { transform: scale(1.025, 0.972); }
+}
+
+@keyframes dl-dungle-walk {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  25% { transform: translateY(-1.6px) rotate(0.5deg); }
+  50% { transform: translateY(0) rotate(3deg); }
+  75% { transform: translateY(-1.6px) rotate(-0.5deg); }
+}
+
+@keyframes dl-dungle-work {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  32% { transform: translateY(1.4px) rotate(3.6deg); }
+  56% { transform: translateY(-0.4px) rotate(-0.6deg); }
+}
+
+@keyframes dl-tool-swing {
+  0%, 100% { transform: rotate(-18deg); }
+  38% { transform: rotate(30deg); }
+}
+
+.dl-emerge { animation: dl-dungle-emerge 620ms cubic-bezier(0.24, 1.3, 0.4, 1) 1; }
+.dl-bob { animation: dl-dungle-bob 2.1s ease-in-out infinite; }
+.dl-dungle-breathe { animation: dl-dungle-breathe 2.6s ease-in-out infinite; }
+.dl-walk { animation: dl-dungle-walk 380ms ease-in-out infinite; }
+.dl-work { animation: dl-dungle-work 620ms ease-in-out infinite; }
+.dl-tool { animation: dl-tool-swing 620ms ease-in-out infinite; }
+
+@keyframes dl-creature-air {
+  0%, 100% { opacity: 0.24; transform: scale(0.95); }
+  50% { opacity: 0.58; transform: scale(1.06); }
+}
+
+@keyframes dl-creature-ring {
+  0%, 100% { opacity: 0.14; transform: scale(0.93); }
+  50% { opacity: 0.52; transform: scale(1.07); }
+}
+
+@keyframes dl-creature-mote {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  24% { opacity: 0.85; }
+  100% { opacity: 0; transform: translate(-2.6px, -13px) scale(0.3); }
+}
+
+@keyframes dl-creature-glint {
+  0%, 58%, 100% { opacity: 0.3; }
+  68% { opacity: 1; }
+  80% { opacity: 0.42; }
+}
+
+@keyframes dl-creature-strike {
+  0%, 100% { opacity: 0; }
+  26% { opacity: 0.9; }
+  58% { opacity: 0; }
+}
+
+.dl-creature {
+  transform-box: fill-box;
+  transform-origin: 50% 92%;
+  transition: transform 240ms cubic-bezier(0.22, 1.1, 0.4, 1), opacity 240ms ease;
+}
+
+.dl-creature-air,
+.dl-creature-ring,
+.dl-creature-mote,
+.dl-creature-strike {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+
+.dl-creature-ring { transform-origin: 50% 92%; }
+
+.dl-creature-ground { opacity: 0.5; }
+.dl-creature-glint { opacity: 0.3; }
+
+.dl-creature--rest .dl-creature-air { opacity: 0.2; }
+.dl-creature--rest .dl-creature-ground { opacity: 0.44; }
+
+.dl-creature--move .dl-creature-ground { opacity: 0.3; }
+.dl-creature--move .dl-creature-air { opacity: 0.18; }
+
+.dl-creature--active .dl-creature-air { animation: dl-creature-air 1.7s ease-in-out infinite; }
+.dl-creature--active .dl-creature-ring { animation: dl-creature-ring 1.5s ease-in-out infinite; }
+.dl-creature--active .dl-creature-mote { animation: dl-creature-mote 1.9s ease-out infinite; }
+.dl-creature--active .dl-creature-strike { animation: dl-creature-strike 620ms ease-out infinite; }
+.dl-creature--active .dl-creature-ground { opacity: 0.62; }
+.dl-creature--active .dl-creature-breathe { animation-duration: 1.35s; }
+.dl-creature--active .dl-creature-crown { opacity: 0.95; }
+.dl-creature--active .dl-creature-pores { opacity: 0.72; }
+
+.dl-creature--mutant .dl-creature-air { opacity: 0.34; animation: dl-creature-air 3.6s ease-in-out infinite; }
+.dl-creature--mutant .dl-creature-glint { animation: dl-creature-glint 4.6s ease-in-out infinite; }
+.dl-creature--mutant.dl-creature--active .dl-creature-air { animation-duration: 1.9s; }
+
+.dl-creature--muted { opacity: 0.4; filter: saturate(0.3); }
+.dl-creature--muted .dl-creature-air,
+.dl-creature--muted .dl-creature-ring { opacity: 0; }
+
+.dl-bench-plinth {
+  position: absolute;
+  bottom: 44px;
+  left: 50%;
+  width: 128px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(50% 60% at 50% 42%, rgba(224, 152, 58, 0.24), rgba(18, 13, 8, 0.72) 74%);
+  box-shadow: inset 0 1px 0 rgba(255, 220, 160, 0.14), 0 12px 22px -14px rgba(0, 0, 0, 0.95);
+  transform: translateX(-50%);
+  transition: transform 240ms cubic-bezier(0.22, 1.1, 0.4, 1), filter 240ms ease;
+}
+
+.dl-bench-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: radial-gradient(46% 42% at 50% 52%, rgba(143, 184, 255, 0.16), rgba(10, 7, 5, 0) 70%);
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+
+.dl-bench:hover .dl-bench-plinth { transform: translateX(-50%) scale(1.05); filter: brightness(1.15); }
+.dl-bench:hover .dl-bench-glow { opacity: 1; }
+
+.dl-bench:hover .dl-creature:not(.dl-creature--muted) { transform: translateY(-4px) scale(1.035); }
+.dl-bench:hover .dl-creature-air { opacity: 0.66; animation: dl-creature-air 2.1s ease-in-out infinite; }
+.dl-bench:hover .dl-creature-ground { opacity: 0.66; }
+.dl-bench .dl-creature--mutant:hover .dl-creature-glint { animation-duration: 1.6s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dl-creature-air,
+  .dl-creature-ring,
+  .dl-creature-mote,
+  .dl-creature-glint,
+  .dl-creature-strike {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -22,6 +22,18 @@ samt ihren **Anlagen** — den beiden getragenen Allelen. So ist vor dem Erschaf
 sehen, welche Art wirklich herauskommt und welche Art als verdecktes Allel noch mitreist;
 der leere Tisch sagt stattdessen, dass die Art sich erst mit einem Stein zeigt.
 
+Seit dem 2026-10-06 steht der Tisch auf einem **Sockel**: `dl-bench-glow` legt einen kalten
+Schein hinter die Figur, `dl-bench-plinth` eine flache Scheibe unter ihre Füße. Beides sind
+reine Flächen ohne Griff, und sie sind der Grund, warum dieser Ort den Hover tragen darf: der
+Zeiger erreicht hier das Wesen, ohne etwas zu verdecken — auf dem Spielfeld wäre derselbe
+Glanz ein geschluckter Klick auf die Kachel darunter. `LabBench` trägt deshalb die Klasse
+`dl-bench`, und `creature.css` hebt beim Überfahren die Figur an, bringt ihre Aetherluft und
+den Sockel zum Leuchten. Der gesperrte Platz meldet sich mit: ohne Genom trägt die Figur
+`dl-creature--muted` und bleibt vom Anheben ausgenommen.
+
+Die vier Slots haben zusätzlich einen **Druckzustand** bekommen — `active:scale-95` neben dem
+Ring, der die mitgeführte Auswahl zeigt. Ein Knopf, der auf Druck nicht antwortet, wirkt tot.
+
 ## Schnittstellen
 
 - `StoneSlot()`

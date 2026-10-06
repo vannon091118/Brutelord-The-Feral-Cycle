@@ -101,11 +101,6 @@ function CharacterGradients() {
         <stop offset="0%" stopColor="var(--color-clay-500)" />
         <stop offset="100%" stopColor="var(--color-clay-600)" />
       </linearGradient>
-      <linearGradient id="dl-bud" x1="0.25" y1="0" x2="0.6" y2="1">
-        <stop offset="0%" stopColor="var(--color-hive-400)" />
-        <stop offset="55%" stopColor="var(--color-hive-600)" />
-        <stop offset="100%" stopColor="var(--color-hive-800)" />
-      </linearGradient>
     </>
   );
 }

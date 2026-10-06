@@ -37,7 +37,7 @@ function roundEye(at, tone) {
     <g>
       <circle cx={at.x} cy={at.y} r="4.8" fill={INK} />
       <circle cx={at.x} cy={at.y} r="4.8" fill="none" stroke={tone.bone} strokeWidth="1" />
-      <circle cx={at.x - 1.5} cy={at.y - 1.5} r="1.6" fill={tone.rim} />
+      <circle className="dl-creature-glint" cx={at.x - 1.5} cy={at.y - 1.5} r="1.6" fill={tone.rim} />
     </g>
   );
 }
@@ -48,6 +48,7 @@ function clusterEye(at, tone) {
       {[-1, 0, 1].map((step) => (
         <circle key={step} cx={at.x + step * 3.2} cy={at.y + Math.abs(step) * 1.6} r="2.1" fill={INK} stroke={tone.bone} strokeWidth="0.8" />
       ))}
+      <circle className="dl-creature-glint" cx={at.x} cy={at.y} r="0.9" fill={tone.rim} />
     </g>
   );
 }
@@ -58,6 +59,7 @@ function compoundEye(at, tone) {
       <circle cx={at.x} cy={at.y} r="5.6" fill={tone.shade} stroke={tone.rim} strokeWidth="1" />
       <line x1={at.x - 5.6} y1={at.y} x2={at.x + 5.6} y2={at.y} stroke={tone.rim} strokeWidth="0.9" />
       <line x1={at.x} y1={at.y - 5.6} x2={at.x} y2={at.y + 5.6} stroke={tone.rim} strokeWidth="0.9" />
+      <circle className="dl-creature-glint" cx={at.x - 1.8} cy={at.y - 1.8} r="1.1" fill={tone.rim} />
     </g>
   );
 }
@@ -66,7 +68,7 @@ function slitEye(at, tone) {
   return (
     <g>
       <polygon points={`${at.x - 5},${at.y} ${at.x},${at.y - 4.4} ${at.x + 5},${at.y} ${at.x},${at.y + 4.4}`} fill={INK} stroke={tone.rim} strokeWidth="1" />
-      <circle cx={at.x} cy={at.y} r="1.5" fill={tone.rim} />
+      <circle className="dl-creature-glint" cx={at.x} cy={at.y} r="1.5" fill={tone.rim} />
     </g>
   );
 }

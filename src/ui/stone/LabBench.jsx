@@ -33,7 +33,7 @@ function StoneSlot({ slot, stone, armed, onPlace }) {
     <button
       type="button"
       onClick={() => onPlace(slot)}
-      className={`absolute ${SLOT_POS[slot]} flex h-12 w-12 items-center justify-center rounded-xl border bg-[#1a1008]/90 px-1 text-center text-[9px] leading-tight transition-all duration-200 ${tone} ${armed ? 'ring-2 ring-[#ffdca0]/70 scale-105' : ''}`}
+      className={`absolute ${SLOT_POS[slot]} flex h-12 w-12 items-center justify-center rounded-xl border bg-[#1a1008]/90 px-1 text-center text-[9px] leading-tight transition-all duration-200 hover:border-[#e0983a]/60 hover:text-bone-200 active:scale-95 ${tone} ${armed ? 'ring-2 ring-[#ffdca0]/70 scale-105' : ''}`}
       aria-label={`Slot ${SLOT_LABEL[slot]}`}
     >
       {filled ? <span className="font-semibold">{STONE_DEFS[stone.rarity].label}</span> : SLOT_LABEL[slot]}
@@ -54,17 +54,25 @@ function SpeciesTag({ genome }) {
   );
 }
 
+function BenchFigure({ genome }) {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="relative h-40 w-40">
+        <MutantSvg genome={genome} size={160} id="lab" muted={!genome} />
+      </div>
+    </div>
+  );
+}
+
 export function LabBench({ placed, selected, onPlace }) {
   const genome = placed.length > 0 ? genomeForStones(placed) : null;
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="dl-bench flex flex-col items-center gap-1">
       <SpeciesTag genome={genome} />
       <div className="relative h-64 w-64">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative w-40 h-40">
-            <MutantSvg genome={genome} size={160} id="lab" />
-          </div>
-        </div>
+        <div className="dl-bench-glow" aria-hidden="true" />
+        <div className="dl-bench-plinth" aria-hidden="true" />
+        <BenchFigure genome={genome} />
         {SLOT_ORDER.map((slot) => (
           <StoneSlot
             key={slot}

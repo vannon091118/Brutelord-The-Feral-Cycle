@@ -26,6 +26,13 @@ aus dem Skelett — beides trifft sich hier, ohne dass diese Ebene etwas nachzä
 Farbe und Projektor kommen aus `organic-skin.jsx`: es gibt genau einen Projektor, nicht
 zwei, die auseinanderlaufen.
 
+Jedes der vier Augen trägt seit dem 2026-10-06 einen Glanzpunkt mit der Klasse
+`dl-creature-glint`. Das runde Auge hatte ihn schon als Randlicht; jetzt hat ihn auch das
+Bündelauge, die Facette und das Schlitzauge, und er gehört derselben Klassensprache wie die
+übrige Figur: bei einem Mutanten wandert er in `creature.css` mit einem eigenen Takt, und
+unter dem Zeiger wird er schneller. Ein Auge, das nie glänzt, sieht tot aus — und ein
+Wesen aus dem Labor soll nicht tot aussehen.
+
 ## Schnittstellen
 
 - `Features()`

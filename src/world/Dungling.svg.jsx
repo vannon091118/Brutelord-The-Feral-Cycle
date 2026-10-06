@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { dunglingAnimation } from './dungling/dungling-anim.js';
+import { creatureClasses, dunglingAnimation } from './dungling/dungling-anim.js';
 import { DunglingFeet } from './dungling/DunglingFeet.jsx';
 import { DunglingBody } from './dungling/DunglingBody.jsx';
 import { DunglingFace } from './dungling/DunglingFace.jsx';
@@ -15,12 +15,14 @@ export const DunglingSvg = memo(function DunglingSvg({ dungling, tileSize, x, y,
 
   return (
     <g style={{ pointerEvents: 'none' }} transform={`translate(${x} ${y}) scale(${unit * facing} ${unit})`}>
-      <g className={view.bodyAnimation}>
-        <DunglingFeet step={step} />
-        <g className="dl-anim dl-dungle-breathe">
-          <DunglingBody look={look} />
-          <DunglingFace working={view.working} look={look} />
-          <DunglingTool working={view.working} moving={view.moving} />
+      <g className={creatureClasses({ mood: view.mood })}>
+        <g className={view.bodyAnimation}>
+          <DunglingFeet step={step} look={look} />
+          <g className="dl-anim dl-dungle-breathe dl-creature-breathe">
+            <DunglingBody look={look} />
+            <DunglingFace working={view.working} look={look} />
+            <DunglingTool working={view.working} moving={view.moving} />
+          </g>
         </g>
       </g>
     </g>

@@ -101,11 +101,17 @@ function shineSpot(rng, scale) {
   };
 }
 
+export function materialIds(id) {
+  const base = `dl-cr-${String(id).replace(/[^A-Za-z0-9_-]/g, '_')}`;
+  return { shell: `${base}-shell`, core: `${base}-core`, air: `${base}-air`, ground: `${base}-ground` };
+}
+
 export function lookOf(id) {
   const rng = makeRng(creatureSeed(id));
   const scale = 0.94 + rng() * 0.12;
   const slack = 0.6 + rng() * 0.8;
   return {
+    ids: materialIds(id),
     scale: Math.round(scale * 100) / 100,
     shell: shellPath(rng, scale, slack),
     lobes: lobePlaces(rng, scale),

@@ -271,9 +271,17 @@ und mit einem Lauf, den ein zweiter nachspielen kann.
       aus `cadreRule()` und `teamStamina()` und damit aus dem echten Schwarm —, darunter
       stehen die Quittungen, die `GET /api/raid/bookings` für diese Sitzung führt
       (`src/ui/raid-bookings.js`). Es wohnt in `src/ui/AccountCorner.jsx`, weil `App.jsx`
-      mit dem achten Import am Deckel stand. **Offen bleiben der laufende Kampf und die
-      Wertigkeit der Wesen** (Hover, Aktiv, Gesperrt) — den Grund für den ersten nennt der
-      Fund darunter.
+      mit dem achten Import am Deckel stand.      **Die Wesen stehen seit dem 2026-10-06 im Stand.** Dungling und
+      Aethermutant tragen dieselbe Vokabel — Ruhe, Schritt, Arbeit, gesperrt —, der
+      arbeitende Dungling hebt sich mit Luft, Bodenring, Sporenflug und Trefferblitz ab, der
+      Mutant hat seine Aetherkante und glänzende Augen, und auf dem Labortisch steht er auf
+      einem Sockel und hebt sich unter dem Zeiger an. **Offen bleiben drei Dinge.** Der Hover
+      auf dem Spielfeld fehlt: dort bleibt die Figur für den Zeiger unsichtbar
+      (`pointer-events: none` in `Dungling.svg.jsx`), weil ein treffbares Wesen den Klick auf
+      die Kachel darunter schluckt — und darunter liegt im Zweifel der Erdblock oder der
+      Hive. Wer ihn will, braucht einen eigenen Hover-Kanal neben den Trefferflächen und
+      nicht nur eine Klasse. Dazu bleiben der laufende Kampf und das Wächter-Koma offen; den
+      Grund nennt der Fund darunter.
   Status: geplant
   Scope: Client
   Kategorie: Feature

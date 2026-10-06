@@ -14,7 +14,7 @@ function Seam({ d }) {
 
 function Pores({ pores }) {
   return (
-    <g fill="var(--color-hive-800)" opacity="0.5">
+    <g className="dl-creature-pores" fill="var(--color-hive-800)" opacity="0.5">
       {pores.map((pore) => <circle key={`pore-${pore.cx}-${pore.cy}`} cx={pore.cx} cy={pore.cy} r={pore.r} />)}
     </g>
   );
@@ -22,7 +22,14 @@ function Pores({ pores }) {
 
 function BudCrown({ crown, working }) {
   return (
-    <g stroke="var(--color-hive-400)" strokeWidth="1.4" fill="none" strokeLinecap="round" opacity={working ? 0.85 : 0.5}>
+    <g
+      className="dl-creature-crown"
+      stroke="var(--color-hive-400)"
+      strokeWidth="1.4"
+      fill="none"
+      strokeLinecap="round"
+      opacity={working ? 0.85 : 0.5}
+    >
       {crown.map((tendril) => <path key={`crown-${tendril.at}`} d={tendril.d} />)}
     </g>
   );

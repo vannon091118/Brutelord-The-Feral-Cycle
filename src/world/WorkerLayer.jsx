@@ -15,7 +15,7 @@ function WorkerBody({ worker, tileSize }) {
   const facing = dungling.facing >= 0 ? 1 : -1;
   return (
     <g transform={`translate(${position.x} ${position.y}) scale(${facing} 1)`}>
-      <MutantSvg genome={genome} size={tileSize * 0.9} id={worker.id} />
+      <MutantSvg genome={genome} size={tileSize * 0.9} id={worker.id} state={dungling.state} />
     </g>
   );
 }
