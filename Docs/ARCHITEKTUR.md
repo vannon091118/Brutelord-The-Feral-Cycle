@@ -411,10 +411,22 @@ die Knoten und die bereits getriebenen Sprossen mit, damit die zweite Sprosse ei
 (Spinne: `S -> F[L][L]`) neben der ersten landet statt auf ihr. Eine fünfte Art wäre damit
 ein Eintrag in der Tabelle und keine Zeile im Walker.
 
-Weil ein dominanter Locus das höchste der beiden Allele zeigt, ist die Verteilung schief,
-und das ist Absicht: der Mensch ist die reinerbige Ausnahme, das Monströse dominiert. Eine
-Auszählung über vierzig Genome ergibt Spinne 23, Insekt 11, Humanoid 4, Daemon 2 — die Art
-wechselt also je Generation sichtbar, ohne dass das Spiel dafür würfeln müsste.
+Der Art-Locus ist nicht dominant, sondern **fair**: bei zwei gleichen Allelen zeigt er
+dieses, bei zwei verschiedenen wirft er aus dem Genom-Hash einen reproduzierbaren
+50/50-Entscheid. Das ist eine Korrektur, keine Kosmetik. Das Maximum zweier Allele hängt an
+der Allel-Reihenfolge und häuft damit die höheren Indizes — gemessen über vierzig Genome
+Spinne 23, Insekt 11, Humanoid 4, Daemon 2. Der faire Wurf trägt die vier Arten gleich
+(gemessen über vierhundert 92, 92, 105, 111) und macht die Art zum **Zuchtziel** statt zum
+Nebenprodukt: zwei reinerbige Eltern derselben Art zeugen dieselbe Art. Der Wurf liest
+bewusst den ganzen Genom-Hash und nicht nur das Allel-Paar — ein Wurf aus dem Paar allein
+wäre je Paar festgelegt und würde die Indizes erneut häufen.
+
+Sichtbar wird das im Labor: `speciesOf()` gibt neben der ausgedrückten Art beide getragenen
+Allele aus, und der Labortisch nennt sie über `SPECIES_LABEL` über dem Mutanten. Die drei
+Aufgaben der Mission hängen zusammen — gleiche Häufigkeit, ein Zuchtziel und ein Gesicht je
+Art. Denn die Art trägt nicht nur die Grammatik, sondern auch die Merkmale: ein Dämon
+Klauenhörner, ein Insekt Fühler, eine Spinne Cheliceren, und Augen und Kiefer gehen mit
+(`organic-features.jsx`); das Insekt treibt dafür sein Fühlerpaar aus `SPECIES_GRAMMAR`.
 
 ### Der Zeichenaufwand ist gemessen, nicht geschätzt
 

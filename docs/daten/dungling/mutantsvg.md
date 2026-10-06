@@ -18,7 +18,8 @@ zwei Bildern entsteht keine neue Geometrie — über tausende Frames hinweg wäc
 Die Komposition ist die feste 2.5D-Kette: `<defs>` aus `SkinDefs()` mit **instanz-eigenen
 IDs**, darunter die Schichten aus `OrganicBody()` — Schatten, Unterlage, Körper, Wäsche und
 Rim — und darauf `Features()`. Ohne Genom steht der Basisbau, damit der leere Labortisch
-nicht leer aussieht.
+nicht leer aussieht. In `Features()` reicht er die **Art** aus dem Phänotyp hinein, weil
+Augen, Kiefer und Kopfform an der Art hängen und nicht an der Rolle allein.
 
 Jede Instanz trägt ihr Genom als `data-genome`, ihre Phase als `data-phase` und ihre Kennung
 als `data-unit` im SVG: daran liest die Abnahme ab, welcher Körper wirklich zu welchem Erbgut

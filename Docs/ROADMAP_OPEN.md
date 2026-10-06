@@ -158,6 +158,25 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
   Version: ausstehend
   Datum: ausstehend
 
+- [x] **Die Art wird ein Zuchtziel: fairer Wurf, Sichtbarkeit, eigene Merkmale.**
+      Der Spezies-Locus war dominant und damit ein Nebenprodukt der Allel-Reihenfolge —
+      das Maximum zweier Allele häufte die höheren Indizes (gemessen über vierzig Genome
+      Spinne 23, Insekt 11, Humanoid 4, Daemon 2). Er wirft jetzt `FAIR`: zwei gleiche
+      Allele zeigen dieses, zwei verschiedene werfen aus dem Genom-Hash einen
+      reproduzierbaren Entscheid. Gemessen über vierhundert Genome tragen die vier Arten
+      nun gleich (92, 92, 105, 111), und zwei reinerbige Eltern derselben Art zeugen
+      dieselbe Art — die Art ist ein Zuchtziel, kein Losgriff. `speciesOf()` gibt neben
+      der ausgedrückten Art beide getragenen Allele aus, der Labortisch nennt sie mit den
+      deutschen Namen aus `SPECIES_LABEL`, und `organic-features.jsx` zeichnet je Art
+      eigene Merkmale: Klauenhörner für den Dämon, Fühler für das Insekt, Cheliceren für
+      die Spinne, dazu unterschiedliche Augen und Kiefer. `check-genome.mjs` prüft die
+      flache Verteilung und den Zuchtgradienten, `check-organic.mjs` die vier Konturen.
+  Status: geplant
+  Scope: Domäne
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
 ---
 
 ## Was hier NICHT steht

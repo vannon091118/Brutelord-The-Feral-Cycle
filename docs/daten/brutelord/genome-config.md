@@ -6,9 +6,10 @@ Spiegel-Datei für `src/domain/brutelord/genome-config.js`.
 
 ## Verantwortung
 
-Das Genom als Bauplan: zehn Loci mit je vier Allelen. Ein Locus ist dominant oder additiv.
-Ein dominanter Locus zeigt sein hoechstes Allel, ein additiver mittelt beide Allele und
-traegt damit zur Polygenie bei. `PHENOTRAIT_MAP` bindet mehrere Loci an ein Merkmal, und
+Das Genom als Bauplan: zehn Loci mit je vier Allelen. Ein Locus ist dominant, additiv
+oder fair. Ein dominanter Locus zeigt sein hoechstes Allel, ein additiver mittelt beide
+Allele und traegt damit zur Polygenie bei, ein fairer wirft reproduzierbar zwischen
+seinen zwei Allelen. `PHENOTRAIT_MAP` bindet mehrere Loci an ein Merkmal, und
 `VITALITY`, `SPINE` und `LIMB_THICK` speisen zusammen die passenden Koerper-HP.
 Der Stein bleibt draussen: `SKIN` waehlt die Hautstruktur, `EYE_COUNT` und `HORN` sind
 dominant, die Proportionen sind additiv. Diese Datei traegt nur Zahlen und Konstanten,
@@ -24,20 +25,26 @@ Zahlen sind geeicht, nicht geraten: erst mit ihnen formt das Metaballfeld aus de
 wiedererkennbare Gliedmassen.
 
 Der zehnte Locus ist die Art, und er traegt eine ganze Skelett-Grammatik statt eines
-Farbwerts. Als dominanter Locus zeigt er das hoechste der vier Allele; welche Art wie oft
-faellt, haengt damit an der Allel-Reihenfolge, und gemessen ueber vierzig Genome ergibt
-das Spinne 23, Insekt 11, Humanoid 4, Daemon 2 — der Mensch ist die reinerbige Ausnahme,
-das Monstroese dominiert. `SPECIES_GRAMMAR` haengt an jede Art ihren Bauplan: `nodes`
-(Rumpfknoten), `armFrom` (ab welchem Knoten eine Sprosse Arm statt Bein wird, `null`
-heisst keine Arme), `rules` (die L-System-Regeln) und die Multiplikatoren `limb`, `girth`,
-`splay`, `spine`, `head`, `body`, `tail` und `horns`. Die Reihenfolge der Loci ist bindend:
-der neue Locus steht zuletzt, weil `LOCUS_ORDER` der Index in die Allel-Mischung ist und
-ein Locus vor den alten jedem bestehenden Genom das Allel getauscht haette.
+Farbwerts. Sein Modus ist `FAIR`, nicht `DOMINANT`: zwei gleiche Allele zeigen dieses,
+zwei verschiedene werfen aus dem Genom-Hash einen reproduzierbaren fairen Wurf zwischen
+ihnen. Der Grund ist die Verteilung — das Maximum zweier Allele haeuft die hoeheren
+Indizes (gemessen ueber vierzig Genome Spinne 23, Insekt 11, Humanoid 4, Daemon 2),
+der faire Wurf traegt die vier Arten gleich (gemessen ueber vierhundert 92, 92, 105,
+111). Damit ist die Art kein Nebenprodukt der Allel-Reihenfolge, sondern ein Zuchtziel:
+zwei reinerbige Eltern derselben Art zeugen dieselbe Art. `SPECIES_LABEL` gibt jeder
+Art ihren deutschen Namen fuer das Labor. `SPECIES_GRAMMAR` haengt an jede Art ihren
+Bauplan: `nodes` (Rumpfknoten), `armFrom` (ab welchem Knoten eine Sprosse Arm statt Bein
+wird, `null` heisst keine Arme), `rules` (die L-System-Regeln) und die Multiplikatoren
+`limb`, `girth`, `splay`, `spine`, `head`, `body`, `tail` und `horns` — `horns` traegt
+beim Insekt das Fuehlerpaar. Die Reihenfolge der Loci ist bindend: der neue Locus steht
+zuletzt, weil `LOCUS_ORDER` der Index in die Allel-Mischung ist und ein Locus vor den
+alten jedem bestehenden Genom das Allel getauscht haette.
 
 ## Schnittstellen
 
 - `LOCUS_MODE`
 - `SPECIES`
+- `SPECIES_LABEL`
 - `SKIN_TEXTURE`
 - `FEATURE_ANCHOR`
 - `GENE_LOCI`

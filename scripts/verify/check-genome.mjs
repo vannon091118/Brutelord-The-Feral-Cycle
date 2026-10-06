@@ -1,11 +1,12 @@
 /** Die Mendelsche Vererbung: Genom, Dominanz, Kreuzung, Polygenie — ohne UI. */
-import { GENE_LOCI, GENOME_CONFIG, LOCUS_MODE, PHENOTRAIT_MAP } from '../../src/domain/brutelord/genome-config.js';
-import { carried, createGenome, expressed, genomeHash } from '../../src/domain/brutelord/genome-roll.js';
+import { GENE_LOCI, GENOME_CONFIG, LOCUS_MODE, PHENOTRAIT_MAP, SPECIES } from '../../src/domain/brutelord/genome-config.js';
+import { carried, createGenome, expressed, fairExpressed, genomeHash } from '../../src/domain/brutelord/genome-roll.js';
 import { crossGenome, mutateGenome } from '../../src/domain/brutelord/genome-cross.js';
-import { phenotypeOf } from '../../src/domain/brutelord/phenotype.js';
+import { phenotypeOf, speciesOf } from '../../src/domain/brutelord/phenotype.js';
 import { check, section } from './expect.mjs';
 
 const LOCI = Object.keys(GENE_LOCI);
+const FAIR_SAMPLE = Array.from({ length: 400 }, (unused, index) => createGenome(index * 7919 + 3));
 
 function uniform(allele) {
   return Object.fromEntries(LOCI.map((locus) => [locus, [allele, allele]]));
@@ -139,6 +140,30 @@ function checkHashSpread() {
   check('Die Hashes streuen', new Set(hashes).size / hashes.length > 0.99, `${new Set(hashes).size}/${hashes.length} verschieden`);
 }
 
+function speciesCounts() {
+  return FAIR_SAMPLE.reduce((map, genome) => {
+    const species = phenotypeOf(genome).species;
+    map[species] = (map[species] ?? 0) + 1;
+    return map;
+  }, {});
+}
+
+function checkFairExpression() {
+  section('Genom: die Art wirft fair, nicht dominant');
+  const locus = 'SPECIES';
+  check('Der Art-Locus wirft fair statt dominant', GENE_LOCI[locus].mode === LOCUS_MODE.FAIR);
+  check('Ein reinerbiger Art-Locus zeigt sein Allel', fairExpressed(uniform(2), locus) === 2);
+  const hybrid = withPair(uniform(0), locus, [3, 0]);
+  check('Ein mischerbiger zeigt eines seiner beiden Allele', [0, 3].includes(fairExpressed(hybrid, locus)));
+  check('Der Wurf ist reproduzierbar', fairExpressed(hybrid, locus) === fairExpressed(hybrid, locus));
+  const counts = speciesCounts();
+  const shares = Object.values(SPECIES).map((species) => counts[species] ?? 0);
+  check('Alle vier Arten kommen vor', shares.every((share) => share > 0), shares.join(', '));
+  check('Keine Art ist doppelt so haeufig wie eine andere', Math.max(...shares) <= 2 * Math.min(...shares), shares.join(', '));
+  const { species, alleles } = speciesOf(createGenome(4242));
+  check('speciesOf nennt die Art und beide Anlagen', phenotypeOf(createGenome(4242)).species === species && alleles.length === 2 && alleles.every((allele) => Object.values(SPECIES).includes(allele)));
+}
+
 export function checkGenome() {
   checkDeterminism();
   checkDominance();
@@ -148,4 +173,5 @@ export function checkGenome() {
   checkHpBand();
   checkReproducibility();
   checkHashSpread();
+  checkFairExpression();
 }

@@ -2,6 +2,7 @@
 export const LOCUS_MODE = Object.freeze({
   DOMINANT: 'DOMINANT',
   ADDITIVE: 'ADDITIVE',
+  FAIR: 'FAIR',
 });
 
 export const SKIN_TEXTURE = Object.freeze({
@@ -16,6 +17,13 @@ export const SPECIES = Object.freeze({
   DEMON: 'DEMON',
   INSECT: 'INSECT',
   SPIDER: 'SPIDER',
+});
+
+export const SPECIES_LABEL = Object.freeze({
+  [SPECIES.HUMAN]: 'Mensch',
+  [SPECIES.DEMON]: 'Dämon',
+  [SPECIES.INSECT]: 'Insekt',
+  [SPECIES.SPIDER]: 'Spinne',
 });
 
 export const FEATURE_ANCHOR = Object.freeze({
@@ -40,7 +48,7 @@ export const GENE_LOCI = Object.freeze({
     values: Object.freeze([SKIN_TEXTURE.FLESH, SKIN_TEXTURE.CHITIN, SKIN_TEXTURE.SLIME, SKIN_TEXTURE.BONE]),
   }),
   SPECIES: Object.freeze({
-    mode: LOCUS_MODE.DOMINANT,
+    mode: LOCUS_MODE.FAIR,
     values: Object.freeze([SPECIES.HUMAN, SPECIES.DEMON, SPECIES.INSECT, SPECIES.SPIDER]),
   }),
 });
@@ -85,7 +93,7 @@ export const SPECIES_GRAMMAR = Object.freeze({
     head: 0.8,
     body: 0.85,
     tail: 0.7,
-    horns: 1,
+    horns: 2,
   }),
   [SPECIES.SPIDER]: Object.freeze({
     nodes: 2,
@@ -115,6 +123,7 @@ export const GENOME_SALT = Object.freeze({
   allele: 6131,
   cross: 8117,
   mutation: 2179,
+  fair: 1013,
 });
 
 export const GENOME_CONFIG = Object.freeze({

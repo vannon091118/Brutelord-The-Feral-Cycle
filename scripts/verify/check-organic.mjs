@@ -1,6 +1,6 @@
 /** Die Organik: Metaball-Konturen des Brutlords, deterministisch, geschlossen und symmetrisch. */
 import { FEATURE_ANCHOR, GENE_LOCI, ORGANIC_CONFIG, SPECIES, SPECIES_GRAMMAR } from '../../src/domain/brutelord/genome-config.js';
-import { createGenome, expressed } from '../../src/domain/brutelord/genome-roll.js';
+import { createGenome, fairExpressed } from '../../src/domain/brutelord/genome-roll.js';
 import { phenotypeOf } from '../../src/domain/brutelord/phenotype.js';
 import { phaseOf, skeletonOf } from '../../src/domain/brutelord/organic-bones.js';
 import { fieldOf, sampleField } from '../../src/domain/brutelord/organic-field.js';
@@ -202,15 +202,21 @@ function axisNodes(skeleton) {
   return skeleton.bones.filter((bone) => !bone.limb).length - 1;
 }
 
+function roleSignature(skeleton) {
+  return skeleton.joints.map((joint) => joint.role).filter(Boolean).sort().join(',');
+}
+
 function checkSpecies() {
   section('Art: der Spezies-Locus schaltet die Grammatik');
   const order = Object.values(SPECIES);
   check('Der Locus kennt genau die vier Arten', order.every((species) => GENE_LOCI.SPECIES.values.includes(species)), GENE_LOCI.SPECIES.values.join(', '));
-  check('Das Genom nennt dieselbe Art wie der Phaenotyp', GENOMES.every((genome, index) => SAMPLE[index].species === GENE_LOCI.SPECIES.values[expressed(genome, 'SPECIES')]));
+  check('Das Genom nennt dieselbe Art wie der Phaenotyp', GENOMES.every((genome, index) => SAMPLE[index].species === GENE_LOCI.SPECIES.values[fairExpressed(genome, 'SPECIES')]));
   const groups = speciesGroups();
   check('Alle vier Arten kommen in den Generationen vor', order.every((species) => groups[species]?.length > 0), order.map((species) => `${species} ${groups[species]?.length ?? 0}`).join(', '));
   const signatures = order.map((species) => JSON.stringify(fieldOf(groups[species][0], 0).rings));
   check('Vier Arten ergeben vier verschiedene Konturen', new Set(signatures).size === order.length, `${new Set(signatures).size} von ${order.length}`);
+  const roleSignatures = order.map((species) => roleSignature(skeletonOf(groups[species][0], 0)));
+  check('Vier Arten tragen vier verschiedene Merkmals-Anker', new Set(roleSignatures).size === order.length, `${new Set(roleSignatures).size} von ${order.length}`);
   for (const species of order) {
     const spec = SPECIES_GRAMMAR[species];
     const skeleton = skeletonOf(groups[species][0], 0);

@@ -1,6 +1,8 @@
 // @doc: docs/daten/stone/labbench.md#labbench
 import { SLOT_ORDER, STONE_DEFS, STONE_SLOT } from '../../domain/brutelord/stone-config.js';
+import { SPECIES_LABEL } from '../../domain/brutelord/genome-config.js';
 import { genomeForStones } from '../../domain/brutelord/mutant.js';
+import { speciesOf } from '../../domain/brutelord/phenotype.js';
 import { MutantSvg } from '../../world/dungling/MutantSvg.jsx';
 
 const SLOT_LABEL = Object.freeze({
@@ -39,24 +41,40 @@ function StoneSlot({ slot, stone, armed, onPlace }) {
   );
 }
 
+function SpeciesTag({ genome }) {
+  if (!genome) {
+    return <p className="h-8 text-center text-[10px] italic text-[#9c8a6e]">Die Art zeigt sich, sobald ein Stein steckt.</p>;
+  }
+  const { species, alleles } = speciesOf(genome);
+  return (
+    <div className="h-8 text-center leading-tight">
+      <p className="text-[11px] text-[#ffdca0]">Art: {SPECIES_LABEL[species]}</p>
+      <p className="text-[9px] text-[#9c8a6e]">Anlagen: {alleles.map((allele) => SPECIES_LABEL[allele]).join(' · ')}</p>
+    </div>
+  );
+}
+
 export function LabBench({ placed, selected, onPlace }) {
   const genome = placed.length > 0 ? genomeForStones(placed) : null;
   return (
-    <div className="relative mx-auto h-64 w-64">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-40 h-40">
-          <MutantSvg genome={genome} size={160} id="lab" />
+    <div className="flex flex-col items-center gap-1">
+      <SpeciesTag genome={genome} />
+      <div className="relative h-64 w-64">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative w-40 h-40">
+            <MutantSvg genome={genome} size={160} id="lab" />
+          </div>
         </div>
+        {SLOT_ORDER.map((slot) => (
+          <StoneSlot
+            key={slot}
+            slot={slot}
+            stone={placed.find((entry) => entry.slot === slot) ?? null}
+            armed={selected !== null}
+            onPlace={onPlace}
+          />
+        ))}
       </div>
-      {SLOT_ORDER.map((slot) => (
-        <StoneSlot
-          key={slot}
-          slot={slot}
-          stone={placed.find((entry) => entry.slot === slot) ?? null}
-          armed={selected !== null}
-          onPlace={onPlace}
-        />
-      ))}
     </div>
   );
 }

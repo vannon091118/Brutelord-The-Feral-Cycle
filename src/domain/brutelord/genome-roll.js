@@ -1,6 +1,6 @@
 // @doc: docs/daten/brutelord/genome-roll.md#genome-roll
 import { GENE_LOCI, GENOME_SALT, LOCUS_ORDER } from './genome-config.js';
-import { mixSeed, pickFrom } from './stone-seed.js';
+import { mixSeed, pickFrom, unitOf } from './stone-seed.js';
 
 function locusSalt(locus, offset = 0) {
   return GENOME_SALT.allele + LOCUS_ORDER.indexOf(locus) * 37 + offset;
@@ -21,6 +21,13 @@ export function expressed(genome, locus) {
 
 export function carried(genome, locus) {
   return Math.min(genome[locus][0], genome[locus][1]);
+}
+
+export function fairExpressed(genome, locus) {
+  const [first, second] = genome[locus];
+  if (first === second) return first;
+  const salt = GENOME_SALT.fair + LOCUS_ORDER.indexOf(locus) * 37;
+  return unitOf(mixSeed(genomeHash(genome), salt)) < 0.5 ? first : second;
 }
 
 export function genomeHash(genome) {

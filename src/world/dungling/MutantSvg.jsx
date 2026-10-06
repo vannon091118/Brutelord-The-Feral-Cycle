@@ -19,7 +19,7 @@ export const MutantSvg = memo(function MutantSvg({ genome = null, size = null, i
     <svg viewBox={VIEW_BOX} {...box} data-unit={id} {...mark} aria-label="Mutierter Dungling">
       {frame ? <SkinDefs id={id} skin={frame.phenotype.skin} /> : null}
       <OrganicBody frame={frame} tone={tone} id={id} phase={phase} />
-      {frame ? <Features anchors={frame.anchors} view={frame.view} tone={tone} /> : null}
+      {frame ? <Features anchors={frame.anchors} view={frame.view} tone={tone} species={frame.phenotype.species} /> : null}
     </svg>
   );
 });

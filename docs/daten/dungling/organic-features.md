@@ -9,15 +9,19 @@ Spiegel-Datei für `src/world/dungling/organic-features.jsx`.
 Hörner, Zähne, Augen, Klauen und Rückenstacheln — und zwar **auf dem Anker**, nicht daneben.
 Ein Anker aus `anchorsOf()` trägt den Ringpunkt auf der Iso-Linie und die nach außen
 weisende Normale; aus diesen beiden Werten baut `wedge()` jedes Dreieck: die Basis liegt
-quer zur Normale, die Spitze auf ihr. Deshalb sitzt ein Horn immer auf der Kante des
-Körpers, auch wenn der Phänotyp seine Kontur gerade weitet — die Merkmale wandern mit dem
-Atem mit, statt neben ihm zu stehen.
+quer zur Normale, die Spitze auf ihr. Der Senkrecht-Versatz `bend` zieht die Spitze zur
+Seite, damit ein Klauenhorn sich krümmt statt gerade zu stehen. Deshalb sitzt eine Form
+immer auf der Kante des Körpers, auch wenn der Phänotyp seine Kontur gerade weitet.
 
-Jede Rolle aus `FEATURE_ANCHOR` bekommt ihre eigene Form: `HEAD_TIP` ein helles Horn,
-`LIMB_TIP` eine Klaue, `BACK` einen Stachel, `JAW` drei Zähne entlang der Tangente und
-`EYE_SOCKET` ein Auge mit Linsenrand und Glanzlicht. Die Zahl der Augen und Hörner kommt
-aus dem Genom, die Zahl der Anker aus dem Skelett — beides trifft sich hier, ohne dass
-diese Ebene etwas nachzählt.
+Die Form hängt an der **Art** und nicht mehr an der Rolle allein: `Features()` bekommt die
+ausgedrückte Art aus dem Phänotyp und wählt danach. Ein Dämon trägt gebogene Klauenhörner
+(gestreckter `bend`), ein Insekt Fühler — `Horn()` zeichnet dort eine dünne Linie mit
+Endknopf statt eines Dreiecks —, eine Spinne kurze Stacheln. Auch Augen und Kiefer gehen
+mit: der Mensch behält das runde Auge und drei Zähne, der Dämon ein rautenförmiges
+Schlitzauge und zwei lange Fangzähne, das Insekt ein Facettenauge und zwei Mandibeln,
+die Spinne ein Bündel kleiner Augen (`clusterEye()`) und zwei nach innen gebogene
+Cheliceren. Die Zahl der Augen und Hörner kommt weiter aus dem Genom, die Zahl der Anker
+aus dem Skelett — beides trifft sich hier, ohne dass diese Ebene etwas nachzählt.
 
 Farbe und Projektor kommen aus `organic-skin.jsx`: es gibt genau einen Projektor, nicht
 zwei, die auseinanderlaufen.
