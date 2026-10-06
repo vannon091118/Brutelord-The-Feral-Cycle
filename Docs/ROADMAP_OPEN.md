@@ -44,13 +44,25 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
 
 - [ ] **Der Rest des Raids: Angriff, Opfer, Extraktion.** Das Gerüst steht
       (`RAID_CONFIG`, Ticket, Replay, halbautomatischer Einmarsch), aber die
-      Phasen hinter dem Einmarsch sind verhindert, nicht erreicht: Ein Angriff
-      an Wächtern rechnet keinen Schaden, Opfer und Extraktion fehlen ganz,
-      Wächter-Koma gibt es nicht, und die Kantenwände des Raid-Felds sind
-      Kulisse. `EXTRACTING` und `RESOLVED` bleiben dadurch unerreichbar, und
-      das Ticket **auszustellen** kann nur der Server — dieser Baum führt die
+      Mechanik dahinter steht jetzt und läuft durch: `raid-warden.js` stellt die
+      Verteidigung, `raid-verbs.js` rechnet den Schaden als Summe des `atk` der
+      Teilnehmer (D28) und trifft erst die Wächter, dann den Hive,
+      `raid-traverse.js` betritt den Hive über die Phasenmaschine, Opfer und
+      Beute stehen als Taten bereit, und `raid-loot.js` zahlt erst nach der
+      Rückkehr aus. `check-raid-siege.mjs` fährt den ganzen Weg in einer
+      Prüfgruppe — `ENTER > COMBAT > WARDEN_DOWN > SACRIFICE > LOOT >
+      EXTRACTING > RESOLVED`, Wächter-Koma mit Frist und erhaltenem Seed,
+      Essenz in einen echten Heimatstand und der Blutstein aus
+      `bloodstone-loop.js`. Das Ticket **auszustellen** kann weiterhin nur der Server — dieser Baum führt die
       Instanz aus, er vergibt sie nicht. Das ist die Grenze zwischen Client
-      und Matchmaking, nicht ein Fehler im Ticket. Die Regeln und offenen
+      und Matchmaking, nicht ein Fehler im Ticket. **Die Phasen selbst stehen
+      jetzt als Maschine:** `raid-phases.js` führt die sieben Phasen mit
+      Kanten, Kosten, Ereignissen und erlaubten Aktionen, `applyAction()` liest
+      diese Tabelle statt einer if-Kette, und `check-raid-phases.mjs` belegt die
+      Kette samt Fehlpfaden und Determinismus. **Offen bleiben drei Dinge:** die
+      Kantenwände des Raid-Felds sind Kulisse, der Rundenwechsel (`nextRound`)
+      wird bis heute vom Aufrufer ausgelöst, weil der Raid keine Uhr hat, und
+      das Ticket vergibt der Server. Die Regeln und offenen
       Fragen stehen in [`RAID-PLAN.md`](RAID-PLAN.md). Die zweite Hälfte dieses
       Rests — Biomasse und der Wächter, der sie verbraucht — ist als Entwurf
       vermessen und in [`WARDEN-PLAN.md`](WARDEN-PLAN.md) entschieden: die
@@ -83,11 +95,16 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
       weg. Gehört in denselben Zug wie die Backend-Entscheidung darüber.
       **Der Speicher ist gebaut:** `getState`/`putState` stehen im Vertrag, die
       Spalte `state` in der Kontotabelle, und `check-storage.mjs` belegt den
-      Kreislauf gegen die echte Datei. **Offen bleibt die Schreiblast** — der
-      Client speichert alle fünf Sekunden und über HTTP ist dasselbe Snapshot
-      ein Vielfaches größer; es braucht eine Zusammenfassung und eine Obergrenze.
-      Die Fragen stehen als offene Punkte 2 und 3 in
-      [`BACKEND-PLAN.md`](BACKEND-PLAN.md).
+      Kreislauf gegen die echte Datei. **Die Schreiblast ist gelöst:**
+      `snapshot-rule.js` schreibt nur bei geänderter Nutzlast, höchstens alle
+      30 s, gedeckelt bei 262.144 Bytes und mit monotoner Revision — der
+      gepackte Envelope misst 829 Bytes gegen 798.115 Bytes ungepackt —,
+      `state-write.mjs` wendet dieselbe Regel in beiden Speichern an, und
+      `check-snapshot.mjs` fährt Sichern, Wiederherstellen und Fassungswechsel.
+      **Offen bleibt der Transport über HTTP** — der Rumpfdeckel der Konto-API
+      liegt bei 4096 Bytes, derselbe Stand braucht also erst einen eigenen Weg
+      —, und Ticket und MMR fehlen weiterhin. Die Fragen stehen als offene
+      Punkte 2 und 3 in [`BACKEND-PLAN.md`](BACKEND-PLAN.md).
   Status: geplant
   Scope: Konto
   Kategorie: Feature
@@ -111,12 +128,15 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
       einzige Ressource, die **nicht** aus dem eigenen Keller kommt: die
       Ressourcenmatrix in [`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md) legt sie
       ausschließlich aus feindlichen Hives, und daraus zieht der Entwurf seine
-      Begründung, warum das Spiel den Spieler irgendwann hinauszwingt. Heute hat
-      sie weder Quelle noch Abnehmer: die Phantom-Beute steht als Absicht in der
-      VISION und **nicht** im Raid-Entwurf, in dem das Wort gar nicht vorkommt,
-      und der Raid-Rest oben nennt Opfer und Extraktion als unerreicht. Solange
-      die Phase hinter `EXTRACTING` verhindert wird, gibt es nichts, was
-      Blutstein liefern könnte. **Korrektur an der Vorlage:** die Vorlage
+      Begründung, warum das Spiel den Spieler irgendwann hinauszwingt. **Der
+      Kreislauf steht als Domäne:** `bloodstone-loop.js` erzeugt nur über
+      `raidYieldFor()` in der Beute-Phase gegen einen feindlichen Hive bei
+      gefallenem Wächter, die eigene Basis liefert nach 0, 1 und 1000 Takten
+      nachweislich 0, und der Abnehmer ist `unlockDepth()` mit
+      `depthCostFor(depth)` bis `maxDepth`; `check-bloodstone.mjs` führt beide
+      Seiten. **Offen bleibt die Spielbarkeit:** solange die Phase hinter
+      `EXTRACTING` verhindert wird, gibt es im Spiel nichts, was Blutstein
+      liefern könnte. **Korrektur an der Vorlage:** die Vorlage
       zitiert `D13` und `D26`; `D13` ist der Preis des Lootlings und nicht die
       Herkunft der Beute, und `D26` regelt, dass `DIG` ein Verb bleibt. Wer hier
       baut, entscheidet zuerst, **wo** die Ressource entsteht — sie ist die
@@ -132,7 +152,13 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
       [`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md) aus dem Inneren der eigenen
       Basis. Ihr fehlt damit nicht nur der Verbraucher, sondern der **Ort**: die
       Etagen sind im Raid-Entwurf ausdrücklich vollständig unbestimmt, und die
-      Leiter bei 47,47 ist Kulisse ohne Verhalten. **Korrektur an der Vorlage:**
+      Leiter bei 47,47 ist Kulisse ohne Verhalten. **Der Loop steht als
+      Domäne:** `aether-loop.js` liefert unter `depthThreshold` exakt 0 und in
+      der Tiefe je Takt, der Abnehmer ist die Mutation (`mutate()`,
+      `digAbilityOf()`, Deckel am `riskCeiling`), und `check-aether.mjs` belegt
+      Quelle, Verbrauch, Deckel und Determinismus. **Offen bleibt der Ort:**
+      bis Vertikalität existiert, hat der Aether keinen Ort, an dem er im Spiel
+      entsteht. **Korrektur an der Vorlage:**
       die Vorlage zitiert `D2` und `D33`; `D2` beschreibt das Erd-Tor des Raids,
       und `D33` war doppelt vergeben — der Raid-Entwurf hat die spätere Doppelung
       aufgelöst, die zitierte Nummer zeigt jetzt auf die Ausdauer-Rechnung und

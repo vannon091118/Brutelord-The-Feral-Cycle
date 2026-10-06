@@ -2,7 +2,7 @@
 import { replayMatches, replayRaid } from '../../src/domain/raid/raid-replay.js';
 import { createRaidState, stateHashInput } from '../../src/domain/raid/raid-state.js';
 import { createRaidWorld } from '../../src/domain/raid/raid-world.js';
-import { RAID_CONFIG, RAID_PHASE, canDig, digCost, maxTeamGrit } from '../../src/domain/raid/raid-config.js';
+import { RAID_CONFIG, RAID_PHASE, RAID_TRANSITIONS, canDig, digCost, maxTeamGrit } from '../../src/domain/raid/raid-config.js';
 import { TILE_KIND, TILE_TERRAIN, parseTileId, terrainOf, tileId } from '../../src/domain/world/tile.js';
 import { allTiles } from '../../src/domain/world/grid.js';
 import { check, section } from './expect.mjs';
@@ -81,16 +81,23 @@ function checkReplay(world) {
   const actions = digPath(ticketArg.entry, hive);
   const end = replayRaid({ ticket: ticketArg, actions });
   check('Der Einmarsch erreicht den Hive', end.at.x === hive.x && end.at.y === hive.y, `${end.at.x},${end.at.y}`);
-  check('Ein nacktes Team schafft denselben Weg nicht', replayRaid({ ticket: { ...ticketArg, heroes: held() }, actions }).phase !== RAID_PHASE.AT_HIVE);
-  check('Die Phase wechselt am Hive', end.phase === RAID_PHASE.AT_HIVE, end.phase);
+  check('Ein nacktes Team schafft denselben Weg nicht', replayRaid({ ticket: { ...ticketArg, heroes: held() }, actions }).phase !== RAID_PHASE.COMBAT);
+  check('Die Phase wechselt am Hive in den Kampf', end.phase === RAID_PHASE.COMBAT, end.phase);
   check('Zweimal dieselbe Eingabe, zweimal derselbe Zustand', hashOf(replayRaid({ ticket: ticketArg, actions })) === hashOf(end));
   check('Das Log ist die abgesetzten Aktionen', JSON.stringify(end.log) === JSON.stringify(actions), `${end.log.length} von ${actions.length}`);
   const ausgegeben = Object.keys(end.dug).reduce((sum, id) => {
     const { x, y } = parseTileId(id);
     return sum + digCost(terrainOf(tileOf(world, x, y)));
   }, 0);
-  check('Die Ausdauer ist die Summe der Grabpreise', end.stamina === end.staminaMax - ausgegeben, `${end.stamina} von ${end.staminaMax}, ausgegeben ${ausgegeben}`);
+  const uebergang = RAID_TRANSITIONS[RAID_PHASE.ENTER][0].staminaCost;
+  check('Die Ausdauer ist die Summe aus Grabpreisen und dem Uebergang am Hive',
+    end.stamina === end.staminaMax - ausgegeben - uebergang,
+    `${end.stamina} von ${end.staminaMax}, ausgegeben ${ausgegeben} plus ${uebergang}`);
   check('Der Server erkennt die echte Einreichung', replayMatches({ ticket: ticketArg, actions, claimed: end }));
+  checkForgeries(ticketArg, actions, end);
+}
+
+function checkForgeries(ticketArg, actions, end) {
   const gefaelscht = [
     ['aufgeblaehte Ausdauer', { ...end, stamina: end.stamina + 20 }],
     ['versetztes Team', { ...end, at: { x: 0, y: 0 } }],

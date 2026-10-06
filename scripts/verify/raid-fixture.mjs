@@ -11,14 +11,14 @@ export function raidWorld(seed = SNAPSHOT_SEED) {
   return createRaidWorld({ snapshotSeed: seed });
 }
 
-export function raidTicket({ traits = [], dig = true, heroes = 1 } = {}) {
+export function raidTicket({ traits = [], dig = true, heroes = 1, grit = 20, atk = 4, speed = 5 } = {}) {
   const world = raidWorld();
   const team = Array.from({ length: heroes }, (unused, index) => ({
     id: `held-${index}`,
     name: `Held ${index}`,
-    atk: 4,
-    grit: 20,
-    speed: 5,
+    atk,
+    grit,
+    speed,
     traits,
     dig,
   }));

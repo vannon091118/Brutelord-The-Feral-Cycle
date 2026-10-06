@@ -410,8 +410,13 @@ Zwei Lücken, beide klein und beide findbar:
 - **Der feste AP-Preis eines Angriffs ist keine Zahl.** Ebenso der
   Verteidigungswert einer Obsidianwand.
 
-Die Zahlen gehören nach `stone-config.js` und erst **mit** der Abnahme. Sie
-sollen den Bau nicht blockieren, sondern beschreiben, was gemessen wurde.
+Der feste Angriffspreis ist inzwischen eine Zahl (`RAID_CONFIG.attackApCost`),
+und die Faltung ist entschieden: der Schaden eines Schlags ist die Summe des
+`atk` der Teilnehmer (D28/D31), nicht ein abgeschriebener Wert je Monster. Was
+fehlt, ist der Verteidigungswert einer Obsidianwand — die Kantenwände sind der
+letzte offene Bauteil dieses Entwurfs. Die Wächter- und Hive-Zahlen sind mit
+der Mechanik gesetzt und stehen als Setzung in `raid-config.js` markiert; sie
+gehören gemessen, sobald es einen Balance-Lauf gibt.
 
 **Was inzwischen gemessen ist und hierher gehört:** die Chance auf `GRABEN`
 steht als `capabilityChance` je Seltenheitsstufe in `stone-config.js` — hoch
@@ -498,10 +503,25 @@ Replay-Check. Dazu kommt am Stein das vierte Feld `capability`. Das Gerüst ist
 bewusst vor der Mechanik gebaut, weil die Zahlen sonst gegen eine Annahme
 programmiert worden wären. **Die Abnahme steht auch:**
 `check-raid.mjs`, `check-raid-terrain.mjs` und `check-raid-replay.mjs` prüfen es
-gegen die echten Module. **Von der Mechanik steht:** gehen, graben und die
-Ankunft am Hive. **Nicht gebaut** sind Angriff, Opfer, Extraktion, Wächter-Koma
-und Kantenwände — die Phase `EXTRACTING` und `RESOLVED` werden heute nur
-verhindert, nicht erreicht.
+gegen die echten Module. **Von der Mechanik steht:** gehen, graben, die
+Ankunft am Hive, der Angriff mit Schaden, das Opfer, die Beute, die Extraktion
+und das Wächter-Koma. **Gebaut und gemessen ist damit:** `raid-warden.js`
+(Verteidigung, Koma, Zone of Control), `raid-verbs.js` (Schaden als Summe des
+`atk` der Teilnehmer, D28), `raid-traverse.js` (Hive-Eintritt über die
+Maschine), `raid-loot.js` (Auszahlung erst nach der Rückkehr) und die
+Prüfgruppe `raid-siege`, die den ganzen Weg `ENTER … RESOLVED` fährt.
+**Nicht gebaut** sind allein noch die **Kantenwände** — und der Rundenwechsel,
+der bis heute vom Aufrufer kommt, weil der Raid keine Uhr hat.
+
+**Die neuen Zahlen sind gesetzt, nicht gemessen.** `RAID_WARDEN` (drei Wächter,
+24 Leben plus bis zu 8 aus dem Hash, `zoneRadius` 1) und `RAID_SIEGE`
+(`hiveHp` 48, `lootEssence` 30, `sacrificeStamina` 30) stehen in
+`raid-config.js`, weil es vor dieser Mechanik keinen Lauf gibt, aus dem sich
+etwas ableiten ließe. Sie sind damit ausdrücklich **keine** Messwerte: die
+Abnahme leitet ihre Erwartungen aus denselben Konstanten ab und schreibt keine
+Zahl ab, und wer sie ändert, ändert nur diese eine Stelle. Der Blutstein hat
+hier keine eigene Zahl — er kommt aus `bloodstone-loop.js`, damit es zwei
+Quellen für dieselbe Beute nicht gibt.
 
 **Ein Zirkel, der benannt gehört:** Das MMR-System verhindert Missbrauch,
 braucht aber aufgezeichnete Raid-Ergebnisse und liegt damit **nach** dem ersten

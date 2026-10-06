@@ -4,15 +4,11 @@ import { GRID_WIDTH, GRID_HEIGHT, HIVE_ORIGIN } from '../world/world-config.js';
 import { TILE_TERRAIN } from '../world/tile.js';
 import { STAT_KEYS } from '../brutelord/stone-roll.js';
 import { SLOT_ORDER, STONE_DEFS, STONE_TRAIT, STONE_TRAIT_DEFS } from '../brutelord/stone-config.js';
+import { RAID_EVENT, RAID_PHASE, RAID_TRANSITIONS, phasePath } from './raid-phases.js';
 
-export const RAID_FORMAT_VERSION = 2;
+export { RAID_EVENT, RAID_PHASE, RAID_TRANSITIONS, phasePath };
 
-export const RAID_PHASE = Object.freeze({
-  INFILTRATING: 'INFILTRATING',
-  AT_HIVE: 'AT_HIVE',
-  EXTRACTING: 'EXTRACTING',
-  RESOLVED: 'RESOLVED',
-});
+export const RAID_FORMAT_VERSION = 4;
 
 const MAX_APPROACH = Math.max(HIVE_ORIGIN.x, GRID_WIDTH - 1 - HIVE_ORIGIN.x)
   + Math.max(HIVE_ORIGIN.y, GRID_HEIGHT - 1 - HIVE_ORIGIN.y);
@@ -41,6 +37,20 @@ export const RAID_TERRAIN = Object.freeze({
   stoneChance: 0.18,
   obsidianChance: 0.05,
   coreRadius: 6,
+});
+
+export const RAID_WARDEN = Object.freeze({
+  count: 3,
+  hp: 24,
+  hpStep: 8,
+  atk: 3,
+  zoneRadius: 1,
+});
+
+export const RAID_SIEGE = Object.freeze({
+  hiveHp: 48,
+  lootEssence: 30,
+  sacrificeStamina: 30,
 });
 
 export function maxTeamGrit({ statMax = 5 } = {}) {
@@ -82,4 +92,8 @@ export function worstEntryDistance(config = RAID_CONFIG) {
 
 export function approachSteps(from, to) {
   return Math.abs(from.x - to.x) + Math.abs(from.y - to.y);
+}
+
+export function withinReach(from, to, radius) {
+  return approachSteps(from, to) <= radius;
 }

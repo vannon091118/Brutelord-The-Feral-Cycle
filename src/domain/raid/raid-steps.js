@@ -1,38 +1,68 @@
 // @doc: docs/daten/raid/raid-steps.md#raid-steps
-import { tileAt } from '../world/grid.js';
-import { TILE_KIND, terrainOf, tileId } from '../world/tile.js';
-import { RAID_PHASE, canDig } from './raid-config.js';
-import { isDigAction, isKnownAction, neighborOf } from './raid-actions.js';
-import { cellCost } from './raid-path.js';
-import { record, spend } from './raid-state.js';
+import { RAID_ACTION, isDigAction, isKnownAction } from './raid-actions.js';
+import { RAID_EVENT, RAID_PHASE, actionsAllowedIn, isTerminal } from './raid-phases.js';
+import { approachSteps } from './raid-config.js';
+import { allWardensDown, bindsGroup, hiveFallen } from './raid-warden.js';
+import { transition } from './raid-state.js';
+import { stepInto } from './raid-traverse.js';
+import { attackStep, lootStep, sacrificeStep } from './raid-verbs.js';
 
-function isKnown(state, world, at) {
-  const kind = tileAt(world, at.x, at.y)?.kind;
-  return state.dug[tileId(at.x, at.y)] === true || kind === TILE_KIND.DUNGEON_FLOOR || kind === TILE_KIND.HIVE;
+function categoryOf(action) {
+  if (isDigAction(action)) return 'DIG';
+  if (action.type === RAID_ACTION.ATTACK) return 'ATTACK';
+  if (action.type === RAID_ACTION.SACRIFICE) return 'SACRIFICE';
+  if (action.type === RAID_ACTION.LOOT) return 'LOOT';
+  return 'MOVE';
 }
 
-function arrive(state, tile, dugId) {
-  return {
-    ...state,
-    at: { x: tile.x, y: tile.y },
-    phase: tile.kind === TILE_KIND.HIVE ? RAID_PHASE.AT_HIVE : state.phase,
-    dug: dugId ? { ...state.dug, [dugId]: true } : state.dug,
-  };
+function atHome(state) {
+  return approachSteps(state.at, state.entry) === 0;
 }
 
-function dig(state, { world, action, tile }) {
-  const terrain = terrainOf(tile);
-  if (!terrain || !canDig(terrain, state.heroes)) return state;
-  const cost = cellCost(state, world, tile.id);
-  const bezahlt = spend(state, cost);
-  return bezahlt === state ? state : arrive(record(bezahlt, action), tile, tile.id);
+function extraction(state) {
+  if (state.phase === RAID_PHASE.LOOT) return transition(state, RAID_EVENT.EXTRACTED);
+  if (state.phase !== RAID_PHASE.EXTRACTING || !atHome(state)) return state;
+  const heim = transition(state, RAID_EVENT.EXTRACTED);
+  return heim === state ? state : { ...heim, secured: true };
+}
+
+function travel(state, world, action) {
+  if (bindsGroup(state)) return state;
+  const gezogen = stepInto(state, world, action);
+  return gezogen === state ? state : extraction(gezogen);
+}
+
+function siege(state) {
+  const offen = hiveFallen(state.hive) && allWardensDown(state.wardens);
+  return state.phase === RAID_PHASE.COMBAT && offen ? transition(state, RAID_EVENT.WARDEN_FELL) : state;
+}
+
+function booty(state) {
+  const kante = transition(state, RAID_EVENT.LOOT_TAKEN);
+  return kante === state ? state : lootStep(kante);
+}
+
+function offer(state) {
+  const kante = transition(state, RAID_EVENT.SACRIFICED);
+  return kante === state ? state : sacrificeStep(kante);
+}
+
+function deed(state, action) {
+  if (action.type === RAID_ACTION.ATTACK) return siege(attackStep(state, { ...state.hive.at }));
+  if (action.type === RAID_ACTION.SACRIFICE) return offer(state);
+  return booty(state);
+}
+
+export function resolveLoss(state) {
+  if (isTerminal(state.phase) || state.stamina > 0) return state;
+  const verloren = transition(state, RAID_EVENT.RAID_LOST);
+  return verloren === state ? state : { ...verloren, carried: null, lost: true };
 }
 
 export function applyAction(state, world, action) {
-  if (!isKnownAction(action) || state.phase === RAID_PHASE.RESOLVED) return state;
-  const at = neighborOf(state.at, action);
-  const tile = tileAt(world, at.x, at.y);
-  if (!tile) return state;
-  if (isDigAction(action)) return dig(state, { world, action, tile });
-  return isKnown(state, world, at) ? arrive(record(state, action), tile, null) : state;
+  if (!isKnownAction(action) || isTerminal(state.phase)) return state;
+  const kategorie = categoryOf(action);
+  if (!actionsAllowedIn(state.phase).includes(kategorie)) return state;
+  const danach = kategorie === 'MOVE' || kategorie === 'DIG' ? travel(state, world, action) : deed(state, action);
+  return resolveLoss(danach);
 }

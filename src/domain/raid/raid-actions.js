@@ -15,7 +15,12 @@ export const RAID_ACTION = Object.freeze({
   DIG_E: 'DIG_E',
   DIG_S: 'DIG_S',
   DIG_W: 'DIG_W',
+  ATTACK: 'ATTACK',
+  SACRIFICE: 'SACRIFICE',
+  LOOT: 'LOOT',
 });
+
+export const RAID_STEP = Object.freeze([RAID_ACTION.MOVE_N, RAID_ACTION.MOVE_E, RAID_ACTION.MOVE_S, RAID_ACTION.MOVE_W]);
 
 export function isKnownAction(action) {
   return Object.hasOwn(RAID_ACTION, action?.type);
@@ -23,6 +28,10 @@ export function isKnownAction(action) {
 
 export function isDigAction(action) {
   return isKnownAction(action) && action.type.startsWith('DIG');
+}
+
+export function isStepAction(action) {
+  return isKnownAction(action) && RAID_STEP.includes(action.type);
 }
 
 export function neighborOf(at, action) {

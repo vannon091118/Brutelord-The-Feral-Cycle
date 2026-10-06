@@ -99,18 +99,17 @@ verdrahtet Abbau, Ausbau und Verwurzelung, `lab-reducer.js` die Brutlord-Befehle
 
 ### Die Importmatrix, gemessen
 
-Jede Kante zählt einen relativen Specifier über alle Dateien in `src/`:
+Jede Kante zählt einen relativen Specifier über alle Dateien in `src/` —
+175 Dateien, gemessen am 2026-10-06:
 
-| Von \ Nach | domain | state | ui | world |
-| --- | --- | --- | --- | --- |
-| `domain` | 54 | — | — | — |
-| `state` | 54 | 21 | — | — |
-| `ui` | 13 | — | 17 | 3 |
-| `world` | 34 | 1 | — | 75 |
+| Von \ Nach | domain | state | ui | world | Paket |
+| --- | --- | --- | --- | --- | --- |
+| `domain` | 130 | — | — | — | — |
+| `state` | 59 | 30 | — | — | 4 |
+| `ui` | 19 | — | 24 | 3 | 4 |
+| `world` | 39 | 1 | — | 85 | 13 |
 
-`domain` importiert ausschließlich sich selbst — 54 Kanten, null heraus. Das ist
-die eine Eigenschaft, die das Gate nicht erzwingt und die trotzdem jeder neue
-Ordner unter `src/domain/` aufreßen würde.
+`domain` importiert ausschließlich sich selbst — 130 Kanten, null heraus.
 
 Zwei Kanten zeigen entgegen der Schichtkette und sind so gewollt:
 `src/ui/GameStage.jsx` importiert `world` (es rendert die Szene), und
@@ -120,12 +119,58 @@ Zustand). Es gibt keine einzige Kante `world → ui` oder `state → ui`.
 React steht in 20 Dateien: sechs Hooks in `src/state/`, drei in `src/ui/` und
 elf in `src/world/`. `src/domain/` und `src/app/` sind frei.
 
-Die Kette ist **Konvention, nicht Gate**. `check-architecture.mjs` prüft genau
-drei Dinge: `src/domain/` zieht weder `react` noch `document`/`window`, in ganz
-`src/` gibt es kein `Math.random(` und kein `Date.now(`, und `src/domain/`
-enthält kein `<svg>`-Markup. Die Importrichtung prüft er nicht — wer
-`src/domain/` etwas aus `src/world/` importieren lässt, fällt durch keine dieser
-drei Zeilen.
+**Die Kette ist jetzt ein Gate, keine Vereinbarung.** Die Tabelle der erlaubten
+Ziele steht in `scripts/lib/import-rules.mjs` — `domain` nur sich selbst,
+`state` zusätzlich `domain`, `world` zusätzlich `state`, `ui` zusätzlich
+`world`, `app` alles darunter —, und `scripts/verify/check-imports.mjs` prüft
+den ganzen Baum dagegen. Fail-closed: was nicht in der Tabelle steht, ist
+verboten. Ein nicht-relativer Specifier ist in `domain` verboten und sonst auf
+`react`/`react-dom`/`react/jsx-runtime` begrenzt, und ein Ziel außerhalb von
+`src/` ist in jeder Schicht ein Verstoß.
+
+Dass die Prüfung rot werden **kann**, ist selbst gemessen: eine erfundene Kante
+`domain → world` fällt mit `domain darf nicht nach world`, und eine echte,
+vorübergehend eingebaute Datei `src/domain/zz-sabotage.js` mit demselben Import
+lässt die Gruppe mit 1 von 13 Prüfungen fallen — nach dem Rückbau wieder 13 von
+13. Alle sechs verbotenen Richtungen (`domain → world`, `domain → ui`,
+`domain → React`, `state → ui`, `world → ui`, `domain → außerhalb src`) stehen
+als Fall im Prüfmodul. `check-architecture.mjs` prüft daneben weiter, was keine
+Richtung ist: kein React/DOM/SVG in der Domäne, kein `Math.random(` und kein
+`Date.now(` in `src/`.
+
+### Der Spielstand schreibt nur Änderungen
+
+Der Snapshot ist gepackt, sonst wäre er der größte Posten im System: derselbe
+Zustand misst ungepackt **798.115 Bytes** (4.096 Kacheln) und gepackt **829
+Bytes** — Faktor 963, gemessen mit `buildEnvelope()` gegen `JSON.stringify()`
+des vollen Zustands. Was oben hereinkommt, wächst also mit dem, was der Spieler
+verändert hat, und nicht mit dem Raster.
+
+Drei Regeln halten die Schreiblast unten, und alle drei stehen an **einer**
+Stelle, `src/state/snapshot-rule.js`:
+
+- **Nur bei Änderung.** Der Takt fragt alle `SNAPSHOT_EVERY_MS` (5 s), ob sich
+die Nutzlast überhaupt unterscheidet; eine unveränderte Lage schreibt nicht.
+Vorher schrieb jeder Takt bedingungslos.
+- **Gebündelt.** Geschrieben wird höchstens alle `SNAPSHOT_WRITE_EVERY_MS`
+(30 s); der Takt dazwischen markiert nur. Fünf Minuten Spiel sind damit
+höchstens zehn Schreibungen statt sechzig, und `pagehide` erzwingt den letzten
+Stand beim Verlassen der Seite.
+- **Gedeckelt und revisioniert.** Eine Nutzlast über `SNAPSHOT_MAX_BYTES`
+(262.144) oder mit einer Revision, die nicht höher ist als die gesicherte,
+wird abgewiesen — der letzte gute Stand bleibt stehen, statt halb überschrieben
+zu werden. Ein Stand aus einer älteren `SNAPSHOT_VERSION` wird beim Lesen
+verworfen.
+
+**Dieselbe Regel gilt auf dem Server.** `scripts/server/state-write.mjs` liest
+die Obergrenze aus `src/state/snapshot-config.js` — die Zahl gibt es einmal —,
+und `putState()` gibt in beiden Speichern das Urteil zurück statt eines
+Booleans: `ok`, `veraltet`, `zu gross` oder `kein konto`. Ein Stand ohne
+Revision darf schreiben, solange kein revisionierter vorliegt; sonst nicht.
+`check-storage.mjs` belegt beide Abweisungen samt der Gegenprobe, dass der alte
+Stand danach unverändert dasteht, und `check-snapshot.mjs` fährt dieselbe Regel
+gegen den echten Zustand: sichern, wiederherstellen, unverändert nicht noch
+einmal schreiben, eine Fassung zurück verwerfen.
 
 **Eine Uhr, gemessene Schritte.** Bis 0.0.32 hielten fünf Uhren die Simulation
 in Bewegung: drei `setInterval` der Kolonie, die einen **festen** `dtMs` von
@@ -890,6 +935,101 @@ dem Kader ins Ticket, wo `canDigTeam()` sie fail closed auswertet. Die
 Konstante steht bewusst beim Entity und nicht in `src/domain/raid/`: Wer sie
 dort kopiert, baut zwei Fähigkeiten mit demselben Namen, und die Basis gräbt
 mit der einen, der Raid mit der anderen.
+
+### Die Phasen sind eine Tabelle, kein if
+
+Ein Raid läuft durch sieben Phasen — `ENTER`, `COMBAT`, `WARDEN_DOWN`,
+`SACRIFICE`, `LOOT`, `EXTRACTING`, `RESOLVED` —, und die Übergänge stehen als
+Tabelle in `raid-phases.js`: pro Phase die erlaubten Kanten mit Ereignis, Ziel,
+Ausdauer-Preis und der Aktionen-Menge der Zielphase. `advance()` gibt
+`{ ok: true, to, staminaCost }` oder `{ ok: false, error }` mit einem stabilen
+Schlüssel (`VERBOTENER_UEBERGANG`, `UNBEKANNTE_PHASE`, `UNBEKANNTER_EVENT`,
+`RAID_BEREITS_AUFGELOEST`) — es wirft nie und rät nie. Der Schritt liest diese
+Tabelle: `applyAction()` weist eine Aktion ab, die in der laufenden Phase nicht
+erlaubt ist, und der Kontakt mit dem Hive ist ein Ereignis (`ENTERED_HIVE`)
+statt einer Zuweisung. `RAID_PHASE` steht seit Fassung 3 nur noch dort;
+`raid-config.js` reicht es weiter, damit es die Werte einmal gibt.
+
+Der Unterschied ist nicht Ordnung, sondern Prüfbarkeit: die Kette ist
+vollständig durchlaufen, jede offene Phase hat mindestens eine Kante,
+`RESOLVED` hat keine, und ein verbotener Übergang ist eine Zusage statt eines
+Absturzes. `check-raid-phases.mjs` führt das; die Kette misst 6 Schritte für
+7 Phasen. Die Zahl der grünen Prüfungen nennt der Lauf und nicht dieser Text —
+wer sie hier abschreibt, schreibt sie beim nächsten Commit falsch.
+
+### Der Schlag trifft den Wächter, nicht den Hive
+
+Die Verteidigung des fremden Dungeons sind **Wächter**, und sie sind gesetzt,
+nicht gemessen: `RAID_WARDEN` nennt drei Wächter, 24 Leben plus bis zu acht aus
+dem Hash, und `zoneRadius` 1 — es gibt vor dieser Mechanik keinen Lauf, aus dem
+sich eine Zahl ableiten ließe, also steht in `raid-config.js` eine Setzung und
+keine Messung. Ihre Plätze folgen demselben Hash-Strom wie der Einmarsch, damit
+derselbe Snapshot dieselben Wächter stellt. Ein Wächter **stirbt nicht**: er
+trägt `revivesAfterMs` aus `RAID_CONFIG.reviveWindowMs` als Datum, behält seinen
+Seed und wird zu Hause mit Biomasse geheilt (D14) — der Raid braucht dafür
+keine Uhr, weil Koma ein Feld ist und kein Timer.
+
+**Der Schaden ist die Summe, nicht eine Zahl je Monster.** Ein Schlag kostet
+jedem beteiligten Helden denselben festen AP-Preis und richtet so viel an, wie
+die Teilnehmer zusammen `atk` tragen (D28/D29) — das belohnt Ausrüstung, statt
+schwache Monster zu belohnen. Getroffen wird zuerst der nächste wache Wächter,
+**auch wenn er nicht in Reichweite steht**: solange einer wach ist, deckt er den
+Hive, und eine Gruppe an der Hive-Wand kommt sonst nie an die Wächter hinter dem
+Bau. Erst wenn alle im Koma liegen, nimmt der Hive Schaden — das ist die
+Schlacht. Beispielnummern: 24 bis 32 Leben je Wächter, 48 für den Hive, beide in
+`RAID_SIEGE`/`RAID_WARDEN` gesetzt und in der Abnahme aus genau diesen
+Konstanten abgeleitet.
+
+**Zone of Control ist Bewegung, nicht Schaden.** Ein wacher Wächter in
+Reichweite bindet die Gruppe: `stepInto()` wird gar nicht erst gefragt, ein
+Schritt wird abgewiesen, der Angriff nicht. Eine gebundene Gruppe kann also
+nicht weglaufen, und die Idle-Erkundung schweigt, weil aus `tickMove()` dieselbe
+Abweisung kommt. Das ist D14, und es ist der Grund, warum ein Raid scheitern
+kann, ohne dass das Budget leer ist.
+
+**Beute wird getragen, nicht ausgezahlt.** Der Loot-Akt füllt `carried`; erst die
+Rückkehr auf das Einmarschfeld setzt `secured` und damit `RESOLVED`. Ein
+abgebrochener Raid zahlt nichts (D12), ein verlorener Raid räumt die getragene
+Beute sogar wieder (`carried: null` bei `lost`), und ein Raid, dessen Ausdauer
+auf null fällt, ist über die Kante `RAID_LOST` zu Ende, bevor er etwas sichern
+kann. Der **Blutstein** hat keine eigene Zahl im Raid: `raid-loot.js` fragt
+`bloodstone-loop.js`, denselben Kreislauf, der die Ressource ausschließlich aus
+einem feindlichen Hive mit gefallenem Wächter kennt. Damit ist die Kante
+`Blutstein → neue Tiefe` aus [`VISION-CORE-LOOP.md`](VISION-CORE-LOOP.md) nicht
+mehr ein Satz, sondern eine Rechnung.
+
+**Was der Ausbau nicht löst:** Der Rundenwechsel liegt beim Aufrufer.
+`nextRound()` füllt die AP nach, aber im Raid gibt es keine Uhr — die Sim-Uhr
+der Kolonie treibt ihn nicht, und ein zweites Zeitmodell war ausdrücklich der
+Grund, die Mechanik zuletzt zu bauen. Bis es eine Raid-Uhr gibt, entscheidet die
+Oberfläche, wann eine Runde endet; die Abnahme tut dasselbe und ruft `nextRound`
+selbst.
+
+## Die zwei tiefen Ressourcen
+
+Beide sind Domänen-Wirtschaft ohne Zahl im UI: jede hat einen Erzeuger, einen
+Vorrat und einen Abnehmer, und jede ist durch eine eigene Prüfgruppe belegt.
+
+**Aether (Tier 2) kommt aus der Tiefe der eigenen Basis.** `aetherYieldFor()`
+liefert unter `depthThreshold` exakt null — an der Oberfläche entsteht keiner —
+und in der Tiefe `yieldPerTick` je Takt. Der Abnehmer ist die Mutation: sie
+kostet `mutationCost`, erhöht `mutations` und damit die Grab- und
+Körperfähigkeit (`digAbilityOf()`), und sie erhöht das Risiko. Am
+`riskCeiling` ist Schluss, dann wird mit `RISIKO_ZU_HOCH` abgewiesen. Quelle,
+Vorrat, Verbraucher und Deckel sind dieselbe Rechnung; `check-aether.mjs` leitet
+die Erwartungen aus der Config ab statt sie abzuschreiben.
+
+**Blutstein (Tier 3) kommt nur aus dem Raid.** `baseYieldFor()` liefert nach 0,
+1 und 1000 Takten exakt `baseYield` (0) — die eigene Basis erzeugt es nicht,
+und die Prüfung führt genau diesen Fall als Gegenprobe. Erzeugt wird es allein
+über `raidYieldFor({ phase, hiveKind, wardenAlive })`: nur in der Beute-Phase,
+nur gegen einen feindlichen Hive und nur bei gefallenem Wächter. Der Abnehmer
+ist die nächste Etage: `unlockDepth()` kostet `depthCostFor(depth)`, hebt die
+Tiefe um eins und endet am `maxDepth`. Der Kreislauf
+`eigene Basis → Raid → Feind-Hive → Risiko → Blutstein → neue Tiefe` steht damit
+in der Domäne. Was ihm noch fehlt, ist die Spielbarkeit: die Phase hinter
+`EXTRACTING` ist im Baum weiterhin nicht erreichbar, und das steht als offener
+Punkt in [`ROADMAP_OPEN.md`](ROADMAP_OPEN.md).
 
 ## Werkzeuge
 

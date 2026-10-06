@@ -1,10 +1,11 @@
 // @doc: docs/daten/raid/raid-move.md#raid-move
 import { tileId } from '../world/tile.js';
 import { mixRaid, unitOf } from './raid-spawn-seed.js';
-import { RAID_ACTION, neighborOf } from './raid-actions.js';
-import { applyAction } from './raid-steps.js';
+import { RAID_ACTION, RAID_STEP, neighborOf } from './raid-actions.js';
+import { applyAction, resolveLoss } from './raid-steps.js';
 import { cellCost, planPath, frontierOf } from './raid-path.js';
-import { RAID_VERB, attackStep } from './raid-verbs.js';
+import { bindsGroup } from './raid-warden.js';
+import { RAID_VERB } from './raid-verbs.js';
 
 const SALT_EXPLORE = 1103515245;
 
@@ -16,7 +17,7 @@ function exploreGoal(state, world) {
 }
 
 function actionToward(state, world, id) {
-  for (const type of Object.values(RAID_ACTION)) {
+  for (const type of RAID_STEP) {
     const point = neighborOf(state.at, { type });
     if (tileId(point.x, point.y) !== id) continue;
     return { type: cellCost(state, world, id) > 0 ? type.replace('MOVE', 'DIG') : type };
@@ -43,10 +44,10 @@ export function orderFrom(state, world, order) {
   return { ...state, order, target: { x: order.x, y: order.y }, path };
 }
 
-function arrived(state) {
+function arrived(state, world) {
   if (!state.order || state.path.length > 0) return state;
-  const cleared = { ...state, order: null, path: [], target: null };
-  return state.order.verb === RAID_VERB.ATTACK ? attackStep(cleared, state.target) : cleared;
+  const bereinigt = { ...state, order: null, path: [], target: null };
+  return state.order.verb === RAID_VERB.ATTACK ? applyAction(bereinigt, world, { type: RAID_ACTION.ATTACK }) : bereinigt;
 }
 
 function exploreOrder(state, world) {
@@ -59,11 +60,20 @@ function parseGoal(id) {
   return { x, y };
 }
 
-export function tickMove(state, world) {
+function advanced(before, after) {
+  return after.at.x !== before.at.x || after.at.y !== before.at.y;
+}
+
+function step(state, world) {
+  if (bindsGroup(state)) return state;
   const ordered = state.order && state.path.length > 0 ? state : exploreOrder(state, world);
   if (!ordered.order) return ordered;
   const action = actionToward(ordered, world, ordered.path[0]);
   const moved = action === null ? ordered : applyAction(ordered, world, action);
-  if (moved === ordered) return { ...ordered, order: null, path: [], target: null };
-  return arrived({ ...moved, path: moved.path.slice(1) });
+  if (action === null || !advanced(ordered, moved)) return { ...moved, order: null, path: [], target: null };
+  return arrived({ ...moved, path: moved.path.slice(1) }, world);
+}
+
+export function tickMove(state, world) {
+  return resolveLoss(step(state, world));
 }
