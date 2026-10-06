@@ -109,7 +109,8 @@ function runCommitCheck(range) {
   if (!hasRef(range.split('..')[0])) {
     const head = range.split('..').at(-1);
     console.log(`Commit-Regeln: Basis ${range.split('..')[0]} existiert nicht mehr, übersprungen.`);
-    return head === range.split('..')[0] ? [] : runCommitCheck(`${head}^..${head}`);
+    const headBase = `${head}^`;
+    return head === range.split('..')[0] || !hasRef(headBase) ? [] : runCommitCheck(`${headBase}..${head}`);
   }
   const shas = listCommits(range);
   if (shas.length === 0) {
