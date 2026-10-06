@@ -122,6 +122,29 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
   Version: ausstehend
   Datum: ausstehend
 
+- [x] **Arme und Beine statt Chevrons, und der Zeichenaufwand in Zahlen.** Der
+      Walker kannte nur „aufwaerts": jede Sprosse hob den Winkel um `splay`, deshalb
+      stand jedes Glied als Chevron ueber dem Rumpf und der Mutant las sich als Blob
+      mit Zacken. Jetzt zaehlt der Walker die Rumpfknoten mit: die oberste Sprosse
+      waechst seitlich (`Math.PI`), jede tiefere nach unten (`-RIGHT`). Die Wurzel
+      rueckt um `limbRoot` Rumpfdicken an die Oberflaeche, das erste Segment traegt
+      die Einschnuerung `limbPinch`, jedes Gliedgelenk den Bulge `limbJoint` —
+      zusammen entstehen die Trennstelle am Schulter- und Hüftansatz und der Knubbel
+      am Ellbogen und Knie. Die Zahlen sind geeicht, nicht geraten: `bodyGirth`,
+      `spineLength`, `limbLength` und `limbGirth` mussten fallen beziehungsweise
+      steigen, bis das Metaballfeld die Gliedmassen nicht mehr schluckt. Den
+      Zeichenaufwand misst `npm run bench:organic` im echten Browser: 20 Mutanten
+      tragen 38 bis 56 Elemente (Mittel 45,3), die Frame-Konstruktion kostet kalt
+      9,27ms und warm 0,11ms je Frame (der Cache traegt sie), und die
+      Frame-Identitaet haelt auch im Weltbild — ueber alle vier Atemphasen ist das
+      Mutanten-Markup innerhalb einer Phase byte-gleich und ueber die Phasen
+      verschieden. `scripts/verify/check-organic.mjs` bleibt mit 42 Pruefungen gruen.
+  Status: geplant
+  Scope: Domäne
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
 ---
 
 ## Was hier NICHT steht

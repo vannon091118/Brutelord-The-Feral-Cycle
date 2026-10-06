@@ -383,6 +383,34 @@ zwölf Phänotypen reichten die Gliedmaßen so nur **1,01- bis 1,21-mal** über 
 Rumpf — Stummel. Nach der Korrektur sind es **1,46- bis 3,56-mal**, und die
 Gliedmaßen stehen als Arme und Beine vor der Silhouette statt in ihr.
 
+### Die Sprosse wächst seitlich, nicht nach oben
+
+Der Walker startet am Schwanz und geht den Rücken empor; jede Sprosse hob den
+Winkel bisher um denselben `splay`, gleich an welchem Knoten. Gemessen stand
+damit jedes Glied als Chevron **über** dem Rumpf, und der Mutant las sich als
+Blob mit Zacken statt als Kreatur. Jetzt zählt der Walker die Rumpfknoten mit:
+die oberste Sprosse wächst seitlich (`Math.PI`), jede tiefere nach unten
+(`-RIGHT`). Dass daraus ein lesbares Glied wird, hängt an vier Zahlen, die
+zusammen geeicht sind: `limbRoot` rückt die Wurzel um Rumpfdicken an die
+Oberfläche, `limbPinch` schnürt das erste Segment ein, `bend` biegt die
+folgenden nach außen beziehungsweise unten, und `limbJoint` schwillt das Gelenk
+auf. Erst mit ihnen formt das Metaballfeld die Trennstelle am Schulter- und
+Hüftansatz und den Knubbel an Ellbogen und Knie; vorher schluckte der Rumpf die
+Gliedmaßen ganz. `bodyGirth` und `spineLength` mussten dafür fallen,
+`limbLength` und `limbGirth` steigen.
+
+### Der Zeichenaufwand ist gemessen, nicht geschätzt
+
+`npm run bench:organic` montiert zwanzig Mutanten im 928px breiten 13×13-Fenster
+und misst im echten Browser dieselbe `MutantSvg`, die `WorkerLayer` montiert.
+Ein Mutant trägt 38 bis 56 Elemente (Knochen, Gelenke, Ringe; Mittel 45,3). Die
+Frame-Konstruktion kostet kalt 9,27ms und warm 0,11ms je Frame — der diskrete
+Cache trägt sie um den Faktor achtzig. Das Neuzeichnen der zwanzig liegt im
+Vite-Dev-Build bei rund 13ms je Mutant; die Zahl ist eine Obergrenze des
+Dev-Builds, nicht des Production-Builds. Und die Frame-Identität hält nicht nur
+im Cache, sondern im Weltbild: über alle vier Atemphasen ist das Markup jedes
+Mutanten innerhalb einer Phase byte-gleich und über die Phasen verschieden.
+
 ### Der Schlüssel ist diskret, sonst ist der Cache ein Leck
 
 `organicFrame(genome, phase)` baut eine Kontur aus Gitterproben und

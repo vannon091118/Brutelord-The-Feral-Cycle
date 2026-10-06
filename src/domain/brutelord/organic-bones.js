@@ -86,24 +86,43 @@ function bothSides(items, mirror) {
   return items.flatMap((item) => [item, mirror(item)]);
 }
 
+function limbOf(node, splay) {
+  const arm = node >= ORG.spineNodes - 1;
+  return { angle: arm ? Math.PI : -RIGHT - splay * 0.5, bend: arm ? splay * 0.5 : -splay * 0.95 };
+}
+
 function advance(symbol, pose, env) {
   const limb = symbol === 'L' || pose.inside;
+  if (!limb) pose.node += 1;
   const length = limb ? env.plan.limbStep * limbBreath(env.breath) : env.plan.spine * env.breath;
   const girth = limb ? env.plan.limbGirth * limbBreath(env.breath) : env.plan.girth * env.breath;
+  const r1 = limb && pose.fresh ? girth * ORG.limbPinch : girth;
   const next = { x: pose.x + Math.cos(pose.angle) * length, y: pose.y + Math.sin(pose.angle) * length };
   const store = pose.inside ? pose.sided : pose.axis;
-  store.bones.push(bone({ x1: pose.x, y1: pose.y, x2: next.x, y2: next.y, r1: girth, r2: girth * 0.88, limb }));
-  const end = joint({ x: next.x, y: next.y, r: girth * ORG.jointBulge, role: limb ? null : FEATURE_ANCHOR.BACK });
+  store.bones.push(bone({ x1: pose.x, y1: pose.y, x2: next.x, y2: next.y, r1, r2: girth * 0.88, limb }));
+  const end = joint({ x: next.x, y: next.y, r: girth * (limb ? ORG.limbJoint : ORG.jointBulge), role: limb ? null : FEATURE_ANCHOR.BACK });
   store.joints.push(end);
   pose.x = next.x;
   pose.y = next.y;
-  pose.angle -= limb ? env.plan.curl : 0;
-  if (limb) pose.tip = end;
+  pose.angle += limb ? pose.bend : 0;
+  if (limb) {
+    pose.tip = end;
+    pose.fresh = false;
+  }
 }
 
 function enter(pose, env) {
-  pose.stack.push({ x: pose.x, y: pose.y, angle: pose.angle, inside: pose.inside, tip: pose.tip });
-  pose.angle += env.plan.splay;
+  pose.stack.push({ x: pose.x, y: pose.y, angle: pose.angle, inside: pose.inside, tip: pose.tip, bend: pose.bend, fresh: pose.fresh });
+  if (pose.inside) {
+    pose.angle += pose.bend;
+  } else {
+    const limb = limbOf(pose.node, env.plan.splay);
+    pose.angle = limb.angle;
+    pose.bend = limb.bend;
+    pose.fresh = true;
+    pose.x += Math.cos(limb.angle) * env.plan.girth * ORG.limbRoot;
+    pose.y += Math.sin(limb.angle) * env.plan.girth * ORG.limbRoot;
+  }
   pose.inside = true;
   pose.tip = null;
 }
@@ -116,6 +135,8 @@ function leave(pose) {
   pose.angle = frame.angle;
   pose.inside = frame.inside;
   pose.tip = frame.tip;
+  pose.bend = frame.bend;
+  pose.fresh = frame.fresh;
 }
 
 function tail(pose, env) {
@@ -155,7 +176,7 @@ function step(symbol, pose, env) {
 }
 
 function walkWord(plan, breath) {
-  const pose = { x: 0, y: 0, angle: RIGHT, stack: [], axis: bag(), sided: bag(), tip: null, inside: false };
+  const pose = { x: 0, y: 0, angle: RIGHT, stack: [], axis: bag(), sided: bag(), tip: null, inside: false, node: -1, bend: 0, fresh: false };
   for (const symbol of wordOf(plan)) step(symbol, pose, { plan, breath });
   return pose;
 }

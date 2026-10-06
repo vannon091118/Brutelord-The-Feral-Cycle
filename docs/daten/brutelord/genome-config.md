@@ -15,7 +15,13 @@ dominant, die Proportionen sind additiv. Diese Datei traegt nur Zahlen und Konst
 keinen Zufall. `ORGANIC_CONFIG` und `ORGANIC_SALT` legen daneben die Zahlen der
 organischen Geometrie: Phasenzahl, Atemkurve, Kadenz (`phaseMs`), Masse und
 Gitteraufloesung des Feldes. Die Kadenz steht hier und nicht im Renderer, damit der Takt
-eine Zahl der Domäne bleibt.
+eine Zahl der Domäne bleibt. Zu den Massen gehoeren die Proportionen, die die Gliedmassen
+lesbar machen statt sie zu Stummel zu druecken: `bodyGirth` fuer den schlanken Rumpf,
+`spineLength` fuer seine Kuerze, `limbLength` und `limbGirth` fuer die schlanken Arme und
+Beine, `limbRoot` fuer den Versatz der Wurzel an die Rumpfoberflaeche, `limbPinch` fuer die
+Einschnuerung der Trennstelle und `limbJoint` fuer den Bulge am Ellbogen und Knie. Diese
+Zahlen sind geeicht, nicht geraten: erst mit ihnen formt das Metaballfeld aus den Sprossen
+wiedererkennbare Gliedmassen.
 
 ## Schnittstellen
 

@@ -23,6 +23,16 @@ Segment eine Gliedmasse und traegt `limb`, auch das `F` zwischen den beiden
 die Koerperformen waeren Stummel im eigenen Fleisch. Was im Seitensack landet, wird am Ende ueber
 `bothSides` gespiegelt, deshalb ist das Skelett exakt symmetrisch zur Mittellinie.
 
+Welche Sprosse Arm und welche Bein ist, entscheidet der Rueckenknoten: der Walker
+zaehlt die Rumpfsegmente mit, und die oberste Sprosse waechst seitlich (`Math.PI`),
+jede tiefere nach unten (`-RIGHT`). Damit steht kein Glied mehr als Chevron ueber dem
+Rumpf. Die Wurzel setzt `enter` um `limbRoot` mal Rumpfdicke nach aussen, bis an die
+Rumpfoberflaeche, und das erste Segment traegt `limbPinch` — zusammen entsteht die
+Trennstelle, an der die Kontur zwischen Rumpf und Glied einschnuert. Danach biegt sich
+das Glied je Sprosse um `bend`, der Arm nach unten, das Bein nach aussen, und jedes
+Gliedgelenk traegt `limbJoint` — das ist der Ellbogen beziehungsweise das Knie, sichtbar
+als Knubbel in der Kontur und als Ring im Anker.
+
 `phase` ist kein Zufall, sondern der Atemtakt: `phaseOf` rechnet auf die vier
 Phasen der `ORGANIC_CONFIG.breathe`-Kurve herunter. Lenden- und Gelenkmasse
 skalieren mit dem Atemwert, die Phase verschiebt damit die Form und nicht die

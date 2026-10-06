@@ -21,7 +21,8 @@
     "verify:commits": "node scripts/verify-commit-gate.mjs",
     "golden:determinism": "node tools/golden-determinism.mjs",
     "purge": "node scripts/server/purge.mjs",
-    "bench:replay": "node scripts/bench/raid-replay-bench.mjs"
+    "bench:replay": "node scripts/bench/raid-replay-bench.mjs",
+    "bench:organic": "node scripts/bench/organic-bench.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",
