@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { ACCOUNT_CONFIG } from './account-config.mjs';
 import { SNAPSHOT_WRITE } from '../../src/state/snapshot-rule.js';
-import { stateWriteArgs, stateWritePlan } from './state-write.mjs';
+import { stateWriteStatement } from './state-write.mjs';
 
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS accounts (
@@ -84,10 +84,9 @@ export function readState(db, name) {
 }
 
 export function writeState(db, name, packed) {
-  const plan = stateWritePlan(packed);
-  if (plan.decision !== SNAPSHOT_WRITE.ok) return plan.decision;
-  const { sql, args } = stateWriteArgs(packed, name, plan.revision);
-  const changes = db.prepare(sql).run(...args).changes;
+  const plan = stateWriteStatement(packed, name);
+  if (plan.decision) return plan.decision;
+  const changes = db.prepare(plan.sql).run(...plan.args).changes;
   if (changes > 0) return SNAPSHOT_WRITE.ok;
   return findAccount(db, name) ? SNAPSHOT_WRITE.stale : 'kein konto';
 }

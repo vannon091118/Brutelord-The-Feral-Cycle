@@ -4,7 +4,7 @@
 import { createInitialGameState } from '../../src/state/game-state.js';
 import { SNAPSHOT_KEY, SNAPSHOT_MAX_BYTES, SNAPSHOT_REVISION_KEY, SNAPSHOT_VERSION } from '../../src/state/snapshot-config.js';
 import { SNAPSHOT_WRITE, envelopeBytes, writeDecision } from '../../src/state/snapshot-rule.js';
-import { readSavedState, saveSnapshot, writeIfChanged } from '../../src/state/snapshot.js';
+import { isSavedShape, readSavedState, saveSnapshot, writeIfChanged } from '../../src/state/snapshot.js';
 import { check, section } from './expect.mjs';
 
 const SEED = 'a'.repeat(16);
@@ -85,12 +85,28 @@ function checkVersionGate() {
   check('Kaputter Inhalt liefert null statt eines Wurfs', readSavedState(SEED) === null);
 }
 
+function keinStand(wert) {
+  try {
+    return isSavedShape(wert) === false;
+  } catch {
+    return false;
+  }
+}
+
+function checkShape() {
+  section('Spielstand: die Formpruefung');
+  check('Was kein Objekt ist, ist kein gespeicherter Stand',
+    [undefined, null, 42, 'x', true, []].every(keinStand));
+  check('Ein Objekt ohne die Pflichtfelder ist keiner', keinStand({ version: SNAPSHOT_VERSION }));
+}
+
 export async function checkSnapshot() {
   const vorher = globalThis.window;
   try {
     checkRule();
     checkRoundtrip();
     checkVersionGate();
+    checkShape();
   } finally {
     if (vorher === undefined) delete globalThis.window;
     else globalThis.window = vorher;

@@ -83,12 +83,18 @@ async function checkSitzungUndSpielstand() {
   check('Und kommt danach zurueck',
     (await payloadOf(await ask({ path: '/api/state', method: 'GET', token }))).json.envelope?.revision === 1);
   check('Ein Rumpf ohne Fassung wird abgewiesen', (await ask({ path: '/api/state', body: { hallo: true }, token })).status === 400);
+  check('Ein Rumpf mit Fassung, aber ohne Stand wird abgewiesen',
+    (await ask({ path: '/api/state', body: { version: SNAPSHOT_VERSION }, token })).status === 400);
   check('Ein veralteter Stand wird abgewiesen', (await ask({ path: '/api/state', body: envelope, token })).status === 409);
   check('Ein fremdes Token traegt keinen Namen',
     (await ask({ path: '/api/state', method: 'GET', token: 'gibtsnicht' })).status === 401);
   check('Der Raid ohne Token bleibt zu', (await ask({ path: '/api/raid', body: {} })).status === 401);
   check('Der Raid mit Token und kaputtem Log faellt in der Domaene durch',
     (await ask({ path: '/api/raid', body: {}, token })).status === 422);
+  check('Auch ein kaputter Aktionsrumpf liefert 422 statt 500',
+    (await ask({ path: '/api/raid', body: { ticket: {}, claimed: {}, actions: null }, token })).status === 422);
+  check('Ein unbekannter Schritt wird ebenso abgewiesen',
+    (await ask({ path: '/api/raid', body: { ticket: { snapshotSeed: 1, entry: { x: 8, y: 8 }, heroes: [] }, claimed: {}, actions: [{ type: 'NOPE' }] }, token })).status === 422);
 }
 
 async function checkAbweisungen() {

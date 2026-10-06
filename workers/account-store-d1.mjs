@@ -10,7 +10,7 @@
  *  mitlaeufe, ist ein Schema, das im Streitfall genau einmal laeuft. */
 import { ACCOUNT_COLUMNS } from '../scripts/server/storage-contract.mjs';
 import { SNAPSHOT_WRITE } from '../src/state/snapshot-rule.js';
-import { stateWriteArgs, stateWritePlan } from '../scripts/server/state-write.mjs';
+import { stateWriteStatement } from '../scripts/server/state-write.mjs';
 
 const SELECT = `SELECT ${ACCOUNT_COLUMNS.join(', ')} FROM accounts WHERE name = ?`;
 const INSERT = `INSERT INTO accounts (name, player_id, playerseed, verifier, salt) VALUES (?, ?, ?, ?, ?)`;
@@ -38,10 +38,9 @@ async function applyPatch(db, accountId, patch) {
 }
 
 async function writePacked(db, accountId, packed) {
-  const plan = stateWritePlan(packed);
-  if (plan.decision !== SNAPSHOT_WRITE.ok) return plan.decision;
-  const { sql, args } = stateWriteArgs(packed, accountId, plan.revision);
-  const res = await db.prepare(sql).bind(...args).run();
+  const plan = stateWriteStatement(packed, accountId);
+  if (plan.decision) return plan.decision;
+  const res = await db.prepare(plan.sql).bind(...plan.args).run();
   if ((res?.meta?.changes ?? 0) > 0) return SNAPSHOT_WRITE.ok;
   const row = await db.prepare('SELECT name FROM accounts WHERE name = ?').bind(accountId).first();
   return row ? SNAPSHOT_WRITE.stale : 'kein konto';

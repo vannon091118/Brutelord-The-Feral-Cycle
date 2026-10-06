@@ -70,6 +70,7 @@ function isMap(value) {
 }
 
 export function isSavedShape(state) {
+  if (typeof state !== 'object' || state === null) return false;
   return (
     Number.isInteger(state.essence) &&
     Array.isArray(state.dunglings) &&

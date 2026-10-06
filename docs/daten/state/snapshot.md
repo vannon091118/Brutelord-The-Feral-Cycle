@@ -19,7 +19,9 @@ Share-Code des aufgezeichneten Laufs, `run()` den Lauf selbst — ohne Protokoll
 damit ein Aufruf ohne Motor nicht stillschweigend etwas Falsches liefert. Der Weg zum Server
 ist ein zweiter Abnehmer desselben Envelope: `latestEnvelope()` und `pushEnvelope()` schicken
 ihn mit dem Traeger-Token, und ohne Token oder ohne `fetch` bleibt der Aufruf still aus — der
-Browser darf ohne Server spielbar bleiben.
+Browser darf ohne Server spielbar bleiben. Die Formprüfung weist alles ab, was kein Objekt
+ist: ein Rumpf mit Fassung, aber ohne Stand, fällt als 400 durch statt erst beim Lesen von
+`essence`.
 
 ## Schnittstellen
 

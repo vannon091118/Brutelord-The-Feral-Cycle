@@ -13,9 +13,13 @@ export const REJECT = Object.freeze({
 /** Rueckgabe: `{ ok: true, state }` oder `{ ok: false, reason }`. Kein Wurf —
  *  eine Einreichung, die durchfaellt, ist ein Ergebnis und kein Fehler. */
 export function validateRaidReplay(raidLog = {}) {
-  const { ticket, claimed, actions = [] } = raidLog;
-  if (!ticket || !claimed) return { ok: false, reason: REJECT.BROKEN };
-  if (replayOverflow(actions)) return { ok: false, reason: REJECT.TOO_LONG, limit: RAID_CONFIG.maxActions };
-  if (!replayMatches({ ticket, actions, claimed })) return { ok: false, reason: REJECT.MISMATCH };
-  return { ok: true, state: replayRaid({ ticket, actions }) };
+  try {
+    const { ticket, claimed, actions = [] } = raidLog;
+    if (!ticket || !claimed) return { ok: false, reason: REJECT.BROKEN };
+    if (replayOverflow(actions)) return { ok: false, reason: REJECT.TOO_LONG, limit: RAID_CONFIG.maxActions };
+    if (!replayMatches({ ticket, actions, claimed })) return { ok: false, reason: REJECT.MISMATCH };
+    return { ok: true, state: replayRaid({ ticket, actions }) };
+  } catch {
+    return { ok: false, reason: REJECT.BROKEN };
+  }
 }

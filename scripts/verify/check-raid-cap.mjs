@@ -52,7 +52,33 @@ function checkValidator() {
   check('Ein fremdes Ticket auch nicht', validateRaidReplay({ ticket: { ...base, entry: { x: 9, y: 8 } }, actions: ehrlich, claimed: end }).ok === false);
 }
 
+function versuch(log) {
+  try {
+    return validateRaidReplay(log).ok === false ? 'abgewiesen' : 'angenommen';
+  } catch {
+    return 'geworfen';
+  }
+}
+
+function checkRobust() {
+  const kaputt = [
+    undefined,
+    {},
+    { ticket: {}, claimed: {}, actions: null },
+    { ticket: {}, claimed: {}, actions: 5 },
+    { ticket: {}, claimed: {}, actions: 'abc' },
+    { ticket: {}, claimed: {}, actions: {} },
+    { ticket: 'x', claimed: {}, actions: [] },
+    { ticket: ticket(), claimed: {}, actions: [{ type: 'NOPE' }] },
+  ];
+  const urteil = kaputt.map(versuch);
+  section('Einreichung: ein kaputter Rumpf wird abgewiesen, nicht geworfen');
+  check('Kein kaputter Rumpf wirft, jeder wird abgewiesen',
+    urteil.every((wert) => wert === 'abgewiesen'), urteil.join(','));
+}
+
 export function checkRaidCap() {
   checkCap();
   checkValidator();
+  checkRobust();
 }
