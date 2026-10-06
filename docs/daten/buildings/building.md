@@ -10,7 +10,6 @@ Bauplatz-Logik: Grundfläche, Platzprüfung, Lieferung, Zuweisung.
 
 ## Schnittstellen
 
-- `occupiedTileIds()`
 - `footprintIds()`
 - `canPlaceBuilding()`
 - `createBuildingSite()`
