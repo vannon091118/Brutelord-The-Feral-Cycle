@@ -43,6 +43,64 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.39
+
+- [x] **Der organische Mutant rendert: Schichtkette, Takt und ein eiserner Cache.**
+      Der Mutant ist kein Dungling mit aufgeklebten Steinen mehr: `MutantSvg` nimmt ein
+      `genome`, zieht ueber `organicFrame(genome, phase)` den eingefrorenen Rahmen aus dem
+      Cache und zeichnet ihn in der festen 2.5D-Kette — Schatten, Unterlage aus sichtbaren
+      Knochen und Gelenken, Koerper aus Hautmustern, Waesche, Rim, zuletzt die Merkmale.
+      Jede Instanz traegt ihre eigenen `<defs>`-IDs (`dl-skin-<id>`, `dl-wash-<id>` aus dem
+      `data-unit`), weil zwei Mutanten mit derselben Kennung sich sonst eine Definition
+      teilen und der zuletzt gezeichnete den ersten faerbt. Der Cache-Schluessel ist diskret
+      — `${genomHash}_f${phase}`, eine ganze Zahl von 0 bis 3 —, kein Takt, kein Float, kein
+      `Date.now()`; mit dem rohen Takt waere pro Frame ein neues Objekt und eine neue Kontur
+      entstanden. Den Takt gibt `organic-phase-clock.js` global vor: ein Zaehler, `phaseOf()`
+      darueber und ein Intervall, das nur laeuft, solange ein Mutant zuhoert, damit Welt und
+      Labortisch denselben Atem im selben Bild zeigen. `WorkerLayer` und der Labortisch
+      reichen `genome` statt `stones` hinein, und `mutant-overlays.jsx` samt `mutant-plan.js`
+      sind mit ihren Spiegel-Dokus restlos verschwunden.
+  Status: fix
+  Scope: Welt
+  Kategorie: Feature
+  Version: 0.0.39
+  Datum: 2026-10-06
+
+- [x] **Das Manifest des organischen Mutanten: Spiegel-Dokus, Architektur und die Falle.**
+      Jedes neue Frontend-Modul traegt seine Spiegel-Datei unter `docs/daten/dungling/` —
+      `organic-skin.md`, `organic-features.md`, `organic-phase-clock.md` und der umgebaute
+      `mutantsvg.md` —, und der Abschnitt „Der organische Mutant“ in `Docs/ARCHITEKTUR.md`
+      zementiert die Kette vom Genom ueber die Grammatik und das Feld bis zum Anker. In
+      `Docs/PITFALLS.md` steht die gemessene Warnung, dass der Cache-Schluessel kein Float
+      sein darf, mit ihrer Gegenprobe: der rohe Takt im Schluessel laesst vierzehn von
+      siebzehn Cache-Pruefungen fallen. Damit ist die Sichtseite desselben Systems
+      dokumentiert, das die Domäne schon trug.
+  Status: fix
+  Scope: Doku
+  Kategorie: Doku
+  Version: 0.0.39
+  Datum: 2026-10-06
+
+- [x] **Die Art wird ein Zuchtziel: fairer Wurf, Sichtbarkeit, eigene Merkmale.**
+      Der Spezies-Locus war dominant und damit ein Nebenprodukt der Allel-Reihenfolge —
+      das Maximum zweier Allele häufte die höheren Indizes (gemessen über vierzig Genome
+      Spinne 23, Insekt 11, Humanoid 4, Daemon 2). Er wirft jetzt `FAIR`: zwei gleiche
+      Allele zeigen dieses, zwei verschiedene werfen aus dem Genom-Hash einen
+      reproduzierbaren Entscheid. Gemessen über vierhundert Genome tragen die vier Arten
+      nun gleich (92, 92, 105, 111), und zwei reinerbige Eltern derselben Art zeugen
+      dieselbe Art — die Art ist ein Zuchtziel, kein Losgriff. `speciesOf()` gibt neben
+      der ausgedrückten Art beide getragenen Allele aus, der Labortisch nennt sie mit den
+      deutschen Namen aus `SPECIES_LABEL`, und `organic-features.jsx` zeichnet je Art
+      eigene Merkmale: Klauenhörner für den Dämon, Fühler für das Insekt, Cheliceren für
+      die Spinne, dazu unterschiedliche Augen und Kiefer. `check-genome.mjs` prüft die
+      flache Verteilung und den Zuchtgradienten, `check-organic.mjs` die vier Konturen.
+  Status: fix
+  Scope: Domäne
+  Kategorie: Feature
+  Version: 0.0.39
+  Datum: 2026-10-06
+
+
 ## 0.0.38
 
 - [x] **Das Artensystem: ein Spezies-Locus schaltet vier Skelett-Grammatiken.**
