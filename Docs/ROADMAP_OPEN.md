@@ -122,49 +122,6 @@ tragen den offenen Rest des Raids und die zwei Lücken am Konto.
   Version: ausstehend
   Datum: ausstehend
 
-- [x] **Das Labor funktioniert wieder.** Zwei Fehler lagen übereinander. `LabBench`
-      übergab den Platz als `onDrop(seed, slot)`, `LabWorkspace` nahm das erste
-      Argument als Slot — `placeStone()` sah in jedem Stein einen fremden Slot und
-      tat nichts, der Knopf „Erschaffen“ blieb also gesperrt. Und auf Touch feuert
-      HTML5-Drag und -Drop gar nicht, also gerade auf dem Gerät, auf dem gespielt
-      wird. Die Platzierung ist jetzt Tippen: Stein wählen, Platz antippen, ein
-      belegter Platz gibt den Vorgänger zurück in den Pool — was `placeStone()`
-      jetzt erzwingt, statt ihn liegen zu lassen. Die Slots sind echte Knöpfe mit
-      Namen, die Kacheln tragen `aria-pressed`, und der Szenario-Lauf klickt
-      denselben Weg wie der Finger.
-      Zweiter Fund: alle eingefrorenen Zustände trugen Spielstand-Fassung 1, das
-      Spiel liest aber Fassung 2 — jeder Szenario-Lauf startete still im
-      Nullzustand, während die Dateien intakt aussahen. Konvertiert, und
-      `scripts/verify/check-fixtures.mjs` prüft jetzt Fassung und Formprüfung je
-      Zustand; die Gegenprobe mit Fassung 1 fällt rot.
-  Status: geplant
-  Scope: UI
-  Kategorie: Bugfix
-  Version: ausstehend
-  Datum: ausstehend
-
-- [x] **Wesen werden aus ihrer Id erzeugt, nicht aus ihrem Ort.** Bis eben war die
-      Silhouette ein einziger fest eingebrannter Pfad, und die einzige Abweichung
-      kam aus `tile.x` und `tile.y`. Das heisst: Ein Dungling sieht anders aus,
-      wenn er zwei Schritte geht, und zwei Dunglinge auf derselben Kachel sehen
-      gleich aus. Beides verkehrt herum.
-      `src/world/dungling/dungling-look.js` zieht jetzt einen FNV-Hash über die
-      Id und speist damit den vorhandenen Zufall der Welt: elf Ringpunkte ergeben
-      die Schale, dazu Lappen, Adern, zwei bis drei Kronentriebe, drei bis sechs
-      Poren, Naht und Glanz. Körper und Gesicht zeichnen nur noch, sie entscheiden
-      nichts — die Schichtgrenze gilt auch fürs Aussehen.
-      Geprüft wird das mechanisch, weil die Rückkehr des Fehlers sonst still
-      passiert: gleiche Id ergibt zweimal dasselbe Wesen, 48 Ids ergeben 48
-      Schalen, Lappen, Adern und Naht streuen, und `Dungling.svg.jsx` darf die
-      Kachel nicht mehr lesen. Dazu die Grenzen, damit „organisch“ nicht
-      „unsichtbar“ heisst: alles bleibt in der Kachel, und über den Beinen bleibt
-      Reserve, damit kein Wesen auf Beinen läuft.
-  Status: geplant
-  Scope: Welt
-  Kategorie: Feature
-  Version: ausstehend
-  Datum: ausstehend
-
 ---
 
 ## Was hier NICHT steht
