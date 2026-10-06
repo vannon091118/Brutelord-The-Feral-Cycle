@@ -43,6 +43,36 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.41
+
+- [x] **Der Konto-Server fehlt im Production-Build.** Das Backend hing als
+      Vite-Plugin nur im Dev-Server, also kannte `dist/` keine `/api/login` —
+      das ausgelieferte Spiel scheiterte am Konto-Tor. `accountApi()`
+      registriert jetzt **beide** Haken, `configureServer` und
+      `configurePreviewServer`, und beide hängen dieselbe Middleware ein; die
+      Regeln der Route (Wege, Köpfe, Absagen, Rumpfschranke) stehen einmal in
+      `scripts/server/account-http.mjs`, damit Dev-Server und Auslieferung
+      nicht zwei Wortlaute für dieselbe Absage führen. **Am gebauten Stand
+      belegt:** der Vorschau-Server über `dist/` antwortet `POST /api/register`
+      mit 201 und `POST /api/login` mit 200, beide als `application/json` mit
+      den vier Schranken — vorher war es dort 404 ohne Typ. Die Konto-Kette im
+      echten Browser lief gegen genau diesen Stand durch (Konto-Tor plus
+      Onboarding, 21 Prüfungen). Für die Auslieferung steht der Worker
+      (`workers/index.mjs`) mit D1-Bindung, Schema und Migration
+      (`workers/d1/0001-accounts.sql`) — und der **Fund auf dem Weg**: der
+      D1-Adapter legte neue Konten nie an, weil `register()` über
+      `updateAccount()` schreibt und er nur `UPDATE` kannte. Was D1 selbst
+      angeht, bleibt eine Grenze: ohne `wrangler` läuft die
+      Cloudflare-Datenbank in diesem Baum nicht, geprüft ist der Transport
+      gegen den echten lokalen Speicher. Der Entwurf mit dem Warum steht in
+      [`BACKEND-PLAN.md`](BACKEND-PLAN.md).
+  Status: fix
+  Scope: Konto
+  Kategorie: Bugfix
+  Version: 0.0.41
+  Datum: 2026-10-06
+
+
 ## 0.0.39
 
 - [x] **Der organische Mutant rendert: Schichtkette, Takt und ein eiserner Cache.**
