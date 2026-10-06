@@ -248,25 +248,6 @@ und mit einem Lauf, den ein zweiter nachspielen kann.
   Version: ausstehend
   Datum: ausstehend
 
-- [x] **Der Kreislauf hat ein Gesicht.** Die Resource Rail in `src/ui/ResourceRail.jsx`
-      bringt Essenz, Biomasse, Aether, Blutstein und die Etage in **einen** Trog statt in
-      eine Reihe gleich gewichtiger Plaketten. Der Rang macht die Hierarchie sichtbar:
-      Essenz ist der einzige Platz, der wächst und die Schriftgröße trägt, die beiden
-      Tiefenwährungen sinken auf halbe Deckkraft, solange nichts in ihnen liegt, und
-      Biomasse steht gestrichelt als Platz, den die Domäne noch nicht füllt. Gelesen wird
-      ausschließlich `cycle.aether.stored` und `cycle.bloodstone.stored`; fehlt ein Ledger
-      im geladenen Spielstand, steht dort ein Gedankenstrich statt einer erfundenen Null.
-      Die Etage wohnt jetzt als letzter Platz in derselben Leiste (samt Tiefen-Tick,
-      Abstiegs-Puls und gesperrtem Knopf), `src/ui/ResourceChips.jsx` trägt nur noch die
-      Kopfzeile des Baumenüs. Keine Zahl, kein Seed und kein Spielstand hat sich geändert:
-      die Golden-Werte der Deterministizität und des Raids sind Zeichen für Zeichen
-      dieselben, der Volllauf steht grün.
-  Status: geplant
-  Scope: Client
-  Kategorie: Feature
-  Version: ausstehend
-  Datum: ausstehend
-
 - [ ] **Raid, KO und Beute haben noch kein Zeichen.** Mining, Bau und Etage sind sichtbar
       geworden: Der arbeitende Block federt, der Bauplatz leuchtet, die Etage tickt in der
       Rail und die Kamera ruckt. Für den Raid fehlt die ganze Kette in der Oberfläche —

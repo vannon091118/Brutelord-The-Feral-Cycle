@@ -43,6 +43,28 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.49
+
+- [x] **Der Kreislauf hat ein Gesicht.** Die Resource Rail in `src/ui/ResourceRail.jsx`
+      bringt Essenz, Biomasse, Aether, Blutstein und die Etage in **einen** Trog statt in
+      eine Reihe gleich gewichtiger Plaketten. Der Rang macht die Hierarchie sichtbar:
+      Essenz ist der einzige Platz, der wächst und die Schriftgröße trägt, die beiden
+      Tiefenwährungen sinken auf halbe Deckkraft, solange nichts in ihnen liegt, und
+      Biomasse steht gestrichelt als Platz, den die Domäne noch nicht füllt. Gelesen wird
+      ausschließlich `cycle.aether.stored` und `cycle.bloodstone.stored`; fehlt ein Ledger
+      im geladenen Spielstand, steht dort ein Gedankenstrich statt einer erfundenen Null.
+      Die Etage wohnt jetzt als letzter Platz in derselben Leiste (samt Tiefen-Tick,
+      Abstiegs-Puls und gesperrtem Knopf), `src/ui/ResourceChips.jsx` trägt nur noch die
+      Kopfzeile des Baumenüs. Keine Zahl, kein Seed und kein Spielstand hat sich geändert:
+      die Golden-Werte der Deterministizität und des Raids sind Zeichen für Zeichen
+      dieselben, der Volllauf steht grün.
+  Status: fix
+  Scope: Client
+  Kategorie: Feature
+  Version: 0.0.49
+  Datum: 2026-10-06
+
+
 ## 0.0.48
 
 - [x] **Der Seed-Audit findet eine zweite stille Ordnung.** Die Auslegung in
