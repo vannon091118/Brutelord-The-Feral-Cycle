@@ -1,11 +1,12 @@
 /** Die Befehlsschicht: ein Befehl ist eine Zeile in einer Liste, nur ihr Kopf
  *  wird Arbeit, und eine erledigte Zeile faellt heraus. Ohne Zeile steht der
  *  Dungling — das ist die Umkehr gegenueber der selbsttaetigen Zuweisung.
- *  Den Trait-Fall (Gierig verweigert den Lieferbefehl) prueft `check-traits`. */
+ *  Die Zeilen entstehen ueber die echte Aktion und nicht ueber eine Fabrik;
+ *  den Trait-Fall (Gierig verweigert den Lieferbefehl) prueft `check-traits`. */
 import { ACTION } from '../../src/domain/actions/action-types.js';
 import { JOB_CONFIG } from '../../src/domain/labour/job-config.js';
-import { ORDER_CONFIG, ORDER_KIND } from '../../src/domain/orders/order-config.js';
-import { createOrder, headOrder, jobForOrder, pushOrder } from '../../src/domain/orders/order.js';
+import { orderStep } from '../../src/domain/labour/order-job.js';
+import { headOrder, pushOrder } from '../../src/domain/orders/order.js';
 import { gameReducer } from '../../src/state/game-reducer.js';
 import { deliveryTo, labState } from './lab-run.mjs';
 import { check, section } from './expect.mjs';
@@ -21,8 +22,8 @@ function tick(state) {
   return current;
 }
 
-function workOrder() {
-  return createOrder({ kind: ORDER_KIND.WORK, buildingId: EXTRACTOR_ID });
+function assigned() {
+  return gameReducer(labState(), { type: ACTION.WORKER_ASSIGNED, buildingId: EXTRACTOR_ID }).dunglings[0];
 }
 
 function restUntilIdle(state) {
@@ -35,35 +36,35 @@ function restUntilIdle(state) {
 
 function checkList() {
   section('Befehl: eine Zeile in einer Liste');
-  const worker = labState().dunglings[0];
-  check('Ein Dungling traegt von Geburt an eine leere Liste', Array.isArray(worker.orders) && worker.orders.length === 0);
-  check('Eine leere Liste hat keinen Kopf', headOrder(worker) === null);
-  const order = workOrder();
-  const one = pushOrder(worker, order);
-  check('Ein Befehl kommt hinten an', headOrder(one) === order && one.orders.length === 1);
-  const two = pushOrder(one, createOrder({ kind: ORDER_KIND.DELIVER, buildingId: 'building-9' }));
-  check('Der erste Befehl bleibt der Kopf', headOrder(two) === order, `${headOrder(two)?.buildingId}`);
-  let voll = worker;
-  for (let index = 0; index < ORDER_CONFIG.queueMax + 3; index += 1) voll = pushOrder(voll, workOrder());
-  check('Die Liste ist gedeckelt', voll.orders.length === ORDER_CONFIG.queueMax, `${voll.orders.length} Zeilen`);
-  check('Und der Deckel traegt mehr als einen Befehl', ORDER_CONFIG.queueMax >= 2);
+  const leer = labState().dunglings[0];
+  check('Ein Dungling traegt von Geburt an eine leere Liste', Array.isArray(leer.orders) && leer.orders.length === 0);
+  check('Eine leere Liste hat keinen Kopf', headOrder(leer) === null);
+  const order = headOrder(assigned());
+  check('Zuweisen kommt als Zeile an', order?.buildingId === EXTRACTOR_ID);
+  const zwei = pushOrder({ ...leer, orders: [order] }, { ...order, buildingId: 'building-9' });
+  check('Ein zweiter Befehl kommt hinten an', zwei.orders.length === 2);
+  check('Der erste Befehl bleibt der Kopf', headOrder(zwei) === order);
+  let voll = zwei;
+  for (let index = 0; index < 20; index += 1) voll = pushOrder(voll, { ...order, buildingId: 'building-9' });
+  check('Die Liste waechst nicht ueber den Deckel', pushOrder(voll, order).orders.length === voll.orders.length);
+  check('Der Deckel traegt eine Warteschlange', voll.orders.length > 1, `${voll.orders.length} Zeilen`);
 }
 
-function checkJob() {
+function checkShape() {
   section('Befehl: nur der Kopf wird Arbeit');
-  const werk = { buildings: labState().buildings, anchor: { x: 7, y: 7 } };
-  const worker = labState().dunglings[0];
+  const roh = labState();
+  const brach = { buildings: roh.buildings, anchor: { x: 7, y: 7 } };
+  check('Ohne Befehl gibt es keine Arbeit', orderStep(brach, roh.dunglings[0], JOB_CONFIG).job === null);
+  const zugewiesen = gameReducer(labState(), { type: ACTION.WORKER_ASSIGNED, buildingId: EXTRACTOR_ID });
+  const werk = { buildings: zugewiesen.buildings, anchor: { x: 7, y: 7 } };
   const station = werk.buildings.find((entry) => entry.id === EXTRACTOR_ID);
-  const order = pushOrder(worker, workOrder());
-  check('Ohne Befehl gibt es keine Arbeit', jobForOrder(worker, werk) === null);
-  const job = jobForOrder(order, werk);
-  check('Ein Befehl auf ein fertiges Gebaeude wird Arbeit', job?.buildingId === EXTRACTOR_ID);
+  const worker = zugewiesen.dunglings[0];
+  const job = orderStep(werk, worker, JOB_CONFIG).job;
+  check('Ein Befehl wird Arbeit', job?.buildingId === EXTRACTOR_ID);
   check('Der Auftrag startet an der Station', job?.origin.x === station.anchor.x && job.origin.y === station.anchor.y);
   check('Und endet am Hive', job?.target.x === werk.anchor.x && job.target.y === werk.anchor.y);
-  const insLeere = pushOrder(worker, createOrder({ kind: ORDER_KIND.WORK, buildingId: 'building-99' }));
-  check('Ein Befehl auf ein verschwundenes Ziel wird keine Arbeit', jobForOrder(insLeere, werk) === null);
-  const falsch = pushOrder(worker, createOrder({ kind: ORDER_KIND.DELIVER, buildingId: EXTRACTOR_ID }));
-  check('Ein Lieferbefehl auf ein fertiges Gebaeude wird keine Arbeit', jobForOrder(falsch, werk) === null);
+  const tot = { ...worker, orders: [{ ...headOrder(worker), buildingId: 'building-99' }] };
+  check('Ein Befehl auf ein verschwundenes Ziel wird keine Arbeit', orderStep(werk, tot, JOB_CONFIG).job === null);
 }
 
 function checkIdle() {
@@ -81,8 +82,7 @@ function checkAssign() {
   const leer = { ...labState(), essence: 0 };
   const zugewiesen = gameReducer(leer, { type: ACTION.WORKER_ASSIGNED, buildingId: EXTRACTOR_ID });
   const worker = zugewiesen.dunglings[0];
-  check('Die Zuweisung steht als Befehl in der Liste', headOrder(worker)?.kind === ORDER_KIND.WORK);
-  check('Der Befehl nennt das Gebaeude', headOrder(worker)?.buildingId === EXTRACTOR_ID);
+  check('Die Zuweisung steht als Befehl in der Liste', headOrder(worker)?.buildingId === EXTRACTOR_ID);
   check('Zugewiesen heisst noch nicht gearbeitet', worker.job === null);
   const lauf = tick(zugewiesen);
   check('Der Takt macht aus dem Befehl Arbeit', lauf.essence > 0, `${lauf.essence} Essenz`);
@@ -111,9 +111,9 @@ function checkDelivery() {
   for (let index = 0; index < TICKS; index += 1) {
     current = gameReducer(current, { type: ACTION.WORK_TICK, dtMs: JOB_CONFIG.tickMs });
     const kopf = headOrder(current.dunglings[0]);
-    if (kopf) gesehen.add(kopf.kind);
+    if (kopf) gesehen.add(kopf.buildingId);
   }
-  check('Die Lieferung lief als Befehl durch die Liste', gesehen.has(ORDER_KIND.DELIVER), [...gesehen].join(', '));
+  check('Die Lieferung lief als Befehl auf den Bauplatz', gesehen.has(site.id), [...gesehen].join(', '));
   check('Die Lieferung kommt an', current.buildings.at(-1).delivered === site.required, `${current.buildings.at(-1).delivered} von ${site.required}`);
   const stille = restUntilIdle(current);
   check('Der Dungling kommt zur Ruhe', stille.dunglings[0].job === null);
@@ -122,7 +122,7 @@ function checkDelivery() {
 
 export function checkOrders() {
   checkList();
-  checkJob();
+  checkShape();
   checkIdle();
   checkAssign();
   checkRelease();

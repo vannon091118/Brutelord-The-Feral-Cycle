@@ -15,7 +15,9 @@ Regel, nur eine ehrliche Kasse.
 Befehl in dessen Liste: die Zuweisung ist ab jetzt ein Eintrag, den der Takt
 ausführt, und der Dungling bleibt benannt. `release()` nimmt ihn über
 `standDown()` aus Arbeit und Liste zurueck — sonst bliebe er mit leerer Liste in
-einem Auftrag stehen.
+einem Auftrag stehen. Beide Griffe kommen aus `domain/labour/order-job.js`, weil
+das Schreiben eines Befehls die Bedeutung des Befehls braucht und die liegt
+dort, nicht in der Liste.
 
 ## Schnittstellen
 

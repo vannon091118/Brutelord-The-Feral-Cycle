@@ -9,7 +9,7 @@ import {
   spendableEssence,
 } from '../../domain/buildings/building.js';
 import { parseTileId } from '../../domain/world/tile.js';
-import { assignOrder, standDown } from '../../domain/orders/order.js';
+import { assignOrder, standDown } from '../../domain/labour/order-job.js';
 import { advanceWork, isStationJob } from '../../domain/labour/work-tick.js';
 import { workOf } from '../work-state.js';
 

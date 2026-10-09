@@ -6,16 +6,17 @@ Spiegel-Datei für `src/domain/labour/work-tick.js`.
 
 ## Verantwortung
 
-Der Arbeitstakt der Kolonie: Befehle, Essenz, Brut, Bauplätze, Popups. Der Takt
-**entscheidet nicht mehr, wer arbeitet** — er liest die Befehlsliste des
-Dunglings und macht aus ihrem Kopf einen Auftrag. Nur wo noch keine Zeile steht
-und Arbeit offen ist, fuellt `refill()` eine nach: erst die Lieferung an den
-naechsten offenen Bauplatz, sonst die zugewiesene Station. Wer weder Befehl noch
-Zuweisung hat, steht — das ist die Umkehr gegenueber der alten Fassung, in der
-`staffWorkers()` jedem freien Dungling selbsttaetig eine Arbeit suchte. Eine
-Zeile wird nur auf eine leere Liste gelegt: waere sie neben einer offenen
-erlaubt, wuechse die Liste mit jeder Lieferung und eine laengst bezahlte
-Lieferung koennte den Kopf besetzen.
+Der Takt der Kolonie und **nur der Takt**: Aufträge fortschreiben, Ereignisse
+anwenden, Essenz, Brut, Bauplätze, Popups. Welcher Dungling welche Arbeit
+bekommt, steht nicht hier — der Takt ruft je Dungling `orderStep()` aus
+`order-job.js` und schreibt zurück, was er bekommt. `spendOrder()` fällt eine
+erledigte Zeile heraus. Die alte Fassung suchte einem freien Dungling
+selbsttätig eine Arbeit; diese Umkehr ist der Kern der Befehlsschicht.
+
+`hasWork()` ist die Frage, ob der Takt überhaupt laufen muss: offene Popups,
+ein laufender Auftrag, ein beschäftigtes Gebäude oder ein Bauplatz mit Essenz
+in der Kasse. Wer sie beantwortet, muss sie so beantworten, wie `refill()` sie
+sieht — sonst dreht die Uhr, ohne dass etwas passiert.
 
 ## Schnittstellen
 
@@ -24,18 +25,9 @@ Lieferung koennte den Kopf besetzen.
 - `hasWork()`
 - `isBusy()`
 - `advanceWorkers()`
-- `fulfilled()`
+- `staffWorkers()`
 - `applyEvent()`
 - `addPopup()`
 - `agePopups()`
-- `staffWorkers()`
-- `orderStep()`
-- `refill()`
-- `deliveryOrder()`
-- `stationOrder()`
-- `relievedWorker()`
 - `advanceBuildings()`
-- `buildings()`
 - `brood()`
-
-Aus der Migration vom 2026-10-05 hervorgegangen.
