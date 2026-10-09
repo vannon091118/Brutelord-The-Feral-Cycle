@@ -8,7 +8,7 @@ export const META_KEYS = ['Status', 'Scope', 'Kategorie', 'Version', 'Datum'];
 export const PLACEHOLDER = 'ausstehend';
 
 const LIST_ITEM = /^(\s*)- \[( |x)\] (.*)$/;
-const META_LINE = /^(Status|Scope|Kategorie|Version|Datum):\s*(.+)$/;
+const META_LINE = /^(Status|Scope|Kategorie|Version|Datum|Beleg):\s*(.+)$/;
 const SECTION = /^## /;
 const EXEMPT = '<!-- Metadaten: aus -->';
 

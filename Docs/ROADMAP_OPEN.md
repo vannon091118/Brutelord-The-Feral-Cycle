@@ -347,8 +347,12 @@ noch nicht** — sichtbar ist bis jetzt nur, was am Fundament selbst hängt: die
       selben Ordner das Laborpanel
       (`LabPanel.jsx`, Panel-Verlauf, Rahmen und drei Knopfklassen) — sein `Georgia, serif`
       wartet weiter auf eine genehmigte Schriftdatei und ist nicht Teil eines
-      Token-Durchgangs. Je Bereich gehört ein Renderbeleg aus dem Browser dazu und ein
-      Blick auf die Cap-Quote:
+      Token-Durchgangs. Je Bereich gehört ein Renderbeleg aus dem Browser dazu: was ein
+      Eintrag als `Beleg` nennt, muss unter `Docs/shots/` liegen, existieren und ein Bild
+      tragen — die Doku-Prüfung fordert es ein, statt den Verweis zu glauben. Geschrieben
+      werden die Bilder von `npm run shots:labor` aus dem eingefrorenen Stand, die
+      Vorher-Fassung gegen den Arbeitsbaum der Basisrevision. Dazu gehört ein Blick auf die
+      Cap-Quote:
       `globals.css` steht bei 229, `rail.css` bei 149 und `creature.css` bei 129 — unter
       300, aber der nächste Zuwachs sollte geteilt werden und nicht gedrückt.
       **Eine Bedingung bleibt hart:** Was am unteren Rand wächst, darf die Bauplätze im
@@ -357,6 +361,7 @@ noch nicht** — sichtbar ist bis jetzt nur, was am Fundament selbst hängt: die
   Status: geplant
   Scope: Client
   Kategorie: Refactor
+  Beleg: Docs/shots/labor-vorher-kacheln.jpg, Docs/shots/labor-nachher-kacheln.jpg, Docs/shots/labor-vorher-plaetze.jpg, Docs/shots/labor-nachher-plaetze.jpg
   Version: ausstehend
   Datum: ausstehend
 

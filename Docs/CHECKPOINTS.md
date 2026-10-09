@@ -28,6 +28,7 @@ trägt unmittelbar unter der Textzeile genau diese Attribute, je eine pro Zeile:
 | `Kategorie` | Feature, Bugfix, Refactor, Test, Doku, Abnahme |
 | `Version` | `x.y.z` oder `ausstehend` (nur im Open-Dokument, nur der Sync löst ihn auf) |
 | `Datum` | `JJJJ-MM-TT` oder `ausstehend` (dieselbe Regel) |
+| `Beleg` | **freiwillig**, allein für Renderbelege: ein oder mehrere Pfade, mit Komma getrennt, in **einer** Zeile — jede Datei unter `Docs/shots/` |
 
 `Status: fix` steht allein hier, `Status: geplant` allein im Open-Dokument.
 Der Platzhalter `ausstehend` ist der einzige erlaubte: Er hält offen, was erst
@@ -35,6 +36,17 @@ beim Liefer-Commit feststeht, statt es zu erraten. Bleibt er liegen, meldet das
 Gate rot — ein stiller Rückfallwert wäre eine zweite Wahrheit. Einzige Ausnahme
 ist die Gründungssection unten, markiert mit `<!-- Metadaten: aus -->`: Die
 Zeilen dort sind Protokoll aus der Zeit vor dem Vertrag.
+
+**Ein genannter Beleg ist eine Zusage, keine Behauptung.** Die Doku-Prüfung liest
+den Pfad nicht als Text, sie sieht nach: jede Datei muss unter `Docs/shots/`
+liegen, existieren und ein Bild tragen — ein Verweis auf nichts ist rot, bevor er
+in die Historie wandert (`npm run gate -- --docs`). Weil der Beleg im
+Metadaten-Block steht, reist er beim Move mit dem Eintrag hierher. Geschrieben
+werden die Bilder von `npm run shots:labor`
+([`WORKFLOW.md`](WORKFLOW.md)); wer die Vorher-Fassung eines Umbaus braucht,
+fährt denselben Generator gegen den Arbeitsbaum der Basisrevision. Mehrere
+Pfade gehören in **eine** `Beleg:`-Zeile: der Parser liest je Attribut genau eine,
+und eine zweite Zeile fiele still weg.
 
 **Wer Einträge bewegt oder Stempelt, ist der Doku-Sync, sonst niemand.**
 Ein Hand-Edit, der dieselbe Arbeit tut, kämpft mit dem Sync um dieselben

@@ -21,6 +21,7 @@
     "verify:tests": "node tools/tests/run.mjs",
     "verify:tests:headless": "DL_HEADLESS=1 node tools/tests/run.mjs",
     "verify:commits": "node scripts/verify-commit-gate.mjs",
+    "shots:labor": "node scripts/browser/render-proof.mjs",
     "golden:determinism": "node tools/golden-determinism.mjs",
     "golden:raid": "node tools/golden-raid.mjs",
     "purge": "node scripts/server/purge.mjs",

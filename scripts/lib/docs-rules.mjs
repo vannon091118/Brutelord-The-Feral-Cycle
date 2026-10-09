@@ -1,4 +1,5 @@
 /** Validatoren und der idempotente Move/Stamp für die Doku-Einträge. */
+import { existsSync, statSync } from 'node:fs';
 import {
   CHECKPOINT_FILE,
   META_KEYS,
@@ -8,6 +9,7 @@ import {
 } from './docs-parse.mjs';
 
 const CATEGORIES = ['Feature', 'Bugfix', 'Refactor', 'Test', 'Doku', 'Abnahme'];
+const SHOTS_DIR = 'Docs/shots/';
 const VERSION_RE = /^\d+\.\d+\.\d+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -64,6 +66,17 @@ function valueViolations(entry) {
   return problems;
 }
 
+function belegViolations(entry) {
+  const where = `${entry.path}:${entry.line}`;
+  const paths = String(entry.meta?.Beleg ?? '').split(',').map((value) => value.trim()).filter(Boolean);
+  return paths.flatMap((path) => {
+    if (!path.startsWith(SHOTS_DIR)) return [{ rule: 'Renderbeleg liegt unter Docs/shots', detail: `${where} — ${path}` }];
+    if (!existsSync(path)) return [{ rule: 'Renderbeleg existiert', detail: `${where} — ${path} fehlt` }];
+    if (statSync(path).size === 0) return [{ rule: 'Renderbeleg ist nicht leer', detail: `${where} — ${path}` }];
+    return [];
+  });
+}
+
 export function validate(path, text) {
   const entries = parseEntries(path, text);
   const problems = [];
@@ -71,7 +84,7 @@ export function validate(path, text) {
   for (const entry of entries) {
     if (entry.indent === 0) {
       lastTopDone = entry.done;
-      problems.push(...metaViolations(entry), ...placeViolations(entry));
+      problems.push(...metaViolations(entry), ...placeViolations(entry), ...belegViolations(entry));
     } else if (lastTopDone && !entry.done && !entry.exempted) {
       problems.push({
         rule: 'Eintrag erst abhaken, wenn er fertig ist',

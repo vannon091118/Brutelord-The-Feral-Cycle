@@ -20,13 +20,14 @@ in [`GOVERNANCE.md`](GOVERNANCE.md).
 | `npm run gate -- --tree` | Die fünf Hard Caps pro Datei unter `src/` und `scripts/` — die Werte stehen in [`GOVERNANCE.md`](GOVERNANCE.md) | CI |
 | `npm run gate -- --commits=<base>..<head>` | Betreff, Body-Länge, genannte Dateien, VANNON-Label, Bot-Signaturen | CI |
 | `npm run gate -- --version --base=<sha>` | Monotonie der `revision`, Übereinstimmung von Lock und Spiegeln | CI |
-| `npm run gate -- --docs` | Metadaten-Pflicht der Einträge in `ROADMAP_OPEN.md` und `CHECKPOINTS.md` | CI |
+| `npm run gate -- --docs` | Metadaten-Pflicht der Einträge in `ROADMAP_OPEN.md` und `CHECKPOINTS.md` — und dass jeder genannte Renderbeleg unter `Docs/shots/` liegt, existiert und ein Bild trägt | CI |
 | `npm run gate -- --spiegel` | Kommentar-Cap (1 Zeile = `@doc`-Pointer), Spiegel-Doku unter `docs/daten/`, Caps, Orphans, Drift | CI |
 | `npm run check` | Die **betroffenen** Wächter und die Gruppen, deren Eingaben sich geändert haben — gecacht, ohne Browser | Hand |
 | `npm run verify` | Verhalten der Domäne: Onboarding, Abbau, Verwurzelung, Bau, Brutlord, Ökonomie, Konto | CI |
 | `npm run verify:commits` | Das Commit-Gate gegen sich selbst — Regressionstests der Regelprüfung | CI |
 | `npm run verify:browser` | Dieselbe Onboarding-Kette im echten Chromium, mit angehaltener Uhr — braucht einen Browser und den Port 5199 | Hand |
 | `VERIFY_SHOTS=1 npm run verify:browser` | Zusätzlich die Bilder in `Docs/shots/` neu erzeugen — sonst fasst der Lauf die versionierten Bilder nicht an | Hand |
+| `npm run shots:labor` | Den Renderbeleg der Steinbereiche aus dem eingefrorenen Stand schreiben (`--stand=vorher` gegen `DL_BROWSER_URL`, für die Fassung vor dem Umbau) — ohne `VERIFY_SHOTS=1` bleibt ein vorhandenes Bild stehen | Hand |
 | `npm run build` | Importauflösung über den echten Bundler | CI |
 
 ```sh
@@ -45,6 +46,8 @@ npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
 npm run gate -- --docs                     # Metadaten-Pflicht der Doku-Einträge
 npm run golden:raid                        # Golden-Wert der Raid-Simulation neu schreiben
 npm run docs:sync --check                  # Pre-Flight des Doku-Syncs (liest nur)
+npm run shots:labor                        # Renderbeleg der Steinbereiche in Docs/shots
+npm run shots:labor -- --stand=vorher      # derselbe Beleg gegen DL_BROWSER_URL (Basisrevision)
 npm run docs:sync                          # Sync ausführen — im Bot-Workflow
 npm run commit:draft                       # Commit-Body-Vorprüfung für gestagete Dateien
 npm run verify                             # Volllauf: Abnahme inkl. Browser — läuft in der CI

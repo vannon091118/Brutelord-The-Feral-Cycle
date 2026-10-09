@@ -16,6 +16,14 @@ export async function shoot(page, id) {
   return file;
 }
 
+export async function shootElement(page, id, selector) {
+  const file = resolve(DIR, `${id}.jpg`);
+  if (process.env.VERIFY_SHOTS !== '1' && existsSync(file)) return file;
+  mkdirSync(DIR, { recursive: true });
+  await page.locator(selector).screenshot({ path: file, type: 'jpeg', quality: 88, animations: 'disabled' });
+  return file;
+}
+
 export function shotDir() {
   return DIR;
 }

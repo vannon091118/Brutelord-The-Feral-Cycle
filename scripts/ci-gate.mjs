@@ -149,7 +149,7 @@ function collectFailures({ args, wantsAll, commitArg, baseRef, explicitRange }) 
     failures += report('Versionierung', runVersionCheck(baseRef));
   }
   if (wantsAll || args.includes('--docs')) {
-    failures += report('Doku-Metadaten (Status, Scope, Kategorie, Version, Datum)', preFlightProblems());
+    failures += report('Doku-Metadaten (Status, Scope, Kategorie, Version, Datum, Renderbeleg)', preFlightProblems());
   }
   if (wantsAll || args.includes('--spiegel')) {
     failures += report('Spiegel-Doku (Pointer, Caps, Orphans)', analyzeSpiegel());
