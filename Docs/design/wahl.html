@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Brutelord — drei UI-Richtungen</title>
+<style>
+  :root{
+    --soil-950:#120d08; --soil-900:#1b1310; --bone-100:#f4ead6; --bone-300:#c3b294; --bone-400:#9c8a6e;
+    --core-400:#f5bb63; --core-500:#e0983a; --aether:#8fb8ff; --blood:#cf5f57; --moss:#6c7c3e;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:#070503;color:var(--bone-100);font-family:system-ui,"Segoe UI",sans-serif}
+  nav{position:sticky;top:0;z-index:9;display:flex;gap:14px;align-items:baseline;padding:10px 16px;
+      background:#0b0806f2;border-bottom:1px solid #3d2c1c;font-size:12px}
+  nav b{letter-spacing:.2em;text-transform:uppercase;font-size:11px;color:var(--core-400)}
+  nav a{color:var(--bone-400);text-decoration:none;border-bottom:1px dotted #3d2c1c}
+  nav a:hover{color:var(--bone-100)}
+  .dir{position:relative;height:100vh;min-height:640px;overflow:hidden}
+  .cap{position:absolute;left:18px;top:64px;z-index:3;font-size:10px;letter-spacing:.3em;text-transform:uppercase;opacity:.75}
+
+  /* ============ A — SCHICHTEN ============ */
+  #dira{--display:"Arial Narrow","Roboto Condensed",Oswald,system-ui,sans-serif;--ui:system-ui,"Segoe UI",sans-serif;
+        background:radial-gradient(120% 90% at 50% 30%,#251a12,#0a0705);font-family:var(--ui)}
+  #dira .bar{display:flex;align-items:baseline;gap:14px;padding:10px 16px 9px;
+    border-bottom:1px solid rgba(163,122,76,.28);background:linear-gradient(180deg,rgba(27,19,16,.92),rgba(18,13,8,.6))}
+  #dira .brand b{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:.22em}
+  #dira .brand span{font-size:9px;letter-spacing:.34em;text-transform:uppercase;color:var(--bone-400);margin-left:9px}
+  #dira .floor{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--core-400);
+    padding-left:12px;border-left:1px solid rgba(163,122,76,.3)}
+  #dira .account{margin-left:auto;display:flex;gap:10px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--bone-400)}
+  #dira .account button{font:inherit;color:var(--bone-300);background:none;border:0;border-bottom:1px solid rgba(163,122,76,.35);cursor:pointer}
+  #dira .account .raid{color:var(--blood)}
+  #dira .world{position:absolute;inset:48px 0 0}
+  #dira .hud{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;padding-bottom:14px}
+  #dira .core{width:min(94vw,660px);background:linear-gradient(180deg,#1b1310f5,#120d08fa);
+    border:1px solid rgba(163,122,76,.3);border-left:3px solid var(--core-500)}
+  #dira .hint{padding:9px 13px 8px;border-bottom:1px solid rgba(163,122,76,.22)}
+  #dira .hint .main{font-family:var(--display);font-size:15px;letter-spacing:.04em}
+  #dira .hint .sub{font-size:11px;color:var(--bone-400);margin-top:2px}
+  #dira .rail{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1.2fr;
+    background:repeating-linear-gradient(90deg,transparent 0 1px,rgba(163,122,76,.14) 1px 2px)}
+  #dira .slot{padding:7px 12px;border-right:1px solid rgba(163,122,76,.16)}
+  #dira .slot:last-child{border-right:0}
+  #dira .slot .k{font-family:var(--display);font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--bone-400)}
+  #dira .slot .v{font-family:var(--display);font-size:19px;font-weight:700;line-height:1.05}
+  #dira .slot.lead .v{font-size:26px;color:var(--core-400)}
+  #dira .slot.aeth .v{color:var(--aether)} #dira .slot.blood .v{color:var(--blood)} #dira .slot.moss .v{color:var(--moss)}
+  #dira .slot.locked{opacity:.34} #dira .slot.floor{border-left:2px solid rgba(224,152,58,.5)}
+  #dira .slot.floor .v{font-size:16px;color:var(--core-400)}
+  #dira .meta{display:flex;justify-content:space-between;padding:6px 13px;border-top:1px solid rgba(163,122,76,.22);
+    font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--bone-400)}
+  #dira .phases{display:flex;gap:12px} #dira .phases b.on{color:var(--core-400)}
+  #dira .build{position:absolute;right:20px;bottom:22px;font-family:var(--display);letter-spacing:.2em;
+    text-transform:uppercase;font-size:12px;padding:10px 18px;color:#150f09;background:var(--core-500);border:0;cursor:pointer;
+    clip-path:polygon(0 0,100% 0,100% 100%,10px 100%,0 calc(100% - 10px))}
+
+  /* ============ B — WURZELWERK ============ */
+  #dirb{--display:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--copper:#a86f42;
+        background:radial-gradient(60% 50% at 46% 46%,#2a1f16,#140e09 62%,#0a0705);font-family:"Segoe UI",system-ui,sans-serif}
+  #dirb .bar{position:absolute;left:22px;top:16px;display:flex;align-items:baseline;gap:12px;z-index:2}
+  #dirb .brand b{font-family:var(--display);font-size:24px;font-weight:600}
+  #dirb .brand span{font-family:var(--display);font-style:italic;font-size:12px;color:var(--copper);margin-left:8px}
+  #dirb .floor{padding:3px 12px;border-radius:999px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#f0dcae;
+    background:rgba(168,111,66,.2);box-shadow:inset 0 0 0 1px rgba(224,152,58,.34),0 0 18px rgba(224,152,58,.12)}
+  #dirb .account{position:absolute;right:24px;top:18px;display:flex;gap:12px;font-size:11px;color:var(--bone-400);z-index:2}
+  #dirb .account button{font:inherit;color:var(--bone-300);background:none;border:0;border-bottom:1px dotted rgba(195,178,148,.4);cursor:pointer}
+  #dirb .account .raid{color:#e3a9a2}
+  #dirb .world{position:absolute;inset:0}
+  #dirb .hud{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;padding-bottom:16px}
+  #dirb .membrane{width:min(94vw,680px);padding:14px 22px 12px;position:relative;
+    background:linear-gradient(180deg,rgba(46,33,22,.9),rgba(20,14,9,.94));
+    border-radius:46% 54% 50% 50% / 22% 26% 20% 24%;
+    box-shadow:inset 0 1px 0 rgba(255,220,160,.09),inset 0 0 40px rgba(108,124,62,.1),0 22px 50px -22px #000}
+  #dirb .hint{text-align:center}
+  #dirb .hint .main{font-family:var(--display);font-size:17px}
+  #dirb .hint .sub{font-size:11.5px;color:var(--bone-400);margin-top:3px}
+  #dirb .bundle{display:flex;align-items:center;margin:12px 0 8px;position:relative;padding:0 6px}
+  #dirb .bundle::before{content:"";position:absolute;left:12px;right:12px;top:26px;height:5px;border-radius:999px;
+    background:linear-gradient(90deg,rgba(108,124,62,.55),rgba(168,111,66,.5))}
+  #dirb .nub{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;z-index:1}
+  #dirb .nub .dot{width:16px;height:16px;border-radius:50%;background:#1b1310;box-shadow:inset 0 0 0 1.5px rgba(195,178,148,.3)}
+  #dirb .nub.on .dot{background:radial-gradient(circle at 40% 35%,#fff3d8,var(--core-500));box-shadow:0 0 16px rgba(224,152,58,.6)}
+  #dirb .nub.aeth.on .dot{background:radial-gradient(circle at 40% 35%,#e4eeff,var(--aether));box-shadow:0 0 16px rgba(143,184,255,.55)}
+  #dirb .nub.blood.on .dot{background:radial-gradient(circle at 40% 35%,#ffd9d5,var(--blood));box-shadow:0 0 16px rgba(207,95,87,.55)}
+  #dirb .nub.moss .dot{background:radial-gradient(circle at 40% 35%,#e6f0c0,var(--moss));box-shadow:0 0 16px rgba(108,124,62,.5)}
+  #dirb .nub.off{opacity:.5}
+  #dirb .nub .k{font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-400)}
+  #dirb .nub .v{font-family:var(--display);font-size:15px}
+  #dirb .nub.lead .v{font-size:22px;color:#ffe6bd}
+  #dirb .nub.floor .dot{border-radius:6px;box-shadow:inset 0 0 0 1.5px rgba(224,152,58,.5)}
+  #dirb .meta{display:flex;justify-content:center;gap:18px;font-size:10px;color:var(--bone-400)}
+  #dirb .phases{display:flex;gap:10px;font-family:var(--display);font-style:italic}
+  #dirb .phases b{font-weight:400;color:#6f6350} #dirb .phases b.on{color:var(--moss);font-weight:600}
+  #dirb .build{position:absolute;right:26px;bottom:30px;font-family:var(--display);font-size:14px;padding:13px 26px;
+    color:#1a1208;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#ffdca0,var(--core-500));
+    border-radius:52% 48% 45% 55% / 55% 52% 48% 45%;box-shadow:0 0 26px rgba(224,152,58,.35),0 14px 26px -14px #000}
+
+  /* ============ C — DRUCKKAMMER ============ */
+  #dirc{--tech:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;--steel-500:#4e5666;--steel-300:#a4acbb;--steel-200:#c2c9d6;
+        background:radial-gradient(70% 60% at 52% 42%,#1a1f27,#0e1014 64%,#08090c 100%);
+        font-family:"Archivo","Helvetica Neue",Arial,system-ui,sans-serif;font-feature-settings:"tnum"}
+  #dirc .bar{display:flex;align-items:center;background:linear-gradient(180deg,#1b2029,#0e1014);border-bottom:2px solid #05060a}
+  #dirc .brand{display:flex;align-items:baseline;gap:12px;padding:11px 18px;border-right:1px solid rgba(78,86,102,.4)}
+  #dirc .brand b{font-size:16px;font-weight:800;letter-spacing:.24em}
+  #dirc .brand span{font-family:var(--tech);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--steel-500)}
+  #dirc .floor{padding:11px 20px;font-family:var(--tech);font-size:13px;letter-spacing:.2em;color:var(--core-400);border-right:1px solid rgba(78,86,102,.4)}
+  #dirc .account{margin-left:auto;display:flex;align-items:center}
+  #dirc .account .who{padding:11px 16px;font-family:var(--tech);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--steel-300);border-left:1px solid rgba(78,86,102,.4)}
+  #dirc .account button{padding:11px 16px;font-family:var(--tech);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--steel-300);background:#14171d;border:0;border-left:1px solid rgba(78,86,102,.4);cursor:pointer}
+  #dirc .account .raid{color:#e6b3ad}
+  #dirc .world{position:absolute;inset:52px 0 0}
+  #dirc .rack{position:absolute;left:50%;transform:translateX(-50%);bottom:16px;width:min(95vw,700px);padding:2px;
+    background:linear-gradient(180deg,#1b2029,#0e1014);
+    clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px);
+    box-shadow:0 26px 50px -24px #000}
+  #dirc .plate{background:linear-gradient(180deg,#171b23,#101319);padding:10px 16px 12px;
+    clip-path:polygon(13px 0,calc(100% - 13px) 0,100% 13px,100% calc(100% - 13px),calc(100% - 13px) 100%,13px 100%,0 calc(100% - 13px),0 13px)}
+  #dirc .hint .main{font-size:14px;font-weight:700;letter-spacing:.06em}
+  #dirc .hint .sub{font-family:var(--tech);font-size:10.5px;color:var(--steel-500);margin-top:3px}
+  #dirc .gauges{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1.1fr;gap:2px;margin-top:11px}
+  #dirc .gauge{background:#0b0d11;padding:8px 11px 9px;border-top:1px solid rgba(78,86,102,.45)}
+  #dirc .gauge .k{font-family:var(--tech);font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--steel-500)}
+  #dirc .gauge .v{font-family:var(--tech);font-size:20px;color:var(--steel-200)}
+  #dirc .gauge.lead .v{font-size:26px;color:var(--core-400)}
+  #dirc .gauge.aeth .v{color:var(--aether)} #dirc .gauge.blood .v{color:var(--blood)} #dirc .gauge.moss .v{color:var(--moss)}
+  #dirc .gauge.locked{opacity:.4} #dirc .gauge.floor .v{font-size:15px}
+  #dirc .meter{height:3px;margin-top:7px;background:#191d25;position:relative;overflow:hidden}
+  #dirc .meter i{position:absolute;inset:0 auto 0 0;background:var(--steel-300)}
+  #dirc .lead .meter i{background:var(--core-400)} #dirc .aeth .meter i{background:var(--aether)}
+  #dirc .blood .meter i{background:var(--blood)} #dirc .moss .meter i{background:var(--moss)}
+  #dirc .meta{display:flex;justify-content:space-between;margin-top:10px;padding-top:9px;border-top:1px solid rgba(78,86,102,.35);
+    font-family:var(--tech);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--steel-500)}
+  #dirc .phases{display:flex;gap:14px} #dirc .phases b{font-weight:400;color:#3f4653} #dirc .phases b.on{color:var(--steel-200)}
+  #dirc .phases b.on::before{content:"■ ";color:var(--core-400);font-size:7px;vertical-align:1px}
+  #dirc .build{position:absolute;right:24px;bottom:26px;padding:12px 22px;font-family:var(--tech);font-size:11px;
+    letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#12100a;border:0;cursor:pointer;
+    background:linear-gradient(180deg,#ffdca0,#b9762a);
+    clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px)}
+</style>
+</head>
+<body>
+<nav>
+  <b>Brutelord — UI-Richtungen</b>
+  <a href="#dira">A Schichten</a><a href="#dirb">B Wurzelwerk</a><a href="#dirc">C Druckkammer</a>
+</nav>
+
+<!-- ================= A ================= -->
+<section class="dir" id="dira">
+  <div class="cap">A — Schichten · Bohrkern, harte Bänder, eingraviert</div>
+  <header class="bar">
+    <div class="brand"><b>BRUTELORD</b><span>The Feral Cycle</span></div>
+    <div class="floor">Etage 1</div>
+    <div class="account"><span>vannon</span><button>abmelden</button><button class="raid">Raid</button></div>
+  </header>
+  <div class="world">
+    <svg viewBox="0 0 1200 700" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="aE" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3520"/><stop offset="1" stop-color="#1b1310"/></linearGradient>
+        <radialGradient id="aC"><stop offset="0" stop-color="#ffdca0"/><stop offset="55%" stop-color="#e0983a"/><stop offset="1" stop-color="#77417e"/></radialGradient>
+      </defs>
+      <rect width="1200" height="700" fill="#120d08"/>
+      <path d="M0 210 H1200 V700 H0 Z" fill="url(#aE)"/>
+      <g stroke="#a37a4c" opacity=".22"><path d="M0 268 H1200"/><path d="M0 352 H1200"/><path d="M0 470 H1200"/><path d="M0 606 H1200"/></g>
+      <path d="M300 330 q180 -70 380 -30 q160 34 210 130 q40 84 -60 150 H330 q-90 -70 -60 -160 q18 -56 30 -90 Z" fill="#0a0705"/>
+      <g fill="#3b4251"><rect x="880" y="300" width="120" height="120"/><rect x="1000" y="300" width="120" height="120" fill="#2a2036"/><rect x="880" y="420" width="120" height="120"/></g>
+      <ellipse cx="430" cy="430" rx="86" ry="78" fill="#2b1a33"/>
+      <g stroke="#9c5f9c" stroke-width="2" fill="none" opacity=".5"><path d="M430 352 q-70 -54 -150 -40"/><path d="M430 352 q60 -60 150 -46"/><path d="M356 470 q-90 24 -150 0"/></g>
+      <circle cx="430" cy="420" r="30" fill="url(#aC)"/>
+      <g transform="translate(620 520)"><ellipse rx="26" ry="18" fill="#5b3163"/><circle cx="6" cy="-8" r="3.6" fill="#e0983a"/></g>
+      <g transform="translate(760 470)" fill="#93b14b"><circle r="7"/><circle cx="18" cy="10" r="5" opacity=".8"/><circle cx="-16" cy="8" r="4" opacity=".6"/></g>
+      <g transform="translate(150 430)" stroke="#c3b294" stroke-width="2" opacity=".55"><path d="M0 0 v150 M26 0 v150 M0 30 h26 M0 70 h26 M0 110 h26"/></g>
+    </svg>
+  </div>
+  <div class="hud"><div class="core">
+    <div class="hint"><p class="main">Der Hive hungert. Bau einen Extraktor.</p><p class="sub">Dunglinge tragen Essenz Stück für Stück heran.</p></div>
+    <div class="rail">
+      <div class="slot lead"><div class="k">Essenz</div><div class="v">12</div></div>
+      <div class="slot moss locked"><div class="k">Biomasse</div><div class="v">—</div></div>
+      <div class="slot aeth"><div class="k">Aether</div><div class="v">3</div></div>
+      <div class="slot blood"><div class="k">Blutstein</div><div class="v">1</div></div>
+      <div class="slot floor"><div class="k">Abstieg</div><div class="v">Etage 1 ↓</div></div>
+    </div>
+    <div class="meta"><div class="phases"><b class="on">Wecken</b><b class="on">Graben</b><b>Bauen</b><b>Zucht</b></div><span>Raum 12</span></div>
+  </div></div>
+  <button class="build">Bauen</button>
+</section>
+
+<!-- ================= B ================= -->
+<section class="dir" id="dirb">
+  <div class="cap">B — Wurzelwerk · Membran, Wurzelbündel, Glüh-Knoten</div>
+  <header class="bar">
+    <div class="brand"><b>Brutelord</b><span>The Feral Cycle</span></div>
+    <div class="floor">Etage 1</div>
+  </header>
+  <div class="account"><span>vannon</span><button>abmelden</button><button class="raid">Raid</button></div>
+  <div class="world">
+    <svg viewBox="0 0 1200 700" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="bC"><stop offset="0" stop-color="#fff3d8"/><stop offset="50%" stop-color="#e0983a"/><stop offset="1" stop-color="#77417e"/></radialGradient>
+        <radialGradient id="bM" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#4a3520"/><stop offset="1" stop-color="#1b1310"/></radialGradient>
+      </defs>
+      <rect width="1200" height="700" fill="#0a0705"/>
+      <path d="M-40 240 C220 180 420 300 620 258 C860 208 1060 300 1240 258 V760 H-40 Z" fill="url(#bM)"/>
+      <path d="M300 340 C420 292 560 300 680 340 C800 380 830 470 760 540 C660 620 460 610 360 540 C290 486 280 402 300 340 Z" fill="#0a0705"/>
+      <g stroke="#6c7c3e" stroke-width="1.6" fill="none" opacity=".45"><path d="M320 356 q40 26 30 62"/><path d="M700 352 q-30 40 -6 76"/><path d="M380 560 q60 20 120 6"/></g>
+      <g stroke="#9c5f9c" stroke-width="2.2" fill="none" opacity=".45"><path d="M470 380 C420 330 340 322 300 348"/><path d="M470 380 C526 330 610 326 656 356"/><path d="M410 470 C352 500 300 500 262 478"/><path d="M540 470 C600 504 664 502 700 476"/></g>
+      <ellipse cx="470" cy="430" rx="94" ry="86" fill="#2b1a33"/><ellipse cx="470" cy="430" rx="94" ry="86" fill="none" stroke="#c08cb6" opacity=".5"/>
+      <circle cx="470" cy="420" r="34" fill="url(#bC)"/>
+      <g transform="translate(660 520)"><ellipse rx="28" ry="19" fill="#5b3163"/><ellipse rx="28" ry="19" fill="none" stroke="#c08cb6" opacity=".6"/><circle cx="7" cy="-9" r="4" fill="#e0983a"/></g>
+      <g transform="translate(800 470)" fill="#93b14b"><circle r="8"/><circle cx="20" cy="11" r="5.5" opacity=".8"/><circle cx="-18" cy="9" r="4.5" opacity=".6"/></g>
+      <g fill="#3b4251" opacity=".9"><path d="M900 300 q60 -18 118 4 q10 60 -6 116 q-58 16 -116 -2 q-8 -58 4 -118 Z"/><path d="M1030 320 q56 -14 108 6 q8 56 -6 108 q-54 14 -106 -2 q-6 -56 4 -112 Z" fill="#2a2036"/></g>
+      <g transform="translate(150 430)" stroke="#c3b294" stroke-width="2" opacity=".45"><path d="M0 0 v150 M26 0 v150 M0 30 h26 M0 70 h26 M0 110 h26"/></g>
+    </svg>
+  </div>
+  <div class="hud"><div class="membrane">
+    <div class="hint"><p class="main">Der Hive hungert. Bau einen Extraktor.</p><p class="sub">Dunglinge tragen Essenz Stück für Stück heran.</p></div>
+    <div class="bundle">
+      <div class="nub lead on"><span class="dot"></span><span class="k">Essenz</span><span class="v">12</span></div>
+      <div class="nub moss off"><span class="dot"></span><span class="k">Biomasse</span><span class="v">—</span></div>
+      <div class="nub aeth on"><span class="dot"></span><span class="k">Aether</span><span class="v">3</span></div>
+      <div class="nub blood on"><span class="dot"></span><span class="k">Blutstein</span><span class="v">1</span></div>
+      <div class="nub floor"><span class="dot"></span><span class="k">Abstieg</span><span class="v">↓</span></div>
+    </div>
+    <div class="meta"><div class="phases"><b class="on">Wecken</b><b class="on">Graben</b><b>Bauen</b><b>Zucht</b></div><span>Raum 12</span></div>
+  </div></div>
+  <button class="build">Bauen</button>
+</section>
+
+<!-- ================= C ================= -->
+<section class="dir" id="dirc">
+  <div class="cap">C — Druckkammer · Instrument, abgeschrägte Kanten, Zeiger</div>
+  <header class="bar">
+    <div class="brand"><b>BRUTELORD</b><span>The Feral Cycle</span></div>
+    <div class="floor">ETAGE 01</div>
+    <div class="account"><span class="who">vannon</span><button>abmelden</button><button class="raid">Raid</button></div>
+  </header>
+  <div class="world">
+    <svg viewBox="0 0 1200 660" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="cC"><stop offset="0" stop-color="#ffe9c2"/><stop offset="52%" stop-color="#e0983a"/><stop offset="1" stop-color="#43254d"/></radialGradient>
+        <linearGradient id="cM" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e2116"/><stop offset="1" stop-color="#0e0b08"/></linearGradient>
+      </defs>
+      <rect width="1200" height="660" fill="#0e0b08"/>
+      <path d="M0 200 H1200 V660 H0 Z" fill="url(#cM)"/>
+      <g stroke="#697285" opacity=".1"><path d="M0 260 H1200"/><path d="M0 340 H1200"/><path d="M0 440 H1200"/><path d="M0 560 H1200"/><path d="M200 200 V660"/><path d="M400 200 V660"/><path d="M600 200 V660"/><path d="M800 200 V660"/><path d="M1000 200 V660"/></g>
+      <path d="M300 320 L640 300 L840 400 L860 520 L700 590 L360 580 L280 470 Z" fill="#090a0d" stroke="#4e5666" opacity=".95"/>
+      <g><rect x="900" y="290" width="132" height="132" fill="#2c313d"/><rect x="1032" y="290" width="132" height="132" fill="#14101c"/><rect x="900" y="422" width="132" height="132" fill="#3b4251"/><rect x="1032" y="422" width="132" height="132" fill="#2a2036"/></g>
+      <circle cx="440" cy="420" r="84" fill="#2b1a33"/>      <circle cx="440" cy="420" r="84" fill="none" stroke="#4e5666" stroke-width="2" opacity=".6"/>
+      <circle cx="440" cy="412" r="32" fill="url(#cC)"/>
+      <g transform="translate(620 520)"><rect x="-26" y="-16" width="52" height="34" fill="#5b3163" stroke="#9c5f9c"/><circle cx="8" cy="-8" r="4" fill="#e0983a"/></g>
+      <g transform="translate(780 462)" fill="#93b14b"><rect x="-8" y="-8" width="16" height="16"/><rect x="12" y="3" width="10" height="10" opacity=".8"/><rect x="-26" y="1" width="9" height="9" opacity=".6"/></g>
+      <g transform="translate(150 400)" stroke="#a4acbb" stroke-width="2" opacity=".45"><path d="M0 0 v150 M26 0 v150 M0 30 h26 M0 70 h26 M0 110 h26"/></g>
+    </svg>
+  </div>
+  <div class="rack"><div class="plate">
+    <div class="hint"><p class="main">Der Hive hungert. Bau einen Extraktor.</p><p class="sub">Dunglinge tragen Essenz Stück für Stück heran.</p></div>
+    <div class="gauges">
+      <div class="gauge lead"><div class="k">Essenz</div><div class="v">12</div><div class="meter"><i style="width:48%"></i></div></div>
+      <div class="gauge moss locked"><div class="k">Biomasse</div><div class="v">--</div><div class="meter"><i style="width:0"></i></div></div>
+      <div class="gauge aeth"><div class="k">Aether</div><div class="v">03</div><div class="meter"><i style="width:22%"></i></div></div>
+      <div class="gauge blood"><div class="k">Blutstein</div><div class="v">01</div><div class="meter"><i style="width:12%"></i></div></div>
+      <div class="gauge floor"><div class="k">Abstieg</div><div class="v">E1 ↓</div><div class="meter"><i style="width:100%"></i></div></div>
+    </div>
+    <div class="meta"><div class="phases"><b class="on">Wecken</b><b class="on">Graben</b><b>Bauen</b><b>Zucht</b></div><span>Raum 12</span></div>
+  </div></div>
+  <button class="build">Bauen</button>
+</section>
+</body>
+</html>

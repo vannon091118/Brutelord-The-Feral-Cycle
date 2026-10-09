@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Brutelord — Richtung A: Schichten</title>
+<style>
+  /* A — SCHICHTEN: die UI ist ein Bohrkern. Harte Bänder, keine Rundungen,
+     Sedimentnähte, eingravierte Zahlen. Werkzeug, nicht Dashboard. */
+  :root{
+    --soil-950:#120d08; --soil-900:#1b1310; --soil-800:#2e2116; --soil-700:#3d2c1c;
+    --soil-500:#674c2e; --soil-300:#a37a4c;
+    --bone-100:#f4ead6; --bone-300:#c3b294; --bone-400:#9c8a6e;
+    --core-400:#f5bb63; --core-500:#e0983a;
+    --aether:#8fb8ff; --blood:#cf5f57; --moss:#6c7c3e; --rock:#8b95a8;
+    --display:"Arial Narrow","Roboto Condensed",Oswald,system-ui,sans-serif;
+    --ui:ui-sans-serif,"Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{background:radial-gradient(120% 90% at 50% 30%,#251a12,#0a0705);color:var(--bone-100);
+       font-family:var(--ui);-webkit-font-smoothing:antialiased}
+  .screen{position:relative;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+  /* Kopf: eine Naht, kein Panel. */
+  .bar{display:flex;align-items:baseline;gap:14px;padding:10px 16px 9px;
+       border-bottom:1px solid rgba(163,122,76,.28);background:linear-gradient(180deg,rgba(27,19,16,.92),rgba(18,13,8,.6))}
+  .brand b{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:.22em}
+  .brand span{font-size:9px;letter-spacing:.34em;text-transform:uppercase;color:var(--bone-400);margin-left:9px}
+  .floor{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;
+         color:var(--core-400);padding-left:12px;border-left:1px solid rgba(163,122,76,.3)}
+  .account{margin-left:auto;display:flex;align-items:baseline;gap:10px;font-size:10px;letter-spacing:.12em;
+           text-transform:uppercase;color:var(--bone-400)}
+  .account button{font:inherit;letter-spacing:.12em;color:var(--bone-300);background:none;border:0;
+                  border-bottom:1px solid rgba(163,122,76,.35);padding:1px 0;cursor:pointer}
+  .account .raid{color:var(--blood);border-color:rgba(207,95,87,.4)}
+
+  .world{flex:1;min-height:0;position:relative}
+
+  /* HUD: ein Bohrkern aus gestapelten Bändern. */
+  .hud{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:0 0 14px}
+  .core{width:min(94vw,660px);background:linear-gradient(180deg,#1b1310f5,#120d08fa);
+        border:1px solid rgba(163,122,76,.3);border-left-width:3px;border-left-color:var(--core-500)}
+  .core .hint{padding:9px 13px 8px;border-bottom:1px solid rgba(163,122,76,.22)}
+  .hint .main{font-family:var(--display);font-size:15px;letter-spacing:.04em}
+  .hint .sub{font-size:11px;color:var(--bone-400);margin-top:2px}
+
+  .rail{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1.2fr;
+        background:repeating-linear-gradient(90deg,transparent 0 1px,rgba(163,122,76,.14) 1px 2px)}
+  .slot{padding:7px 12px;border-right:1px solid rgba(163,122,76,.16)}
+  .slot:last-child{border-right:0}
+  .slot .k{font-family:var(--display);font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--bone-400)}
+  .slot .v{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:.02em;line-height:1.05}
+  .slot.lead .v{font-size:26px;color:var(--core-400)}
+  .slot.t-aether .v{color:var(--aether)} .slot.t-blood .v{color:var(--blood)}
+  .slot.t-moss .v{color:var(--moss)} .slot.locked{opacity:.34}
+  .slot.floor{border-left:2px solid rgba(224,152,58,.5)}
+  .slot.floor .v{font-size:16px;color:var(--core-400)}
+  .slot.floor .v i{font-style:normal;color:var(--bone-400);font-size:11px;margin-left:6px}
+
+  .meta{display:flex;justify-content:space-between;align-items:center;padding:6px 13px;
+        border-top:1px solid rgba(163,122,76,.22);font-size:9.5px;letter-spacing:.18em;
+        text-transform:uppercase;color:var(--bone-400)}
+  .phases{display:flex;gap:12px}
+  .phases b{font-weight:600;color:var(--bone-300);border-bottom:1px solid transparent}
+  .phases b.on{color:var(--core-400);border-color:var(--core-500)}
+
+  .build{position:absolute;right:20px;bottom:22px;font-family:var(--display);letter-spacing:.2em;
+         text-transform:uppercase;font-size:12px;padding:10px 18px;color:#150f09;background:var(--core-500);
+         border:0;clip-path:polygon(0 0,100% 0,100% 100%,10px 100%,0 calc(100% - 10px));cursor:pointer}
+  .cap{position:absolute;left:16px;top:58px;font-family:var(--display);font-size:10px;letter-spacing:.3em;
+       text-transform:uppercase;color:var(--bone-400);opacity:.75}
+</style>
+</head>
+<body>
+<div class="screen">
+  <header class="bar">
+    <div class="brand"><b>BRUTELORD</b><span>The Feral Cycle</span></div>
+    <div class="floor">Etage 1</div>
+    <div class="account"><span>vannon</span><button>abmelden</button><button class="raid">Raid</button></div>
+  </header>
+
+  <div class="cap">A — Schichten</div>
+
+  <main class="world">
+    <svg viewBox="0 0 1200 700" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="aEarth" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#4a3520"/><stop offset="1" stop-color="#1b1310"/>
+        </linearGradient>
+        <radialGradient id="aCore" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#ffdca0"/><stop offset="55%" stop-color="#e0983a"/>
+          <stop offset="1" stop-color="#77417e"/>
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="700" fill="#120d08"/>
+      <!-- Erdmasse in Schichten: die Naht ist die Sprache. -->
+      <path d="M0 210 H1200 V700 H0 Z" fill="url(#aEarth)"/>
+      <g stroke="#a37a4c" opacity=".22" stroke-width="1">
+        <path d="M0 268 H1200"/><path d="M0 352 H1200"/><path d="M0 470 H1200"/><path d="M0 606 H1200"/>
+      </g>
+      <!-- ausgehöhlter Raum -->
+      <path d="M300 330 q180 -70 380 -30 q160 34 210 130 q40 84 -60 150 H330 q-90 -70 -60 -160 q18 -56 30 -90 Z" fill="#0a0705"/>
+      <!-- Hartgestein: ganze Blöcke, kantig -->
+      <g fill="#3b4251">
+        <rect x="880" y="300" width="120" height="120"/>
+        <rect x="1000" y="300" width="120" height="120" fill="#2a2036"/>
+        <rect x="880" y="420" width="120" height="120"/>
+      </g>
+      <!-- Hive -->
+      <ellipse cx="430" cy="430" rx="86" ry="78" fill="#2b1a33"/>
+      <g stroke="#9c5f9c" stroke-width="2" fill="none" opacity=".5">
+        <path d="M430 352 q-70 -54 -150 -40"/><path d="M430 352 q60 -60 150 -46"/><path d="M356 470 q-90 24 -150 0"/>
+      </g>
+      <circle cx="430" cy="420" r="30" fill="url(#aCore)"/>
+      <!-- Dungling -->
+      <g transform="translate(620 520)">
+        <ellipse cx="0" cy="2" rx="26" ry="18" fill="#5b3163"/>
+        <circle cx="6" cy="-8" r="3.6" fill="#e0983a"/>
+      </g>
+      <!-- Ader-Vorrat -->
+      <g transform="translate(760 470)" fill="#93b14b">
+        <circle r="7"/><circle cx="18" cy="10" r="5" opacity=".8"/><circle cx="-16" cy="8" r="4" opacity=".6"/>
+      </g>
+      <!-- Leiter am Rand -->
+      <g transform="translate(150 430)" stroke="#c3b294" stroke-width="2" opacity=".55">
+        <path d="M0 0 v150 M26 0 v150 M0 30 h26 M0 70 h26 M0 110 h26"/>
+      </g>
+    </svg>
+  </main>
+
+  <footer class="hud">
+    <div class="core">
+      <div class="hint">
+        <p class="main">Der Hive hungert. Bau einen Extraktor.</p>
+        <p class="sub">Dunglinge tragen Essenz Stück für Stück heran.</p>
+      </div>
+      <div class="rail">
+        <div class="slot lead"><div class="k">Essenz</div><div class="v">12</div></div>
+        <div class="slot t-moss locked"><div class="k">Biomasse</div><div class="v">—</div></div>
+        <div class="slot t-aether"><div class="k">Aether</div><div class="v">3</div></div>
+        <div class="slot t-blood"><div class="k">Blutstein</div><div class="v">1</div></div>
+        <div class="slot floor"><div class="k">Abstieg</div><div class="v">Etage 1<i>↓</i></div></div>
+      </div>
+      <div class="meta">
+        <div class="phases"><b class="on">Wecken</b><b class="on">Graben</b><b>Bauen</b><b>Zucht</b></div>
+        <span>Raum 12</span>
+      </div>
+    </div>
+  </footer>
+
+  <button class="build">Bauen</button>
+</div>
+</body>
+</html>

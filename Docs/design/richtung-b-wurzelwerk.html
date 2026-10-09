@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Brutelord — Richtung B: Wurzelwerk</title>
+<style>
+  /* B — WURZELWERK: die UI ist Teil des Organismus. Unregelmäßige Silhouetten,
+     faserige Ränder, Membranen, Glüh-Knoten. Nichts ist ein Rechteck. */
+  :root{
+    --soil-950:#120d08; --bone-100:#f4ead6; --bone-300:#c3b294; --bone-400:#9c8a6e;
+    --core-400:#f5bb63; --core-500:#e0983a;
+    --moss-500:#6c7c3e; --moss-600:#55632f;
+    --aether:#8fb8ff; --blood:#cf5f57; --copper:#a86f42; --hive-300:#c08cb6;
+    --display:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --ui:"Segoe UI",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{background:#0a0705;color:var(--bone-100);font-family:var(--ui);-webkit-font-smoothing:antialiased}
+  .screen{position:relative;height:100vh;overflow:hidden;
+          background:radial-gradient(60% 50% at 46% 46%,#2a1f16 0%,#140e09 62%,#0a0705 100%)}
+
+  /* Nichts liegt in einer Box: die Ecken sind weich, weil alles wächst. */
+  .bar{position:absolute;left:22px;top:18px;display:flex;align-items:baseline;gap:14px}
+  .brand b{font-family:var(--display);font-size:24px;font-weight:600;letter-spacing:.02em}
+  .brand span{font-family:var(--display);font-style:italic;font-size:12px;color:var(--copper);margin-left:8px}
+  .floor{margin-left:6px;padding:3px 12px;border-radius:999px;font-size:10px;letter-spacing:.22em;
+         text-transform:uppercase;color:#f0dcae;background:rgba(168,111,66,.2);
+         box-shadow:inset 0 0 0 1px rgba(224,152,58,.34),0 0 18px rgba(224,152,58,.12)}
+  .account{position:absolute;right:24px;top:20px;display:flex;align-items:baseline;gap:12px;
+           font-size:11px;color:var(--bone-400)}
+  .account .who{color:var(--bone-300)}
+  .account button{font:inherit;color:var(--bone-300);background:none;border:0;cursor:pointer;
+                  border-bottom:1px dotted rgba(195,178,148,.4);padding:0 0 1px}
+  .account .raid{color:#e3a9a2}
+
+  .world{position:absolute;inset:0}
+
+  /* Der Trog ist eine Membran: unregelmäßiger Umriss, wachsende Kanten. */
+  .hud{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;padding-bottom:16px}
+  .membrane{width:min(94vw,680px);padding:14px 22px 12px;position:relative;
+    background:linear-gradient(180deg,rgba(46,33,22,.9),rgba(20,14,9,.94));
+    border-radius:46% 54% 50% 50% / 22% 26% 20% 24%;
+    box-shadow:inset 0 1px 0 rgba(255,220,160,.09),inset 0 0 40px rgba(108,124,62,.1),0 22px 50px -22px #000}
+  .membrane::before{content:"";position:absolute;inset:-3px;border-radius:inherit;
+    background:conic-gradient(from 20deg,rgba(108,124,62,.5),rgba(168,111,66,.35),rgba(192,140,182,.4),rgba(108,124,62,.5));
+    filter:blur(6px);opacity:.4;z-index:-1}
+  .hint{text-align:center}
+  .hint .main{font-family:var(--display);font-size:17px;line-height:1.2}
+  .hint .sub{font-size:11.5px;color:var(--bone-400);margin-top:3px}
+
+  /* Die Rail ist ein Wurzelbündel: Knoten statt Plätze. */
+  .bundle{display:flex;align-items:center;gap:0;margin:12px 0 8px;position:relative;padding:0 6px}
+  .bundle::before{content:"";position:absolute;left:10px;right:10px;top:50%;height:5px;transform:translateY(-50%);
+    border-radius:999px;background:linear-gradient(90deg,rgba(108,124,62,.55),rgba(168,111,66,.5))}
+  .nub{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;z-index:1}
+  .nub .dot{width:16px;height:16px;border-radius:50%;background:#1b1310;
+            box-shadow:inset 0 0 0 1.5px rgba(195,178,148,.3)}
+  .nub.on .dot{background:radial-gradient(circle at 40% 35%,#fff3d8,var(--core-500));box-shadow:0 0 16px rgba(224,152,58,.6)}
+  .nub.aether.on .dot{background:radial-gradient(circle at 40% 35%,#e4eeff,var(--aether));box-shadow:0 0 16px rgba(143,184,255,.55)}
+  .nub.blood.on .dot{background:radial-gradient(circle at 40% 35%,#ffd9d5,var(--blood));box-shadow:0 0 16px rgba(207,95,87,.55)}
+  .nub.moss.on .dot{background:radial-gradient(circle at 40% 35%,#e6f0c0,var(--moss-500));box-shadow:0 0 16px rgba(108,124,62,.6)}
+  .nub.off .dot{opacity:.45}
+  .nub .k{font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-400);text-align:center}
+  .nub .v{font-family:var(--display);font-size:15px}
+  .nub.lead .v{font-size:22px;color:#ffe6bd}
+  .nub.locked{opacity:.5}
+  .nub.floor .dot{border-radius:6px;background:#1b1310;box-shadow:inset 0 0 0 1.5px rgba(224,152,58,.5)}
+
+  .meta{display:flex;justify-content:center;align-items:center;gap:18px;font-size:10px;color:var(--bone-400);
+        letter-spacing:.06em}
+  .phases{display:flex;gap:10px;font-family:var(--display);font-style:italic}
+  .phases b{font-weight:400;color:#6f6350}
+  .phases b.on{color:var(--moss-500);font-weight:600}
+
+  .build{position:absolute;right:26px;bottom:30px;font-family:var(--display);font-size:14px;letter-spacing:.04em;
+         padding:13px 26px;color:#1a1208;cursor:pointer;border:0;
+         background:radial-gradient(circle at 35% 30%,#ffdca0,var(--core-500));
+         border-radius:52% 48% 45% 55% / 55% 52% 48% 45%;
+         box-shadow:0 0 26px rgba(224,152,58,.35),0 14px 26px -14px #000}
+  .cap{position:absolute;left:24px;bottom:152px;font-family:var(--display);font-style:italic;
+       font-size:12px;color:var(--copper);opacity:.8}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="bar">
+    <div class="brand"><b>Brutelord</b><span>The Feral Cycle</span></div>
+    <div class="floor">Etage 1</div>
+  </div>
+  <div class="account"><span class="who">vannon</span><button>abmelden</button><button class="raid">Raid</button></div>
+
+  <div class="cap">B — Wurzelwerk</div>
+
+  <div class="world">
+    <svg viewBox="0 0 1200 700" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="bCore" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#fff3d8"/><stop offset="50%" stop-color="#e0983a"/>
+          <stop offset="1" stop-color="#77417e"/>
+        </radialGradient>
+        <radialGradient id="bMass" cx="50%" cy="40%" r="60%">
+          <stop offset="0" stop-color="#4a3520"/><stop offset="1" stop-color="#1b1310"/>
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="700" fill="#0a0705"/>
+      <!-- Erdmasse als weicher Organismus, keine Schichtnaht -->
+      <path d="M-40 240 C220 180 420 300 620 258 C860 208 1060 300 1240 258 V760 H-40 Z" fill="url(#bMass)"/>
+      <!-- abgebaute Höhlung: eine Wunde mit Wurzelfransen -->
+      <path d="M300 340 C420 292 560 300 680 340 C800 380 830 470 760 540 C660 620 460 610 360 540 C290 486 280 402 300 340 Z" fill="#0a0705"/>
+      <g stroke="#6c7c3e" stroke-width="1.6" fill="none" opacity=".45">
+        <path d="M320 356 q40 26 30 62"/><path d="M700 352 q-30 40 -6 76"/><path d="M380 560 q60 20 120 6"/>
+      </g>
+      <!-- Hive mit Wurzeln -->
+      <g stroke="#9c5f9c" stroke-width="2.2" fill="none" opacity=".45">
+        <path d="M470 380 C420 330 340 322 300 348"/>
+        <path d="M470 380 C526 330 610 326 656 356"/>
+        <path d="M410 470 C352 500 300 500 262 478"/>
+        <path d="M540 470 C600 504 664 502 700 476"/>
+      </g>
+      <ellipse cx="470" cy="430" rx="94" ry="86" fill="#2b1a33"/>
+      <ellipse cx="470" cy="430" rx="94" ry="86" fill="none" stroke="#c08cb6" stroke-width="1.4" opacity=".5"/>
+      <circle cx="470" cy="420" r="34" fill="url(#bCore)"/>
+      <!-- Dungling -->
+      <g transform="translate(660 520)">
+        <ellipse cx="0" cy="3" rx="28" ry="19" fill="#5b3163"/>
+        <ellipse cx="0" cy="3" rx="28" ry="19" fill="none" stroke="#c08cb6" stroke-width="1.2" opacity=".6"/>
+        <circle cx="7" cy="-9" r="4" fill="#e0983a"/>
+      </g>
+      <!-- Ader -->
+      <g transform="translate(800 470)" fill="#93b14b">
+        <circle r="8"/><circle cx="20" cy="11" r="5.5" opacity=".8"/><circle cx="-18" cy="9" r="4.5" opacity=".6"/>
+      </g>
+      <!-- Hartgestein als Mineraladern -->
+      <g fill="#3b4251" opacity=".9">
+        <path d="M900 300 q60 -18 118 4 q10 60 -6 116 q-58 16 -116 -2 q-8 -58 4 -118 Z"/>
+        <path d="M1030 320 q56 -14 108 6 q8 56 -6 108 q-54 14 -106 -2 q-6 -56 4 -112 Z" fill="#2a2036"/>
+      </g>
+      <!-- Leiter -->
+      <g transform="translate(150 430)" stroke="#c3b294" stroke-width="2" opacity=".45">
+        <path d="M0 0 v150 M26 0 v150 M0 30 h26 M0 70 h26 M0 110 h26"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="hud">
+    <div class="membrane">
+      <div class="hint">
+        <p class="main">Der Hive hungert. Bau einen Extraktor.</p>
+        <p class="sub">Dunglinge tragen Essenz Stück für Stück heran.</p>
+      </div>
+      <div class="bundle">
+        <div class="nub lead on"><span class="dot"></span><span class="k">Essenz</span><span class="v">12</span></div>
+        <div class="nub moss locked off"><span class="dot"></span><span class="k">Biomasse</span><span class="v">—</span></div>
+        <div class="nub aether on"><span class="dot"></span><span class="k">Aether</span><span class="v">3</span></div>
+        <div class="nub blood on"><span class="dot"></span><span class="k">Blutstein</span><span class="v">1</span></div>
+        <div class="nub floor on"><span class="dot"></span><span class="k">Abstieg</span><span class="v">↓</span></div>
+      </div>
+      <div class="meta">
+        <div class="phases"><b class="on">Wecken</b><b class="on">Graben</b><b>Bauen</b><b>Zucht</b></div>
+        <span>Raum 12</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="build">Bauen</button>
+</div>
+</body>
+</html>

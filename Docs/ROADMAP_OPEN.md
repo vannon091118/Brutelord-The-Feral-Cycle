@@ -263,9 +263,10 @@ und mit einem Lauf, den ein zweiter nachspielen kann.
       Darstellung). Zweitens: Aether und Blutstein sind im laufenden Slice nur mit einem
       gebauten Spielstand überhaupt ungleich null — Aether verlangt eine **gekaufte**
       Etage, Blutstein einen Raid —, die lebende Fassung der beiden Plätze ist also im
-      normalen Spiel noch nicht zu sehen. Dazu ein Randfund: `src/styles/globals.css`
-      steht bei 299 von 300 Codezeilen; die Rail wohnt deshalb in `src/styles/rail.css`,
-      und der nächste Paletteneintrag erzwingt die nächste Teilung.
+      normalen Spiel noch nicht zu sehen. Dazu ein Randfund, der inzwischen behoben ist:
+      `src/styles/globals.css` stand bei 299 von 300 Codezeilen; die Palette wohnt seit der
+      Token-Schicht in `src/styles/palette.css` — siehe *Die Gestaltungsschicht — Richtung A*
+      unten.
       **Das Raid-Buch steht seit dem 2026-10-06.** `src/ui/RaidLedger.jsx` nennt im
       Steckbrief Kader, Grit, Ausdauer und die Zahl der Gegner — die ersten drei kommen
       aus `cadreRule()` und `teamStamina()` und damit aus dem echten Schwarm —, darunter
@@ -307,6 +308,34 @@ und mit einem Lauf, den ein zweiter nachspielen kann.
   Status: geplant
   Scope: Client
   Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+---
+
+## Die Gestaltungsschicht — Richtung A
+
+Richtung A („Schichten") ist die verbindliche Art-Direction, und die Token-Schicht steht:
+`src/styles/palette.css` hält Palette, Rollen, Kanten und Zustands-Signale als eine Quelle,
+`globals.css` importiert sie statt sie zu enthalten. Die **Komponenten lesen diese Tokens
+noch nicht** — sichtbar ist bis jetzt nur, was am Fundament selbst hängt: die Panelfläche
+`.dl-panel`, die Überschriftenschrift und der Fokusring.
+
+- [ ] **HUD, Baumenü, Kontoecke und Welt-Ränder lesen noch ihre eigenen Farben.** Die
+      Tokens benennen die Rollen schon, aber jede Komponente trägt ihre Literale weiter:
+      `rail.css` baut seine Töne aus eigenen `rgba`-Werten, Baumenü und Kontoecke setzen
+      Rahmen und Schatten selbst, und die Welt-Ränder ziehen ihre Verläufe aus Einzelwerten.
+      Der Zug ist die Migration in der Reihenfolge HUD-Kern (Rail, Hinweis, Phasenspur),
+      Baumenü und Bauwerk, Kontoecke und Raid-Buch, Konto-Tor, Welt-Ränder — je Bereich ein
+      Renderbeleg aus dem Browser und die Cap-Quote im Blick, weil `globals.css` (229),
+      `rail.css` (150) und `creature.css` (129) sonst wieder an die 300 stoßen.
+      **Eine Bedingung ist hart:** Das Baumenü liegt heute unter der Bühne in der Fläche
+      und darf die Bauplätze nicht überdecken. Bühne und HUD als Overlay haben genau das
+      schon einmal getan — der Spieler konnte den Bauplatz nicht mehr anklicken —, und die
+      Browser-Stufe fängt es als `site-placed`.
+  Status: geplant
+  Scope: Client
+  Kategorie: Refactor
   Version: ausstehend
   Datum: ausstehend
 

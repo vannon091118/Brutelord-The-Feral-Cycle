@@ -69,9 +69,9 @@ function RockGradients() {
         <stop offset="100%" stopColor="var(--color-rock-700)" />
       </linearGradient>
       <linearGradient id="dl-obsidian" x1="0" y1="0" x2="0.25" y2="1">
-        <stop offset="0%" stopColor="#4a3b5c" />
-        <stop offset="50%" stopColor="#2a2036" />
-        <stop offset="100%" stopColor="#14101c" />
+        <stop offset="0%" stopColor="var(--color-obsidian-400)" />
+        <stop offset="50%" stopColor="var(--color-obsidian-600)" />
+        <stop offset="100%" stopColor="var(--color-obsidian-900)" />
       </linearGradient>
     </>
   );

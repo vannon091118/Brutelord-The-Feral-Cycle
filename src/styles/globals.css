@@ -1,56 +1,8 @@
 /* Palette, Grundlagen, Animationen und Panels. */
 @import "tailwindcss";
+@import "./palette.css";
 @import "./rail.css";
 @import "./creature.css";
-
-@theme {
-  --color-soil-950: #120d08;
-  --color-soil-900: #1b1310;
-  --color-soil-850: #241a12;
-  --color-soil-800: #2e2116;
-  --color-soil-700: #3d2c1c;
-  --color-soil-600: #503a24;
-  --color-soil-500: #674c2e;
-  --color-soil-400: #83603a;
-  --color-soil-300: #a37a4c;
-
-  --color-clay-600: #8a5a34;
-  --color-clay-500: #a86f42;
-
-  --color-moss-600: #55632f;
-  --color-moss-500: #6c7c3e;
-  --color-essence-300: #c6e07a;
-  --color-essence-400: #93b14b;
-  --color-essence-dead: #15121a;
-
-  --color-rock-800: #2c313d;
-  --color-rock-700: #3b4251;
-  --color-rock-600: #4e5666;
-  --color-rock-500: #697285;
-  --color-rock-400: #8b95a8;
-  --color-rock-300: #a4acbb;
-  --color-rock-200: #c2c9d6;
-
-  --color-hive-800: #2b1a33;
-  --color-hive-700: #43254d;
-  --color-hive-600: #5b3163;
-  --color-hive-500: #77417e;
-  --color-hive-400: #9c5f9c;
-  --color-hive-300: #c08cb6;
-
-  --color-core-600: #b9762a;
-  --color-core-500: #e0983a;
-  --color-core-400: #f5bb63;
-  --color-core-300: #ffdca0;
-
-  --color-bone-100: #f4ead6;
-  --color-bone-200: #ded0b4;
-  --color-bone-300: #c3b294;
-  --color-bone-400: #9c8a6e;
-
-  --color-aether-400: #8fb8ff;
-  --color-blood-400: #cf5f57;
-}
 
 @layer base {
   * {
@@ -73,17 +25,26 @@
     background:
       radial-gradient(130% 95% at 50% 32%, #251a12 0%, #16100a 58%, #0a0705 100%);
     color: var(--color-bone-100);
-    font-family:
-      ui-rounded, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system,
-      "Helvetica Neue", sans-serif;
+    font-family: var(--font-ui);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overscroll-behavior: none;
   }
 
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+  }
+
   button {
     font: inherit;
     color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--dl-focus);
+    outline-offset: 2px;
   }
 
   svg {
@@ -273,16 +234,13 @@
 .dl-essence-breathe { animation: dl-essence-breathe 3.8s ease-in-out infinite; }
 
 .dl-panel {
-  background: linear-gradient(180deg, rgba(40, 29, 19, 0.95), rgba(23, 16, 11, 0.97));
-  border: 1px solid rgba(224, 152, 58, 0.22);
-  box-shadow:
-    0 18px 40px -18px rgba(0, 0, 0, 0.95),
-    inset 0 1px 0 rgba(255, 220, 160, 0.07);
-  backdrop-filter: blur(7px);
+  background: var(--dl-panel-bg);
+  border: var(--dl-edge) solid var(--dl-seam);
+  box-shadow: inset 0 var(--dl-edge) 0 var(--dl-toplight);
 }
 
 .dl-inset {
-  box-shadow: inset 0 1px 0 rgba(255, 220, 160, 0.06);
+  box-shadow: inset 0 var(--dl-edge) 0 var(--dl-toplight);
 }
 
 .dl-root {

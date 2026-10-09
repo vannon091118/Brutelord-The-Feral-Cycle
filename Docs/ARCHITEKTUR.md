@@ -637,8 +637,8 @@ Grund im Titel.
 `--color-blood-400` (tiefes Rot) stehen in der Palette, weil jede Ressource ihren
 eigenen Ton tragen soll; Biomasse nimmt das vorhandene Moosgrün. `globals.css`
 steht damit bei 299 von 300 Codezeilen — die Rail-Klassen wohnen in
-`src/styles/rail.css`, das die Datei importiert, und der nächste Paletteneintrag
-erzwingt die nächste Teilung.
+`src/styles/rail.css`, das die Datei importiert; den Bruch hat die Token-Schicht
+gelöst ([*Die Gestaltungsschicht*](#die-gestaltungsschicht)).
 
 ### Was ein Render kostet
 
@@ -743,6 +743,51 @@ Aktion wie die Plakette und ist nur klickbar, wenn es tiefer geht). **Offen
 bleibt:** betreten wird die Leiter per Klick, nicht von einem laufenden Dungling,
 und einen automatischen Gang zum Eingang gibt es nicht — der Tunnel ist Handarbeit,
 und genau das ist der Anreiz.
+
+## Die Gestaltungsschicht
+
+**Richtung A („Schichten") ist die verbindliche Art-Direction.** Die Palette lag als
+`@theme`-Block in `src/styles/globals.css`, und die Datei stand mit 299 von 300
+Codezeilen unmittelbar vor dem Bruch: Jeder weitere Farbton war ein Verstoß gegen die
+Hard Caps. Dasselbe Problem hatte eine zweite Stelle — der Obsidian-Verlauf in
+`src/world/WorldDefs.jsx` trug drei Hex-Werte inline. Das waren die einzigen Farbwerte
+des Projekts außerhalb der Palette, und damit unsichtbar für jede Umfärbung.
+
+**Eine Quelle, gelesen von allen.** `src/styles/palette.css` hält jetzt alles, was Farbe
+und Form entscheidet, und `globals.css` importiert sie statt sie zu enthalten — die
+Sorten als `@theme` (Tailwind liest das `@theme` einer importierten Datei genauso wie ein
+eigenes), die Rollen als `:root`. Der Obsidian-Verlauf liest `--color-obsidian-400/600/900`.
+Eine neue Farbe entsteht damit an genau einem Ort; wer sie sucht, findet sie in der
+Palette und nicht in einer Komponente.
+
+**Rollen statt Farbnamen.** Komponenten sollen `var(--dl-seam)` lesen und nicht
+`rgba(163, 122, 76, 0.28)` nachbauen. Die Naht (`--dl-seam`) trennt Flächen, die Teilung
+(`--dl-divider`) trennt Zeilen in einer Fläche, das Oberlicht (`--dl-toplight`) ist die
+einzige Lichtkante und liegt innen. `--dl-edge` ist genau eine Pixel: A kennt keine
+Rundung (`--radius-dl: 0px`), keinen Schlagschatten über der Welt und keine Unschärfe.
+`.dl-panel` liest diese Tokens — der Panel-Verlauf liegt als `--dl-panel-bg` in der
+Rolle und nicht mehr als Literal in der Klasse.
+
+**Zustands-Signale sind Zuordnungen, keine neuen Töne.** `--dl-live` (Gier und Leben),
+`--dl-deep` (Tiefe), `--dl-alarm` (Raid, Verlust), `--dl-growth` (Biomasse), `--dl-drained`
+(leer) und `--dl-locked` (gesperrt) zeigen auf Sorten, die es schon gibt. Damit kann keine
+Komponente einen eigenen Grünton erfinden — sie sagt, was sie meint. `--dl-focus` trägt
+den Fokusring, den `@layer base` jetzt global setzt: Ohne ihn war Tastaturbedienung nur
+auf den Elementen sichtbar, die sich selbst darum kümmerten.
+
+**Zwei Familien, und die zweite ist nachgewiesen.** `--font-display` trägt Archivo Narrow
+(OFL, 18,7 kB `woff2` in `src/styles/fonts/`, Gewichtsachse 400–700), `--font-ui` den
+System-Stack für Prosa — das sind die zwei Rollen. Der erste Entwurf hatte `--font-display`
+als reinen System-Stack („Arial Narrow“, „Liberation Sans Narrow“) gedacht; **im laufenden
+Browser gemessen** war eine Überschrift damit zeichengleich breit wie die UI-Schrift (192
+gegen 192 Pixel), weil keine der genannten Schriften installiert ist. Die Rolle hätte
+existiert, ohne etwas zu tun — auf jeder Maschine ohne diese Schriften, also auch im
+Browserlauf der CI. Mit der mitgelieferten Datei misst dieselbe Zeile 167,7 gegen 191,5
+Pixel, und `document.fonts.check('16px "Archivo Narrow"')` bestätigt den geladenen Schnitt.
+Die Datei kommt von der eigenen Herkunft: kein Abruf bei einem fremden Dienst zur Laufzeit,
+keine neue Abhängigkeit im `package.json`. Die Lizenz liegt daneben als
+`src/styles/fonts/OFL.txt`, und `url("./fonts/…")` bleibt die einzige Nennung des Pfades —
+wer die Schrift tauscht, tauscht Datei und `@font-face`, sonst nichts.
 
 ## Konto und Spielerseed
 

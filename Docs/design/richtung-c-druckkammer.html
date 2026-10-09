@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Brutelord — Richtung C: Druckkammer</title>
+<style>
+  /* C — DRUCKKAMMER: die UI ist das Instrument, das den Hive fährt.
+     Stahlplatten, abgeschrägte Ecken, eingravierte Beschriftung, Zeiger. */
+  :root{
+    --steel-950:#0e1014; --steel-900:#14171d; --steel-800:#1b2029; --steel-700:#262c38;
+    --steel-500:#4e5666; --steel-300:#a4acbb; --steel-200:#c2c9d6;
+    --amber:#f5bb63; --amber-600:#b9762a;
+    --aether:#8fb8ff; --blood:#cf5f57; --moss:#6c7c3e;
+    --tech:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+    --display:"Archivo","Helvetica Neue",Arial,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{background:#0a0b0e;color:var(--steel-200);font-family:var(--display);
+       font-feature-settings:"tnum";-webkit-font-smoothing:antialiased}
+  .screen{position:relative;height:100vh;overflow:hidden;
+          background:radial-gradient(70% 60% at 52% 42%,#1a1f27 0%,#0e1014 64%,#08090c 100%)}
+
+  .bar{display:flex;align-items:center;gap:0;background:linear-gradient(180deg,#1b2029,#0e1014);
+       border-bottom:2px solid #05060a;box-shadow:0 1px 0 rgba(164,172,187,.12)}
+  .brand{display:flex;align-items:baseline;gap:12px;padding:11px 18px;border-right:1px solid rgba(78,86,102,.4)}
+  .brand b{font-size:16px;font-weight:800;letter-spacing:.24em}
+  .brand span{font-family:var(--tech);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--steel-500)}
+  .floor{padding:11px 20px;font-family:var(--tech);font-size:13px;letter-spacing:.2em;color:var(--amber);
+         border-right:1px solid rgba(78,86,102,.4)}
+  .account{margin-left:auto;display:flex;align-items:center;gap:0}
+  .account .who{padding:11px 16px;font-family:var(--tech);font-size:10px;letter-spacing:.16em;
+                text-transform:uppercase;color:var(--steel-300);border-left:1px solid rgba(78,86,102,.4)}
+  .account button{padding:11px 16px;font-family:var(--tech);font-size:10px;letter-spacing:.16em;
+                  text-transform:uppercase;color:var(--steel-300);background:#14171d;border:0;
+                  border-left:1px solid rgba(78,86,102,.4);cursor:pointer}
+  .account .raid{color:#e6b3ad}
+
+  .world{position:absolute;inset:52px 0 0}
+
+  /* Das Instrument: eine Platte mit abgeschrägten Ecken, eingraviertem Rahmen. */
+  .rack{position:absolute;left:50%;transform:translateX(-50%);bottom:16px;width:min(95vw,700px);
+        background:linear-gradient(180deg,#1b2029,#0e1014);padding:2px;
+        clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px);
+        box-shadow:0 26px 50px -24px #000}
+  .plate{background:linear-gradient(180deg,#171b23,#101319);
+         clip-path:polygon(13px 0,calc(100% - 13px) 0,100% 13px,100% calc(100% - 13px),calc(100% - 13px) 100%,13px 100%,0 calc(100% - 13px),0 13px)}
+  .board{padding:10px 16px 12px}
+  .board .main{font-size:14px;font-weight:700;letter-spacing:.06em}
+  .board .sub{font-family:var(--tech);font-size:10.5px;color:var(--steel-500);margin-top:3px}
+
+  /* Die Rail ist eine Zeigergruppe: Balken mit Skala. */
+  .gauges{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1.1fr;gap:2px;margin-top:11px}
+  .gauge{background:#0b0d11;padding:8px 11px 9px;border-top:1px solid rgba(78,86,102,.45)}
+  .gauge .k{font-family:var(--tech);font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--steel-500)}
+  .gauge .v{font-family:var(--tech);font-size:20px;line-height:1.1;color:var(--steel-200)}
+  .gauge.lead .v{font-size:26px;color:var(--amber)}
+  .gauge.t-aether .v{color:var(--aether)} .gauge.t-blood .v{color:var(--blood)} .gauge.t-moss .v{color:var(--moss)}
+  .gauge.locked{opacity:.4}
+  .gauge.floor{border-top-color:var(--amber-600)}
+  .gauge.floor .v{font-size:15px}
+  .meter{height:3px;margin-top:7px;background:#191d25;position:relative;overflow:hidden}
+  .meter i{position:absolute;inset:0 auto 0 0;background:var(--steel-300)}
+  .lead .meter i{background:var(--amber)} .t-aether .meter i{background:var(--aether)}
+  .t-blood .meter i{background:var(--blood)} .t-moss .meter i{background:var(--moss)}
+  .ticks{display:flex;gap:4px;margin-top:5px}
+  .ticks span{width:1px;height:5px;background:rgba(78,86,102,.5)}
+
+  .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:9px;
+        border-top:1px solid rgba(78,86,102,.35);font-family:var(--tech);font-size:9px;
+        letter-spacing:.18em;text-transform:uppercase;color:var(--steel-500)}
+  .phases{display:flex;gap:14px}
+  .phases b{font-weight:400;color:#3f4653}
+  .phases b.on{color:var(--steel-200)}
+  .phases b.on::before{content:"■ ";color:var(--amber);font-size:7px;vertical-align:1px}
+
+  .build{position:absolute;right:24px;bottom:26px;padding:12px 22px;font-family:var(--tech);font-size:11px;
+         letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#12100a;cursor:pointer;border:0;
+         background:linear-gradient(180deg,#ffdca0,var(--amber-600));
+         clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);
+         box-shadow:0 0 22px rgba(224,152,58,.3)}
+  .cap{position:absolute;left:18px;top:72px;font-family:var(--tech);font-size:10px;letter-spacing:.28em;
+       text-transform:uppercase;color:var(--steel-500)}
+</style>
+</head>
+<body>
+<div class="screen">
+  <header class="bar">
+    <div class="brand"><b>BRUTELORD</b><span>The Feral Cycle</span></div>
+    <div class="floor">ETAGE 01</div>
+    <div class="account"><span class="who">vannon</span><button>abmelden</button><button class="raid">Raid</button></div>
+  </header>
+
+  <div class="cap">C — Druckkammer</div>
+
+  <div class="world">
+    <svg viewBox="0 0 1200 660" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="cCore" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#ffe9c2"/><stop offset="52%" stop-color="#e0983a"/>
+          <stop offset="1" stop-color="#43254d"/>
+        </radialGradient>
+        <linearGradient id="cMass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2e2116"/><stop offset="1" stop-color="#0e0b08"/>
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="660" fill="#0e0b08"/>
+      <path d="M0 200 H1200 V660 H0 Z" fill="url(#cMass)"/>
+      <!-- Raster-Anmutung: das Instrument vermisst den Boden. -->
+      <g stroke="#697285" opacity=".1" stroke-width="1">
+        <path d="M0 260 H1200"/><path d="M0 340 H1200"/><path d="M0 440 H1200"/><path d="M0 560 H1200"/>
+        <path d="M200 200 V660"/><path d="M400 200 V660"/><path d="M600 200 V660"/><path d="M800 200 V660"/><path d="M1000 200 V660"/>
+      </g>
+      <!-- ausgehöhlter Raum, kantig abgeschrägt -->
+      <path d="M300 320 L640 300 L840 400 L860 520 L700 590 L360 580 L280 470 Z" fill="#090a0d"/>
+      <path d="M300 320 L640 300 L840 400 L860 520 L700 590 L360 580 L280 470 Z" fill="none" stroke="#4e5666" stroke-width="1.2" opacity=".55"/>
+      <!-- Hartgestein: Obsidian (dunkel, kalt) und Stein, blockweise -->
+      <g>
+        <rect x="900" y="290" width="132" height="132" fill="#2c313d"/>
+        <rect x="1032" y="290" width="132" height="132" fill="#14101c"/>
+        <rect x="900" y="422" width="132" height="132" fill="#3b4251"/>
+        <rect x="1032" y="422" width="132" height="132" fill="#2a2036"/>
+        <g stroke="#8b95a8" opacity=".18" stroke-width="1">
+          <path d="M900 356 H1164 M900 488 H1164 M966 290 V554 M1098 290 V554"/>
+        </g>
+      </g>
+      <!-- Hive als Druckkammer -->
+      <circle cx="440" cy="420" r="84" fill="#2b1a33"/>
+      <circle cx="440" cy="420" r="84" fill="none" stroke="#4e5666" stroke-width="2" opacity=".6"/>
+      <g stroke="#4e5666" stroke-width="6" opacity=".35">
+        <path d="M440 336 V300 M440 504 V540 M356 420 H320 M524 420 H560"/>
+      </g>
+      <circle cx="440" cy="412" r="32" fill="url(#cCore)"/>
+      <!-- Dungling als Messwert -->
+      <g transform="translate(620 520)">
+        <rect x="-26" y="-16" width="52" height="34" fill="#5b3163"/>
+        <rect x="-26" y="-16" width="52" height="34" fill="none" stroke="#9c5f9c" stroke-width="1.2"/>
+        <circle cx="8" cy="-8" r="4" fill="#e0983a"/>
+      </g>
+      <!-- Ader -->
+      <g transform="translate(780 462)" fill="#93b14b">
+        <rect x="-8" y="-8" width="16" height="16"/><rect x="12" y="3" width="10" height="10" opacity=".8"/><rect x="-26" y="1" width="9" height="9" opacity=".6"/>
+      </g>
+      <!-- Leiter -->
+      <g transform="translate(150 400)" stroke="#a4acbb" stroke-width="2" opacity=".45">
+        <path d="M0 0 v150 M26 0 v150 M0 30 h26 M0 70 h26 M0 110 h26"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="rack">
+    <div class="plate">
+      <div class="board">
+        <p class="main">Der Hive hungert. Bau einen Extraktor.</p>
+        <p class="sub">Dunglinge tragen Essenz Stück für Stück heran.</p>
+        <div class="gauges">
+          <div class="gauge lead"><div class="k">Essenz</div><div class="v">12</div>
+            <div class="meter"><i style="width:48%"></i></div><div class="ticks"><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+          <div class="gauge t-moss locked"><div class="k">Biomasse</div><div class="v">--</div>
+            <div class="meter"><i style="width:0"></i></div></div>
+          <div class="gauge t-aether"><div class="k">Aether</div><div class="v">03</div>
+            <div class="meter"><i style="width:22%"></i></div></div>
+          <div class="gauge t-blood"><div class="k">Blutstein</div><div class="v">01</div>
+            <div class="meter"><i style="width:12%"></i></div></div>
+          <div class="gauge floor"><div class="k">Abstieg</div><div class="v">E1 ↓</div>
+            <div class="meter"><i style="width:100%"></i></div></div>
+        </div>
+        <div class="meta">
+          <div class="phases"><b class="on">Wecken</b><b class="on">Graben</b><b>Bauen</b><b>Zucht</b></div>
+          <span>Raum 12</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="build">Bauen</button>
+</div>
+</body>
+</html>

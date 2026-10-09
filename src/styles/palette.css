@@ -1,0 +1,84 @@
+/* Die eine Quelle der Gestaltung: Palette, Rollen, Kanten — Begründung in Docs/ARCHITEKTUR.md. */
+@font-face {
+  font-family: "Archivo Narrow";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("./fonts/archivo-narrow-latin.woff2") format("woff2");
+}
+
+@theme {
+  --color-soil-950: #120d08;
+  --color-soil-900: #1b1310;
+  --color-soil-850: #241a12;
+  --color-soil-800: #2e2116;
+  --color-soil-700: #3d2c1c;
+  --color-soil-600: #503a24;
+  --color-soil-500: #674c2e;
+  --color-soil-400: #83603a;
+  --color-soil-300: #a37a4c;
+
+  --color-clay-600: #8a5a34;
+  --color-clay-500: #a86f42;
+
+  --color-moss-600: #55632f;
+  --color-moss-500: #6c7c3e;
+  --color-essence-300: #c6e07a;
+  --color-essence-400: #93b14b;
+  --color-essence-dead: #15121a;
+
+  --color-rock-800: #2c313d;
+  --color-rock-700: #3b4251;
+  --color-rock-600: #4e5666;
+  --color-rock-500: #697285;
+  --color-rock-400: #8b95a8;
+  --color-rock-300: #a4acbb;
+  --color-rock-200: #c2c9d6;
+
+  --color-obsidian-900: #14101c;
+  --color-obsidian-600: #2a2036;
+  --color-obsidian-400: #4a3b5c;
+
+  --color-hive-800: #2b1a33;
+  --color-hive-700: #43254d;
+  --color-hive-600: #5b3163;
+  --color-hive-500: #77417e;
+  --color-hive-400: #9c5f9c;
+  --color-hive-300: #c08cb6;
+
+  --color-core-600: #b9762a;
+  --color-core-500: #e0983a;
+  --color-core-400: #f5bb63;
+  --color-core-300: #ffdca0;
+
+  --color-bone-100: #f4ead6;
+  --color-bone-200: #ded0b4;
+  --color-bone-300: #c3b294;
+  --color-bone-400: #9c8a6e;
+
+  --color-aether-400: #8fb8ff;
+  --color-blood-400: #cf5f57;
+
+  --font-display: "Archivo Narrow", "Arial Narrow", "Liberation Sans Narrow",
+    ui-sans-serif, system-ui, sans-serif;
+  --font-ui: ui-sans-serif, "Segoe UI Variable Text", "Segoe UI", system-ui,
+    -apple-system, "Helvetica Neue", sans-serif;
+
+  --radius-dl: 0px;
+}
+
+:root {
+  --dl-edge: 1px;
+  --dl-seam: rgba(163, 122, 76, 0.28);
+  --dl-divider: rgba(163, 122, 76, 0.16);
+  --dl-toplight: rgba(255, 220, 160, 0.07);
+  --dl-panel-bg: linear-gradient(180deg, rgba(27, 19, 16, 0.96), rgba(18, 13, 8, 0.98));
+
+  --dl-live: var(--color-core-400);
+  --dl-deep: var(--color-aether-400);
+  --dl-alarm: var(--color-blood-400);
+  --dl-growth: var(--color-moss-500);
+  --dl-drained: var(--color-bone-400);
+  --dl-locked: rgba(156, 138, 110, 0.45);
+  --dl-focus: var(--color-core-300);
+}
