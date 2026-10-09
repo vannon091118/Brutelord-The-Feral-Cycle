@@ -44,7 +44,7 @@ function WorkerControls({ building, maxWorkers, freeWorkers, onAssign, onRelease
         >
           + Dungling
         </button>
-        <button type="button" className={buttonClass} disabled={building.workers.length === 0} onClick={onRelease}>
+        <button type="button" className={buttonClass} disabled={building.workers.length === 0} onClick={onRelease} aria-label="Dungling abziehen" title="Dungling abziehen">
           −
         </button>
       </div>

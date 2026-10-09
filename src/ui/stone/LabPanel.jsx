@@ -20,7 +20,7 @@ function LabHeader({ onClose }) {
         <h2 className="text-[14px] font-semibold tracking-widest text-[#ffdca0]" style={{ fontFamily: 'Georgia, serif' }}>⬡ LABOR</h2>
         <span className="text-[10px] text-[#9c8a6e]">Stein-Fusion • Rückentwicklung</span>
       </div>
-      <button type="button" onClick={onClose} className="shrink-0 rounded-full border border-[#e0983a]/30 px-2 py-[2px] text-[10px] text-[#c3b294] hover:border-[#e0983a]/60 transition-colors">
+      <button type="button" onClick={onClose} aria-label="Labor schließen" title="Labor schließen" className="shrink-0 rounded-full border border-[#e0983a]/30 px-2 py-[2px] text-[10px] text-[#c3b294] hover:border-[#e0983a]/60 transition-colors">
         ×
       </button>
     </header>

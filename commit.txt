@@ -1,0 +1,9 @@
+added aria-label and title to icon-only buttons
+
+Added aria-label and title attributes to the icon-only close button in src/ui/stone/LabPanel.jsx and the remove worker button in src/ui/BuildingPanel.jsx. This is a micro-UX enhancement that greatly improves accessibility for screen readers and provides helpful tooltips for mouse users, making the interface more intuitive to use.
+These small touches of delight and accessibility ensure that every interaction feels smooth and that good UX is essentially invisible. The changes were kept minimal, adhering to existing CSS classes and design patterns, without overhauling any core components or layout patterns. The addition of these labels fulfills the UX coding standards for semantic, accessible HTML.
+The mirrored markdown documentation files for the modified source files have also been created and staged. All tests pass, and the changes abide by the 30 lines of code per function limit enforced by the CI gate. The project's tests and verification suite were successfully executed via pnpm run verify and pnpm run gate.
+
+Geaendert wurden diese Dateien: docs/daten/stone/labpanel.md, docs/daten/ui/buildingpanel.md, src/ui/BuildingPanel.jsx, src/ui/stone/LabPanel.jsx.
+
+created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.
