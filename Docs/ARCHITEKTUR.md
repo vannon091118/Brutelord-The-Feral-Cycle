@@ -817,6 +817,25 @@ Token gebraucht, und die Palette wäre größer als das Spiel. Sie entscheidet a
 *keine* Rolle bekommt — der Hinweis `kein Abbau mehr` bleibt im Ton des Hive, weil keine
 Rolle ihn meint, und eine erfundene wäre eine Behauptung.
 
+**Der Ton einer Seltenheit wohnt bei der Seltenheit.** Eine Seltenheit ist ein Fakt der
+Domäne: ihr Name, ihre Werte, ihre Häufigkeit — und ihre Farbe. Solange `STONE_DEFS` nur
+einen Farbnamen trug (`'grau'`) und die UI daneben die Tabelle `grau → Klassen` führte,
+waren es zwei Orte, verbunden durch einen **stillen Schlüssel**: Wer den Namen im Def
+vertippte, dessen Steine standen ohne Ton da, und keine Prüfung schlug an, weil eine
+fehlende Zuordnung in JavaScript kein Fehler ist, sondern `undefined`. Der Ton steht
+deshalb jetzt vollständig am Def (`STONE_DEFS[rarity].tone`), und die UI liest ihn — die
+Tabelle dazwischen gibt es nicht mehr. Ein generischer Bau (`border-${rolle}-400/30 …`)
+wäre die schönere Form und wurde bewusst nicht gewählt: die vier Seltenheiten tragen
+verschiedene Schritt-Paare und Deckungen, weil der Rand nicht dasselbe aussagen soll wie
+die Schrift — eine Regel für alle vier würde das Bild ändern. Der Preis ist benannt: die
+Anzeige-Klassen stehen in einer Domänen-Config. Das ist vertretbar, weil der Ton keine
+Spielwahrheit trägt, sondern nur Darstellung, und weil die Alternative zwei Tabellen sind,
+deren Verbindung still bricht. Die Grenze hält die Maschine: `check-architecture.mjs`
+prüft, dass jeder genannte Schritt in `palette.css` existiert und die vier Töne verschieden
+sind, und die Domäne importiert weiterhin weder React noch DOM.
+Der Stein ist damit der erste Bereich, in dem `src/ui/stone/` kein eigenes Farbwissen
+mehr trägt; offen bleibt dort allein das Laborpanel.
+
 **Zustands-Signale sind Zuordnungen, keine neuen Töne.** `--dl-live` (Gier und Leben),
 `--dl-deep` (Tiefe), `--dl-alarm` (Raid, Verlust), `--dl-growth` (Biomasse), `--dl-drained`
 (leer) und `--dl-locked` (gesperrt) zeigen auf Sorten, die es schon gibt. Damit kann keine

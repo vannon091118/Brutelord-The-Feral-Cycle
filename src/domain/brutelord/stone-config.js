@@ -9,7 +9,7 @@ export const STONE_RARITY = Object.freeze({
 export const STONE_DEFS = Object.freeze({
   [STONE_RARITY.NORMAL]: Object.freeze({
     label: 'Normal',
-    tone: 'grau',
+    tone: 'border-bone-400/30 text-bone-300',
     statCount: 1,
     traitChance: 0.05,
     capabilityChance: 0.15,
@@ -17,7 +17,7 @@ export const STONE_DEFS = Object.freeze({
   }),
   [STONE_RARITY.RARE]: Object.freeze({
     label: 'Selten',
-    tone: 'blau',
+    tone: 'border-aether-400/50 text-aether-400',
     statCount: 2,
     traitChance: 0.15,
     capabilityChance: 0.35,
@@ -25,7 +25,7 @@ export const STONE_DEFS = Object.freeze({
   }),
   [STONE_RARITY.EPIC]: Object.freeze({
     label: 'Episch',
-    tone: 'lila',
+    tone: 'border-hive-400/50 text-hive-300',
     statCount: 3,
     traitChance: 0.35,
     capabilityChance: 0.6,
@@ -33,7 +33,7 @@ export const STONE_DEFS = Object.freeze({
   }),
   [STONE_RARITY.LEGENDARY]: Object.freeze({
     label: 'Legendär',
-    tone: 'gold',
+    tone: 'border-core-300/70 text-core-300',
     statCount: 4,
     traitChance: 0.75,
     capabilityChance: 0.9,

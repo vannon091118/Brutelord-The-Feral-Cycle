@@ -4,7 +4,8 @@ import { SPECIES_LABEL } from '../../domain/brutelord/genome-config.js';
 import { genomeForStones } from '../../domain/brutelord/mutant.js';
 import { speciesOf } from '../../domain/brutelord/phenotype.js';
 import { MutantSvg } from '../../world/dungling/MutantSvg.jsx';
-import { RARITY_TONE, SLOT_REST_TONE } from './rarity-tone.js';
+
+const SLOT_REST_TONE = 'border-core-500/20 text-bone-400';
 
 const SLOT_LABEL = Object.freeze({
   [STONE_SLOT.HEAD]: 'Kopf',
@@ -22,7 +23,7 @@ const SLOT_POS = Object.freeze({
 
 function StoneSlot({ slot, stone, armed, onPlace }) {
   const filled = Boolean(stone);
-  const tone = filled ? RARITY_TONE[STONE_DEFS[stone.rarity].tone] : SLOT_REST_TONE;
+  const tone = filled ? STONE_DEFS[stone.rarity].tone : SLOT_REST_TONE;
   return (
     <button
       type="button"

@@ -333,11 +333,16 @@ noch nicht** — sichtbar ist bis jetzt nur, was am Fundament selbst hängt: die
       Tailwind-Farben `violet-400/300` und `amber-300/200`, und der
       Auswahlring liest `core-300` statt eines Hex-Literals; gemessen im laufenden
       Vorschaufenster ändert sich das gerechnete Ergebnis nur an den zwei Tönen, die
-      vorher außerhalb der Palette lagen. **Der Arbeitstisch ist umgestellt:** die vier
+      vorher außerhalb der Palette lagen.      **Der Arbeitstisch ist umgestellt:** die vier
       festen Slot-Töne und die zwei Literale des leeren Platzes liegen jetzt als eine
-      Tabelle in `src/ui/stone/rarity-tone.js`, die Kachel und Platz gemeinsam lesen —
-      vorher trug jeder Ort seine eigene, derselbe seltene Stein war im Inventar amber und
-      am Tisch hellblau. Vier Seltenheiten, vier unterscheidbare Rollen: `bone` („grau“),
+      Zeile je Seltenheit in `src/domain/brutelord/stone-config.js` —
+      `STONE_DEFS[rarity].tone` trägt die Anzeige-Rolle selbst, Kachel und Platz lesen
+      sie ohne Zwischentabelle. Vorher trug jeder Ort seine eigene, derselbe seltene Stein
+      war im Inventar amber und am Tisch hellblau, und die Verbindung war ein stiller
+      Schlüssel: ein Tippfehler im Ton ließ den Stein ohne Farbe stehen, ohne dass etwas
+      anschlug. Diesen Schlüssel gibt es nicht mehr, und
+      `check-architecture.mjs` prüft jetzt, dass jeder Ton einen Schritt nennt, den die
+      Palette führt, und dass die vier Töne verschieden sind. Vier Seltenheiten, vier unterscheidbare Rollen: `bone` („grau“),
       `aether-400` („blau“), der Hive-Verlauf („lila“), `core-300` („gold“). Die Rolle
       `blau` lag vorher auf `core-400` und damit auf demselben Amber-Zweig wie „gold“ auf
       `core-300`; sie zeigt jetzt blau. Der leere Platz behält sein gerechnetes Ergebnis

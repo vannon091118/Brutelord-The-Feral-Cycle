@@ -1,10 +1,9 @@
 // @doc: docs/daten/stone/stonechip.md#stonechip
 import { STONE_DEFS } from '../../domain/brutelord/stone-config.js';
-import { RARITY_TONE } from './rarity-tone.js';
 
 export function StoneChip({ stone, label, selected, onSelect }) {
   const def = STONE_DEFS[stone.rarity];
-  const tone = RARITY_TONE[def.tone];
+  const tone = def.tone;
   const placed = stone.slot !== null;
 
   return (
