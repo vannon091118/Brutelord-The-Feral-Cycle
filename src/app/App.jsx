@@ -18,7 +18,7 @@ function Playing({ session, onSignedOut }) {
   const { state, actions } = useGameEngine(session);
 
   return (
-    <main className="dl-root relative flex h-full w-full flex-col overflow-hidden">
+    <main className="dl-root relative h-full w-full overflow-hidden">
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -28,7 +28,7 @@ function Playing({ session, onSignedOut }) {
       />
       <GameStage game={state} actions={actions} />
       <GameHud game={state} actions={actions} />
-      <AccountCorner session={session} swarm={state.dunglings} onSignedOut={onSignedOut} />
+      <AccountCorner session={session} swarm={state.dunglings} buildings={state.buildings} onSignedOut={onSignedOut} />
     </main>
   );
 }

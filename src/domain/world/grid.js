@@ -21,6 +21,7 @@ import { revealWorld } from './reveal.js';
 import { worldSeed32 } from '../seed/seed-input.js';
 import { ONBOARDING_CONFIG } from '../onboarding/onboarding-config.js';
 import { createDeposits } from '../deposits/deposit-placement.js';
+import { createHardRock } from './hard-rock.js';
 
 function isHiveCell(x, y, hiveOrigin) {
   return (
@@ -94,7 +95,7 @@ export function createWorld({
   };
 
   const anchors = [...hiveAnchorIds(hiveOrigin), ...(spawnTile ? [spawnTile, ...burrowAnchorIds(hiveOrigin)] : [])];
-  return revealWorld(withDeposits(world, spawnTile), anchors);
+  return revealWorld(withDeposits(withHardRock(world, spawnTile), spawnTile), anchors);
 }
 
 function fillTiles({ width, height, hiveOrigin, spawnTile }) {
@@ -103,6 +104,18 @@ function fillTiles({ width, height, hiveOrigin, spawnTile }) {
     for (let x = 0; x < width; x += 1) tiles[y * width + x] = tileForCell({ x, y, hiveOrigin, spawnTile });
   }
   return tiles;
+}
+
+function withHardRock(world, spawnTile) {
+  const terrain = createHardRock({
+    width: world.width,
+    height: world.height,
+    hiveOrigin: world.hiveOrigin,
+    spawnTile,
+    seed: world.seed,
+  });
+  const tiles = world.tiles.map((tile) => (terrain[tile.id] ? { ...tile, terrain: terrain[tile.id] } : tile));
+  return { ...world, tiles };
 }
 
 function withDeposits(world, spawnTile) {

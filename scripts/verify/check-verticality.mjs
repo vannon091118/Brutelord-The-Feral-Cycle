@@ -6,7 +6,7 @@ import { ACTION } from '../../src/domain/actions/action-types.js';
 import { createInitialGameState } from '../../src/state/game-state.js';
 import { gameReducer } from '../../src/state/game-reducer.js';
 import { isSavedShape, packState, unpackState } from '../../src/state/snapshot.js';
-import { SAMPLE_SEEDS, istAndereWelt, istStartwelt, nutzbarerRaum, seedsOfTiefen } from './floor-sample.js';
+import { SAMPLE_SEEDS, istAndereWelt, istStartwelt, mitSchacht, nutzbarerRaum, seedsOfTiefen } from './floor-sample.js';
 import { check, section } from './expect.mjs';
 
 /** Ein Stand, wie ihn die Fassung vor den Etagen geschrieben hat: Tiefe fehlt. */
@@ -27,7 +27,7 @@ function checkSeeds() {
 
 function checkSprung() {
   section('Etagensprung: das Gestein ist neu, die Kolonie bleibt');
-  const start = createInitialGameState('a1b2c3d4');
+  const start = mitSchacht(createInitialGameState('a1b2c3d4'));
   const tief = gameReducer(start, { type: ACTION.FLOOR_DESCEND });
 
   check('Der Sprung geht nach unten', tief.world.depth === start.world.depth + 1, `Tiefe ${tief.world.depth}`);
@@ -41,7 +41,7 @@ function checkSprung() {
 
 function checkFailClosed() {
   section('Fail closed: ein Sprung ohne Ziel bewegt nichts');
-  const start = createInitialGameState('a1b2c3d4');
+  const start = mitSchacht(createInitialGameState('a1b2c3d4'));
   check('Die tiefste Etage hat keine untere mehr', !canDescend(DEEPEST_FLOOR));
   check('Eine negative Tiefe kann nicht absteigen', !canDescend(-1));
   check('Text ist keine Tiefe', !canDescend('1'));
@@ -57,7 +57,7 @@ function checkFailClosed() {
 
 function checkSpeichern() {
   section('Speichern: die Tiefe reist mit');
-  const tief = gameReducer(createInitialGameState('a1b2c3d4'), { type: ACTION.FLOOR_DESCEND });
+  const tief = gameReducer(mitSchacht(createInitialGameState('a1b2c3d4')), { type: ACTION.FLOOR_DESCEND });
   const gepackt = packState(tief);
   check('Die Tiefe ueberlebt das Speichern', unpackState(gepackt).world.depth === 1);
   check('Der Etagen-Raster kommt identisch zurueck', JSON.stringify(unpackState(gepackt).world.tiles) === JSON.stringify(tief.world.tiles));

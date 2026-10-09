@@ -161,6 +161,14 @@ gehört nach [`ARCHITEKTUR.md`](ARCHITEKTUR.md), sobald Code existiert.
 - **D3** Ausdauer zahlt Graben. Bewegung ist gratis, aber nur über bekanntes
   Gelände; durch massiven Boden kommt man ausschließlich durch Graben. AP
   zahlen jeden Angriff.
+- **D50** **Der Leiterschacht ist das Tor.** Er wird gebaut (`LADDER_SHAFT`,
+  Kosten 8, ein Feld), und erst mit ihm öffnen sich der Raid und das
+  Etagensystem: Etagenplakette, Leiter und Reducer lesen dieselben zwei
+  Funktionen (`ladderOpen()` für den Bau, `descendOpen()` für die Tür), damit
+  die Tür genau eine Meinung hat. Der erste Abstieg ist danach frei — die
+  Leiter trägt bis `DEEPEST_FLOOR` —, und jede tiefere Etage kostet Blutstein
+  über `buyFloor()`. Vorher bleibt der Hive auf einer Ebene; wer nie baut,
+  prallt an der Plakette ab und nicht an einem stillen Fehlschlag.
 - **D27** Weil das Budget nicht nachwächst, ist eine Taktbeschleunigung
   wertlos: nicht das Tempo begrenzt den Raid, sondern die Summe.
 - **D28** Wände tragen einen einzigen Verteidigungswert. Der aggregierte

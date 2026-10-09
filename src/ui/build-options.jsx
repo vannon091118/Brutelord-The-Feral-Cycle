@@ -47,4 +47,15 @@ export const BUILD_OPTIONS = [
       </g>
     ),
   },
+  {
+    type: BUILDING_TYPE.LADDER_SHAFT,
+    glyph: (
+      <g>
+        <rect x="5.4" y="2.6" width="13.2" height="18.8" rx="2.4" fill="var(--color-soil-950)" />
+        <path d="M8.2 3.4v17.2M15.8 3.4v17.2" stroke="var(--color-bone-300)" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M8.2 7.4h7.6M8.2 11h7.6M8.2 14.6h7.6M8.2 18.2h7.6" stroke="var(--color-clay-500)" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="12" cy="11" r="1.6" fill="var(--color-core-400)" opacity="0.8" />
+      </g>
+    ),
+  },
 ];

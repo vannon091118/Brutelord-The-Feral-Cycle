@@ -22,6 +22,14 @@ Ledger-Objekt** — eine Verweigerung hinterlässt keine zweite Wahrheit.
 gekauft (`canUnlockDepth`) als ein Ja, damit Plakette und Leiter den bezahlten Abstieg unter
 der freien Tiefe nicht sperren.
 
+**Der Leiterschacht ist das Tor.** `ladderOpen()` liefert genau dann wahr, wenn
+ein fertiger Bau vom Typ `LADDER_SHAFT` im Stand steht — ein Bauplatz nicht, ein
+fehlender nicht. `descendOpen()` liest ihn als erste Bedingung: ohne Schacht
+ist jede Tür zu, auch die kostenlose erste Etage; mit Schacht trägt die freie
+Leiter wie bisher, und darunter kauft `buyFloor()`. Damit hängen Raid und
+zweite Etage an einer sichtbaren Handlung des Spielers statt an einem Sprung
+ins Leere.
+
 **Der Raid liefert, was die eigene Basis nicht hat.** `lootInto()` bucht den
 Blutstein der Beute in den Vorrat; Beträge, die keine positiven Zahlen sind,
 lassen das Ledger unberührt. Die Ader des Aethers liegt unter der freien Leiter:
@@ -40,7 +48,8 @@ Stand bis auf dieses Feld unberührt.
 
 - `createCycle()` — beide Ledger, leer, als eingefrorener Behälter
 - `cycleOf(state)` — der Kreislauf des Standes, notfalls ein leerer
+- `ladderOpen(buildings)` — steht ein fertiger Leiterschacht
 - `lowestReachable(cycle)` — freie Leiter plus gekaufte Tiefe
-- `descendOpen({ depth, cycle })` — offener Abstieg: frei oder gegen Blutstein
+- `descendOpen({ depth, cycle, buildings })` — erst der Schacht, dann frei oder Blutstein
 - `buyFloor(cycle)` — `{ ok, cycle }`; die Verweigerung gibt dasselbe Objekt zurück
 - `lootInto(cycle, loot)` — die Beute des Raids in den Vorrat

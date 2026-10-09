@@ -16,12 +16,14 @@ liegt, und Biomasse steht gestrichelt da, weil die Domäne sie noch nicht füllt
 Gelesen wird ausschließlich `cycle.aether.stored` und `cycle.bloodstone.stored`. Fehlt ein
 Ledger im geladenen Spielstand, zeigt der Platz den Gedankenstrich: die Leiste erfindet
 keine Null, sie fragt. Gerechnet, entschieden und verbraucht wird hier nichts — den
-Abstieg fragt die Etagenplakette, alles andere liest die Leiste nur.
+Abstieg fragt die Etagenplakette, alles andere liest die Leiste nur. Die Bauten
+reicht sie unveraendert an diese Plakette weiter, weil der offene Abstieg seit
+dem Leiterschacht an einem fertigen Bau haengt.
 
 ## Schnittstellen
 
 - `storedOf()`
 - `deepProps()`
-- `ResourceRail()`
+- `ResourceRail({ essence, depth, cycle, buildings, onDescend })`
 
 Neu am 2026-10-06 mit der Resource Rail.

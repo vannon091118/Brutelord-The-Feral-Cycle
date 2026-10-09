@@ -49,6 +49,7 @@ export const GROUPS = Object.freeze([
   { id: 'cycle', file: `${V}check-cycle.mjs`, run: (m) => m.checkCycle() },
   { id: 'cycle-game', file: `${V}check-cycle-game.mjs`, run: (m) => m.checkCycleGame() },
   { id: 'ladder', file: `${V}check-ladder.mjs`, run: (m) => m.checkLadder() },
+  { id: 'ladder-shaft', file: `${V}check-ladder-shaft.mjs`, run: (m) => m.checkLadderShaft() },
   { id: 'depth-reward', file: `${V}check-depth-reward.mjs`, run: (m) => m.checkDepthReward() },
   { id: 'account-worker', file: `${V}check-account-worker.mjs`, heavy: true, run: (m) => m.checkAccountWorker() },
   { id: 'account-http', file: `${V}check-account-http.mjs`, heavy: true, run: (m) => m.checkAccountHttp() },

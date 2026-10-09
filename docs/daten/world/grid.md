@@ -18,6 +18,11 @@ unberührt. `withDeposits()` reicht die Tiefe der Welt an die Vorratsplatzierung
 dieselbe Etage bekommt damit eine andere Karte (eigener Seed) und reichere Kammern, ohne
 dass die Verteilung selbst umzieht.
 
+`withHardRock()` legt vor `withDeposits()` das Hartgestein der Heimat an (Entscheidung D1,
+`Docs/RAID-PLAN.md`): `createHardRock()` liefert `{ id: Sorte }` als ganze Blöcke aus dem
+Seed, und jede Erd-Kachel bekommt ihre Sorte als `terrain`. Der Hive-Kern bleibt frei, damit
+der Start nicht im Stein beginnt.
+
 Der Start bekommt ausserdem eine Leiter: `LADDER_TILE` bei 47,47 steht als `world.entrance`
 in jeder Etage und wird dort als begehbarer Höhlengang angelegt, und `createDeposits()`
 haelt die Kachel frei. `burrowAnchorIds()` setzt dieselben Zellen als Sondenanker, damit der

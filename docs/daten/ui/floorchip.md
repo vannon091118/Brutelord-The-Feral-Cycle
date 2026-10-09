@@ -9,9 +9,12 @@ Spiegel-Datei für `src/ui/FloorChip.jsx`.
 Die Etagenplakette, seit dem 2026-10-06 der letzte Platz der Resource Rail: auf welcher
 Tiefe steht der Hive, und geht es noch tiefer. Ohne Tiefe gibt es den Platz nicht — die
 Plakette hängt an der Hinweiszeile, nicht an jeder Leiste, die schon einen Platz trägt. Ob
-der Abstieg offen ist, liest sie aus `descendOpen()` im Kreislauf: frei bis zur freien
-Leiter, darunter nur gegen Blutstein. Sie entscheidet die Regel nicht — sie fragt sie, und
-sie fragt genau einmal.
+der Abstieg offen ist, liest sie aus `descendOpen()` im Kreislauf: erst der fertige
+Leiterschacht, dann frei bis zur freien Leiter, darunter nur gegen Blutstein. Die Bauten
+kommen von oben herein, damit die Plakette den Schacht kennt; sie entscheidet die Regel
+nicht — sie fragt sie, und sie fragt genau einmal. Der geschlossene Titel nennt den
+Grund, weil die Tür zwei hat: ohne Leiterschacht ruft er zum Bau, an der Grenze nennt er
+die Tiefe.
 
 Der Platz trägt den Sonderrang `floor`: Eine Kante in Core trennt ihn von den Vorräten,
 und sein Ton wechselt mit der Antwort. Der Knopf sagt den Grund als Titel und als

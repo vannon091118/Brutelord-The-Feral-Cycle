@@ -10,6 +10,12 @@ Der Etagensprung: der Hive zieht in die naechste Tiefe, und die Welt dort ist ei
 aus Seed und Tiefe. Ein Sprung ersetzt den Rasterzustand — Dunglinge, Bauten und Essenz
 bleiben, das Gestein ist ein neues.
 
+**Ohne Schacht springt er gar nicht.** Die erste Wache im Reducer ist
+`ladderOpen(state.buildings)`: steht kein fertiger Leiterschacht, gibt er den
+Stand unveraendert zurueck. Das ist dieselbe Regel, die `descendOpen()` der
+Oberflaeche nennt — Plakette und Leiter sind in diesem Zustand schon gesperrt,
+und der Reducer weist einen Aufruf ab, der trotzdem kommt.
+
 **Der Sprung ist der Abnehmer des Blutsteins.** Solange die freie Leiter trägt
 (`canDescend(state.world.depth)`), springt er wie bisher und kostet nichts: für einen Stand
 mit leerem Kreislauf ist das Verhalten Zeichen für Zeichen das alte, und die Abnahme der
@@ -25,7 +31,7 @@ Welt.
 ## Schnittstellen
 
 - `reduceFloor()`
-- `descended()` — frei innerhalb der Leiter, sonst gegen Blutstein
+- `descended()` — erst der Schacht, dann frei innerhalb der Leiter, sonst gegen Blutstein
 - `moved()` — die neue Welt, die Tiefe und der bezahlte Kreislauf in einem Schritt
 
 Aus der Migration vom 2026-10-05 hervorgegangen.

@@ -37,7 +37,7 @@ function deepProps(slot, value) {
   };
 }
 
-export function ResourceRail({ essence, depth, cycle, onDescend }) {
+export function ResourceRail({ essence, depth, cycle, buildings = [], onDescend }) {
   return (
     <div className="dl-rail" role="group" aria-label="Ressourcen des Hive">
       <ResourceSlot

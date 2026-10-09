@@ -1,6 +1,7 @@
 // @doc: docs/daten/economy/resource-cycle.md#resource-cycle
 import { canUnlockDepth, createBloodstoneLedger, depositBloodstone, unlockDepth } from './bloodstone-loop.js';
 import { createAetherLedger } from './aether-loop.js';
+import { BUILDING_STATE, BUILDING_TYPE } from '../buildings/building-config.js';
 import { DEEPEST_FLOOR, canDescend } from '../world/floor.js';
 
 export function createCycle() {
@@ -15,7 +16,12 @@ export function lowestReachable(cycle) {
   return DEEPEST_FLOOR + cycle.bloodstone.depth;
 }
 
-export function descendOpen({ depth, cycle }) {
+export function ladderOpen(buildings = []) {
+  return buildings.some((building) => building.type === BUILDING_TYPE.LADDER_SHAFT && building.state === BUILDING_STATE.READY);
+}
+
+export function descendOpen({ depth, cycle, buildings = [] }) {
+  if (!ladderOpen(buildings)) return false;
   return canDescend(depth) || canUnlockDepth(cycle.bloodstone);
 }
 

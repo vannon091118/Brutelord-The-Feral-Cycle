@@ -2,7 +2,6 @@
 import { descendOpen } from '../../domain/economy/resource-cycle.js';
 import { getTile } from '../../domain/world/grid.js';
 import { isUsable, tileId } from '../../domain/world/tile.js';
-
 function isInView({ entrance, camera, tileSize }) {
   const x = entrance.x * tileSize;
   const y = entrance.y * tileSize;
@@ -66,14 +65,14 @@ function LadderHitArea({ height, width, open, onClimb }) {
   );
 }
 
-export function EntranceLadder({ world, camera, tileSize, cycle, onClimb }) {
+export function EntranceLadder({ world, camera, tileSize, cycle, buildings = [], onClimb }) {
   const entrance = world.entrance;
   if (!isInView({ entrance, camera, tileSize })) return null;
   const depth = world.depth;
   const width = tileSize * 0.44;
   const height = tileSize * 1.7;
   const offen = isUsable(getTile(world, tileId(entrance.x, entrance.y)));
-  const open = descendOpen({ depth, cycle }) && offen;
+  const open = descendOpen({ depth, cycle, buildings }) && offen;
   return (
     <g
       transform={`translate(${entrance.x * tileSize + tileSize / 2} ${entrance.y * tileSize + tileSize / 2}) rotate(-7)`}

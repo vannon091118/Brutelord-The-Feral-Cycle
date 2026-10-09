@@ -25,6 +25,16 @@ function kachel(world, kind) {
   return allTiles(world).find((tile) => tile.kind === kind);
 }
 
+function istHart(tile) {
+  return terrainOf(tile) !== null && terrainOf(tile) !== TILE_TERRAIN.EARTH;
+}
+
+function hatHartenNachbarn(world, tile) {
+  return [[1, 0], [-1, 0], [0, 1], [0, -1]]
+    .map(([dx, dy]) => allTiles(world).find((t) => t.x === tile.x + dx && t.y === tile.y + dy))
+    .some((t) => t && istHart(t));
+}
+
 function checkTerrainField() {
   section('Raid-Terrain: das Feld neben TILE_KIND');
   const world = createWorld();
@@ -32,8 +42,11 @@ function checkTerrainField() {
   const hive = kachel(world, TILE_KIND.HIVE);
   check('Erde bleibt Erdreich', terrainOf(erde) === TILE_TERRAIN.EARTH);
   check('Der Hive ist kein Terrain, sondern ein Feld', terrainOf(hive) === null);
-  const hart = allTiles(world).filter((tile) => terrainOf(tile) !== null && terrainOf(tile) !== TILE_TERRAIN.EARTH);
-  check('Die Heimat fuehrt kein Hartgestein', hart.length === 0, `${hart.length} von ${allTiles(world).length}`);
+  const hart = allTiles(world).filter(istHart);
+  check('Die Heimat fuehrt Hartgestein in ganzen Bloecken', hart.length > 0, `${hart.length} von ${allTiles(world).length}`);
+  check('Kein Hartgestein ohne Nachbarn — ganze Bloecke, kein Einzel-Stein',
+    hart.every((tile) => hatHartenNachbarn(world, tile)),
+    `${hart.filter((tile) => !hatHartenNachbarn(world, tile)).length} Einzel-Steine`);
   const liste = zellen(world);
   check('Der fremde Dungeon kennt beide harten Sorten', liste.some((z) => z.terrain === TILE_TERRAIN.STONE) && liste.some((z) => z.terrain === TILE_TERRAIN.OBSIDIAN));
   check('Das Terrain haengt am Seed', JSON.stringify(zellen({ ...world, seed: world.seed + 1 })) !== JSON.stringify(liste));

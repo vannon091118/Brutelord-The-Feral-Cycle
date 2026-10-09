@@ -53,6 +53,7 @@ nicht vermischen, sonst verschwindet der Biss am Hive.
 - `seamCorner()`
 - `notchPoint()`
 - `cornerPoint()`
+- `edgeDepth()`
 - `wallBand()`
 
 Aus der Migration vom 2026-10-05 hervorgegangen.

@@ -20,6 +20,7 @@ export const DungeonWorld = memo(function DungeonWorld({ game, actions, tileSize
           camera={view.camera}
           tileSize={tileSize}
           cycle={game.economy}
+          buildings={game.buildings}
           onClimb={actions.climbLadder}
         />
         <HiveNode {...hiveProps(game, tileSize, actions)} />

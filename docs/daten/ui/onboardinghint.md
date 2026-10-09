@@ -15,8 +15,10 @@ der kürzeste Titel braucht.
 
 Seit dem 2026-10-06 ist die Rail die zweite Ebene und nicht mehr eine Reihe gleich
 gewichtiger Plaketten: Die fünf Vorräte stehen oben, der Raum steht als Zahl in der
-Fußzeile, wo er als zweitrangig auch gelesen wird. Den Kreislauf reicht die Karte nur an
-die Rail durch, damit die Etagenplakette den offenen Abstieg kennt.
+Fußzeile, wo er als zweitrangig auch gelesen wird. Den Kreislauf und die Bauten reicht die Karte
+nur an die Rail durch, damit die Etagenplakette den offenen Abstieg kennt — der
+hängt seit dem Leiterschacht an einem fertigen Bau und nicht mehr allein an der
+Tiefe.
 
 ## Schnittstellen
 

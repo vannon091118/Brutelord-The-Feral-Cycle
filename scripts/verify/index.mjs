@@ -29,6 +29,7 @@ export { checkBloodstone } from './check-bloodstone.mjs';
 export { checkCycle } from './check-cycle.mjs';
 export { checkCycleGame } from './check-cycle-game.mjs';
 export { checkLadder } from './check-ladder.mjs';
+export { checkLadderShaft } from './check-ladder-shaft.mjs';
 export { checkDepthReward } from './check-depth-reward.mjs';
 export { checkRaidPhases } from './check-raid-phases.mjs';
 export { checkRaidSiege } from './check-raid-siege.mjs';

@@ -67,8 +67,10 @@ function verdrahtung() {
   const menu = readFileSync('src/ui/TileActionMenu.jsx', 'utf8');
   const stage = readFileSync('src/ui/GameStage.jsx', 'utf8');
   const world = readFileSync('src/world/DungeonWorld.jsx', 'utf8');
-  check('Escape schliesst das Aktionsmenue', menu.includes("event.key === 'Escape'") && menu.includes('useEscapeKey'));
+  check('Escape und Rechtsklick schliessen das Aktionsmenue',
+    menu.includes("event.key === 'Escape'") && menu.includes('useCloseGestures') && menu.includes("'contextmenu'"));
   check('Das Menue traegt Abbau und Schliessen', stage.includes('onMine={actions.orderMining}') && stage.includes('onClose={actions.clearSelection}'));
+  check('Der Kopf traegt einen sichtbaren Schliessen-Knopf', menu.includes('aria-label="Menü schließen"'));
   check('Ein Klick auf den Hintergrund verwirft die Auswahl', world.includes('onBackgroundClick={actions.clearSelection}'));
 }
 

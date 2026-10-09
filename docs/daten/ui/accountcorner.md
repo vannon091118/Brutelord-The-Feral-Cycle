@@ -19,6 +19,12 @@ der Server nichts und die Sitzung bleibt auf der anderen Seite offen.
 Der Schwarm wird durchgereicht und nicht hier gelesen: den Kader prüft die Domäne
 (`cadreRule()`), diese Komponente hat dafür keine eigene Meinung.
 
+**Das Raid-Buch erscheint erst mit dem Leiterschacht.** `ladderOpen(buildings)`
+aus dem Kreislauf entscheidet, ob der Knopf da ist: ohne Schacht gibt es keinen
+Raid und damit auch keine Quittungen zu lesen, also bleibt die Ecke ruhig. Die
+Bauten werden dafür von `App.jsx` durchgereicht — die Komponente entscheidet
+nichts, sie fragt die Domäne.
+
 ## Schnittstellen
 
 - `AccountCorner()`

@@ -1,16 +1,18 @@
 // @doc: docs/daten/ui/floorchip.md#floorchip
-import { descendOpen } from '../domain/economy/resource-cycle.js';
+import { descendOpen, ladderOpen } from '../domain/economy/resource-cycle.js';
 import { ResourceSlot } from './ResourceSlot.jsx';
 
-function descendTitle(open, depth) {
-  if (!open) return 'Der Schacht endet hier — keine tiefere Etage';
-  return `In die Etage ${depth + 1} graben`;
+function descendTitle({ open, depth, tor }) {
+  if (open) return `In die Etage ${depth + 1} graben`;
+  if (!tor) return 'Erst den Leiterschacht bauen — er öffnet Raid und Tiefe';
+  return 'Der Schacht endet hier — keine tiefere Etage';
 }
 
-export function FloorChip({ depth, cycle, onDescend }) {
+export function FloorChip({ depth, cycle, buildings = [], onDescend }) {
   if (!Number.isInteger(depth)) return null;
-  const open = descendOpen({ depth, cycle });
-  const title = descendTitle(open, depth);
+  const tor = ladderOpen(buildings);
+  const open = descendOpen({ depth, cycle, buildings });
+  const title = descendTitle({ open, depth, tor });
 
   return (
     <ResourceSlot rank="floor" tone={open ? 'core' : 'bone'} label="Abstieg" hint={title}>

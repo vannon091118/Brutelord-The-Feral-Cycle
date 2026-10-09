@@ -5,6 +5,7 @@ export const BUILDING_TYPE = Object.freeze({
   SWARM_HOST: 'SWARM_HOST',
   ESSENCE_EXTRACTOR: 'ESSENCE_EXTRACTOR',
   BRUTE_LORD: 'BRUTE_LORD',
+  LADDER_SHAFT: 'LADDER_SHAFT',
 });
 
 export const BUILDING_STATE = Object.freeze({
@@ -17,7 +18,7 @@ export const PLACEMENT_REASON = Object.freeze({
   NO_SPACE: 'NO_SPACE',
 });
 
-const COST = Object.freeze({ extractor: 5, swarmHost: 6, bruteLord: 10 });
+const COST = Object.freeze({ extractor: 5, swarmHost: 6, bruteLord: 10, ladderShaft: 8 });
 
 const OPENING_DIGS = 3;
 
@@ -44,6 +45,13 @@ export const BUILDING_DEFS = Object.freeze({
     width: 2,
     height: 2,
     cost: COST.bruteLord,
+  }),
+  [BUILDING_TYPE.LADDER_SHAFT]: Object.freeze({
+    label: 'Leiterschacht',
+    hint: 'Öffnet Raid und Etage 2',
+    width: 1,
+    height: 1,
+    cost: COST.ladderShaft,
   }),
 });
 

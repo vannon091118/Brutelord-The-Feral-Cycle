@@ -6,11 +6,12 @@ import { applyRaidLoot, raidLoot } from '../../src/domain/raid/raid-loot.js';
 import { descendOpen, lowestReachable, lootInto } from '../../src/domain/economy/resource-cycle.js';
 import { SCHWELLE, ausbeute, beute, ersteEtage, leeres } from './cycle-fixture.mjs';
 import { TIEFSTE, abstiege, grab, start, versuch, weltInTiefe } from './cycle-state-fixture.mjs';
+import { mitSchacht } from './floor-sample.js';
 import { check, section } from './expect.mjs';
 
 function checkLeiter() {
   section('Kreislauf im Spiel: die freie Leiter bleibt, wie sie war');
-  const frei = abstiege(start(), TIEFSTE + 3);
+  const frei = abstiege(mitSchacht(start()), TIEFSTE + 3);
   check('Ohne Blutstein senkt sich der Sprung bis zur tiefsten Etage', frei.world.depth === TIEFSTE, `Tiefe ${frei.world.depth}`);
   check('Ohne Blutstein passiert an der Grenze nichts', versuch(frei) === frei);
   check('Die erreichbare Tiefe ist die der freien Leiter', lowestReachable(frei.economy) === TIEFSTE);
@@ -18,9 +19,9 @@ function checkLeiter() {
 
 function checkBezahlt() {
   section('Kreislauf im Spiel: der Sprung bezahlt die Etage');
-  const reich = { ...start(), economy: lootInto(leeres(), { bloodstone: 6 }) };
+  const reich = { ...mitSchacht(start()), economy: lootInto(leeres(), { bloodstone: 6 }) };
   const unten = abstiege(reich, TIEFSTE + 1);
-  const frei = abstiege(start(), TIEFSTE);
+  const frei = abstiege(mitSchacht(start()), TIEFSTE);
   check('Mit Blutstein geht der Sprung eine Etage tiefer', unten.world.depth === TIEFSTE + 1, `Tiefe ${unten.world.depth}`);
   check('Die neue Etage hat ihre eigene Welt', unten.world.seed !== frei.world.seed);
   check('Die Etage wurde aus dem Kreislauf bezahlt', unten.economy.bloodstone.stored === 6 - ersteEtage());
@@ -51,11 +52,12 @@ function checkAbstiegsTor() {
   section('Kreislauf im Spiel: das Tor zum Aether');
   const ohne = leeres();
   const reich = lootInto(leeres(), { bloodstone: ersteEtage() });
-  check('Die freie Etage bleibt ohne Blutstein offen', descendOpen({ depth: 0, cycle: ohne }) === true);
+  const tor = mitSchacht(start()).buildings;
+  check('Die freie Etage bleibt ohne Blutstein offen', descendOpen({ depth: 0, cycle: ohne, buildings: tor }) === true);
   check('An der tiefsten freien Etage ist ohne Blutstein kein Abstieg offen',
-    descendOpen({ depth: TIEFSTE, cycle: ohne }) === false);
+    descendOpen({ depth: TIEFSTE, cycle: ohne, buildings: tor }) === false);
   check('Mit genug Blutstein oeffnet sich der Abstieg eine Etage tiefer',
-    descendOpen({ depth: TIEFSTE, cycle: reich }) === true);
+    descendOpen({ depth: TIEFSTE, cycle: reich, buildings: tor }) === true);
 }
 
 export function checkCycleGame() {

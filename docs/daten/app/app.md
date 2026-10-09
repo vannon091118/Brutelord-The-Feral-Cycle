@@ -11,6 +11,10 @@ Sitzung startet der Seed die Welt. Sie reicht die ganze Sitzung an den Motor wei
 der Traeger-Token bis zum Speicher-Takt kommt und der Stand auch zum Server geht.
 Lichtstimmung der Kammer hinter der Welt.
 
+Die Bühne liegt als Overlay über dem ganzen Fenster (`absolute inset-0`), der HUD dockt am
+unteren Rand an: das Feld folgt damit dem Fenster und nicht dem HUD, der bei offenem Baumenü
+sonst die halbe Höhe frisst.
+
 Die Kontoecke wohnt seit dem 2026-10-06 in `src/ui/AccountCorner.jsx` und nicht mehr hier:
 App stand mit dem Raid-Buch am Import-Deckel von sieben Zeilen, und der Ort, an dem
 Abmelden und Buch untereinander stehen, ist ohnehin eine eigene Verantwortung. App reicht

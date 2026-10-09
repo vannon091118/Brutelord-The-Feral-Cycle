@@ -155,6 +155,15 @@ const CORNER_PLACE = Object.freeze({ NE: 0.25, SE: 0.5, SW: 0.75, NW: 0 });
 const CORNER_IN = Object.freeze({ NE: [-1, 1], SE: [-1, -1], SW: [1, -1], NW: [1, 1] });
 const SIDES = Object.freeze(['N', 'E', 'S', 'W']);
 
+function edgeDepth({ side, x, y, seed, depth }) {
+  const line = side === 'N' || side === 'S' ? y : x;
+  const along = side === 'N' || side === 'S' ? x : y;
+  const run = Math.floor(along / 3);
+  const h = Math.imul(run + 1, 73856093) ^ Math.imul(line + 1, 19349663) ^ Math.imul(seed + 1, 2246822519);
+  const step = ((h >>> 0) % 1000) / 1000;
+  return depth * (0.72 + step * 0.5);
+}
+
 function sideSpan(side) {
   return [SIDE_ORIGIN[side] - 0.125, SIDE_ORIGIN[side] + 0.125];
 }
@@ -198,7 +207,6 @@ function maskPoints({ x, y, size, open, notch, rng, overlap, tuning }) {
 }
 
 export function wallBand({ x, y, size, hidden, seed, depth = 18, outset = 0.8 }) {
-  const rng = makeRng(seed ^ 0x5e11);
   const anchor = (t) => perimeterPoint({ t, minX: x, minY: y, maxX: x + size, maxY: y + size });
   const bands = [];
   for (const side of SIDES) {
@@ -209,14 +217,15 @@ export function wallBand({ x, y, size, hidden, seed, depth = 18, outset = 0.8 })
     const inner = [];
     for (let i = 0; i <= steps; i += 1) {
       const p = anchor(from + ((i / steps) * (to - from)));
-      const d = depth * (0.55 + rng() * 0.9);
+      const d = edgeDepth({ side, x, y, seed, depth });
       outer.push({ x: p.x - p.nx * outset, y: p.y - p.ny * outset });
       inner.push({ x: p.x + p.nx * d, y: p.y + p.ny * d });
     }
     const head = `M${round(outer[0].x)},${round(outer[0].y)}`;
     const top = outer.slice(1).map((pt) => `L${round(pt.x)},${round(pt.y)}`).join('');
     const tail = inner.slice().reverse().map((pt) => `L${round(pt.x)},${round(pt.y)}`).join('');
-    bands.push({ key: `band-${side}`, d: `${head}${top}${tail}Z`, lip: `${head}${top}`, lipWidth: round(1.6 + rng() * 1.2) });
+    const lipWidth = round(1.6 + (((seed + x + y) >>> 0) % 100) / 100 * 1.2);
+    bands.push({ key: `band-${side}`, d: `${head}${top}${tail}Z`, lip: `${head}${top}`, lipWidth });
   }
   return bands;
 }

@@ -9,7 +9,9 @@ Spiegel-Datei für `src/world/entrance/EntranceLadder.jsx`.
 Der Eingang: eine Leiter in einen dunklen Schacht, erst sichtbar, wenn die Verwurzelung
 herangewachsen ist. **Sie ist kein Platzhalter mehr.** Ein Klick auf die Leiter steigt in die
 nächste Etage — die Komponente entscheidet aber nichts über die Tiefe: sie liest
-`descendOpen({ depth, cycle })` aus `src/domain/economy/resource-cycle.js`, und sie fragt den
+`descendOpen({ depth, cycle, buildings })` aus `src/domain/economy/resource-cycle.js`
+(mit den Bauten, die von `DungeonWorld` hereinreichen — ohne fertigen Schacht ist die
+Tür zu), und sie fragt den
 Boden: der Eingang ist nur offen, wenn die Kachel bei 47,47 `isUsable()` ist. Die Leiter ist
 damit sichtbar, **bevor** sie ein Weg ist — man sieht den Schacht im Gestein stehen, und wer
 hinunter will, muss ihn freigraben. Vorher trägt der Klick keinen Handler und die Fläche ist
@@ -35,4 +37,4 @@ Etage ihr eigenes Gestein hat.
 - `LadderShaft()`
 - `OpenHint()` — der Pfeil nach unten, nur wenn es tiefer geht
 - `LadderHitArea()` — die klickbare Fläche und ihr Urteil über die Tiefe
-- `EntranceLadder()`
+- `EntranceLadder({ world, camera, tileSize, cycle, buildings, onClimb })`

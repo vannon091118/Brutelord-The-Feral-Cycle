@@ -3,8 +3,16 @@
 import { DEEPEST_FLOOR, floorSeed } from '../../src/domain/world/floor.js';
 import { worldSeed } from '../../src/domain/world/world-seed.js';
 import { countFloorTiles } from '../../src/domain/world/grid.js';
+import { BUILDING_STATE, BUILDING_TYPE } from '../../src/domain/buildings/building-config.js';
 
 export const SAMPLE_SEEDS = ['a1b2c3d4', '00ff00ff', '7fffffff', 12345678];
+
+/** Der Leiterschacht ist das Tor: ohne ihn springt kein Reducer eine Etage.
+ *  Die Etagen-Pruefungen bauen ihn deshalb, bevor sie den Abstieg fahren. */
+export function mitSchacht(state) {
+  const tor = { id: 'etage-tor', type: BUILDING_TYPE.LADDER_SHAFT, state: BUILDING_STATE.READY, tileIds: [], workers: [] };
+  return { ...state, buildings: [...state.buildings, tor] };
+}
 
 export function istStartwelt(playerseed) {
   return floorSeed(playerseed, 0) === worldSeed(playerseed);

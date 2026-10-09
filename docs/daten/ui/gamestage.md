@@ -11,6 +11,9 @@ Die Bühne: Sichtfeld plus Kontextmenü. Sie misst die verfügbare Fläche, legt
 (`menuAnchorFor`). Wo der Anker geklemmt wird, entscheidet das Menü selbst — es kennt als
 einziger Beteiligter seine eigene gerenderte Umgebung.
 
+Die Bühne füllt das ganze Fenster (`absolute inset-0`): die Messfläche für die Skalierung ist
+damit das Fenster und nicht der Rest nach dem HUD.
+
 ## Schnittstellen
 
 - `GameStage()`

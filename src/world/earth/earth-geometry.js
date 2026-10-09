@@ -1,5 +1,5 @@
 // @doc: docs/daten/earth/earth-geometry.md#earth-geometry
-import { EARTH_HEALTH } from '../../domain/world/tile.js';
+import { EARTH_HEALTH, TILE_TERRAIN } from '../../domain/world/tile.js';
 import { edgeMask, hiddenMask, notchFlags, sideFlags } from '../../domain/world/edge-mask.js';
 import { chipBlob, crackPath, soilMaskBlob, soilSpeckles, tileSeed, wallBand } from '../tile-shapes.js';
 
@@ -53,16 +53,17 @@ const geometryCache = new Map();
 export function earthGeometry({ tile, size, world = null }) {
   const openByte = world ? edgeMask(world, tile.x, tile.y) : 0;
   const hiddenByte = world ? hiddenMask(world, tile.x, tile.y) : 0;
-  const key = `${tile.x},${tile.y}|${size}|${tile.earthHealth}|${openByte}|${hiddenByte}`;
+  const rock = tile.terrain === TILE_TERRAIN.STONE || tile.terrain === TILE_TERRAIN.OBSIDIAN ? tile.terrain : '';
+  const key = `${tile.x},${tile.y}|${size}|${tile.earthHealth}|${openByte}|${hiddenByte}|${rock}`;
   const cached = geometryCache.get(key);
   if (cached) return cached;
-  const geometry = buildGeometry({ tile, size, openByte, hiddenByte });
+  const geometry = buildGeometry({ tile, size, openByte, hiddenByte, rock });
   if (geometryCache.size >= CACHE_LIMIT) geometryCache.clear();
   geometryCache.set(key, geometry);
   return geometry;
 }
 
-function buildGeometry({ tile, size, openByte, hiddenByte }) {
+function buildGeometry({ tile, size, openByte, hiddenByte, rock }) {
   const seed = tileSeed(tile.x, tile.y);
   const x = tile.x * size;
   const y = tile.y * size;
@@ -80,6 +81,7 @@ function buildGeometry({ tile, size, openByte, hiddenByte }) {
     hidden,
     notch,
     mass: soilMaskBlob({ x, y, size, open, notch, seed }),
+    rock,
     walls: wallBand({ x, y, size, hidden, seed }),
     speckles: soilSpeckles({ x, y, size, count: 6, seed, inset: 4 }),
     handLines: handLines({ x, y, size, seed }),

@@ -33,7 +33,7 @@ die Kopie verfällt zu Folklore, die irgendwann jemand für bare Münze nimmt.
 ## 1. Befehle
 
 ```sh
-npm ci                                     # CI pinnt Node 22, lokal läuft Node 26
+npm ci                                     # CI pinnt Node 22, lokal läuft Node 24 (mise)
 npm run dev                                # Vite, bindet auf 127.0.0.1
 npm run gate                               # alle Wächter
 npm run gate -- --imports                  # nur die Schichtung von src/
@@ -240,6 +240,14 @@ Vom Auftraggeber gesetzt und nicht verhandelbar:
   sind Terrain, kein Erdreich — `isEarth()` bleibt Erdreich, und die
   Abbauregel für Hartgestein steht daneben, nicht darin. Begründung und
   offene Fragen in [`Docs/RAID-PLAN.md`](Docs/RAID-PLAN.md).
+  **Entscheidung D1 (`RAID-PLAN.md`) gilt:** Stein und Obsidian sind in jeder
+  Welt vorhanden und im eigenen Dungeon abbaubar — als **ganze Blöcke** aus dem
+  Seed, nicht als einzelne Sicht-Assets am Rand. Der interne Abbau kostet keine
+  Ausdauer, braucht aber Zeit und Dunglinge über `work-tick.js`.
+  **Entscheidung D50 (`RAID-PLAN.md`) gilt:** Der Leiterschacht ist ein
+  Bauobjekt und das Tor — er schaltet Raid und Etagensystem frei; der erste
+  Abstieg ist danach frei, jede tiefere Etage kostet Blutstein. Ohne Schacht
+  ist die Tür zu.
 - Die Welt ist auf 64 × 64 Felder gedeckelt, sichtbar bleibt ein 13 × 13-Fenster,
   das dem gebauten Raum folgt. Der Rest ist Dunkelheit.
 - Die Leiter steht außerhalb des Sichtfelds und wird erst gezeichnet, wenn die

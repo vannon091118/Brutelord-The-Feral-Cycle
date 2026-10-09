@@ -26,11 +26,17 @@ function EarthDetails({ lines, speckles }) {
   );
 }
 
+function rockFill(rock) {
+  if (rock === 'OBSIDIAN') return 'url(#dl-obsidian)';
+  if (rock === 'STONE') return 'url(#dl-hardStone)';
+  return 'url(#dl-earthMass)';
+}
+
 // @doc: docs/daten/earth/earthslab.md#earthslab
 export function EarthSlab({ geometry }) {
   return (
     <>
-      <path d={geometry.mass} fill="url(#dl-earthMass)" />
+      <path d={geometry.mass} fill={rockFill(geometry.rock)} />
       <EarthDetails lines={geometry.handLines} speckles={geometry.speckles} />
     </>
   );

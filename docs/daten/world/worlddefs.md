@@ -20,6 +20,7 @@ kennt: Erde, Höhle, Licht, Hive und Atmosphäre.
 - `hiveCenter()`
 - `SoilGradients()`
 - `CaveGradients()`
+- `RockGradients()`
 - `LightGradients()`
 - `CharacterGradients()`
 - `AtmosphereDefs()`

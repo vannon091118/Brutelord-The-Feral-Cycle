@@ -3,7 +3,7 @@ import { PhaseTrail } from './PhaseTrail.jsx';
 import { ResourceRail } from './ResourceRail.jsx';
 
 // @doc: docs/daten/ui/onboardinghint.md#onboardinghint
-export function OnboardingHint({ onboarding, usableTileCount, essence, depth, cycle, onDescend }) {
+export function OnboardingHint({ onboarding, usableTileCount, essence, depth, cycle, buildings = [], onDescend }) {
   const hint = HINTS[onboarding.state];
 
   return (
@@ -19,7 +19,7 @@ export function OnboardingHint({ onboarding, usableTileCount, essence, depth, cy
       </p>
 
       <div className="mt-2">
-        <ResourceRail essence={essence} depth={depth} cycle={cycle} onDescend={onDescend} />
+        <ResourceRail essence={essence} depth={depth} cycle={cycle} buildings={buildings} onDescend={onDescend} />
       </div>
 
       <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">

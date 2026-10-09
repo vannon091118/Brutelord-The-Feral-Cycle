@@ -2,7 +2,7 @@
 import { ACTION } from '../../domain/actions/action-types.js';
 import { canDescend, createFloorWorld } from '../../domain/world/floor.js';
 import { countFloorTiles } from '../../domain/world/grid.js';
-import { buyFloor, cycleOf } from '../../domain/economy/resource-cycle.js';
+import { buyFloor, cycleOf, ladderOpen } from '../../domain/economy/resource-cycle.js';
 
 export function reduceFloor(state, action) {
   if (action.type !== ACTION.FLOOR_DESCEND) return state;
@@ -11,6 +11,7 @@ export function reduceFloor(state, action) {
 
 function descended(state, target) {
   if (target !== state.world.depth + 1) return state;
+  if (!ladderOpen(state.buildings)) return state;
   const cycle = cycleOf(state);
   if (canDescend(state.world.depth)) return moved(state, target, cycle);
   const kauf = buyFloor(cycle);

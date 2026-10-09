@@ -3,7 +3,7 @@ import { MiningMenuItem } from './MiningMenuItem.jsx';
 import { MENU_BOX, menuPositionFor } from './menu-position.js';
 
 // @doc: docs/daten/ui/tileactionmenu.md#tileactionmenu
-function TileMenuTitle() {
+function TileMenuTitle({ onClose }) {
   return (
     <div className="flex items-center gap-1.5 px-1.5 pb-1.5 pt-0.5">
       <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true">
@@ -11,6 +11,14 @@ function TileMenuTitle() {
         <path d="M2 8.4h8v2.2H2z" fill="var(--color-soil-600)" />
       </svg>
       <span className="text-[10px] uppercase tracking-[0.16em] text-bone-400">Erdblock</span>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Menü schließen"
+        className="ml-auto rounded-full border border-bone-400/20 px-1.5 text-[11px] leading-none text-bone-400 transition-colors hover:border-bone-400/50 hover:text-bone-100"
+      >
+        ✕
+      </button>
     </div>
   );
 }
@@ -23,13 +31,21 @@ function TileMenuHint() {
   );
 }
 
-function useEscapeKey(onClose) {
+function useCloseGestures(onClose) {
   useLayoutEffect(() => {
     const onKeyDown = (event) => {
       if (event.key === 'Escape') onClose();
     };
+    const onContext = (event) => {
+      event.preventDefault();
+      onClose();
+    };
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    window.addEventListener('contextmenu', onContext);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('contextmenu', onContext);
+    };
   }, [onClose]);
 }
 
@@ -39,7 +55,7 @@ export function TileActionMenu({ left, top, onMine, onClose }) {
   useLayoutEffect(() => {
     setPlace(menuPositionFor({ anchor: { left, top }, bounds: node.current.parentElement.getBoundingClientRect() }));
   }, [left, top]);
-  useEscapeKey(onClose);
+  useCloseGestures(onClose);
   const spot = place ?? { left, top, flipped: false };
 
   return (
@@ -55,7 +71,7 @@ export function TileActionMenu({ left, top, onMine, onClose }) {
       role="menu"
       aria-label="Erdblock"
     >
-      <TileMenuTitle />
+      <TileMenuTitle onClose={onClose} />
       <MiningMenuItem onMine={onMine} />
       <TileMenuHint />
     </div>
