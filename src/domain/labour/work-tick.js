@@ -98,19 +98,13 @@ function staffWorkers(work, config) {
 function orderStep(work, worker, config) {
   const relieved = relievedWorker(work, worker);
   if (relieved.job) return relieved;
-  const stocked = stockedWorker(relieved, work);
-  if (stocked.job) return stocked;
+  const stocked = headOrder(relieved) ? relieved : refill(relieved, work);
   return withJob(stocked, jobForOrder(stocked, work, config));
 }
 
-function stockedWorker(worker, work) {
-  if (headOrder(worker)) return worker;
-  const order = assignmentFor(work, worker);
+function refill(worker, work) {
+  const order = deliveryOrder(work, worker) ?? stationOrder(work, worker);
   return order ? pushOrder(worker, order) : worker;
-}
-
-function assignmentFor(work, worker) {
-  return deliveryOrder(work, worker) ?? stationOrder(work, worker);
 }
 
 function deliveryOrder(work, worker) {

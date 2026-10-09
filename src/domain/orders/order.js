@@ -5,14 +5,14 @@ import { JOB_CONFIG } from '../labour/job-config.js';
 import { createDeliverJob, createExtractJob } from '../labour/jobs.js';
 import { ORDER_CONFIG, ORDER_KIND } from './order-config.js';
 
-export { ORDER_CONFIG, ORDER_KIND };
+export { ORDER_KIND };
 
 const TARGET_STATE = Object.freeze({
   [ORDER_KIND.WORK]: BUILDING_STATE.READY,
   [ORDER_KIND.DELIVER]: BUILDING_STATE.SITE,
 });
 
-export function createOrder({ kind, buildingId = null }) {
+export function createOrder({ kind, buildingId }) {
   return { kind, buildingId };
 }
 
@@ -26,10 +26,6 @@ export function dropOrder(worker) {
   return { ...worker, orders: worker.orders.slice(1) };
 }
 
-export function clearOrders(worker) {
-  return worker.orders.length === 0 ? worker : { ...worker, orders: [] };
-}
-
 export function headOrder(worker) {
   return worker.orders.at(0) ?? null;
 }
@@ -39,7 +35,8 @@ export function assignOrder(worker, buildingId) {
 }
 
 export function standDown(worker) {
-  return clearOrders(withJob(worker, null));
+  const frei = withJob(worker, null);
+  return frei.orders.length === 0 ? frei : { ...frei, orders: [] };
 }
 
 export function jobForOrder(worker, work, config = JOB_CONFIG) {

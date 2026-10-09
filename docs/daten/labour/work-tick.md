@@ -9,10 +9,13 @@ Spiegel-Datei für `src/domain/labour/work-tick.js`.
 Der Arbeitstakt der Kolonie: Befehle, Essenz, Brut, Bauplätze, Popups. Der Takt
 **entscheidet nicht mehr, wer arbeitet** — er liest die Befehlsliste des
 Dunglings und macht aus ihrem Kopf einen Auftrag. Nur wo noch keine Zeile steht
-und Arbeit offen ist, fuellt `stockedWorker()` eine nach: erst die Lieferung an
-den naechsten offenen Bauplatz, sonst die zugewiesene Station. Wer weder Befehl
-noch Zuweisung hat, steht — das ist die Umkehr gegenueber der alten Fassung, in
-der `staffWorkers()` jedem freien Dungling selbsttaetig eine Arbeit suchte.
+und Arbeit offen ist, fuellt `refill()` eine nach: erst die Lieferung an den
+naechsten offenen Bauplatz, sonst die zugewiesene Station. Wer weder Befehl noch
+Zuweisung hat, steht — das ist die Umkehr gegenueber der alten Fassung, in der
+`staffWorkers()` jedem freien Dungling selbsttaetig eine Arbeit suchte. Eine
+Zeile wird nur auf eine leere Liste gelegt: waere sie neben einer offenen
+erlaubt, wuechse die Liste mit jeder Lieferung und eine laengst bezahlte
+Lieferung koennte den Kopf besetzen.
 
 ## Schnittstellen
 
@@ -27,8 +30,7 @@ der `staffWorkers()` jedem freien Dungling selbsttaetig eine Arbeit suchte.
 - `agePopups()`
 - `staffWorkers()`
 - `orderStep()`
-- `stockedWorker()`
-- `assignmentFor()`
+- `refill()`
 - `deliveryOrder()`
 - `stationOrder()`
 - `relievedWorker()`

@@ -54,6 +54,15 @@ npm run version:bump -- patch              # auch minor | major
 npm run version:check                      # Lock vs. Spiegel
 ```
 
+**`mise exec … -- npm run …` läuft mit der System-Node.** `mise exec` reicht den
+PATH nicht in die `sh -c`-Unterschale von `npm run`; die Folge sind zwei
+Meldungen, die auf den Code statt auf die Laufzeit zeigen:
+`No such built-in module: node:sqlite` und `does not provide an export named
+'styleText'`. Reparatur ist ein vorangestelltes
+`export PATH="$(dirname "$(mise exec node@22 -- node -e 'console.log(process.execPath)')"):$PATH"`
+— dann läuft 22.23 ohne Zusatzflag. Eine **einzelne** Prüfgruppe lokal fährt
+`npm run check -- orders` (Positionalname; `--list` nennt alle).
+
 Es gibt **kein `npm test` und keinen Linter**. `gate` und `verify` sind die
 Qualitätswächter. `verify` ist die eigentliche Abnahmesimulation: sie spielt
 den Slice deterministisch mit einer virtuellen Uhr durch, importiert die
@@ -66,7 +75,7 @@ nicht grün — die Reparatur steht in `PITFALLS.md`.
 
 `verify` vergleicht den ganzen Slice außerdem Zug für Zug gegen einen
 festgeschriebenen Zustands-Hash (`scripts/verify/determinism-golden.json`, vier
-Sample-Seeds, 2008 Züge je Seed). Ein **absichtlicher** Verhaltenswechsel macht
+Sample-Seeds, 2323 Züge je Seed). Ein **absichtlicher** Verhaltenswechsel macht
 diese Prüfung rot: Wer ihn will, schreibt den Golden-Wert mit
 `npm run golden:determinism` neu und erklärt die Änderung im Commit-Body — von
 Hand fasst ihn niemand an. Geschrieben wird **nur auf der Node-Major, die die
@@ -74,7 +83,11 @@ CI pinnt** (gelesen aus `.github/workflows/ci.yml`); auf jeder anderen bricht
 der Befehl ab, bevor eine Datei entsteht, denn zwei Goldens wären zwei
 Wahrheiten über denselben Slice — und getestet würde der Happy Path des
 jüngeren. Der Wert nennt seine Node-Major im Kopf, und der Prüfer meldet eine
-fremde Laufzeit, statt zu vergleichen.
+fremde Laufzeit, statt zu vergleichen. Liegt 22 lokal nur hinter mise, heißt der
+Befehl `mise exec node@22 -- node tools/golden-determinism.mjs`. Ein reiner
+**Formwechsel** — ein Feld kommt hinzu, das Verhalten bleibt — ändert den Hash
+genauso. Die Gegenprobe ist der Kopf der Datei: gleiche Zugzahl je Seed und
+gleiche Genome bei anderen Hashes heißt Form geändert und Verhalten nicht.
 
 **Gate und verify lesen Pfade relativ zum CWD** — immer aus dem
 Repo-Wurzelverzeichnis starten. Das Gate prüft Commits **ohne** `--commits`
@@ -118,6 +131,10 @@ muss, ist der Rest:
   `import { … }`-Block ist eine Zeile; zwei getrennte Statements sind zwei.
 - **Die Parameter-Grenze zählt Kommas auf oberster Ebene.** `f(a, b, c, d)`
   fällt durch, `f({ a, b, c, d })` nicht. Der Ausweg ist ein Objekt-Parameter.
+- **Drei Stellen stehen am Import-Deckel von 7:** `src/domain/labour/work-tick.js`,
+  `src/state/reducers/colony-reducer.js` und jedes `check-*.mjs` mit sieben
+  Statements; geprüft wird `<= 7`. Wer dort etwas hinzufügen will, bündelt erst
+  (ein Modul re-exportiert seine eigene Config) oder teilt die Datei.
 - **Kommentarzeilen sind knapp.** Wer mehr erklären will, schreibt es nach
   `Docs/ARCHITEKTUR.md`. Fünf Zeilen bedeuten keine Zensur, sondern einen
   Indikator: Wer für drei Datenbauten fünfzehn Kommentarzeilen braucht, hat zu
@@ -267,6 +284,16 @@ häufigsten zuschlagen:
 - **`expect.mjs` ist global zustandsbehaftet.** `lines`, `failures` und
   `summary()` zählen über den ganzen Lauf; die Reihenfolge in
   `scripts/verify/groups.mjs` ist deshalb fest.
+
+- **Die Form des Spielstands hängt an vier Orten, nicht an einem.** Ein neues
+  Feld am Dungling ändert den Golden-Hash (der Digest läuft über alle Schlüssel
+  sortiert), verlangt eine höhere `SNAPSHOT_VERSION` und entwertet die fünf
+  eingefrorenen Stände unter `tools/tests/state/`, die Fassung *und* Feld
+  tragen müssen. `check-fixtures` vergleicht die Fassung gegen
+  `SNAPSHOT_VERSION` und tickt jeden Stand fünf Takte lang an — ein fehlendes
+  Feld wäre sonst erst beim Spieler ein Absturz.
+- **Grüner Text ist kein grüner Lauf.** `check.mjs` und `ci-gate.mjs` melden rot
+  allein über `process.exitCode`; ein angehängtes `| tail` verdeckt genau das.
 
 Zwei weitere, die man vor dem ersten Task kennen muss: Ein lokales `.venv/`
 taucht in keiner `.gitignore` und in keiner Dateiliste auf — `git status` ist

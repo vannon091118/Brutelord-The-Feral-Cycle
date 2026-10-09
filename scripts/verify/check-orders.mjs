@@ -4,9 +4,9 @@
  *  Den Trait-Fall (Gierig verweigert den Lieferbefehl) prueft `check-traits`. */
 import { ACTION } from '../../src/domain/actions/action-types.js';
 import { JOB_CONFIG } from '../../src/domain/labour/job-config.js';
-import { ORDER_CONFIG, ORDER_KIND, createOrder, headOrder, jobForOrder, pushOrder } from '../../src/domain/orders/order.js';
+import { ORDER_CONFIG, ORDER_KIND } from '../../src/domain/orders/order-config.js';
+import { createOrder, headOrder, jobForOrder, pushOrder } from '../../src/domain/orders/order.js';
 import { gameReducer } from '../../src/state/game-reducer.js';
-import { workOf } from '../../src/state/work-state.js';
 import { deliveryTo, labState } from './lab-run.mjs';
 import { check, section } from './expect.mjs';
 
@@ -51,8 +51,8 @@ function checkList() {
 
 function checkJob() {
   section('Befehl: nur der Kopf wird Arbeit');
-  const werk = workOf(labState());
-  const worker = werk.dunglings[0];
+  const werk = { buildings: labState().buildings, anchor: { x: 7, y: 7 } };
+  const worker = labState().dunglings[0];
   const station = werk.buildings.find((entry) => entry.id === EXTRACTOR_ID);
   const order = pushOrder(worker, workOrder());
   check('Ohne Befehl gibt es keine Arbeit', jobForOrder(worker, werk) === null);
@@ -116,8 +116,8 @@ function checkDelivery() {
   check('Die Lieferung lief als Befehl durch die Liste', gesehen.has(ORDER_KIND.DELIVER), [...gesehen].join(', '));
   check('Die Lieferung kommt an', current.buildings.at(-1).delivered === site.required, `${current.buildings.at(-1).delivered} von ${site.required}`);
   const stille = restUntilIdle(current);
+  check('Der Dungling kommt zur Ruhe', stille.dunglings[0].job === null);
   check('Die erledigte Zeile faellt heraus', stille.dunglings[0].orders.length === 0, `${stille.dunglings[0].orders.length} Zeilen`);
-  check('Und danach steht kein neuer Befehl an', restUntilIdle(stille).dunglings[0].orders.length === 0);
 }
 
 export function checkOrders() {
