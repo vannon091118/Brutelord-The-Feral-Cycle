@@ -16,7 +16,7 @@ export function GameStage({ game, actions }) {
     : null;
 
   return (
-    <div ref={attach} className="absolute inset-0 flex min-h-0 w-full items-center justify-center p-2">
+    <div ref={attach} className="relative flex min-h-0 w-full flex-1 items-center justify-center p-2">
       <div className="relative" style={{ width: stage.width * scale, height: stage.height * scale }}>
         <DungeonWorld game={game} actions={actions} tileSize={TILE_SIZE} scale={scale} />
 

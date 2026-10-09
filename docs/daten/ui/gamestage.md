@@ -11,8 +11,9 @@ Die Bühne: Sichtfeld plus Kontextmenü. Sie misst die verfügbare Fläche, legt
 (`menuAnchorFor`). Wo der Anker geklemmt wird, entscheidet das Menü selbst — es kennt als
 einziger Beteiligter seine eigene gerenderte Umgebung.
 
-Die Bühne füllt das ganze Fenster (`absolute inset-0`): die Messfläche für die Skalierung ist
-damit das Fenster und nicht der Rest nach dem HUD.
+Die Bühne teilt die Höhe mit dem HUD (`flex-1`) und misst deshalb den Platz, der nach dem HUD
+bleibt — nicht das ganze Fenster. Ein Vollflächen-Overlay hat sie schon einmal getragen; es
+scheiterte daran, dass das offene Baumenü die Bauplätze im Feld überdeckte.
 
 ## Schnittstellen
 

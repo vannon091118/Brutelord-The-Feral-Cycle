@@ -18,7 +18,7 @@ function Playing({ session, onSignedOut }) {
   const { state, actions } = useGameEngine(session);
 
   return (
-    <main className="dl-root relative h-full w-full overflow-hidden">
+    <main className="dl-root relative flex h-full w-full flex-col overflow-hidden">
       <div
         className="pointer-events-none absolute inset-0"
         style={{

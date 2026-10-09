@@ -12,8 +12,9 @@ entscheidet etwas. Das Baumenü bekommt die Bauplatz-Frage über `selectPlacemen
 gereicht, damit es denselben Grund nennen kann, den die Ansicht malt. Den Kreislauf reicht
 das HUD an die Hinweiszeile durch, damit die Etagenplakette den offenen Abstieg kennt.
 
-Das HUD ist am unteren Rand verankert (`absolute inset-x-0 bottom-0`) und liegt über dem
-Feld, statt es zu verkleinern — die Bühne füllt das ganze Fenster, der HUD schwebt darüber.
+Das HUD steht unter der Bühne im Fluss (`relative`) und verkleinert sie, statt über ihr zu
+schweben: ein schwebender HUD deckt bei offenem Baumenü die Bauplätze im Feld zu, und die
+Browser-Abnahme klickt genau die an.
 
 ## Schnittstellen
 

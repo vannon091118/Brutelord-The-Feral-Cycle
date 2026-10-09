@@ -45,7 +45,7 @@ export function GameHud({ game, actions }) {
   const selected = game.buildings.find((building) => building.id === game.selectedBuildingId) ?? null;
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex w-full flex-col items-center gap-2 px-3 pb-3">
+    <div className="pointer-events-none relative z-10 flex w-full flex-col items-center gap-2 px-3 pb-3">
       {selected ? <SelectedBuilding building={selected} game={game} actions={actions} /> : null}
       {game.buildMenuVisible ? <BuildMenuSlot game={game} actions={actions} /> : null}
       <div className="pointer-events-auto">
