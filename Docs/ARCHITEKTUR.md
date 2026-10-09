@@ -870,6 +870,13 @@ Antwort trägt `nosniff`, `DENY`, `no-referrer` und `no-store`, damit ein Seed i
 Cache eines Zwischenwegs hängen bleibt. Und ein Fehler im Server landet als
 `console.error` auf der Konsole, nicht als Meldung im Fenster des Spielers.
 
+**`/api/` gehört der API.** `routeOf()` lässt einen unbekannten Pfad ohne
+`/api/`-Präfix weiter an den SPA-Fallback — dort holt ihn die Seite. Ein
+Tippfehler *in* einer API-Route liefert dagegen `404` mit JSON, nicht die Seite
+mit `200`: sonst hielte ein Client, der den Rumpf nicht prüft, den Fehler für
+einen Erfolg. Der Test steht in `check-account-http.mjs` und im Worker-Ast in
+`check-account-worker.mjs` — beide Transporte lesen dieselbe `routeOf()`.
+
 Was das **nicht** ist: es gibt weiterhin kein Token. Die Sitzung im Browser ist
 `localStorage` und der Seed ist die Identität — dieselbe Kennung genügt also schon dem
 Wissen um den Seed. Das ist für den Slice richtig (es gibt nichts zu stehlen außer
@@ -1504,6 +1511,15 @@ Grund für das Bündel ist damit entfallen. Der Gewinn ist nicht Ordnung, sonder
 Zeit: eine Änderung an der Ökonomie fährt die Ökonomie, nicht sieben fremde
 Gruppen mit.
 
+**Die Last ist ein Schalter, keine abgeschriebene Zahl.** Elf Gruppen brauchen
+einen Server, eine Datenbank, einen Unterprozess oder einen ganzen
+Slice-Durchlauf; sie tragen `heavy: true` in `scripts/verify/groups.mjs`. Die
+lokale Last lässt sie aus und bricht bei neun Sekunden ab, statt sich an der Uhr
+zu verheben; `--voll` holt sie zurück. Die CI nimmt sich die volle Last im
+Workflow (`DL_LAST: voll`), damit ein späterer Griff in die lokalen Skripte die
+Abnahme nicht weich fährt: der Deckel ist eine Bequemlichkeit für den Laptop,
+keine Aussage über die Prüfung.
+
 - `check-raid-group.mjs` bleibt ein Bündel: Bewegung, Raid-Traits und Format
   hängen an demselben eingefrorenen Ticket.
 - `check-deposits.mjs` hat seinen eigenen Einstieg. Beim Nachtreiben von Hand:
@@ -1576,6 +1592,79 @@ Die Hard Caps prüft `scripts/lib/source-metrics.mjs` als Textanalyse, ohne
 Parser — für `.js`, `.jsx`, `.mjs` und `.css`, Dokumentation ausgenommen. Die
 Werte selbst stehen in `AGENTS.md` §3 und in `GOVERNANCE.md`; sie stehen hier
 nicht, damit es nur eine Wahrheit gibt.
+
+## Das Jules-Tor
+
+**Es gibt keine Jules-Triggerdatei in diesem Repository, und das ist kein
+Versehen.** Was den Agenten startet, wird nicht hier eingestellt; was es hier
+gibt, ist der Waechter ueber das, was er anrichtet. Zwei Workflows hatte dieses
+Repository, `ci.yml` und `auto-bump.yml`, und **keiner von beiden legte je einen
+Zweig an** — der Schaden entsteht von aussen, durch Antraege, die fuer jede
+Kleinigkeit einen eigenen Zweig und einen eigenen PR aufmachen. Dagegen steht
+`jules-guard.yml` als **Abzweigung**: kein Push, kein Dateipfad, sondern ein
+Auftrag (Issue-Ereignis), der Antrag selbst und die Uhr.
+
+Die Zahlen liegen in `scripts/jules/jules-policy.mjs`, die Entscheidung in
+`scripts/jules/jules-rules.mjs` als reine Funktionen, und
+`scripts/jules/jules-guard.mjs` ist nur Ein- und Ausgabe. Das ist derselbe
+Schnitt wie zwischen Domaene und Uhr: der Workflow sammelt mit `gh` und `jq`,
+nur der Runner holt Daten, und die Regel ist ohne Netz pruefbar — genau das tut
+`scripts/verify/check-jules.mjs` und `scripts/verify/check-jules-lauf.mjs` in der
+Gruppe `jules`.
+
+Drei Regeln tragen das Tor. **Die Gruppierung** ist der Jules-Auftrag: die
+Task-Nummer aus dem Body-Trailer ist die stabilste Spur, ein verknuepftes Issue
+die naechste, erst danach greift der Betreff. Dateilisten und Kommata fliegen
+weg — aus `src/a.js, src/b.js, src/c.js` wird derselbe Schluessel wie aus
+`src/a.js` allein, derselbe Auftrag bleibt ein Vorgang. **Die Schwelle** laesst
+nur automatisieren, wer eine Regel dieses Repositories benennt und sie belegt:
+die Regelpassung ist die Eintrittskarte, nicht die Freundlichkeit des Anliegens.
+**Der Deckel** zaehlt die offenen Jules-Zweige — `jules/`-Praefix **oder** die
+angehaengte Task-Nummer, weil nur zwei von acht echten Zweigen ein `jules/`
+tragen — und wirft die aeltesten vor jedem neuen heraus, statt sie liegen zu
+lassen.
+
+Zusammengefuehrt wird nur, wenn vier Dinge zugleich gelten: klare Regelpassung,
+kleine Aenderung (hoechstens drei Dateien, hoechstens 120 Zeilen), alle
+Pruefungen gruen und ein Body, der die Commit-Policy erfuellt. Geprueft wird der
+Body mit `commitViolations()` aus `scripts/lib/commit-rules.mjs` — derselben
+Funktion, die das Gate ueber jeden Commit laufen laesst —, und die gepruefte
+Fassung ist byteweise die, die als Squash-Message committet wird;
+`--match-head-commit` haelt dazu die Revision fest. Eine zweite Wahrheit ueber
+den Body gibt es nicht.
+
+**Der Workflow wird nicht gelesen, sondern gefahren.** `jules-guard.yml` ist
+das einzige Stueck dieses Repositories, das die CI selbst nicht ausfuehren kann —
+also faehrt es die Abnahme: `scripts/jules/jules-runner.mjs` ersetzt die
+`${{ }}`-Ausdruecke wie der Runner, waehlt die Jobs nach `if`, wartet auf
+`needs`, gibt die im `outputs:`-Mapping genannten Werte weiter — nicht was
+zufaellig in `GITHUB_OUTPUT` steht — und fuehrt die Bash-Rumpfe mit doppelten `gh` und `git` aus, die
+aufzeichnen und mit echten `jq`-Filtern antworten. Ein Aufruf ohne Rezept ist
+dort ein Fehler, keine stille Annahme — sonst wuerde das Geruest genau die
+Luecke verstecken, die es schliessen soll. Der Nutzen stand sofort fest: der
+Durchgang fand den Deckel, der zwei Laeufe durchliess, eine Zusammenfuehrung,
+die der Wecker nie erreichte, einen `workflow_dispatch`, der in eine leere
+Issue-Nummer lief, und einen Schliesser, der einen geschlossenen Antrag erneut
+schloss. Der zweite Durchgang fand: den Deckel, der echte Zweige unterzaehlte,
+weil er nur `jules/` sah, einen fremden Antrag, den die Leiter mahnte und
+meldete, obwohl das Tor ihn nicht kennt, und eine Melder-Marke, die die Frist
+mit-hashte und damit jede Runde einen neuen Eintrag schrieb.
+
+**Die Nebenlaeufigkeit ist Teil des Deckels.** Der Deckel zaehlt Zweige, und
+zwei gleichzeitige Laeufe zaehlen ihn zweimal — er ist globaler Zustand, also
+serialisiert eine einzige `concurrency`-Gruppe den ganzen Waechter. Geht dabei
+ein wartender Lauf verloren, holt ihn der Wecker nach; das ist der Grund, warum
+er alle dreissig Minuten laeuft, und der Grund, warum der Verlust kein Verlust
+ist. Innerhalb eines Laufs macht `unique_by(.number)` doppelte Eintraege
+unmoeglich, und Zusammenfuehren wie Schliessen pruefen vorher den Zustand des
+Antrags — ein zweiter Lauf findet ihn dann nicht mehr offen vor.
+
+**Was das kostet, und es ist gewollt.** Der Melder schreibt ein Sammel-Issue,
+der Prompter einen Kommentar, der Schliesser schliesst samt Zweig. Das sind
+Zustaende im Repository, die ein Mensch zu Gesicht bekommt: eine Automatisierung,
+die still scheitert, sieht aus wie eine, die funktioniert. Und das Tor kann den
+Agenten nicht davon abhalten, einen Zweig anzulegen — es kann nur verhindern,
+dass er zusammengefuehrt wird und dass die Zahl der Zweige waechst.
 
 ## Version und Commits
 

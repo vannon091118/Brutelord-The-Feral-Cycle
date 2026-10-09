@@ -105,7 +105,12 @@ jobs:
       - name: Browser für die Startprüfung
         run: npx playwright install --with-deps chromium
 
+      # Die lokale Last ist gedeckelt: schwere Gruppen und neun Sekunden. Der
+      # Volllauf gehoert der CI und wird hier ausdruecklich verlangt — so kann
+      # ein spaeterer Griff in die lokalen Skripte die Abnahme nicht weich fahren.
       - name: Slice-Prüfungen
+        env:
+          DL_LAST: voll
         run: npm run verify
 
       - name: Produktionsbuild

@@ -77,6 +77,13 @@ async function checkRouten() {
     check('Eine fremde Herkunft wird abgewiesen', fremd.status === 403, `${fremd.status}`);
     check('Die eigene Herkunft kommt durch', (await post({ base, path: '/api/login', body: { name: 'http-1', password: PASSWORD }, origin: base })).status === 200);
     check('Eine unbekannte Route bleibt dem Dev-Server', (await fetch(`${base}/nichtda`)).status === 404);
+    const tippfehler = await fetch(`${base}/api/gibtsnicht`);
+    check('Ein Tippfehler in einer API-Route liefert 404 statt der Seite',
+      tippfehler.status === 404 && (tippfehler.headers.get('content-type') ?? '').includes('application/json'), `${tippfehler.status}`);
+    check('Ohne Origin-Kopf kommt die Anfrage durch — so entschieden (ARCHITEKTUR.md)',
+      (await post({ base, path: '/api/login', body: { name: 'http-1', password: PASSWORD } })).status === 200);
+    await post({ base, path: '/api/register', body: { name: '__proto__', password: PASSWORD } });
+    check('Ein Name wie __proto__ vergiftet keinen Prototyp', ({}).polluted === undefined && Object.getPrototypeOf({}) === Object.prototype);
   });
 }
 

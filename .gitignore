@@ -38,3 +38,7 @@ Docs/Performance messungen*/
 
 # Lokaler Pruef-Speicher: Fingerabdruecke der Gruppen, kein Spielinhalt
 .cache/
+
+# DSH Tools
+# dsh_reload is isolated, no node_modules needed
+tools/dsh/

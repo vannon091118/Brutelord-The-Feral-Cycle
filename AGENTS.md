@@ -6,7 +6,7 @@ User Rolle: Ich gebe dir Feature-Vorgaben, Spielmechaniken und meine Architektur
 Deine Rolle: Du übernimmst die komplette technische Umsetzung und denkst gefälligst mit, nicht alles was der user sagt ist Richtig und sogar der User muss hinterfragt werden 
 Dein Ton: Direkt,Code referenzen Immer im Footer erklärungen immer in auswirkungen
 nicht "call A wird in export B nur durch ein hash erkannt" sondern Strukturell erkennt dein "..." das der spieler X macht weil "..." das weiß und "..." das auslesen kann, das bedeutet ingame wenn (...) gemacht wird (passiert) siehst du (...)
-
+Du Commitest nach Jedem task den baum und Pushst ihn, du nutzt altiv alle Tools die dir zur verfügung stehen um probleme zu lösen preview server können Zweckentfremded genutzt werden. Du Antwortest Kurz und mit einfachen Beispielen wie sich welches verhalten auswirkt. du baust immer fertig und nutzt kein Scafholding. die Dokumentaion ist nicht dein Tagebuch sondern der technische Kontext, was bedeutet du versuchst zu vermeiden die dokumentation zu füllenn indem du baust tests fährst und lieber implmentierst als zu Dokumentieren. Inline Kommentare sind mit bedacht zu nutzen und überflüssige fremd Kommentare sind zu entfernen. Bevor wir eine Harte aussage treffen prüfen wir erstmal ob es in wiederspruch zu irgendwas steht was der nutzer gesagt hat. Du nutzt nicht den Simpelsten Leichtesten oder Sichersten weg zur lösung sondern den der Langfristig am Prakmatischsten ist wir bauen auf erweiterbarkeit und brauchen keine Hardcodes die uns blockieren.
 Vite + React 19 + Tailwind 4. Ein Spiel-Slice: Hive anklicken, Erde abbauen,
 Bauten errichten, Essenz sammeln, Steine züchten. Spielwahrheit ist reines JS
 unter `src/domain/` — ohne React, DOM, SVG, `Math.random()` und `Date.now()`.
@@ -40,9 +40,10 @@ npm run gate -- --imports                  # nur die Schichtung von src/
 npm run gate -- --tree                     # nur Hard Caps
 npm run gate -- --commits=<base>..<head>   # Commits gegen expliziten Bereich
 npm run gate -- --version --base=<sha>     # Version gegen eine Basisrevision
-npm run check                              # LOKAL: betroffene Wächter + geänderte Gruppen, gecacht
-npm run check -- --list                    # sagt, welche Gruppe unverändert ist
-npm run check -- --all                     # VOLLLAUF ohne Browser, lokal auf Abruf
+npm run check                              # LOKAL: betroffene Wächter + geänderte Gruppen, gedeckelt
+npm run check -- --list                    # sagt, welche Gruppe unverändert und welche schwer ist
+npm run check -- --all                     # alle leichten Gruppen ohne Browser, lokal
+npm run check -- --all --voll              # die volle Last ohne Browser, lokal auf Abruf
 npm run check:browser                       # die Browser-Stufe allein (sonst nur in der CI)
 npm run verify                             # VOLLLAUF inkl. Browser — dieselbe Zeile, gehört in die CI
 npm run verify:commits                     # Regressionstests des Commit-Gates
@@ -177,9 +178,10 @@ vorige voraus und ist ohne sie nicht sinnvoll:
 4. `src/ui/` — HUD und Menüs. Liest, entscheidet nichts.
 5. `src/world/` — SVG-Ebenen. Bekommt Geometrie, keine Spielwahrheit.
 
-Für die Prüfungen: `scripts/check.mjs` ist die **einzige** Zeile — lokal gecacht,
-`--all` für den Volllauf, `--browser` für die Browser-Stufe; `scripts/verify/expect.mjs`
-ist das Gerüst, `scripts/verify/groups.mjs` die Reihenfolge.
+Für die Prüfungen: `scripts/check.mjs` ist die **einzige** Zeile — lokal gecacht
+und gedeckelt, `--all` für alle Gruppen der Last, `--voll` für die schwere Last,
+`--browser` für die Browser-Stufe; `scripts/verify/expect.mjs` ist das Gerüst,
+`scripts/verify/groups.mjs` die Reihenfolge.
 
 ## 7. Konventionen
 
@@ -189,9 +191,9 @@ ist das Gerüst, `scripts/verify/groups.mjs` die Reihenfolge.
 - Fakten liegen als eingefrorene Konstanten-Objekte (`TILE_KIND`,
   `STONE_RARITY`, `HARD_CAPS`, …) in `*-config.js` beim Entity — nie als
   Magic Strings. `check-start.mjs` reißt das mit der Prüfung *Erde sichtbar,
-  aber nicht nutzbar*: dort steht `visibility === 'VISIBLE'` als Literal statt
-  als Konstante. Wer die Konstante umbenennt, lässt diese eine Prüfung still
-  grün werden.
+  aber nicht nutzbar*: sie liest `isVisible(firstEarth)` und
+  `TILE_USABILITY.UNUSABLE` — die Konstante kommt aus `src/domain/world/tile.js`.
+  Wer sie umbenennt, lässt diese eine Prüfung still grün werden.
 - **Eine Regel pro Ort, nicht eine Ausnahme und eine Ausnahme.** Der Spawn-Anker
   kommt aus `spawnTile()` in `src/state/selectors.js`; Reducer *und* Work-State
   lesen ihn. Neue Aufrufer nutzen den Selektor.

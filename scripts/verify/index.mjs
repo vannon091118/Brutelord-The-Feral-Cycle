@@ -56,5 +56,6 @@ export { checkArchitecture } from './check-architecture.mjs';
 export { checkImports } from './check-imports.mjs';
 export { checkWorkflow } from './check-workflow.mjs';
 export { checkCommands } from './check-commands.mjs';
+export { checkJules } from './check-jules.mjs';
 export { checkOrganicCache } from './check-organic-cache.mjs';
 export { summary } from './expect.mjs';

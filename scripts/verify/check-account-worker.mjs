@@ -131,6 +131,7 @@ async function checkAbweisungen() {
   check('Ein zu grosser Rumpf liefert 413 statt zu rechnen',
     (await ask({ path: '/api/register', body: { name: 'worker-gross', password: gross } })).status === 413);
   check('Eine unbekannte Route gehoert nicht dem Worker', (await ask({ path: '/nichtda' })) === null);
+  check('Ein Tippfehler in einer API-Route liefert 404 statt null', (await ask({ path: '/api/gibtsnicht' }))?.status === 404);
   check('Ohne D1-Bindung faellt der Produktions-Speicher laut auf',
     (() => { try { createD1Store({}); return false; } catch (error) { return error.message.includes('DB fehlt'); } })());
   const angekuendigt = {

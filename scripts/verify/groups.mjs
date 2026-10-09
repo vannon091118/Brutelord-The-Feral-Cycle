@@ -22,8 +22,8 @@ export const GROUPS = Object.freeze([
   { id: 'world-views', file: `${V}check-world-views.mjs`, run: (m) => m.checkWorldViews() },
   { id: 'seed', file: `${V}check-seed.mjs`, run: (m) => m.checkSeed() },
   { id: 'seed-domain', file: `${V}check-seed-domain.mjs`, run: (m) => m.checkSeedDomain() },
-  { id: 'account', file: `${V}check-account.mjs`, run: (m) => m.checkAccount() },
-  { id: 'account-brake', file: `${V}check-account-brake.mjs`, run: (m) => m.checkAccountBrake() },
+  { id: 'account', file: `${V}check-account.mjs`, heavy: true, run: (m) => m.checkAccount() },
+  { id: 'account-brake', file: `${V}check-account-brake.mjs`, heavy: true, run: (m) => m.checkAccountBrake() },
   { id: 'camera', file: `${V}check-camera.mjs`, run: (m) => m.checkCamera() },
   { id: 'economy', file: `${V}check-economy.mjs`, run: (m) => m.checkEconomy() },
   { id: 'brutelord', file: `${V}check-brutelord.mjs`, run: (m) => m.checkBruteLord() },
@@ -34,15 +34,15 @@ export const GROUPS = Object.freeze([
   { id: 'raid-phases', file: `${V}check-raid-phases.mjs`, run: (m) => m.checkRaidPhases() },
   { id: 'raid-siege', file: `${V}check-raid-siege.mjs`, run: (m) => m.checkRaidSiege() },
   { id: 'raid-cap', file: `${V}check-raid-cap.mjs`, run: (m) => m.checkRaidCap() },
-  { id: 'raid-ticket', file: `${V}check-raid-ticket.mjs`, run: (m) => m.checkRaidTicket() },
-  { id: 'booking', file: `${V}check-booking.mjs`, run: (m) => m.checkBooking() },
-  { id: 'raid-golden', file: `${V}check-raid-golden.mjs`, inputs: [`${V}raid-golden.json`], run: (m) => m.checkRaidGolden() },
+  { id: 'raid-ticket', file: `${V}check-raid-ticket.mjs`, heavy: true, run: (m) => m.checkRaidTicket() },
+  { id: 'booking', file: `${V}check-booking.mjs`, heavy: true, run: (m) => m.checkBooking() },
+  { id: 'raid-golden', file: `${V}check-raid-golden.mjs`, inputs: [`${V}raid-golden.json`], heavy: true, run: (m) => m.checkRaidGolden() },
   { id: 'soil-mass', file: `${V}check-soil-mass.mjs`, run: (m) => m.checkSoilMass() },
   { id: 'burrow-ring', file: `${V}check-burrow-ring.mjs`, run: (m) => m.checkBurrowRing() },
   { id: 'reveal', file: `${V}check-reveal.mjs`, run: (m) => m.checkReveal() },
   { id: 'dungling-look', file: `${V}check-dungling-look.mjs`, run: (m) => m.checkDunglingLook() },
   { id: 'creature-states', file: `${V}check-creature-states.mjs`, inputs: WESEN_MARKUP, run: (m) => m.checkCreatureStates() },
-  { id: 'storage', file: `${V}check-storage.mjs`, run: (m) => m.checkStorage() },
+  { id: 'storage', file: `${V}check-storage.mjs`, heavy: true, run: (m) => m.checkStorage() },
   { id: 'snapshot', file: `${V}check-snapshot.mjs`, run: (m) => m.checkSnapshot() },
   { id: 'aether', file: `${V}check-aether.mjs`, run: (m) => m.checkAether() },
   { id: 'bloodstone', file: `${V}check-bloodstone.mjs`, run: (m) => m.checkBloodstone() },
@@ -50,28 +50,30 @@ export const GROUPS = Object.freeze([
   { id: 'cycle-game', file: `${V}check-cycle-game.mjs`, run: (m) => m.checkCycleGame() },
   { id: 'ladder', file: `${V}check-ladder.mjs`, run: (m) => m.checkLadder() },
   { id: 'depth-reward', file: `${V}check-depth-reward.mjs`, run: (m) => m.checkDepthReward() },
-  { id: 'account-worker', file: `${V}check-account-worker.mjs`, run: (m) => m.checkAccountWorker() },
-  { id: 'account-http', file: `${V}check-account-http.mjs`, run: (m) => m.checkAccountHttp() },
+  { id: 'account-worker', file: `${V}check-account-worker.mjs`, heavy: true, run: (m) => m.checkAccountWorker() },
+  { id: 'account-http', file: `${V}check-account-http.mjs`, heavy: true, run: (m) => m.checkAccountHttp() },
   { id: 'verticality', file: `${V}check-verticality.mjs`, run: (m) => m.checkVerticality() },
   { id: 'verticality-wiring', file: `${V}check-verticality-wiring.mjs`, run: (m) => m.checkVerticalityWiring() },
   { id: 'fixtures', file: `${V}check-fixtures.mjs`, run: (m) => m.checkFixtures() },
   { id: 'action-types', file: `${V}check-action-types.mjs`, run: (m) => m.checkActionTypes() },
-  { id: 'determinism', file: `${V}check-determinism.mjs`, inputs: [`${V}determinism-golden.json`], run: (m) => m.checkDeterminism() },
+  { id: 'determinism', file: `${V}check-determinism.mjs`, inputs: [`${V}determinism-golden.json`], heavy: true, run: (m) => m.checkDeterminism() },
   { id: 'game-clock', file: `${V}check-game-clock.mjs`, run: (m) => m.checkGameClock() },
   { id: 'game-clock-edges', file: `${V}check-game-clock-edges.mjs`, run: (m) => m.checkGameClockEdges() },
-  { id: 'replay', file: `${V}check-replay.mjs`, run: (m) => m.checkReplay() },
+  { id: 'replay', file: `${V}check-replay.mjs`, heavy: true, run: (m) => m.checkReplay() },
   { id: 'architecture', file: `${V}check-architecture.mjs`, run: (m) => m.checkArchitecture() },
   { id: 'imports', file: `${V}check-imports.mjs`, run: (m) => m.checkImports() },
-  { id: 'workflow', file: `${V}check-workflow.mjs`, inputs: ['.github/workflows/auto-bump.yml'], run: (m) => m.checkWorkflow() },
+  { id: 'workflow', file: `${V}check-workflow.mjs`, inputs: ['.github/workflows/auto-bump.yml', '.github/workflows/ci.yml'], run: (m) => m.checkWorkflow() },
   { id: 'commands', file: `${V}check-commands.mjs`, inputs: ['AGENTS.md', 'Docs/WORKFLOW.md'], run: (m) => m.checkCommands() },
+  { id: 'jules', file: `${V}check-jules.mjs`, inputs: ['.github/workflows/jules-guard.yml', 'scripts/jules/jules-policy.mjs'], heavy: true, run: (m) => m.checkJules() },
   { id: 'browser', file: `${V}check-startup.mjs`, inputs: ['src'], browser: true, run: (m) => m.checkStartup() },
 ]);
 
 /** Die Run-Erzeugung liegt vor ihren Verbrauchern und entsteht genau einmal. */
-export async function runGroups({ m, groups, prepare }) {
+export async function runGroups({ m, groups, prepare, stop }) {
   const ctx = { run: null };
   const erzeugen = prepare ?? ((mm) => mm.makeOnboardingRun());
   for (const group of groups) {
+    if (stop?.()) break;
     if (group.needsRun && !ctx.run) ctx.run = await erzeugen(m);
     await group.run(m, ctx);
   }

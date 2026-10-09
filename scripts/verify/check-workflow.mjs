@@ -10,6 +10,7 @@ import {
 } from '../lib/commit-rules.mjs';
 
 const WORKFLOW = '.github/workflows/auto-bump.yml';
+const CI = '.github/workflows/ci.yml';
 const GENERATOR = 'node scripts/commit-draft.mjs --bump';
 
 function stepText(text, name) {
@@ -37,4 +38,11 @@ export function checkWorkflow() {
   check('Der Commit nimmt Spiegel- und Doku-Dateien auf', missing.length === 0, missing.join(', '));
   check('Die generierte Message traegt das Label am Ende', message.trimEnd().endsWith(REQUIRED_LABEL), 'Label-Stelle');
   check('Die generierte Message erfuellt die Commit-Policy', issues.length === 0, issues.map((i) => `${i.rule}: ${i.detail}`).join('; '));
+  section('CI-Volllast');
+  const ci = readFileSync(CI, 'utf8');
+  const checkText = readFileSync('scripts/check.mjs', 'utf8');
+  check('Der CI-Volllauf verlangt die volle Last', /DL_LAST:\s*['"]?voll/.test(ci) && /npm run verify/.test(ci), 'DL_LAST: voll');
+  check('Die lokale Last ist gedeckelt, nicht die der CI', /args\.includes\('--voll'\)/.test(checkText), '--voll');
+  check('Der Deckel trifft nur die Standardauswahl, keine benannte Gruppe',
+    /stop: \(\) => named\.length === 0 && !voll/.test(checkText), 'named.length === 0');
 }

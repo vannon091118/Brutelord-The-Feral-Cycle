@@ -33,9 +33,10 @@ in [`GOVERNANCE.md`](GOVERNANCE.md).
 npm ci                                     # CI pinnt Node 22, lokal läuft Node 26
 npm run dev                                # Vite, bindet auf 127.0.0.1
 npm run gate                               # alle Wächter
-npm run check                              # lokal: betroffene Wächter + geänderte Gruppen, gecacht
-npm run check -- --list                    # welche Gruppe ist unverändert
+npm run check                              # lokal: betroffene Wächter + geänderte Gruppen, gedeckelt
+npm run check -- --list                    # was unverändert und was schwer ist
 npm run check -- <gruppe>                  # genau diese Prüfgruppe
+npm run check -- --all --voll              # die volle Last ohne Browser
 npm run check:browser                      # die Browser-Stufe allein
 npm run gate -- --imports                  # nur die Importrichtungen
 npm run gate -- --tree                     # nur Hard Caps
@@ -62,14 +63,15 @@ Repo-Wurzelverzeichnis starten.
 
 ## Die Testlaufzeit
 
-Gemessen am 2026-10-06 auf dem Entwicklungsrechner, nach dem Umbau der
-Browser-Stufe. Die Zeile ist geteilt: **lokal läuft, was sich geändert hat**
-und gedeckelt bleibt; **der Volllauf gehört der CI**.
+Gemessen am 2026-10-07 auf dem Entwicklungsrechner. Die Zeile ist geteilt:
+**lokal läuft die gedeckelte Last**; **die volle Last gehört der CI**, die sie
+sich im Workflow ausdrücklich nimmt.
 
 | Lauf | Vorher | Nachher | Wo er läuft |
 | --- | --- | --- | --- |
-| `npm run check` — betroffene Gruppen, gecacht | — | **2–12 s**, je Last | lokal |
-| `npm run check -- --all` — alle Gruppen im Node-Prozess | 56,9 s | **43,7 s** | lokal, auf Abruf |
+| `npm run check` — betroffene Gruppen, gecacht | — | **unter 1 s bis 9 s**, je Last | lokal |
+| `npm run check -- --all` — alle leichten Gruppen im Node-Prozess | 56,9 s | **5,2 s** | lokal |
+| `npm run check -- --all --voll` — die volle Last im Node-Prozess | 56,9 s | **82,8 s** | lokal, auf Abruf |
 | `npm run check:browser` — Konto-Tor und Onboarding in Chromium | 194,8 s | **82,9 / 95,9 / 125,5 s** | lokal auf Abruf, sonst CI |
 | davon `site-ready` (20 s Spielzeit) | 91,9 s | 33,7 s | — |
 | davon `floor-grows` (4,6 s Spielzeit) | 42,4 s | 11,8 s | — |
@@ -77,6 +79,14 @@ und gedeckelt bleibt; **der Volllauf gehört der CI**.
 | `npm run build` | 3,1 s | 3,1 s | lokal, einmal je Task |
 | `npm run verify` — Volllauf, lokal | ~4 m 15 s | ~2 m 25 s | nur wenn es sein muss |
 | `npm run verify` — Volllauf, auf der CI | 22 s | **11–14 s** | **CI auf Push** |
+
+**Die lokale Last ist eine eigene Last, keine kleinere Zahl.** Elf Gruppen
+brauchen einen Server, eine Datenbank, einen Unterprozess oder einen ganzen
+Slice-Durchlauf; sie tragen `heavy: true` in `scripts/verify/groups.mjs` und
+laufen lokal nur mit `--voll`. Der lokale Lauf bricht außerdem ab, statt neun
+Sekunden zu reißen, und sagt am Ende, was nicht gelaufen ist. Die CI nimmt sich
+die volle Last im Workflow (`DL_LAST: voll`) — so fährt ein Griff in die lokalen
+Skripte die Abnahme nicht weich.
 
 **Nach der Zusammenführung gemessen (2026-10-06).** `npm run verify` fährt
 dieselbe Zeile wie `npm run check`, nur mit `--all --browser`: **33 s** für alle
@@ -105,12 +115,14 @@ im Fenster der gespiegelten x-Achse auf einer sortierten Liste; geprüft wird
 dieselbe Aussage (`< 1e-6`), nur ohne jedes Paar.
 
 **Es gibt genau eine Zeile, `scripts/check.mjs`.** Ihr Schalter entscheidet,
-welche Spur läuft: ohne Schalter lokal die betroffenen Wächter und nur die
-Prüfgruppen, deren **Eingaben** sich geändert haben; `--all` alle Gruppen ohne
-Browser; `--browser` die Browser-Stufe allein; beides zusammen der Volllauf, den
-die CI fährt. Ein zweites Skript gibt es bewusst nicht: zwei Einstiege über
-derselben Gruppenliste laufen still auseinander, und die Doku zitiert dann den
-falschen. Der Lauf sagt zu Beginn, welche Spur er fährt.
+welche Spur läuft: ohne Schalter die lokale Last — die betroffenen Wächter und
+nur die Prüfgruppen, deren **Eingaben** sich geändert haben, ohne die schweren
+Gruppen und auf neun Sekunden gedeckelt; `--all` alle Gruppen dieser Last;
+`--voll` dazu die schweren Gruppen, also die volle Last; `--browser` die
+Browser-Stufe allein; `--voll --browser` zusammen der Volllauf, den die CI fährt.
+Ein zweites Skript gibt es bewusst nicht: zwei Einstiege über derselben
+Gruppenliste laufen still auseinander, und die Doku zitiert dann den falschen.
+Der Lauf sagt zu Beginn, welche Spur er fährt.
 
 Der **Fingerabdruck** einer Gruppe ist ihre ganze Import-Hülle plus jede Datei, die
 ihre Module namentlich nennen (goldene Werte, Workflows, gestartete Skripte).
@@ -120,10 +132,11 @@ jedem Push. Wer sie einzeln will, nimmt `npm run check:browser`; auch sie
 schweigt, wenn nichts angefasst wurde und `src/` unverändert ist.
 
 ```sh
-npm run check                          # betroffen, gecacht, ohne Browser
-npm run check -- --list                # was ist unverändert, was läuft
+npm run check                          # betroffen, gecacht, leichte Last
+npm run check -- --list                # was unverändert ist, was läuft, was schwer ist
 npm run check -- determinism storage   # genau diese Gruppen
-npm run check -- --all                 # alle Gruppen, ohne Speicher
+npm run check -- --all                 # alle leichten Gruppen, ohne Speicher
+npm run check -- --all --voll          # die volle Last, ohne Speicher
 npm run check -- --no-cache            # alles, Speicher weder lesen noch schreiben
 npm run check:browser                  # die Browser-Stufe (braucht einen Server)
 ```
@@ -277,7 +290,7 @@ Ausgang. Eine unbemerkte Divergenz wäre schlechter.
 
 ## CI
 
-Zwei Workflows in `.github/workflows/`:
+Drei Workflows in `.github/workflows/`:
 
 - **`ci.yml`** — läuft auf Push und PR, in **zwei Jobs**. `gate` ermittelt eine
   Basisrevision (PR-Base, sonst `before`, sonst `HEAD^`) und fährt `gate
@@ -311,6 +324,31 @@ Zwei Workflows in `.github/workflows/`:
   keinen Bump aus. Vor dem Bump prüft der Pre-Flight die Doku-Einträge, nach
   dem Bump stempelt der Doku-Sync, und der Commit-Body kommt aus dem
   Draft-Generator. Hand-Commits zeigen `G`.
+- **`jules-guard.yml`** — die Abzweigung fuer den Agenten. Sie laeuft **nicht auf
+  Push und nicht auf einen Dateipfad**, sondern auf einen Auftrag
+  (Issue-Ereignis) und auf den Antrag selbst, dazu alle 30 Minuten auf der Uhr.
+  Sie erkennt Jules an der Zweigform, am Body-Trailer und an der Task-Nummer —
+  nicht am Autor, denn Autor der echten Antraege ist der Mensch, der den Auftrag
+  startete —, zaehlt die offenen Jules-Zweige und entscheidet in vier Stufen: `watchdog` sammelt,
+  was zu lange liegt, `issue-melder` schreibt **ein** Sammel-Issue statt eines
+  je Kleinigkeit, `prompter` nennt dem Antrag den fehlenden Beleg, `pr-close`
+  raeumt die gerissene Frist ab. Die Zahlen stehen in
+  `scripts/jules/jules-policy.mjs`, die Regel in `scripts/jules/jules-rules.mjs`,
+  der Aufruf in `scripts/jules/jules-guard.mjs`; der Workflow sammelt nur. Wer
+  das Tor allein fahren will, nimmt `npm run check -- jules`.
+
+  Zusammengefuehrt (Squash, Zweig geloescht) wird nur, wenn vier Dinge zugleich
+  gelten: klare Regelpassung, kleine Aenderung, alle Pruefungen gruen und ein
+  Body, der die Commit-Policy erfuellt. Geprueft wird der Body mit derselben
+  Funktion, die das Gate ueber jeden Commit laufen laesst, und die gepruefte
+  Fassung ist byteweise die, die committet wird.
+
+  Dieser Workflow ist der einzige, den die CI nicht selbst fahren kann, also
+  faehrt ihn die Abnahme: die Gruppe `jules` spielt die Ereignisse gegen die
+  echten Bash-Rumpfe durch (`scripts/jules/jules-runner.mjs`) — Antrag,
+  Wecker, Dispatch, Auftrag, ein bereits geschlossener Antrag und ein
+  menschlicher Antrag ohne Jules-Spur — und prueft, welche `gh`-Aufrufe dabei
+  herauskommen. Der Ausfuehrungsgraph liegt in `scripts/verify/check-jules-lauf.mjs`.
 
 Die Bot-Ausnahme gilt nur für die **Signatur**, nicht für die Commit-Policy —
 siehe `GOVERNANCE.md`. `scripts/verify/check-workflow.mjs` prüft bei jedem
@@ -321,7 +359,7 @@ siehe `GOVERNANCE.md`. `scripts/verify/check-workflow.mjs` prüft bei jedem
 ## Die Abnahme
 
 `npm run verify` ist der Einstiegspunkt — dieselbe Zeile wie `npm run check`,
-nur mit `--all --browser`. Sie spielt den Slice mit
+nur mit `--all --browser --voll`. Sie spielt den Slice mit
 einer **virtuellen Uhr** durch und importiert die **echten** Module aus `src/` —
 keine Nachbauten, kein Browser, keine Flakiness.
 

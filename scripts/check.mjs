@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-/** Die eine Prueflinie: lokal nur Betroffenes, `--all` alles, `--browser` die
- *  Browser-Stufe — die CI ruft dieselbe Zeile, siehe Docs/WORKFLOW.md. */
+/** Die eine Prueflinie: lokal die gedeckelte Last, `--voll` die volle, `--browser`
+ *  die Browser-Stufe — die CI ruft dieselbe Zeile, siehe Docs/WORKFLOW.md. */
 import { execFileSync } from 'node:child_process';
 import { fingerprintOf, loadCache, saveCache } from './lib/check-cache.mjs';
 import { GROUPS, groupById, runGroups } from './verify/groups.mjs';
@@ -10,6 +10,9 @@ const args = process.argv.slice(2);
 const named = args.filter((arg) => !arg.startsWith('-'));
 const nodeMajor = Number(process.versions.node.split('.')[0]);
 const all = args.includes('--all');
+const voll = args.includes('--voll') || process.env.DL_LAST === 'voll';
+const DECKEL_MS = 9000;
+const START = Date.now();
 const useCache = !args.includes('--no-cache') && !all;
 const cache = loadCache();
 
@@ -71,16 +74,18 @@ function select() {
   const gewaehlt = named.map((name) => groupById(name)).filter(Boolean);
   if (gewaehlt.length) return gewaehlt;
   const mitBrowser = args.includes('--browser');
-  if (all) return mitBrowser ? GROUPS : GROUPS.filter((group) => !group.browser);
-  const kandidaten = mitBrowser ? GROUPS.filter((group) => group.browser) : GROUPS.filter((group) => !group.browser);
-  if (!useCache) return kandidaten;
+  const basis = mitBrowser
+    ? (all ? GROUPS : GROUPS.filter((group) => group.browser))
+    : GROUPS.filter((group) => !group.browser);
+  const kandidaten = voll ? basis : basis.filter((group) => !group.heavy);
+  if (all || !useCache) return kandidaten;
   return kandidaten.filter((group) => !unveraendert(group));
 }
 
 function liste() {
   for (const group of GROUPS) {
     const frisch = unveraendert(group);
-    const marke = group.browser ? ' [Browser]' : '';
+    const marke = `${group.browser ? ' [Browser]' : ''}${group.heavy ? ' [schwer]' : ''}`;
     console.log(`  ${group.id.padEnd(20)} ${frisch ? 'unveraendert' : 'laeuft      '} ${group.file}${marke}`);
   }
 }
@@ -112,6 +117,7 @@ async function runSelected(groups) {
       bericht.set('onboarding-run', { ms: Date.now() - start, ok: true });
       return run;
     },
+    stop: () => named.length === 0 && !voll && Date.now() - START >= DECKEL_MS,
   });
   const neu = { ...cache };
   for (const group of groups) {
@@ -128,8 +134,8 @@ function protokoll(bericht) {
 }
 
 function modus() {
-  if (!all) return 'lokaler Lauf: betroffene Waechter und geaenderte Gruppen';
-  return args.includes('--browser') ? 'Volllauf mit Browser (die Zeile der CI)' : 'Volllauf ohne Browser';
+  if (voll) return args.includes('--browser') ? 'Volllauf mit Browser (die Zeile der CI)' : 'Volllauf ohne Browser';
+  return `lokale Last: hoechstens ${DECKEL_MS / 1000} s, schwere Gruppen nur im Volllauf`;
 }
 
 async function main() {
@@ -148,8 +154,9 @@ async function main() {
   console.log('');
   const fehler = summary();
   protokoll(bericht);
-  const uebersprungen = GROUPS.filter((group) => !groups.includes(group)).map((group) => group.id);
-  console.log(`\n${groups.length} von ${GROUPS.length} Gruppen gelaufen (uebersprungen: ${uebersprungen.join(', ') || 'keine'}).`);
+  const gelaufen = GROUPS.filter((group) => bericht.has(group.id));
+  const uebersprungen = GROUPS.filter((group) => !bericht.has(group.id)).map((group) => group.id);
+  console.log(`\n${gelaufen.length} von ${GROUPS.length} Gruppen gelaufen (uebersprungen: ${uebersprungen.join(', ') || 'keine'}).`);
   process.exitCode = fehler;
 }
 

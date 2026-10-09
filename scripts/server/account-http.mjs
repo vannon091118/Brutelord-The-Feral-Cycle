@@ -1,7 +1,6 @@
 /** Die Regeln der Konto-API an genau einer Stelle: Routen, Koepfe, Absagen und
- *  das Lesen des Rumpfs. Jede Route nennt Methode, Rumpfschranke und ob sie eine
- *  Sitzung braucht — alle vier Spiel- und Kontowege entscheiden ueber den
- *  Traeger-Token und nicht ueber einen Wert aus dem Rumpf. */
+ *  das Lesen des Rumpfs. Jede Route nennt Methode, Rumpfschranke und Sitzung —
+ *  alle Wege entscheiden ueber den Traeger-Token, nie ueber den Rumpf. */
 import { ACCOUNT_CONFIG } from './account-config.mjs';
 import { login, logout, register } from './account-api.mjs';
 import { putState, readState } from './state-http.mjs';
@@ -36,15 +35,17 @@ export const SECURITY_HEADERS = Object.freeze({
 /** Status und Text jeder Absage, damit zwei Transporte nicht zwei Wortlaute fuehren. */
 export const POLICY = Object.freeze({
   method: { status: 405, error: 'Diese Methode ist hier nicht erlaubt.' },
+  unknown: { status: 404, error: 'Diese Route gibt es nicht.' },
   origin: { status: 403, error: 'Fremde Herkunft.' },
   tooLarge: { status: 413, error: 'Anfrage zu gross.' },
   server: { status: 500, error: 'Der Server hat einen Fehler.' },
   session: { status: 401, error: 'Nicht angemeldet.' },
 });
 
+/** `/api/` gehoert der API: ein Tippfehler ist eine 404, nicht die Seite. */
 export function routeOf(pathname, method) {
   const route = API_ROUTES[pathname];
-  if (!route) return null;
+  if (!route) return pathname.startsWith('/api/') ? { refuse: POLICY.unknown } : null;
   return route[method] ? { entry: route[method] } : { refuse: POLICY.method };
 }
 

@@ -1,0 +1,353 @@
+name: jules-guard
+
+# Die Abzweigung fuer den Agenten. Sie laeuft nicht auf Push und nicht auf einen
+# Dateipfad, sondern auf einen Auftrag (Issue-Ereignis), auf den Antrag selbst
+# und auf der Uhr. Jules wird an Zweigform, Body-Trailer und Task-Nummer
+# erkannt, nicht am Autor — der Autor ist in diesem Repository der Mensch, der
+# den Auftrag startete. Danach begrenzt der Deckel die Zahl offener Zweige, kleine
+# gruene Antraege werden vor jedem neuen Zweig zusammengefuehrt, und alles
+# andere steigt in vier Stufen: Wecker, Melder, Prompter, Schliesser.
+#
+# Keine Zahl steht hier: sie stehen in scripts/jules/jules-policy.mjs, die
+# Entscheidung faellt in scripts/jules/jules-guard.mjs, und die Rumpfe faehrt
+# scripts/jules/jules-runner.mjs in der Pruefgruppe `jules` wirklich aus.
+#
+# Eine Nebenlaeufigkeitsgruppe fuer den ganzen Waechter: der Deckel ist global,
+# zwei gleichzeitige Laeufe zaehlten ihn zweimal und legten beide einen Zweig
+# durch. Wird ein wartender Lauf dabei verdraengt, holt ihn der Wecker nach —
+# das ist der Grund, warum er alle dreissig Minuten laeuft.
+
+on:
+  issues:
+    types: [labeled, edited]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: jules-guard
+  cancel-in-progress: false
+
+jobs:
+  # Die Abzweigung: erst sammeln, dann fragen, dann umleiten.
+  # Ohne Antrag gibt es nichts abzu zweigen — ein Dispatch faellt hier heraus,
+  # sonst fragte der Lauf `gh` nach einer Nummer, die es nicht gibt.
+  route:
+    if: github.event_name == 'pull_request' || (github.event_name == 'issues' && (github.event.action == 'edited' || (github.event.action == 'labeled' && github.event.label.name == 'jules:auftrag')))
+    runs-on: ubuntu-latest
+    outputs:
+      jules: ${{ steps.tor.outputs.jules }}
+      action: ${{ steps.tor.outputs.action }}
+      stage: ${{ steps.tor.outputs.stage }}
+      group: ${{ steps.tor.outputs.group }}
+      merges: ${{ steps.tor.outputs.merges }}
+      blocked: ${{ steps.tor.outputs.blocked }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Zweigdeckel
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Offene Antraege nach Alter, danach die Zweige ohne Antrag: der Deckel
+          # wirft die aeltesten zum Zusammenfuehren heraus, nicht die frischesten.
+          # Welche Zweige Jules gehoeren, entscheidet das Tor — kein Muster hier:
+          # nur zwei von acht echten Zweigen tragen ueberhaupt ein `jules/`.
+          gh pr list --state open --limit 100 --json headRefName,createdAt \
+            --jq 'sort_by(.createdAt) | .[].headRefName' > "$RUNNER_TEMP/zweige.txt"
+          git ls-remote --heads origin | sed 's#.*refs/heads/##' > "$RUNNER_TEMP/alle-zweige.txt"
+          grep -Fxv -f "$RUNNER_TEMP/zweige.txt" "$RUNNER_TEMP/alle-zweige.txt" >> "$RUNNER_TEMP/zweige.txt" || true
+          echo "Zweige auf origin: $(grep -c . "$RUNNER_TEMP/zweige.txt" || true)"
+
+      - name: Antrag sammeln
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUMMER: ${{ github.event.pull_request.number || github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            gh pr view "$NUMMER" \
+              --json title,body,author,headRefName,labels,createdAt,additions,deletions,files,statusCheckRollup \
+              > "$RUNNER_TEMP/antrag.json"
+            # Der Auftrag ist das verknuepfte Issue, nicht die Nummer des Antrags:
+            # sonst waere jeder Antrag seine eigene Gruppe.
+            BEZUG=$(jq -r '[.title, (.body // "")] | join(" ")' "$RUNNER_TEMP/antrag.json" \
+              | grep -oiE '(fixes|closes|resolves|refs|siehe|auftrag) #?[0-9]+' | grep -oE '[0-9]+' | head -1 || true)
+          else
+            gh issue view "$NUMMER" --json title,body,author,labels,createdAt > "$RUNNER_TEMP/antrag.json"
+            BEZUG="$NUMMER"
+          fi
+          if [ -z "${BEZUG:-}" ]; then BEZUG=0; fi
+          ERSTELLT=$(jq -r '.createdAt // ""' "$RUNNER_TEMP/antrag.json")
+          JETZT=$(date -u +%s)
+          DAMALS=$(date -u -d "$ERSTELLT" +%s 2>/dev/null || echo "$JETZT")
+          jq -n \
+            --slurpfile antrag "$RUNNER_TEMP/antrag.json" \
+            --rawfile zweige "$RUNNER_TEMP/zweige.txt" \
+            --argjson bezug "$BEZUG" \
+            --argjson alter "$(( (JETZT - DAMALS) / 60 ))" \
+            '{
+              request: {
+                issueNumber: $bezug,
+                title: ($antrag[0].title // ""),
+                body: ($antrag[0].body // ""),
+                labels: [($antrag[0].labels[]?.name)],
+                branch: ($antrag[0].headRefName // ""),
+                login: ($antrag[0].author.login // "")
+              },
+              change: {
+                files: [($antrag[0].files[]?.path)],
+                additions: ($antrag[0].additions // 0),
+                deletions: ($antrag[0].deletions // 0),
+                ageMinutes: $alter,
+                branches: ($zweige | split("\n") | map(select(length > 0)))
+              },
+              checks: [($antrag[0].statusCheckRollup[]? | {state: (.state // .conclusion)})]
+            }' > "$RUNNER_TEMP/kontext.json"
+
+      - name: Tor befragen
+        id: tor
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUMMER: ${{ github.event.pull_request.number || github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          NUMMER="${NUMMER:-0}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then echo "pr" > "$RUNNER_TEMP/art.txt"; else echo "issue" > "$RUNNER_TEMP/art.txt"; fi
+          node scripts/jules/jules-guard.mjs < "$RUNNER_TEMP/kontext.json" > "$RUNNER_TEMP/tor.txt"
+          sed -n 's/^/tor: /p' "$RUNNER_TEMP/tor.txt"
+          wert() { sed -n "s/^$1=//p" "$RUNNER_TEMP/tor.txt"; }
+          JULES=$(wert jules); ACTION=$(wert action); STAGE=$(wert stage)
+          GROUP=$(wert group); REASON=$(wert reason); HINT=$(wert hint)
+          MERGE=$(wert merge); PROMPT=$(wert prompt); CLOSE=$(wert close)
+          {
+            echo "jules=$JULES"
+            echo "action=$ACTION"
+            echo "stage=$STAGE"
+            echo "group=$GROUP"
+          } >> "$GITHUB_OUTPUT"
+          # Ein Eintrag, zwei Sichten: die Zusammenfuehrung nimmt .merge, die
+          # Leiter nimmt .prompt und .close. Die drei Schalter kommen aus dem
+          # Tor, damit keine zweite Regel sie hier anders auslegt.
+          EINTRAEGE=$(jq -cn \
+            --argjson number "$NUMMER" \
+            --arg kind "$(cat "$RUNNER_TEMP/art.txt")" \
+            --arg branch "$(jq -j '.request.branch' "$RUNNER_TEMP/kontext.json")" \
+            --arg group "$GROUP" \
+            --arg stage "$STAGE" \
+            --arg action "$ACTION" \
+            --arg reason "$REASON" \
+            --arg hint "$HINT" \
+            --argjson merge "$MERGE" \
+            --argjson prompt "$PROMPT" \
+            --argjson close "$CLOSE" \
+            '[{number: $number, kind: $kind, branch: $branch, group: $group, stage: $stage, action: $action, reason: $reason, hint: $hint, merge: $merge, prompt: $prompt, close: $close}]')
+          echo "merges=$(jq -c 'map(select(.merge))' <<< "$EINTRAEGE")" >> "$GITHUB_OUTPUT"
+          echo "blocked=$(jq -c 'map(select((.merge | not) and .action != "hold"))' <<< "$EINTRAEGE")" >> "$GITHUB_OUTPUT"
+          echo "$EINTRAEGE" >> "$GITHUB_STEP_SUMMARY"
+
+  # Kleine, gruene, regelkonforme Antraege werden zusammengefuehrt, bevor
+  # ueberhaupt ein neuer Zweig entsteht — auch die, deren Pruefungen erst nach
+  # dem Ereignis gruen wurden. Deshalb fragen beide Quellen den Deckel.
+  merge-small:
+    needs: [route, watchdog]
+    if: always() && ((needs.route.outputs.merges != '' && needs.route.outputs.merges != '[]') || (needs.watchdog.outputs.merges != '' && needs.watchdog.outputs.merges != '[]'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Kleine Aenderungen zusammenfuehren
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ROUTE_MERGES: ${{ needs.route.outputs.merges }}
+          WATCHDOG_MERGES: ${{ needs.watchdog.outputs.merges }}
+        run: |
+          set -euo pipefail
+          a="${ROUTE_MERGES:-[]}"; if [ -z "$a" ]; then a='[]'; fi
+          b="${WATCHDOG_MERGES:-[]}"; if [ -z "$b" ]; then b='[]'; fi
+          ZU=$(jq -cn --argjson a "$a" --argjson b "$b" '$a + $b | unique_by(.number)')
+          # Genau die Bytes, die das Tor geprueft hat, werden als Squash-Message
+          # committet: Betreff und Body kommen unveraendert aus dem Antrag, und
+          # --match-head-commit haelt die gepruefte Fassung fest.
+          jq -c '.[]' <<< "$ZU" | while read -r eintrag; do
+            NR=$(jq -r '.number' <<< "$eintrag")
+            gh pr view "$NR" --json state,title,body,headRefOid > "$RUNNER_TEMP/antrag.json"
+            ZUSTAND=$(jq -r '.state' "$RUNNER_TEMP/antrag.json")
+            if [ "$ZUSTAND" != "OPEN" ]; then
+              echo "Antrag $NR ist $ZUSTAND — nichts zusammenzufuehren."
+              continue
+            fi
+            jq -r '.title' "$RUNNER_TEMP/antrag.json" > "$RUNNER_TEMP/betreff.txt"
+            jq -r '.body' "$RUNNER_TEMP/antrag.json" > "$RUNNER_TEMP/body.txt"
+            gh pr merge "$NR" --squash --delete-branch \
+              --match-head-commit "$(jq -r '.headRefOid' "$RUNNER_TEMP/antrag.json")" \
+              --subject "$(cat "$RUNNER_TEMP/betreff.txt")" --body "$(cat "$RUNNER_TEMP/body.txt")"
+          done
+
+  # Stufe eins: der Wecker. Er laeuft auf der Uhr und sammelt, was zu lange liegt.
+  watchdog:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    outputs:
+      merges: ${{ steps.sammeln.outputs.merges }}
+      blocked: ${{ steps.sammeln.outputs.blocked }}
+      count: ${{ steps.sammeln.outputs.count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ueberfaellige Antraege sammeln
+        id: sammeln
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          : > "$RUNNER_TEMP/eintraege.jsonl"
+          gh label create jules:watchdog --color fbca04 --description "liegt zu lange" --force || true
+          gh pr list --state open --limit 100 \
+            --json number,headRefName,title,body,author,labels,createdAt,additions,deletions,files,statusCheckRollup \
+            > "$RUNNER_TEMP/offen.json"
+          # Die Uhr wird tolerant gelesen: eine unbekannte Zeitform darf die
+          # Leiter nicht anhalten, sie faellt auf "gerade eben" zurueck.
+          JETZT=$(date -u +%s)
+          jq -c --argjson jetzt "$JETZT" \
+            '[.[] | {
+               request: {issueNumber: .number, title: .title, body: (.body // ""), labels: [.labels[]?.name], branch: .headRefName, login: (.author.login // "")},
+               change: {files: [.files[]?.path], additions: (.additions // 0), deletions: (.deletions // 0),
+                        ageMinutes: (((($jetzt - ((.createdAt | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601?) // $jetzt)) / 60) | floor)), branches: []},
+               checks: [.statusCheckRollup[]? | {state: (.state // .conclusion)}]
+             }] | .[]' "$RUNNER_TEMP/offen.json" > "$RUNNER_TEMP/kontexte.jsonl"
+          while read -r kontext; do
+            echo "$kontext" | node scripts/jules/jules-guard.mjs > "$RUNNER_TEMP/tor.txt"
+            wert() { sed -n "s/^$1=//p" "$RUNNER_TEMP/tor.txt"; }
+            [ "$(wert jules)" = "true" ] || continue
+            STAGE=$(wert stage); ACTION=$(wert action)
+            NR=$(jq -r '.request.issueNumber' <<< "$kontext")
+            # Zwei Gruende fuer einen Eintrag: er ist zusammenfuehrbar, oder er
+            # liegt zu lange. Alles andere ist nichts zu tun.
+            if [ "$ACTION" != "merge" ] && [ "$STAGE" = "idle" ]; then continue; fi
+            MERGE=$(wert merge); PROMPT=$(wert prompt); CLOSE=$(wert close)
+            jq -cn \
+              --argjson number "$NR" \
+              --arg branch "$(jq -r '.request.branch' <<< "$kontext")" \
+              --arg group "$(wert group)" \
+              --arg stage "$STAGE" \
+              --arg action "$ACTION" \
+              --arg reason "$(wert reason)" \
+              --arg hint "$(wert hint)" \
+              --argjson merge "$MERGE" \
+              --argjson prompt "$PROMPT" \
+              --argjson close "$CLOSE" \
+              '{number: $number, kind: "pr", branch: $branch, group: $group, stage: $stage, action: $action, reason: $reason, hint: $hint, merge: $merge, prompt: $prompt, close: $close}' \
+              >> "$RUNNER_TEMP/eintraege.jsonl"
+            gh pr edit "$NR" --add-label "jules:watchdog" || true
+          done < "$RUNNER_TEMP/kontexte.jsonl"
+          EINTRAEGE=$(jq -cs '.' "$RUNNER_TEMP/eintraege.jsonl" 2>/dev/null || true)
+          if [ -z "$EINTRAEGE" ]; then EINTRAEGE='[]'; fi
+          echo "merges=$(jq -c 'map(select(.merge))' <<< "$EINTRAEGE")" >> "$GITHUB_OUTPUT"
+          echo "blocked=$(jq -c 'map(select((.merge | not) and .action != "hold"))' <<< "$EINTRAEGE")" >> "$GITHUB_OUTPUT"
+          echo "count=$(jq 'length' <<< "$EINTRAEGE")" >> "$GITHUB_OUTPUT"
+
+  # Stufe zwei: der Melder. Ein Sammel-Issue, nicht eins je Kleinigkeit — und
+  # nur, wenn sich der Bestand geaendert hat, sonst waechst es bei jeder Runde.
+  issue-melder:
+    needs: [route, watchdog, merge-small]
+    if: always() && ((needs.route.outputs.blocked != '' && needs.route.outputs.blocked != '[]') || (needs.watchdog.outputs.blocked != '' && needs.watchdog.outputs.blocked != '[]'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sammel-Issue fortschreiben
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ROUTE_BLOCKED: ${{ needs.route.outputs.blocked }}
+          WATCHDOG_BLOCKED: ${{ needs.watchdog.outputs.blocked }}
+        run: |
+          set -euo pipefail
+          a="${ROUTE_BLOCKED:-[]}"; if [ -z "$a" ]; then a='[]'; fi
+          b="${WATCHDOG_BLOCKED:-[]}"; if [ -z "$b" ]; then b='[]'; fi
+          BLOCKED=$(jq -cn --argjson a "$a" --argjson b "$b" '$a + $b | unique_by([.kind, .number])')
+          ANZAHL=$(jq 'length' <<< "$BLOCKED")
+          if [ "$ANZAHL" = "0" ]; then echo "Der Melder hat nichts zu melden."; exit 0; fi
+          gh label create jules:issue --color 5319e7 --description "gesammelte Anliegen des Jules-Tores" --force || true
+          TABELLE=$(jq -r '.[] | "- \(.kind) #\(.number) \(.branch) — Stufe \(.stage): \(.reason) — \(.hint)"' <<< "$BLOCKED")
+          # Die Marke traegt nur die stabile Kennung, keine Frist im Klartext:
+          # sonst schriebe derselbe Bestand jede Runde einen neuen Eintrag.
+          MARKE="<!-- jules-tor:melder:$(jq -c '[.[] | {kind, number, action, stage}]' <<< "$BLOCKED" | sha256sum | cut -c1-12) -->"
+          TEXT="Das Tor hat $ANZAHL Anliegen zurueckgestellt, statt fuer jedes einen eigenen Zweig anzulegen. Die Schwellen stehen in scripts/jules/jules-policy.mjs.
+
+          $TABELLE
+
+          $MARKE"
+          NR=$(gh issue list --state open --label "jules:issue" --limit 1 \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$NR" ]; then
+            SCHON=$(gh issue view "$NR" --json comments \
+              --jq "[.comments[]?.body | select(contains(\"$MARKE\"))] | length")
+            if [ "$SCHON" != "0" ]; then echo "Bestand unveraendert — kein zweiter Eintrag."; exit 0; fi
+            gh issue comment "$NR" --body "$TEXT"
+          else
+            gh issue create --title "Jules-Tor: zurueckgestellte Anliegen" --label "jules:issue" --body "$TEXT"
+          fi
+
+  # Stufe drei: der Prompter. Er sagt dem Antrag, was genau fehlt — einmal je Stufe.
+  prompter:
+    needs: [route, watchdog, issue-melder]
+    if: always() && ((needs.route.outputs.blocked != '' && needs.route.outputs.blocked != '[]') || (needs.watchdog.outputs.blocked != '' && needs.watchdog.outputs.blocked != '[]'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fehlenden Beleg an den Antrag schreiben
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ROUTE_BLOCKED: ${{ needs.route.outputs.blocked }}
+          WATCHDOG_BLOCKED: ${{ needs.watchdog.outputs.blocked }}
+        run: |
+          set -euo pipefail
+          a="${ROUTE_BLOCKED:-[]}"; if [ -z "$a" ]; then a='[]'; fi
+          b="${WATCHDOG_BLOCKED:-[]}"; if [ -z "$b" ]; then b='[]'; fi
+          BLOCKED=$(jq -cn --argjson a "$a" --argjson b "$b" '$a + $b | unique_by([.kind, .number])')
+          gh label create jules:prompter --color 0e8a16 --description "wartet auf einen Beleg" --force || true
+          jq -c '.[] | select(.prompt and .kind == "pr")' <<< "$BLOCKED" | while read -r eintrag; do
+            NR=$(jq -r '.number' <<< "$eintrag")
+            STUFE=$(jq -r '.stage' <<< "$eintrag")
+            MARKE="<!-- jules-tor:prompter:$STUFE -->"
+            SCHON=$(gh pr view "$NR" --json comments \
+              --jq "[.comments[]?.body | select(contains(\"$MARKE\"))] | length")
+            if [ "$SCHON" != "0" ]; then echo "Stufe $STUFE bei #$NR steht schon."; continue; fi
+            TEXT=$(jq -r '"Stufe \(.stage): \(.reason)\n\nOffen ist \(.hint)\n\nWeiter kommt der Antrag nur regelkonform: Betreff unter 72 Zeichen, Body mit 100 bis 1000 Woertern eigener Prosa, jede geaenderte Datei namentlich genannt und das Pflicht-Label allein in der letzten Zeile. Sonst wird der Zweig nicht zusammengefuehrt, sondern nach Ablauf der Frist geschlossen."' <<< "$eintrag")
+            gh pr comment "$NR" --body "$(printf '%s\n\n%s\n' "$TEXT" "$MARKE")"
+            gh pr edit "$NR" --add-label "jules:prompter" || true
+          done
+
+  # Stufe vier: der Schliesser. Er raeumt ab, was die Frist gerissen hat.
+  pr-close:
+    needs: [route, watchdog, prompter]
+    if: always() && ((needs.route.outputs.blocked != '' && needs.route.outputs.blocked != '[]') || (needs.watchdog.outputs.blocked != '' && needs.watchdog.outputs.blocked != '[]'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Frist gerissen, Antrag schliessen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ROUTE_BLOCKED: ${{ needs.route.outputs.blocked }}
+          WATCHDOG_BLOCKED: ${{ needs.watchdog.outputs.blocked }}
+        run: |
+          set -euo pipefail
+          a="${ROUTE_BLOCKED:-[]}"; if [ -z "$a" ]; then a='[]'; fi
+          b="${WATCHDOG_BLOCKED:-[]}"; if [ -z "$b" ]; then b='[]'; fi
+          BLOCKED=$(jq -cn --argjson a "$a" --argjson b "$b" '$a + $b | unique_by([.kind, .number])')
+          gh label create jules:close --color b60205 --description "Frist gerissen" --force || true
+          jq -c '.[] | select(.close and .kind == "pr")' <<< "$BLOCKED" | while read -r eintrag; do
+            NR=$(jq -r '.number' <<< "$eintrag")
+            ZUSTAND=$(gh pr view "$NR" --json state --jq '.state')
+            if [ "$ZUSTAND" != "OPEN" ]; then echo "Antrag $NR ist $ZUSTAND — nichts zu schliessen."; continue; fi
+            gh pr edit "$NR" --add-label "jules:close" || true
+            gh pr close "$NR" --delete-branch \
+              --comment "Frist gerissen: $(jq -r '.reason' <<< "$eintrag") Offen war $(jq -r '.hint' <<< "$eintrag") Der Zweig wird geloescht, damit die Zahl offener Zweige nicht waechst."
+          done
