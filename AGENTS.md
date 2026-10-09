@@ -54,6 +54,13 @@ npm run version:bump -- patch              # auch minor | major
 npm run version:check                      # Lock vs. Spiegel
 ```
 
+**Der Volllauf ist machbar, nicht nur erlaubt.** `node_modules/playwright` und die
+Chromium-Binaries unter `~/.cache/ms-playwright` liegen im Baum; `npm run verify`
+ist genau `check --all --browser --voll` und fährt 61 Gruppen samt echter
+Browser-Abnahme (Start, Konto-Tor, Onboarding in Echtzeit) grün durch. Dass er in
+die **CI** gehört, ist eine Zeitregel — wer ihn lokal auslässt, begründet das mit
+Laufzeit und nicht mit einem fehlenden Browser.
+
 **`mise exec … -- npm run …` läuft mit der System-Node.** `mise exec` reicht den
 PATH nicht in die `sh -c`-Unterschale von `npm run`; die Folge sind zwei
 Meldungen, die auf den Code statt auf die Laufzeit zeigen:
