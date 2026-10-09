@@ -43,6 +43,54 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.54
+
+- [x] **Der Agent bekommt ein Tor statt eines Zweigs je Kleinigkeit.**
+      `jules-guard.yml` ist die Abzweigung: sie laeuft auf einem Auftrag und auf
+      dem Antrag, nicht auf Push und nicht auf einem Dateipfad, erkennt Jules an
+      Zweigform, Body-Trailer und Task-Nummer und eskaliert in vier Stufen —
+      Wecker, Melder, Prompter, Schliesser. Gruppiert wird nach der
+      Jules-Task-Nummer, ersatzweise nach dem verknuepften Issue, und die
+      Gruppierung schneidet Dateilisten und Kommata weg, damit drei Dateien nicht
+      drei Vorgaenge ergeben. Automatisiert wird nur bei
+      klarer Regelpassung, und der Deckel ueber die offenen Jules-Zweige
+      greift vor jedem neuen Zweig. Geprueft ist das in der Gruppe `jules`
+      (`npm run check -- jules`): Gruppierung, Schwelle, Deckel, Leiter, die
+      Struktur des Workflows — und den Workflow selbst als Ausfuehrungsgraph,
+      gefahren von `scripts/jules/jules-runner.mjs` mit doppelten `gh`/`git`
+      gegen Antrag, Wecker, Dispatch, Auftrag, geschlossenen und fremden Antrag,
+      samt Gegenprobe. Die Zahlen stehen in
+      `scripts/jules/jules-policy.mjs`, die Entscheidung in
+      `scripts/jules/jules-rules.mjs`, die Ein- und Ausgabe in
+      `scripts/jules/jules-guard.mjs`. Gebraucht werden nur Werkzeuge, die auf
+      dem Runner schon liegen: bash, git, `gh`, `jq`, node.
+  Status: fix
+  Scope: CI
+  Kategorie: Feature
+  Version: 0.0.54
+  Datum: 2026-10-09
+
+- [x] **Die lokale Last bleibt unter neun Sekunden, die CI fährt weiter voll.**
+      Elf Gruppen brauchen einen Server, eine Datenbank, einen Unterprozess oder
+      einen ganzen Slice-Durchlauf; sie tragen `heavy: true` in
+      `scripts/verify/groups.mjs`. Der lokale Lauf lässt sie aus und bricht bei
+      neun Sekunden ab, statt sich an der Uhr zu verheben — die gemessenen Zeiten
+      stehen in `Docs/WORKFLOW.md`. Die volle Last holt `--voll` zurück, und in
+      der CI nimmt sie sich der Workflow ausdrücklich (`DL_LAST: voll`), damit ein
+      späterer Griff in die lokalen Skripte die Abnahme nicht weich fährt. Die
+      Gruppe `workflow` hält die CI-Zusage fest, und der Deckel trifft nur die
+      Standardauswahl: eine namentlich genannte Gruppe läuft immer ganz, sonst
+      bräche `npm run check -- <gruppe>` seine eigene Zusage. `raid-golden` und
+      `determinism` tragen dieselbe Marke, weil beide gegen einen Golden-Wert der
+      gepinnten Node-Major prüfen — ohne sie wäre der lokale Lauf auf jeder
+      anderen Node-Major rot und maskierte echte Regressen.
+  Status: fix
+  Scope: CI
+  Kategorie: Feature
+  Version: 0.0.54
+  Datum: 2026-10-09
+
+
 ## 0.0.49
 
 - [x] **Der Kreislauf hat ein Gesicht.** Die Resource Rail in `src/ui/ResourceRail.jsx`
