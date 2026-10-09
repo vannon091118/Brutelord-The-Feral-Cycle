@@ -20,8 +20,15 @@ Datei gebunden, offene Fragen offen.
 
 **Der größte Teil des Codes hat kein Gesicht.** Die Raid-Domäne ist mit
 17 Modulen (gemessen: 929 Codezeilen in src/domain/raid/) der
-umfangreichste Bereich neben dem Brutlord-Labor — und in src/ui/ und
-src/state/ kommt das Wort *Raid* nullmal vor. Die Phasenmaschine
+umfangreichste Bereich neben dem Brutlord-Labor. **Nachgezogen am
+2026-10-09, weil die Aussage veraltet war:** in `src/state/` kommt das Wort
+*Raid* bis heute nullmal vor (gemessen: kein Treffer im ganzen Ordner), in
+`src/ui/` dagegen nicht mehr — `RaidLedger.jsx` nennt Kader, Grit, Ausdauer
+und die Zahl der Gegner aus `cadreRule()` und `teamStamina()`, 
+`raid-bookings.js` liest `GET /api/raid/bookings`, und `FloorChip.jsx` und
+`ResourceRail.jsx` nennen den Raid in ihren Hinweisen. Was fehlt, ist damit
+nicht das Wort, sondern die Bühne: das Zeichen für Kampf, Koma und Beute.
+Die Phasenmaschine
 (raid-phases.js, ENTER > COMBAT > WARDEN_DOWN > SACRIFICE > LOOT >
 EXTRACTING > RESOLVED), der Wächter (raid-warden.js), das Terrain
 (raid-terrain.js, Stein und Obsidian — die einzige zulässige zweite
@@ -35,8 +42,13 @@ Ressourcenmatrix aus Docs/VISION-CORE-LOOP.md hat vier Tiers: Essenz
 (sichtbar), Biomasse (geplant, WARDEN-PLAN.md), Aether und Blutstein
 (beide nur Domäne). Die Ledger sitzen zwar im Spielzustand —
 game-state.js trägt economy: createCycle() mit aether und bloodstone —
-aber kein Reducer füllt sie: kein Aufrufer von aetherYieldFor(), kein
-Aufrufer von lootInto() in src/state/. ROADMAP_OPEN.md sagt es wörtlich:
+aber lange füllte sie kein Reducer. **Nachgezogen am 2026-10-09:** den Aether
+füllt inzwischen die Reduzerkette selbst — `mining-reducer.js` ruft `digInto()`
+mit der Etagentiefe, und das bucht in `mining.js` die Ausbeute der Tiefe —,
+und den Blutstein zahlt der Server aus: `scripts/server/raid-http.mjs` schreibt
+die Beute über `applyRaidLoot()` in den Spielstand. Was weiterhin fehlt, ist
+nicht der Fluss, sondern das Lesen — kein Chip und keine Plakette zeigt einen
+der beiden Vorräte. ROADMAP_OPEN.md sagt es wörtlich:
 „die Ressource ist im Spiel nicht sichtbar (kein Chip neben Essenz und
 Raum)" und „keine Oberfläche zeigt den Vorrat". Folge: Die
 Etagen-Leiter (FloorChip.jsx) kann descendOpen({ depth, cycle }) zwar
