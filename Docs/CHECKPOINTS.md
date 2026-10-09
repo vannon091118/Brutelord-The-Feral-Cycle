@@ -43,6 +43,42 @@ danach ist Maschine. Die Prüfungen dazu stehen in `npm run gate -- --docs`.
 
 ---
 
+## 0.0.55
+
+- [x] **Hartgestein der Heimat: Stein und Obsidian in ganzen Blöcken.** Die
+      Entscheidung D1 aus [`RAID-PLAN.md`](RAID-PLAN.md) steht jetzt in der Welt:
+      `src/domain/world/hard-rock.js` streut aus dem Seed zusammenhängende Blöcke
+      von zwei bis vier Feldern je Seite, jeder trägt genau eine Sorte — Stein
+      oder Obsidian —, und ein Teil der Keime fällt per `skipPerMille` aus. Ein
+      Block ist nie ein Einzel-Stein am Rand, sondern eine Fläche; die Abnahme
+      `raid-terrain` prüft das ausdrücklich, weil sie vorher das Gegenteil
+      zusicherte („die Heimat führt kein Hartgestein"). `grid.js` hängt die Sorte
+      nach den Vorräten ein, Hive-Kern, Spawn und Leiter bleiben frei, und die
+      `EarthSlab` färbt die Fläche über `url(#dl-hardStone)` und
+      `url(#dl-obsidian)` — die einzige zweite Sorten-Art, die §8 erlaubt.
+  Status: fix
+  Scope: Welt
+  Kategorie: Feature
+  Version: 0.0.55
+  Datum: 2026-10-09
+
+- [x] **Der Leiterschacht ist das Tor zur Tiefe.** Er ist ein Bauobjekt wie
+      jeder andere (`LADDER_SHAFT`, Kosten 8, ein Feld, eigener Glyph im
+      Bau-Menü), und `ladderOpen()` liest genau ihn: steht ein fertiger Schacht,
+      trägt die freie Leiter, und darunter kauft Blutstein über `buyFloor()`.
+      Ohne ihn ist der Abstieg zu — in der Domäne, im Reducer und in der
+      Oberfläche aus derselben Funktion (`descendOpen()`), damit Plakette,
+      Leiter und Reducer nicht drei Meinungen über dieselbe Tür haben. Das
+      Raid-Buch in `AccountCorner` erscheint erst, wenn der Schacht steht.
+      Geprüft ist die Kette in `scripts/verify/check-ladder-shaft.mjs`, das
+      bislang in keiner Gruppe verdrahtet war.
+  Status: fix
+  Scope: Domäne
+  Kategorie: Feature
+  Version: 0.0.55
+  Datum: 2026-10-09
+
+
 ## 0.0.54
 
 - [x] **Der Agent bekommt ein Tor statt eines Zweigs je Kleinigkeit.**
