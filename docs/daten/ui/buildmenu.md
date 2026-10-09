@@ -15,6 +15,13 @@ sagt der Satz, ob ein Platz da ist, und wenn keiner da ist, warum: kein freier B
 kein Fleck in der Grundfläche des Baus, samt der Zahl der freien Felder. Die Gründe kommen
 als Wert aus der Domäne, die Sätze stehen hier.
 
+Das Menü ist ein **Band**: Rahmen, Naht und innere Oberkante kommen aus `dl-panel` und
+damit aus den Rollen der Palette, seine Rundung aus `--radius-dl`, und es trägt keine
+Pille mehr — A kennt keine Rundung an Flächen. Der Platz selbst bleibt, wo er ist: Das
+Menü steht unter der Bühne im Fluss und deckt keinen Bauplatz zu. Eine schwebende Fassung
+an der Seite wäre der Ort, an dem es der Bühne Höhe zurückgäbe; sie ist als eigener
+Schritt benannt und nicht in diesem Durchgang entschieden.
+
 ## Schnittstellen
 
 - `BuildHeader()`

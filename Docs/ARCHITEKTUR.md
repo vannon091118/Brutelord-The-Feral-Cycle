@@ -802,9 +802,20 @@ Rundung (`--radius-dl: 0px`), keinen Schlagschatten über der Welt und keine Uns
 `.dl-panel` liest diese Tokens — der Panel-Verlauf liegt als `--dl-panel-bg` in der
 Rolle und nicht mehr als Literal in der Klasse; der Trog der Leiste hat seinen als
 `--dl-trough-bg`. Der **HUD-Kern ist umgestellt**: `src/styles/rail.css`, die
-Hinweis-Karte und die Phasenspur lesen die Rollen und tragen kein `rgba(` mehr.
-Baumenü und Bauwerk, Kontoecke, Konto-Tor und die Welt-Ränder folgen; bis dahin tragen
-sie ihre Literale weiter, und das ist der offene Teil des Auftrags.
+Hinweis-Karte und die Phasenspur lesen die Rollen und tragen kein `rgba(` mehr, und das
+**Baumenü** ist der zweite Bereich — die Leiste, die Karte, das Menü und seine Optionen
+holen ihre Kanten, ihre Rundung und ihre Werte aus derselben Quelle. Offen sind Bauwerk,
+Kontoecke, Raid-Buch, Konto-Tor und die Welt-Ränder; der dichteste Rest an Hex-Werten
+sitzt in `src/ui/stone/` (Labor und Steinbank), und dort wartet der nächste Bereich.
+Bis dahin tragen sie ihre Literale weiter, und das ist der offene Teil des Auftrags.
+
+**Werte und Struktur lesen Rollen, Flächen bleiben Tönungen.** Eine Naht, eine Teilung,
+eine Kante, ein Radius und jede Zahl sind Aussagen und haben deshalb einen Namen in der
+Palette; die Fläche dahinter ist eine Tönung und bleibt ein Palettenton (`soil`, `core`,
+`hive`). Diese Grenze hält den Tokensatz klein: Ohne sie hätte jede Tönung einen eigenen
+Token gebraucht, und die Palette wäre größer als das Spiel. Sie entscheidet auch, was
+*keine* Rolle bekommt — der Hinweis `kein Abbau mehr` bleibt im Ton des Hive, weil keine
+Rolle ihn meint, und eine erfundene wäre eine Behauptung.
 
 **Zustands-Signale sind Zuordnungen, keine neuen Töne.** `--dl-live` (Gier und Leben),
 `--dl-deep` (Tiefe), `--dl-alarm` (Raid, Verlust), `--dl-growth` (Biomasse), `--dl-drained`

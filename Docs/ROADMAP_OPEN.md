@@ -321,21 +321,43 @@ Richtung A („Schichten") ist die verbindliche Art-Direction, und die Token-Sch
 noch nicht** — sichtbar ist bis jetzt nur, was am Fundament selbst hängt: die Panelfläche
 `.dl-panel`, die Überschriftenschrift und der Fokusring.
 
-- [ ] **Baumenü, Kontoecke und Welt-Ränder lesen noch ihre eigenen Farben.** Der
-      **HUD-Kern ist umgestellt**: Die Leiste, die Hinweis-Karte und die Phasenspur lesen die
-      Rollen der Palette, `rail.css` trägt kein `rgba(` mehr, und die deklarierten Rollen
-      ohne Verbraucher — `--radius-dl`, `--dl-divider` und die sechs Zustands-Signale —
-      haben dort ihre Verbraucher bekommen, jeder an einem echten Spielzustand
+- [ ] **Bauwerk, Kontoecke und Welt-Ränder lesen noch ihre eigenen Farben.** Der
+      **HUD-Kern und das Baumenü sind umgestellt**: Die Leiste, die Hinweis-Karte, die
+      Phasenspur, das Menü und seine Optionen lesen die Rollen der Palette, und die
+      deklarierten Rollen ohne Verbraucher — `--radius-dl`, `--dl-divider` und die sechs
+      Zustands-Signale — haben ihre Verbraucher an echten Spielzuständen bekommen
       ([*Die Gestaltungsschicht*](ARCHITEKTUR.md) und
-      [*Die Resource Rail*](ARCHITEKTUR.md)). Offen sind Baumenü und Bauwerk, Kontoecke
-      und Raid-Buch, das Konto-Tor und die Welt-Ränder; sie setzen Rahmen, Schatten und
-      Verläufe weiter aus Einzelwerten, obwohl die Rollen sie benennen. Je Bereich gehört
-      ein Renderbeleg aus dem Browser dazu und ein Blick auf die Cap-Quote: `globals.css`
-      steht bei 229, `rail.css` bei 149 und `creature.css` bei 129 — unter 300, aber der
-      nächste Zuwachs sollte geteilt werden und nicht gedrückt.
-      **Eine Bedingung bleibt hart:** Das Baumenü liegt unter der Bühne in der Fläche und
-      darf die Bauplätze nicht überdecken — als Overlay haben Bühne und HUD genau das schon
-      einmal getan, und die Browser-Stufe fängt es als `site-placed`.
+      [*Die Resource Rail*](ARCHITEKTUR.md)). Offen sind das Bauwerk, die Kontoecke, das
+      Raid-Buch, das Konto-Tor und die Welt-Ränder. Der dichteste Rest an Hex-Werten sitzt
+      in `src/ui/stone/` — Labor, Steinbank und Steinsplitter tragen rund zwanzig feste
+      Farben, und das ist der Bereich, für den die Palette am meisten fehlt. Je Bereich
+      gehört ein Renderbeleg aus dem Browser dazu und ein Blick auf die Cap-Quote:
+      `globals.css` steht bei 229, `rail.css` bei 149 und `creature.css` bei 129 — unter
+      300, aber der nächste Zuwachs sollte geteilt werden und nicht gedrückt.
+      **Eine Bedingung bleibt hart:** Was am unteren Rand wächst, darf die Bauplätze im
+      Feld nicht überdecken — als Overlay haben Bühne und HUD genau das schon einmal getan,
+      und die Browser-Stufe fängt es als `site-placed`.
+  Status: geplant
+  Scope: Client
+  Kategorie: Refactor
+  Version: ausstehend
+  Datum: ausstehend
+
+- [ ] **Das Baumenü schwebt nicht, und die Art-Direction will es schweben.** Die drei
+      Entwürfe zeigen ein schwebendes HUD, und die Bühne gibt heute Höhe ab, damit das Menü
+      darunter in der Fläche stehen kann (`flex-1` in `src/ui/GameStage.jsx`). Das ist die
+      sichere Fassung, aber nicht die schönste: A löst es am saubersten mit dem Menü an der
+      Seite des Feldes. Die Verlegung ist ein eigener Schritt und keine Nebenwirkung einer
+      Token-Migration — sie muss den Bauplatz in der Feldmitte freilassen (gemessen mit
+      `elementFromPoint` auf der Platzmitte und über die Browser-Stufe als `site-placed`),
+      die Hinweiszeile mit der Rail und die Kamera-Rechnung der Bühne im Blick behalten und
+      beweisen, dass das Feld auf 460 Pixel Breite noch bedienbar bleibt. Erst danach darf
+      das Menü über der Bühne liegen.
+  Status: geplant
+  Scope: Client
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
   Status: geplant
   Scope: Client
   Kategorie: Refactor

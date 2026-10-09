@@ -65,7 +65,7 @@ function BuildOptions({ spendable, buildChoice, onChoose }) {
 export function BuildMenu({ essence, usableTileCount, buildings, buildChoice, placement, onChoose }) {
   const spendable = spendableEssence(essence, buildings);
   return (
-    <section className="dl-panel dl-panel-in w-[min(92vw,352px)] rounded-2xl px-3 pb-3 pt-2.5" aria-label="Baumenü">
+    <section className="dl-panel dl-panel-in w-[min(92vw,352px)] rounded-[var(--radius-dl)] px-3 pb-3 pt-2.5" aria-label="Baumenü">
       <BuildHeader count={usableTileCount} essence={essence} bound={essence - spendable} />
       <BuildOptions spendable={spendable} buildChoice={buildChoice} onChoose={onChoose} />
       <p className="px-0.5 pt-2 text-[10px] leading-snug text-bone-400">

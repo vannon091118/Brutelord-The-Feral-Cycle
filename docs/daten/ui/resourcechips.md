@@ -7,7 +7,12 @@ Spiegel-Datei für `src/ui/ResourceChips.jsx`.
 ## Verantwortung
 
 Die Kopfzeile des Baumenüs: Essenz im Hive, der gebundene Rest und die Zahl der freien
-Felder, in der kleinen Pillenform, die dort schon stand. Die zweite Plakette erscheint nur,
+Felder — drei kleine Plaketten. Seit dem Gestaltungsdurchgang sind sie eckig
+(`--radius-dl`) statt Pillen, und ihre Werte tragen die Anzeigeschrift, weil hier Zahlen
+stehen und kein Satz. Die Essenzplakette liest `--dl-live`, denselben Ton wie ihr Platz in
+der Resource Rail: dieselbe Menge trägt dieselbe Farbe, egal wo sie im HUD steht. Die
+Flächen bleiben Palettentöne (`core`, `hive`, `bone`) — eine Tönung ist keine Rolle.
+Die zweite Plakette erscheint nur,
 wenn ein offener Bauplatz Essenz versprochen hat — sie ist der sichtbare Teil der Regel,
 dass eine Zusage bindet.
 
