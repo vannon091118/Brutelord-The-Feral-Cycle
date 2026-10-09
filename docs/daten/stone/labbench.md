@@ -34,6 +34,16 @@ den Sockel zum Leuchten. Der gesperrte Platz meldet sich mit: ohne Genom trägt 
 Die vier Slots haben zusätzlich einen **Druckzustand** bekommen — `active:scale-95` neben dem
 Ring, der die mitgeführte Auswahl zeigt. Ein Knopf, der auf Druck nicht antwortet, wirkt tot.
 
+Die vier Plätze und die Kachel im Inventar tragen **einen** Ton je Seltenheit: beide lesen
+`RARITY_TONE` aus `rarity-tone.js`, aufgelöst über `STONE_DEFS[rarity].tone`. Vorher standen hier
+vier eigene Hex-Literale (`#9aa0a6`, `#5aa9ff`, `#b06cff`, `#ffcf5a`) — Werte außerhalb der
+Palette, und für denselben Stein ein anderer Ton als in der Kachel daneben. Der leere Platz liest
+`SLOT_REST_TONE`: `#e0983a` und `#9c8a6e` waren die Palette-Werte `core-500` und `bone-400`, jetzt
+als Rolle statt als wiederholtes Literal. Ebenso sind Kachelgrund (`soil-900` statt `#1a1008`,
+Abweichung je Kanal +1/+6/+8), Hover-Rand (`core-500`), Auswahlring (`core-300`) und die beiden
+Texttöne im Art-Etikett Rollen geworden. Die Schriftgrößen, die Platzbeschriftung und die
+Schriftfamilie sind unberührt.
+
 ## Schnittstellen
 
 - `StoneSlot()`

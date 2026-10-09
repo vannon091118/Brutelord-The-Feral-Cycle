@@ -329,13 +329,22 @@ noch nicht** — sichtbar ist bis jetzt nur, was am Fundament selbst hängt: die
       ([*Die Gestaltungsschicht*](ARCHITEKTUR.md) und
       [*Die Resource Rail*](ARCHITEKTUR.md)). Offen sind das Bauwerk, die Kontoecke, das
       Raid-Buch, das Konto-Tor und die Welt-Ränder. **Der Steinsplitter ist umgestellt:**
-      `src/ui/stone/StoneChip.jsx` liest seine vier Seltenheitstöne als Rollen (`bone`,
-      `core-400`, der Hive-Verlauf `hive-400`/`hive-300` für „lila“ und `core-300` für
-      „gold“) statt der Tailwind-Farben `violet-400/300` und `amber-300/200`, und der
+      `src/ui/stone/StoneChip.jsx` liest seine vier Seltenheitstöne als Rollen statt der
+      Tailwind-Farben `violet-400/300` und `amber-300/200`, und der
       Auswahlring liest `core-300` statt eines Hex-Literals; gemessen im laufenden
       Vorschaufenster ändert sich das gerechnete Ergebnis nur an den zwei Tönen, die
-      vorher außerhalb der Palette lagen. Offen bleiben im selben Ordner der Arbeitstisch
-      (`LabBench.jsx`, vier feste Slot-Töne plus zwei Literale) und das Laborpanel
+      vorher außerhalb der Palette lagen. **Der Arbeitstisch ist umgestellt:** die vier
+      festen Slot-Töne und die zwei Literale des leeren Platzes liegen jetzt als eine
+      Tabelle in `src/ui/stone/rarity-tone.js`, die Kachel und Platz gemeinsam lesen —
+      vorher trug jeder Ort seine eigene, derselbe seltene Stein war im Inventar amber und
+      am Tisch hellblau. Vier Seltenheiten, vier unterscheidbare Rollen: `bone` („grau“),
+      `aether-400` („blau“), der Hive-Verlauf („lila“), `core-300` („gold“). Die Rolle
+      `blau` lag vorher auf `core-400` und damit auf demselben Amber-Zweig wie „gold“ auf
+      `core-300`; sie zeigt jetzt blau. Der leere Platz behält sein gerechnetes Ergebnis
+      (`core-500` und `bone-400` waren dort `#e0983a` und `#9c8a6e`), der Kachelgrund
+      wandert von `#1a1008` auf `soil-900` (Abweichung je Kanal +1/+6/+8), Hover-Rand,
+      Auswahlring und die zwei Texttöne des Art-Etiketts werden Rollen. Offen bleibt im
+      selben Ordner das Laborpanel
       (`LabPanel.jsx`, Panel-Verlauf, Rahmen und drei Knopfklassen) — sein `Georgia, serif`
       wartet weiter auf eine genehmigte Schriftdatei und ist nicht Teil eines
       Token-Durchgangs. Je Bereich gehört ein Renderbeleg aus dem Browser dazu und ein

@@ -4,6 +4,7 @@ import { SPECIES_LABEL } from '../../domain/brutelord/genome-config.js';
 import { genomeForStones } from '../../domain/brutelord/mutant.js';
 import { speciesOf } from '../../domain/brutelord/phenotype.js';
 import { MutantSvg } from '../../world/dungling/MutantSvg.jsx';
+import { RARITY_TONE, SLOT_REST_TONE } from './rarity-tone.js';
 
 const SLOT_LABEL = Object.freeze({
   [STONE_SLOT.HEAD]: 'Kopf',
@@ -19,21 +20,14 @@ const SLOT_POS = Object.freeze({
   [STONE_SLOT.LEGS]: 'left-1/2 bottom-0 -translate-x-1/2',
 });
 
-const SLOT_TONE = Object.freeze({
-  grau: 'border-[#9aa0a6]/40 text-[#9aa0a6]',
-  blau: 'border-[#5aa9ff]/40 text-[#5aa9ff]',
-  lila: 'border-[#b06cff]/40 text-[#b06cff]',
-  gold: 'border-[#ffcf5a]/40 text-[#ffcf5a]',
-});
-
 function StoneSlot({ slot, stone, armed, onPlace }) {
   const filled = Boolean(stone);
-  const tone = filled ? SLOT_TONE[STONE_DEFS[stone.rarity].tone] : 'border-[#e0983a]/20 text-[#9c8a6e]';
+  const tone = filled ? RARITY_TONE[STONE_DEFS[stone.rarity].tone] : SLOT_REST_TONE;
   return (
     <button
       type="button"
       onClick={() => onPlace(slot)}
-      className={`absolute ${SLOT_POS[slot]} flex h-12 w-12 items-center justify-center rounded-xl border bg-[#1a1008]/90 px-1 text-center text-[9px] leading-tight transition-all duration-200 hover:border-[#e0983a]/60 hover:text-bone-200 active:scale-95 ${tone} ${armed ? 'ring-2 ring-[#ffdca0]/70 scale-105' : ''}`}
+      className={`absolute ${SLOT_POS[slot]} flex h-12 w-12 items-center justify-center rounded-xl border bg-soil-900/90 px-1 text-center text-[9px] leading-tight transition-all duration-200 hover:border-core-500/60 hover:text-bone-200 active:scale-95 ${tone} ${armed ? 'ring-2 ring-core-300/70 scale-105' : ''}`}
       aria-label={`Slot ${SLOT_LABEL[slot]}`}
     >
       {filled ? <span className="font-semibold">{STONE_DEFS[stone.rarity].label}</span> : SLOT_LABEL[slot]}
@@ -43,13 +37,13 @@ function StoneSlot({ slot, stone, armed, onPlace }) {
 
 function SpeciesTag({ genome }) {
   if (!genome) {
-    return <p className="h-8 text-center text-[10px] italic text-[#9c8a6e]">Die Art zeigt sich, sobald ein Stein steckt.</p>;
+    return <p className="h-8 text-center text-[10px] italic text-bone-400">Die Art zeigt sich, sobald ein Stein steckt.</p>;
   }
   const { species, alleles } = speciesOf(genome);
   return (
     <div className="h-8 text-center leading-tight">
-      <p className="text-[11px] text-[#ffdca0]">Art: {SPECIES_LABEL[species]}</p>
-      <p className="text-[9px] text-[#9c8a6e]">Anlagen: {alleles.map((allele) => SPECIES_LABEL[allele]).join(' · ')}</p>
+      <p className="text-[11px] text-core-300">Art: {SPECIES_LABEL[species]}</p>
+      <p className="text-[9px] text-bone-400">Anlagen: {alleles.map((allele) => SPECIES_LABEL[allele]).join(' · ')}</p>
     </div>
   );
 }

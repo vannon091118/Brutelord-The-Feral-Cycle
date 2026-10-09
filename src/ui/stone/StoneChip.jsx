@@ -1,16 +1,10 @@
 // @doc: docs/daten/stone/stonechip.md#stonechip
 import { STONE_DEFS } from '../../domain/brutelord/stone-config.js';
-
-const TONE = Object.freeze({
-  grau: 'border-bone-400/30 text-bone-300',
-  blau: 'border-core-400/50 text-core-300',
-  lila: 'border-hive-400/50 text-hive-300',
-  gold: 'border-core-300/70 text-core-300',
-});
+import { RARITY_TONE } from './rarity-tone.js';
 
 export function StoneChip({ stone, label, selected, onSelect }) {
   const def = STONE_DEFS[stone.rarity];
-  const tone = TONE[def.tone];
+  const tone = RARITY_TONE[def.tone];
   const placed = stone.slot !== null;
 
   return (
