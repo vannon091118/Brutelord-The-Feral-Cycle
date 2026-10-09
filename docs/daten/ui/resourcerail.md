@@ -13,6 +13,12 @@ und nicht nur behauptet: Essenz ist der einzige Platz, der wächst, die beiden
 Tiefenwährungen bleiben kleiner und sinken auf halbe Deckkraft, solange nichts in ihnen
 liegt, und Biomasse steht gestrichelt da, weil die Domäne sie noch nicht füllt.
 
+Seit dem HUD-Durchgang liest die Leiste die **Rollen** der Palette statt eigener Töne: Jeder
+Platz setzt seinen Ton als eine Eigenschaft, und die Wertzeile liest sie einmal. Dabei
+schlägt der Zustand den Ton — ein Platz ohne Inhalt trägt keine Farbe mehr, sondern den
+gedämpften Ton, denn Farbe heißt seitdem, dass wirklich etwas da ist. Biomasse bleibt im
+Moosgrün, weil ihr Platz nicht leer, sondern gesperrt ist: sie hat einen Ton und keine Zahl.
+
 Gelesen wird ausschließlich `cycle.aether.stored` und `cycle.bloodstone.stored`. Fehlt ein
 Ledger im geladenen Spielstand, zeigt der Platz den Gedankenstrich: die Leiste erfindet
 keine Null, sie fragt. Gerechnet, entschieden und verbraucht wird hier nichts — den

@@ -11,11 +11,11 @@ export function PhaseTrail({ onboarding }) {
           <span key={phase.id} className="flex items-center gap-1.5" title={phase.label}>
             <span
               className={`h-[7px] w-[7px] rounded-full transition-colors duration-300 ${
-                active ? 'bg-core-400' : 'bg-bone-400/25'
+                active ? 'bg-[var(--dl-live)]' : 'bg-[var(--dl-locked)]'
               }`}
             />
             <span
-              className={`hidden text-[10px] uppercase tracking-[0.1em] sm:inline ${
+              className={`hidden font-display text-[10px] uppercase tracking-[0.1em] sm:inline ${
                 active ? 'text-bone-300' : 'text-bone-400/50'
               }`}
             >

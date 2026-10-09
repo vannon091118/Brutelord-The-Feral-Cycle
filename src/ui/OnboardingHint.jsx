@@ -7,7 +7,7 @@ export function OnboardingHint({ onboarding, usableTileCount, essence, depth, cy
   const hint = HINTS[onboarding.state];
 
   return (
-    <div className="dl-panel dl-line-in w-[min(94vw,520px)] rounded-2xl px-3.5 pb-2.5 pt-2">
+    <div className="dl-panel dl-line-in w-[min(94vw,520px)] px-3.5 pb-2.5 pt-2">
       <p
         key={onboarding.state}
         className="dl-line-in text-[12px] font-medium leading-tight text-bone-100"

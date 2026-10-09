@@ -640,6 +640,40 @@ steht damit bei 299 von 300 Codezeilen — die Rail-Klassen wohnen in
 `src/styles/rail.css`, das die Datei importiert; den Bruch hat die Token-Schicht
 gelöst ([*Die Gestaltungsschicht*](#die-gestaltungsschicht)).
 
+**Der Trog liest die Rollen, nicht Farbwerte.** `rail.css` enthält kein `rgba(` mehr.
+Ein Platz setzt seinen Ton als Eigenschaft (`--dl-slot-tone`), und die Wertzeile liest
+sie einmal — vorher standen dort fünf Regeln `dl-tone-x .dl-rail-value`, und der leere
+Platz brauchte eine sechste mit höherer Spezifität. Die Zuordnung ist die
+Ressourcenmatrix in Rollen: Essenz `--dl-live`, Aether `--dl-deep`, Blutstein
+`--dl-alarm`, Biomasse `--dl-growth`, die Kante des Abstiegs `--dl-seam` und sein
+gesperrter Knopf `--dl-locked`. Der Trog selbst heißt `--dl-trough-bg` und liegt neben
+`--dl-panel-bg`: das Band und die vertiefte Fläche darin.
+
+**Zustand schlägt Ton.** Ein leerer Platz trägt keine Farbe mehr, sondern
+`--dl-drained`. Farbe heißt seitdem, dass wirklich etwas da ist: Im normalen Slice sind
+Aether und Blutstein null, und dort stehen zwei gedämpfte Nullen statt einer blauen und
+einer roten. Biomasse bleibt im Moosgrün, weil sie nicht leer, sondern gesperrt ist —
+ihr Platz ist der einzige, den die Domäne nicht füllt.
+
+**Zwei Funde, beide gemessen.** `font-variant-numeric: tabular-nums` stand auf der
+Wertzeile, damit tickende Zahlen nicht wandern. Mit der Anzeigeschrift ist die Angabe
+aber ein Ausschlusskriterium: Chromium sucht dann eine Schrift **mit** dieser Funktion
+und rendert die ganze Zeile im System-Stack — gemessen 36,1 statt 26,3 Pixel für
+`1111`. Die Zahl hätte die schmale Schrift nie getragen. Die Angabe ist gestrichen; die
+Wertzeile steht linksbündig in einer festen Rasterspalte, also wandert nichts. Der
+zweite Fund: Die Kante des Etagenplatzes (`rgba(224, 152, 58, 0.2)`) war wirkungslos —
+`.dl-rail-slot + .dl-rail-slot` hat zwei Klassen und schlug die eine des Platzes, der
+Platz trug also den gewöhnlichen Trennstrich. Der Nachbarstrich nimmt den Etagenplatz
+jetzt aus (`:not`), und der Platz trägt die Naht: Die Trennung zwischen Vorräten und
+Tiefe ist damit das, was diese Doku die ganze Zeit behauptet hat.
+
+**Eine Regel pro Ort, auch am Knopf.** Der Abstiegsknopf trug einen eigenen
+`:focus-visible`-Ring neben dem globalen; er ist gestrichen und liest `--dl-focus` wie
+alles andere. Sein Radius kommt aus `--radius-dl`, sein Puls aus `--dl-focus`, und nur
+wo eine Rolle mit Deckkraft gebraucht wird, steht `color-mix` — Tailwind legt dafür von
+sich aus eine Rückfallzeile mit der vollen Farbe an, sodass ein Browser ohne
+`color-mix` die Kante sieht statt keiner.
+
 ### Was ein Render kostet
 
 Der Herzschlag tickt zehnmal pro Sekunde, und jeder Takt ist ein vollständiger
@@ -766,7 +800,11 @@ Palette und nicht in einer Komponente.
 einzige Lichtkante und liegt innen. `--dl-edge` ist genau eine Pixel: A kennt keine
 Rundung (`--radius-dl: 0px`), keinen Schlagschatten über der Welt und keine Unschärfe.
 `.dl-panel` liest diese Tokens — der Panel-Verlauf liegt als `--dl-panel-bg` in der
-Rolle und nicht mehr als Literal in der Klasse.
+Rolle und nicht mehr als Literal in der Klasse; der Trog der Leiste hat seinen als
+`--dl-trough-bg`. Der **HUD-Kern ist umgestellt**: `src/styles/rail.css`, die
+Hinweis-Karte und die Phasenspur lesen die Rollen und tragen kein `rgba(` mehr.
+Baumenü und Bauwerk, Kontoecke, Konto-Tor und die Welt-Ränder folgen; bis dahin tragen
+sie ihre Literale weiter, und das ist der offene Teil des Auftrags.
 
 **Zustands-Signale sind Zuordnungen, keine neuen Töne.** `--dl-live` (Gier und Leben),
 `--dl-deep` (Tiefe), `--dl-alarm` (Raid, Verlust), `--dl-growth` (Biomasse), `--dl-drained`
@@ -788,6 +826,12 @@ Die Datei kommt von der eigenen Herkunft: kein Abruf bei einem fremden Dienst zu
 keine neue Abhängigkeit im `package.json`. Die Lizenz liegt daneben als
 `src/styles/fonts/OFL.txt`, und `url("./fonts/…")` bleibt die einzige Nennung des Pfades —
 wer die Schrift tauscht, tauscht Datei und `@font-face`, sonst nichts.
+
+**Die Zuordnung ist eine Regel, keine Auswahl: Versalien und Zahlen tragen die
+Anzeigeschrift, Prosa den System-Stack.** Die Leiste setzt sie deshalb einmal auf ihren
+Rahmen — alles darin ist Name in Versalien oder Zahl —, und die Phasenspur setzt sie auf
+ihre Marken; der Satz der Hinweiszeile bleibt der UI-Schrift, auch wo eine Zahl darin
+steht. Wer eine dritte Stelle sucht, sucht zuerst nach dieser Regel.
 
 ## Konto und Spielerseed
 

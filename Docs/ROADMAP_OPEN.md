@@ -321,18 +321,21 @@ Richtung A („Schichten") ist die verbindliche Art-Direction, und die Token-Sch
 noch nicht** — sichtbar ist bis jetzt nur, was am Fundament selbst hängt: die Panelfläche
 `.dl-panel`, die Überschriftenschrift und der Fokusring.
 
-- [ ] **HUD, Baumenü, Kontoecke und Welt-Ränder lesen noch ihre eigenen Farben.** Die
-      Tokens benennen die Rollen schon, aber jede Komponente trägt ihre Literale weiter:
-      `rail.css` baut seine Töne aus eigenen `rgba`-Werten, Baumenü und Kontoecke setzen
-      Rahmen und Schatten selbst, und die Welt-Ränder ziehen ihre Verläufe aus Einzelwerten.
-      Der Zug ist die Migration in der Reihenfolge HUD-Kern (Rail, Hinweis, Phasenspur),
-      Baumenü und Bauwerk, Kontoecke und Raid-Buch, Konto-Tor, Welt-Ränder — je Bereich ein
-      Renderbeleg aus dem Browser und die Cap-Quote im Blick, weil `globals.css` (229),
-      `rail.css` (150) und `creature.css` (129) sonst wieder an die 300 stoßen.
-      **Eine Bedingung ist hart:** Das Baumenü liegt heute unter der Bühne in der Fläche
-      und darf die Bauplätze nicht überdecken. Bühne und HUD als Overlay haben genau das
-      schon einmal getan — der Spieler konnte den Bauplatz nicht mehr anklicken —, und die
-      Browser-Stufe fängt es als `site-placed`.
+- [ ] **Baumenü, Kontoecke und Welt-Ränder lesen noch ihre eigenen Farben.** Der
+      **HUD-Kern ist umgestellt**: Die Leiste, die Hinweis-Karte und die Phasenspur lesen die
+      Rollen der Palette, `rail.css` trägt kein `rgba(` mehr, und die deklarierten Rollen
+      ohne Verbraucher — `--radius-dl`, `--dl-divider` und die sechs Zustands-Signale —
+      haben dort ihre Verbraucher bekommen, jeder an einem echten Spielzustand
+      ([*Die Gestaltungsschicht*](ARCHITEKTUR.md) und
+      [*Die Resource Rail*](ARCHITEKTUR.md)). Offen sind Baumenü und Bauwerk, Kontoecke
+      und Raid-Buch, das Konto-Tor und die Welt-Ränder; sie setzen Rahmen, Schatten und
+      Verläufe weiter aus Einzelwerten, obwohl die Rollen sie benennen. Je Bereich gehört
+      ein Renderbeleg aus dem Browser dazu und ein Blick auf die Cap-Quote: `globals.css`
+      steht bei 229, `rail.css` bei 149 und `creature.css` bei 129 — unter 300, aber der
+      nächste Zuwachs sollte geteilt werden und nicht gedrückt.
+      **Eine Bedingung bleibt hart:** Das Baumenü liegt unter der Bühne in der Fläche und
+      darf die Bauplätze nicht überdecken — als Overlay haben Bühne und HUD genau das schon
+      einmal getan, und die Browser-Stufe fängt es als `site-placed`.
   Status: geplant
   Scope: Client
   Kategorie: Refactor
