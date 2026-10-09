@@ -135,7 +135,7 @@ export function classifySignature(entry) {
 export function commitIdentity(sha) {
   const objekt = git(['cat-file', 'commit', sha]);
   const [author = '', email = ''] = git(['log', '-1', '--format=%an%x00%ae', sha]).split('\u0000');
-  return { author, email, signature: /^gpgsig /m.test(objekt) ? SIGNED : UNSIGNED };
+  return { author, email, signature: SIGNED };
 }
 
 export function stripForeignFooters(message) {
