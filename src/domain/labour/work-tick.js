@@ -1,12 +1,5 @@
 // @doc: docs/daten/labour/work-tick.md#work-tick
-import {
-  JOB_EVENT,
-  JOB_KIND,
-  JOB_PHASE,
-  advanceJob,
-  createDeliverJob,
-  createExtractJob,
-} from './jobs.js';
+import { JOB_EVENT, JOB_KIND, JOB_PHASE, advanceJob } from './jobs.js';
 import { JOB_CONFIG } from './job-config.js';
 import {
   BUILDING_STATE,
@@ -17,6 +10,14 @@ import {
 import { deliverToSite, openSites, settleSite } from '../buildings/building.js';
 import { createDungling, idle, nextDunglingId, withJob } from '../entities/dungling.js';
 import { tickScale, unitEffects } from '../brutelord/stone-effects.js';
+import {
+  ORDER_KIND,
+  createOrder,
+  dropOrder,
+  headOrder,
+  jobForOrder,
+  pushOrder,
+} from '../orders/order.js';
 
 export function advanceWork(work, dtMs, config = JOB_CONFIG) {
   const staffed = staffWorkers(work, config);
@@ -51,9 +52,13 @@ function advanceWorkers(work, dtMs, config) {
   const dunglings = work.dunglings.map((worker) => {
     const step = advanceJob(worker.job, dtMs * tickScale(worker, work.dunglings), config);
     if (step.event) context = applyEvent(context, step.event, { job: worker.job, worker });
-    return withJob(worker, step.job);
+    return withJob(fulfilled(worker, step.job), step.job);
   });
   return { ...context, dunglings };
+}
+
+function fulfilled(worker, job) {
+  return job || !worker.job ? worker : dropOrder(worker);
 }
 
 function applyEvent(work, event, { job, worker }) {
@@ -83,43 +88,50 @@ function agePopups(popups, dtMs, config) {
 function staffWorkers(work, config) {
   let next = work;
   for (const worker of work.dunglings) {
-    const relieved = relievedWorker(next, worker);
-    if (relieved.job) continue;
-    const job = nextJobFor(next, relieved, config);
-    if (!job) continue;
-    next = { ...next, dunglings: next.dunglings.map((w) => (w.id === worker.id ? withJob(w, job) : w)) };
+    const step = orderStep(next, worker, config);
+    if (step === worker) continue;
+    next = { ...next, dunglings: next.dunglings.map((w) => (w.id === worker.id ? step : w)) };
   }
   return next;
+}
+
+function orderStep(work, worker, config) {
+  const relieved = relievedWorker(work, worker);
+  if (relieved.job) return relieved;
+  const stocked = stockedWorker(relieved, work);
+  if (stocked.job) return stocked;
+  return withJob(stocked, jobForOrder(stocked, work, config));
+}
+
+function stockedWorker(worker, work) {
+  if (headOrder(worker)) return worker;
+  const order = assignmentFor(work, worker);
+  return order ? pushOrder(worker, order) : worker;
+}
+
+function assignmentFor(work, worker) {
+  return deliveryOrder(work, worker) ?? stationOrder(work, worker);
+}
+
+function deliveryOrder(work, worker) {
+  if (work.essence <= 0 || !unitEffects(worker).buildOrders) return null;
+  const site = openSites(work.buildings)[0];
+  return site ? createOrder({ kind: ORDER_KIND.DELIVER, buildingId: site.id }) : null;
+}
+
+function stationOrder(work, worker) {
+  const building = work.buildings.find(
+    (entry) => entry.type === BUILDING_TYPE.ESSENCE_EXTRACTOR
+      && entry.state === BUILDING_STATE.READY
+      && entry.workers.includes(worker.id),
+  );
+  return building ? createOrder({ kind: ORDER_KIND.WORK, buildingId: building.id }) : null;
 }
 
 function relievedWorker(work, worker) {
   const waiting = worker.job?.kind === JOB_KIND.EXTRACT && worker.job.phase === JOB_PHASE.ATTEND;
   if (!waiting || work.essence <= 0 || openSites(work.buildings).length === 0) return worker;
-  return withJob(worker, null);
-}
-
-function nextJobFor(work, worker, config) {
-  if (unitEffects(worker).buildOrders) {
-    const delivery = deliveryFor(work, config);
-    if (delivery) return delivery;
-  }
-  return stationFor(work, worker, config);
-}
-
-function deliveryFor(work, config) {
-  if (work.essence <= 0) return null;
-  const site = openSites(work.buildings)[0];
-  if (!site) return null;
-  return createDeliverJob({ buildingId: site.id, origin: work.anchor, target: site.anchor, config });
-}
-
-function stationFor(work, worker, config) {
-  for (const building of work.buildings) {
-    if (building.type !== BUILDING_TYPE.ESSENCE_EXTRACTOR) continue;
-    if (building.state !== BUILDING_STATE.READY || !building.workers.includes(worker.id)) continue;
-    return createExtractJob({ buildingId: building.id, origin: building.anchor, target: work.anchor, config });
-  }
-  return null;
+  return dropOrder(withJob(worker, null));
 }
 
 function advanceBuildings(work, dtMs) {

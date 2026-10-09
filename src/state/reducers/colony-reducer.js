@@ -9,7 +9,7 @@ import {
   spendableEssence,
 } from '../../domain/buildings/building.js';
 import { parseTileId } from '../../domain/world/tile.js';
-import { withJob } from '../../domain/entities/dungling.js';
+import { assignOrder, standDown } from '../../domain/orders/order.js';
 import { advanceWork, isStationJob } from '../../domain/labour/work-tick.js';
 import { workOf } from '../work-state.js';
 
@@ -68,7 +68,11 @@ function staff(state, buildingId) {
   const worker = state.dunglings.find((entry) => !isStationJob(entry.job) && !isAssigned(state.buildings, entry.id));
   if (!worker) return state;
   const staffed = assignWorker(building, worker.id);
-  return staffed ? replace(state, buildingId, staffed) : state;
+  if (!staffed) return state;
+  return {
+    ...replace(state, buildingId, staffed),
+    dunglings: state.dunglings.map((entry) => (entry.id === worker.id ? assignOrder(entry, buildingId) : entry)),
+  };
 }
 
 function release(state, buildingId) {
@@ -77,7 +81,7 @@ function release(state, buildingId) {
   const workerId = building.workers.at(-1);
   return {
     ...replace(state, buildingId, releaseWorker(building)),
-    dunglings: state.dunglings.map((worker) => (worker.id === workerId ? withJob(worker, null) : worker)),
+    dunglings: state.dunglings.map((worker) => (worker.id === workerId ? standDown(worker) : worker)),
   };
 }
 

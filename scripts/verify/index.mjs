@@ -21,6 +21,7 @@ export { checkEconomy } from './check-economy.mjs';
 export { checkBruteLord } from './check-brutelord.mjs';
 export { checkMutant } from './check-mutant.mjs';
 export { checkTraits } from './check-traits.mjs';
+export { checkOrders } from './check-orders.mjs';
 export { checkRaidGroup } from './check-raid-group.mjs';
 export { checkStorage } from './check-storage.mjs';
 export { checkSnapshot } from './check-snapshot.mjs';

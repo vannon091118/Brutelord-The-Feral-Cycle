@@ -1,5 +1,5 @@
 {
- "version": 3,
+ "version": 4,
  "seed": "a1b2c3d4e5f60718",
  "state": {
   "world": {
@@ -128,7 +128,8 @@
     },
     "stones": [],
     "invested": 0,
-    "battleEp": 0
+    "battleEp": 0,
+    "orders": []
    },
    {
     "id": "dungling-2",
@@ -142,7 +143,8 @@
     "job": null,
     "stones": [],
     "invested": 0,
-    "battleEp": 0
+    "battleEp": 0,
+    "orders": []
    }
   ],
   "essence": 14,

@@ -29,6 +29,7 @@ export const GROUPS = Object.freeze([
   { id: 'brutelord', file: `${V}check-brutelord.mjs`, run: (m) => m.checkBruteLord() },
   { id: 'mutant', file: `${V}check-mutant.mjs`, run: (m) => m.checkMutant() },
   { id: 'traits', file: `${V}check-traits.mjs`, run: (m) => m.checkTraits() },
+  { id: 'orders', file: `${V}check-orders.mjs`, run: (m) => m.checkOrders() },
   { id: 'organic-cache', file: `${V}check-organic-cache.mjs`, run: (m) => m.checkOrganicCache() },
   { id: 'raid', file: `${V}check-raid-group.mjs`, run: (m) => m.checkRaidGroup() },
   { id: 'raid-phases', file: `${V}check-raid-phases.mjs`, run: (m) => m.checkRaidPhases() },

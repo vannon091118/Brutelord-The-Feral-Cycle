@@ -18,6 +18,7 @@ export function createDungling({ tile, facing = 1, id = 'dungling-1' }) {
     state: DUNGLING_STATE.NONE,
     targetTileId: null,
     job: null,
+    orders: [],
     genome: null,
     stones: [],
     invested: 0,

@@ -374,6 +374,45 @@ noch nicht** — sichtbar ist bis jetzt nur, was am Fundament selbst hängt: die
 
 ---
 
+## Der RTS-Umbau
+
+Der Auftrag des Game Directors steht in [`RTS-PLAN.md`](RTS-PLAN.md): Brutelord
+soll sich wie ein klassisches RTS anfuehlen — der Brutlord als Hauptgebaeude,
+Dunglings auf Befehl, Automatik als verdienter Fortschritt statt als
+Startzustand. Die drei Entscheidungen dort (R1 freier Start, R2 Gang als Weg,
+R3 Hive als erstes Lager) sind bindend. **Scheibe 1 steht:** ein Befehl ist
+eine Zeile in der Liste eines Dunglings, und nur ihr Kopf wird Arbeit.
+
+- [ ] **Scheibe 2: der Automatismus faellt.** Ohne Befehl bewegt sich nichts.
+      Dafuer muss `staffWorkers()` nicht mehr selbst suchen, sondern die
+      gefuellte Liste lesen; `spawnEveryMs` am Schwarmhort verschwindet und wird
+      zu einem bestellbaren Auftrag; die dreizehn Phasen des Onboardings werden
+      durch eine kurze, freie Startsequenz **ersetzt** statt ergaenzt. Teuer
+      und benannt: `check-onboarding` prueft heute die Kette Phase fuer Phase,
+      `check-opening`, `check-traits` und `build-run.mjs` fahren `WORK_TICK` und
+      erwarten, dass etwas von allein passiert. Die Pruefungen werden nicht
+      weich, sondern auf den neuen Weg umgeschrieben.
+  Status: geplant
+  Scope: Domaene
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+- [ ] **Scheiben 3 bis 6: Weg, Bestand, Queue, Automatik.** Laufen Kachel fuer
+      Kachel mit Kostenkarte und Belegung (Gang als begehbares Bauwerk), der
+      Hive als erster Lagerknoten hinter einem Selektor, die
+      Produktionswarteschlange mit Rally Point, und zuletzt die
+      freischaltbaren Regeln. Jede Scheibe haelt das Gate gruen; der
+      Golden-Wert wird auf der Node-Major der CI geschrieben, nie lokal auf
+      einer anderen.
+  Status: geplant
+  Scope: Welt
+  Kategorie: Feature
+  Version: ausstehend
+  Datum: ausstehend
+
+---
+
 ## Was hier NICHT steht
 
 Absichten ohne Code sind Luft. Diese Datei beschreibt, was als Nächstes
