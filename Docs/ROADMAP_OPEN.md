@@ -328,10 +328,18 @@ noch nicht** — sichtbar ist bis jetzt nur, was am Fundament selbst hängt: die
       Zustands-Signale — haben ihre Verbraucher an echten Spielzuständen bekommen
       ([*Die Gestaltungsschicht*](ARCHITEKTUR.md) und
       [*Die Resource Rail*](ARCHITEKTUR.md)). Offen sind das Bauwerk, die Kontoecke, das
-      Raid-Buch, das Konto-Tor und die Welt-Ränder. Der dichteste Rest an Hex-Werten sitzt
-      in `src/ui/stone/` — Labor, Steinbank und Steinsplitter tragen rund zwanzig feste
-      Farben, und das ist der Bereich, für den die Palette am meisten fehlt. Je Bereich
-      gehört ein Renderbeleg aus dem Browser dazu und ein Blick auf die Cap-Quote:
+      Raid-Buch, das Konto-Tor und die Welt-Ränder. **Der Steinsplitter ist umgestellt:**
+      `src/ui/stone/StoneChip.jsx` liest seine vier Seltenheitstöne als Rollen (`bone`,
+      `core-400`, der Hive-Verlauf `hive-400`/`hive-300` für „lila“ und `core-300` für
+      „gold“) statt der Tailwind-Farben `violet-400/300` und `amber-300/200`, und der
+      Auswahlring liest `core-300` statt eines Hex-Literals; gemessen im laufenden
+      Vorschaufenster ändert sich das gerechnete Ergebnis nur an den zwei Tönen, die
+      vorher außerhalb der Palette lagen. Offen bleiben im selben Ordner der Arbeitstisch
+      (`LabBench.jsx`, vier feste Slot-Töne plus zwei Literale) und das Laborpanel
+      (`LabPanel.jsx`, Panel-Verlauf, Rahmen und drei Knopfklassen) — sein `Georgia, serif`
+      wartet weiter auf eine genehmigte Schriftdatei und ist nicht Teil eines
+      Token-Durchgangs. Je Bereich gehört ein Renderbeleg aus dem Browser dazu und ein
+      Blick auf die Cap-Quote:
       `globals.css` steht bei 229, `rail.css` bei 149 und `creature.css` bei 129 — unter
       300, aber der nächste Zuwachs sollte geteilt werden und nicht gedrückt.
       **Eine Bedingung bleibt hart:** Was am unteren Rand wächst, darf die Bauplätze im
