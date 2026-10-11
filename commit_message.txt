@@ -1,0 +1,9 @@
+[jules] 🎨 Palette: Add accessible name and tooltip to Dungling button
+
+This commit adds an aria-label and a title attribute to the "+ Dungling" button in the building panel. Previously, this button lacked an explicit accessible name which meant screen readers would read it literally as "Plus Dungling", while the corresponding decrease button had the proper aria-label "Dungling abziehen". Adding the aria-label "Dungling zuweisen" (Assign Dungling) and title "Dungling zuweisen" ensures semantic consistency and improves accessibility and usability.
+
+To ensure our end-to-end testing suite remains stable, the Playwright selectors for the assign button in scripts/browser/config.mjs and scripts/browser/drive.mjs have been updated to locate the button by its new accessible name (button[aria-label="Dungling zuweisen"]) rather than its visible text. Finally, to conform with documentation guidelines, the mirror documentation file docs/daten/ui/buildingpanel.md was appropriately touched to match the source modifications. Also created `.Jules/palette.md` to document the learning about playwright selector breakages.
+
+Geaendert wurden diese Dateien: docs/daten/ui/buildingpanel.md, scripts/browser/config.mjs, scripts/browser/drive.mjs, src/ui/BuildingPanel.jsx, .Jules/palette.md
+
+created by VANNON Volatile Agent Needing No Other Nonsense — Never Overly Nice, Never Average Vibe.
