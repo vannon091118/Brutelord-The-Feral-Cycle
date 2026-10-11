@@ -41,6 +41,8 @@ function WorkerControls({ building, maxWorkers, freeWorkers, onAssign, onRelease
           className={buttonClass}
           disabled={building.workers.length >= maxWorkers || freeWorkers === 0}
           onClick={onAssign}
+          aria-label="Dungling zuweisen"
+          title="Dungling zuweisen"
         >
           + Dungling
         </button>
