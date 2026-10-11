@@ -23,7 +23,7 @@ export const SEL = Object.freeze({
   buildMenu: 'section[aria-label="Baumenü"]',
   spot: '[role="button"][aria-label^="Bauplatz für"]',
   buildingPanel: '[aria-label^="Bauwerk:"]',
-  assign: '+ Dungling',
+  assign: 'button[aria-label="Dungling zuweisen"]',
   hint: 'p',
   submit: 'button[type="submit"]',
   nameField: 'input[autocomplete="username"]',

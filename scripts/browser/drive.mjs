@@ -33,4 +33,4 @@ export const clickMine = ({ page }) => clickReady({ page, make: () => page.locat
 export const pickExtractor = ({ page }) => clickReady({ page, make: () => page.locator(SEL.buildMenu).getByRole('button', { name: LABEL }) });
 export const placeSpot = ({ page }) => clickReady({ page, make: () => page.locator(SEL.spot) });
 export const selectBuilding = ({ page }) => clickReady({ page, make: () => page.locator(`[aria-label="${LABEL} anklicken"]`) });
-export const assignWorker = ({ page }) => clickReady({ page, make: () => page.locator(SEL.buildingPanel).getByRole('button', { name: SEL.assign }) });
+export const assignWorker = ({ page }) => clickReady({ page, make: () => page.locator(SEL.buildingPanel).locator(SEL.assign) });
